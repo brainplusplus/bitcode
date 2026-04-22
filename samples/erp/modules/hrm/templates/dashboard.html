@@ -1,0 +1,14 @@
+<div class="lc-stats">
+  <div class="lc-stat-card">
+    <div class="lc-stat-value" style="color:#10B981;">{{if .active_employees}}{{len .active_employees}}{{else}}0{{end}}</div>
+    <div class="lc-stat-label">Active Employees</div>
+  </div>
+  <div class="lc-stat-card">
+    <div class="lc-stat-value" style="color:#F59E0B;">{{if .pending_leaves}}{{len .pending_leaves}}{{else}}0{{end}}</div>
+    <div class="lc-stat-label">Pending Leave Requests</div>
+  </div>
+  <div class="lc-stat-card">
+    <div class="lc-stat-value" style="color:#3B82F6;">{{if .open_positions}}{{len .open_positions}}{{else}}0{{end}}</div>
+    <div class="lc-stat-label">Open Positions</div>
+  </div>
+</div>

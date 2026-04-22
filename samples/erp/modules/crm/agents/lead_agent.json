@@ -1,0 +1,33 @@
+{
+  "name": "lead_agent",
+  "triggers": [
+    {
+      "event": "lead.qualified",
+      "action": "notify_sales_manager",
+      "script": "scripts/notify_manager.ts"
+    },
+    {
+      "event": "lead.won",
+      "action": "celebrate_deal",
+      "script": "scripts/on_deal_won.ts"
+    },
+    {
+      "event": "lead.lost",
+      "action": "analyze_loss",
+      "script": "scripts/on_deal_lost.ts"
+    }
+  ],
+  "cron": [
+    {
+      "schedule": "0 9 * * 1",
+      "action": "weekly_pipeline_report",
+      "script": "scripts/weekly_report.ts"
+    },
+    {
+      "schedule": "0 8 * * *",
+      "action": "stale_lead_reminder",
+      "script": "scripts/stale_leads.ts"
+    }
+  ],
+  "retry": { "max": 3, "backoff": "exponential" }
+}

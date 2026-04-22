@@ -1,0 +1,12 @@
+{
+  "name": "order_api",
+  "model": "order",
+  "auto_crud": true,
+  "auth": true,
+  "workflow": "order_workflow",
+  "actions": {
+    "confirm":  { "transition": "confirm",  "permission": "sales.order.confirm" },
+    "complete": { "transition": "complete", "permission": "sales.order.complete" },
+    "cancel":   { "transition": "cancel",   "permission": "sales.order.cancel" }
+  }
+}

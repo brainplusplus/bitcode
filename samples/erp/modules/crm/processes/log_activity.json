@@ -1,0 +1,15 @@
+{
+  "name": "log_activity",
+  "steps": [
+    { "type": "validate", "rules": { "summary": { "required": true }, "type": { "required": true } }, "error": "Activity type and summary are required" },
+    { "type": "create", "model": "activity", "set": {
+      "lead_id": "{{input.lead_id}}",
+      "contact_id": "{{input.contact_id}}",
+      "type": "{{input.type}}",
+      "summary": "{{input.summary}}",
+      "description": "{{input.description}}"
+    }},
+    { "type": "if", "condition": "{{input.type == 'call'}}", "then": "update_lead_contacted", "else": "done" },
+    { "type": "emit", "event": "activity.created" }
+  ]
+}

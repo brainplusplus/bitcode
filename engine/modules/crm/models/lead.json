@@ -1,0 +1,19 @@
+{
+  "name": "lead",
+  "module": "crm",
+  "label": "Lead",
+  "fields": {
+    "name":       { "type": "string", "required": true, "max": 200 },
+    "contact_id": { "type": "many2one", "model": "contact" },
+    "email":      { "type": "email" },
+    "phone":      { "type": "string", "max": 20 },
+    "source":     { "type": "selection", "options": ["website", "referral", "cold_call", "event", "other"] },
+    "status":     { "type": "selection", "options": ["new", "qualified", "converted", "lost"], "default": "new" },
+    "expected_revenue": { "type": "decimal", "precision": 2 },
+    "notes":      { "type": "text" }
+  },
+  "record_rules": [
+    { "groups": ["crm.user"], "domain": [["created_by", "=", "{{user.id}}"]] },
+    { "groups": ["crm.manager"], "domain": [] }
+  ]
+}

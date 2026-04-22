@@ -1,0 +1,18 @@
+{
+  "name": "win_lead",
+  "steps": [
+    { "type": "validate", "rules": { "status": { "eq": "proposal" } }, "error": "Only leads with proposal can be won" },
+    { "type": "update", "model": "lead", "set": { "status": "won", "probability": 100 } },
+    {
+      "type": "if",
+      "condition": "{{input.contact_id}}",
+      "then_steps": [
+        { "type": "update", "model": "contact", "set": { "is_customer": true } },
+        { "type": "log", "message": "Contact {{input.contact_id}} marked as customer" }
+      ]
+    },
+    { "type": "log", "message": "DEAL WON: {{input.name}} - Revenue: {{input.expected_revenue}}" },
+    { "type": "emit", "event": "lead.won", "data": { "lead_id": "{{input.id}}", "revenue": "{{input.expected_revenue}}" } },
+    { "type": "script", "runtime": "typescript", "script": "scripts/on_deal_won.ts" }
+  ]
+}

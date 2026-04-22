@@ -1,0 +1,20 @@
+.bc-activity-widget{font-family:var(--bc-font-family,system-ui,sans-serif);border-top:1px solid var(--bc-border-color);padding:16px 0}
+.bc-aw-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.bc-aw-header h4{margin:0;font-size:var(--bc-font-size-sm);color:var(--bc-text-secondary);text-transform:uppercase;letter-spacing:0.05em}
+.bc-aw-schedule-btn{background:none;border:1px solid var(--bc-primary);color:var(--bc-primary);border-radius:var(--bc-radius-md);padding:4px 10px;cursor:pointer;font-size:var(--bc-font-size-xs);font-weight:500}
+.bc-aw-schedule-btn:hover{background:var(--bc-primary-light,#eef2ff)}
+.bc-aw-form{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.bc-aw-select,.bc-aw-input,.bc-aw-date{padding:4px 8px;border:1px solid var(--bc-border-color);border-radius:var(--bc-radius-md);font-size:var(--bc-font-size-sm);font-family:inherit}
+.bc-aw-input{flex:1;min-width:10rem}
+.bc-aw-add{padding:4px 12px;background:var(--bc-primary);color:white;border:none;border-radius:var(--bc-radius-md);cursor:pointer;font-size:var(--bc-font-size-sm)}
+.bc-aw-section-label{font-size:var(--bc-font-size-xs);color:var(--bc-text-secondary);text-transform:uppercase;letter-spacing:0.05em;margin:8px 0 4px;font-weight:600}
+.bc-aw-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:var(--bc-radius-sm);margin:2px 0}
+.bc-aw-item:hover{background:var(--bc-bg-hover)}
+.bc-aw-item.done{opacity:0.5}
+.bc-aw-item.done .bc-aw-summary{text-decoration:line-through}
+.bc-aw-icon{font-size:1rem;width:1.5rem;text-align:center;flex-shrink:0}
+.bc-aw-item-body{flex:1;display:flex;flex-direction:column}
+.bc-aw-summary{font-size:var(--bc-font-size-sm);color:var(--bc-text)}
+.bc-aw-due{font-size:var(--bc-font-size-xs);color:var(--bc-text-secondary)}
+.bc-aw-done-btn{background:none;border:1px solid var(--bc-success);color:var(--bc-success);border-radius:50%;width:1.5rem;height:1.5rem;cursor:pointer;font-size:0.75rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.bc-aw-done-btn:hover{background:var(--bc-success);color:white}

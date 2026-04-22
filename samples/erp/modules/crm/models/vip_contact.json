@@ -1,0 +1,11 @@
+{
+  "name": "vip_contact",
+  "module": "crm",
+  "label": "VIP Contact",
+  "inherit": "contact",
+  "fields": {
+    "vip_level":     { "type": "selection", "options": ["gold", "platinum", "diamond"], "default": "gold", "label": "VIP Level" },
+    "discount_rate": { "type": "decimal", "precision": 2, "default": 0.1, "label": "Discount Rate" },
+    "account_manager_id": { "type": "many2one", "model": "user", "label": "Account Manager" }
+  }
+}

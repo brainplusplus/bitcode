@@ -1,0 +1,10 @@
+.bc-progress-chart{padding:16px;border:1px solid var(--bc-border-color);border-radius:var(--bc-radius-lg);background:var(--bc-bg);font-family:var(--bc-font-family,system-ui,sans-serif)}
+.bc-progress-label{font-size:var(--bc-font-size-sm);font-weight:500;color:var(--bc-text);margin-bottom:8px}
+.bc-progress-bar-wrap{height:0.75rem;background:var(--bc-bg-tertiary,#f3f4f6);border-radius:var(--bc-radius-full);overflow:hidden}
+.bc-progress-bar{height:100%;border-radius:var(--bc-radius-full);transition:width 500ms ease}
+.bc-progress-primary{background:var(--bc-primary)}
+.bc-progress-success{background:var(--bc-success)}
+.bc-progress-warning{background:var(--bc-warning)}
+.bc-progress-danger{background:var(--bc-danger)}
+.bc-progress-meta{display:flex;justify-content:space-between;margin-top:6px;font-size:var(--bc-font-size-xs);color:var(--bc-text-secondary)}
+.bc-progress-pct{font-weight:600;color:var(--bc-text)}

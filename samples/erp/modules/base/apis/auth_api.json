@@ -1,0 +1,9 @@
+{
+  "name": "auth_api",
+  "base_path": "/auth",
+  "endpoints": [
+    { "method": "POST", "path": "/login",    "action": "login" },
+    { "method": "POST", "path": "/register", "action": "register" },
+    { "method": "POST", "path": "/logout",   "action": "logout" }
+  ]
+}

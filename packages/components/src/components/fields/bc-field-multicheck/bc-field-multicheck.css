@@ -1,0 +1,6 @@
+.bc-field { display:flex; flex-direction:column; gap:0.25rem; margin-bottom:var(--bc-spacing-sm); font-family:var(--bc-font-family,system-ui,sans-serif); }
+.bc-field-label { font-size:var(--bc-font-size-sm); font-weight:500; color:var(--bc-text); }
+.bc-field-label .required { color:var(--bc-danger); }
+.bc-multicheck-list { display:flex; flex-direction:column; gap:var(--bc-spacing-xs); padding:var(--bc-spacing-sm); border:1px solid var(--bc-border-color); border-radius:var(--bc-radius-md); max-height:12rem; overflow-y:auto; }
+.bc-multicheck-item { display:flex; align-items:center; gap:var(--bc-spacing-sm); cursor:pointer; font-size:var(--bc-font-size-base); color:var(--bc-text); padding:2px 0; }
+.bc-multicheck-item input[type="checkbox"] { accent-color:var(--bc-primary); width:1rem; height:1rem; }

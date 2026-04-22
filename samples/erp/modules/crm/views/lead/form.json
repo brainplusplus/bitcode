@@ -1,0 +1,52 @@
+{
+  "name": "lead_form",
+  "type": "form",
+  "model": "lead",
+  "title": "Lead",
+  "layout": [
+    { "header": {
+      "status_field": "status",
+      "widget": "statusbar",
+      "buttons": [
+        { "label": "Qualify",  "process": "qualify_lead",  "variant": "primary", "visible": "status == 'contacted'" },
+        { "label": "Proposal", "process": "convert_lead",  "visible": "status == 'qualified'" },
+        { "label": "Won!",     "process": "win_lead",      "variant": "primary", "visible": "status == 'proposal'" },
+        { "label": "Lost",     "process": "lose_lead",     "variant": "danger",  "confirm": "Mark as lost?" }
+      ]
+    }},
+    { "button_box": [
+      { "label": "Activities", "icon": "calendar", "count_model": "activity", "count_domain": [["lead_id", "=", "{{id}}"]] }
+    ]},
+    { "section": { "title": "Lead Information" }, "rows": [
+      { "row": [
+        { "field": "name", "width": 6 },
+        { "field": "priority", "width": 3 },
+        { "field": "rating", "width": 3 }
+      ]},
+      { "row": [
+        { "field": "contact_id", "width": 4 },
+        { "field": "email", "width": 4, "widget": "email" },
+        { "field": "phone", "width": 4, "widget": "phone" }
+      ]},
+      { "row": [
+        { "field": "company", "width": 4 },
+        { "field": "source", "width": 4 },
+        { "field": "assigned_to", "width": 4 }
+      ]}
+    ]},
+    { "section": { "title": "Revenue", "collapsible": false }, "rows": [
+      { "row": [
+        { "field": "expected_revenue", "width": 3 },
+        { "field": "probability", "width": 3 },
+        { "field": "weighted_revenue", "width": 3, "readonly": true },
+        { "field": "expected_close", "width": 3 }
+      ]}
+    ]},
+    { "tabs": [
+      { "label": "Notes", "fields": ["notes"] },
+      { "label": "Lost Reason", "fields": ["lost_reason"] },
+      { "label": "Tags", "fields": ["tags"] }
+    ]},
+    { "chatter": true }
+  ]
+}

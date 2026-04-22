@@ -1,0 +1,14 @@
+[
+  {
+    "name": "admin",
+    "display_name": "Administrator",
+    "permissions": ["*"]
+  },
+  {
+    "name": "user",
+    "display_name": "Basic User",
+    "permissions": [
+      "base.user.read"
+    ]
+  }
+]

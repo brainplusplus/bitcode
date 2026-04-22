@@ -1,0 +1,101 @@
+{
+  "common.loading": "Loading...",
+  "common.save": "Save",
+  "common.create": "Create",
+  "common.cancel": "Cancel",
+  "common.search": "Search...",
+  "common.noResults": "No results",
+  "common.prev": "Prev",
+  "common.next": "Next",
+  "common.page": "Page",
+  "common.total": "Total",
+  "common.delete": "Delete",
+  "common.confirm": "Confirm",
+  "common.copy": "Copy",
+  "common.copied": "Copied",
+  "common.of": "of",
+  "common.records_one": "{count} record",
+  "common.records_other": "{count} records",
+  "common.back": "Back",
+  "common.finish": "Finish",
+  "common.close": "Close",
+  "common.ok": "OK",
+  "common.yes": "Yes",
+  "common.no": "No",
+  "common.edit": "Edit",
+  "common.actions": "Actions",
+  "common.filter": "Filter",
+  "common.reset": "Reset",
+  "common.apply": "Apply",
+  "common.selectAll": "Select all",
+  "common.deselectAll": "Deselect all",
+
+  "datatable.filterColumn": "Filter column",
+  "datatable.noRecords": "No records found",
+  "datatable.show": "Show",
+  "datatable.exportXls": "Export XLS",
+  "datatable.presetName": "Preset name:",
+  "datatable.presets": "Presets",
+  "datatable.saveFilter": "Save Filter",
+  "datatable.deleteSelected": "Delete Selected",
+  "datatable.columns": "Columns",
+
+  "filter.addCondition": "+ Condition",
+  "filter.addGroup": "+ Group",
+  "filter.removeGroup": "Remove group",
+  "filter.valuePlaceholder": "Value...",
+  "filter.remove": "Remove",
+  "filter.visual": "Visual",
+  "filter.json": "JSON",
+  "filter.applyJson": "Apply JSON",
+  "filter.empty": "No filters. Click \"+ Condition\" to add.",
+
+  "wizard.back": "Back",
+  "wizard.next": "Next",
+  "wizard.finish": "Finish",
+
+  "quickentry.title": "Quick Create",
+  "quickentry.saving": "Saving...",
+
+  "report.title": "Report",
+  "report.rows_one": "{count} row",
+  "report.rows_other": "{count} rows",
+  "report.exportCsv": "Export CSV",
+  "report.average": "Average",
+
+  "activity.title": "Activity",
+  "activity.activities_one": "{count} activity",
+  "activity.activities_other": "{count} activities",
+  "activity.noActivities": "No activities yet",
+
+  "timeline.title": "Change History",
+  "timeline.noChanges": "No changes recorded",
+
+  "calendar.loadingEvents": "Loading events...",
+
+  "map.title": "Map",
+  "map.locations_one": "{count} location",
+  "map.locations_other": "{count} locations",
+  "map.loadingLocations": "Loading locations...",
+
+  "handle.dragToReorder": "Drag to reorder",
+
+  "barcode.placeholder": "Enter barcode value...",
+  "barcode.qrError": "QR Error",
+  "barcode.barcodeError": "Barcode Error",
+
+  "placeholder.default": "LowCode Component",
+
+  "tab.default": "Tab",
+
+  "form.saving": "Saving...",
+
+  "export.title": "Export",
+
+  "print.title": "Print",
+
+  "toast.dismiss": "Dismiss",
+
+  "confirm.title": "Confirm",
+  "confirm.message": "Are you sure?"
+}

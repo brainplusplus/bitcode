@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Home — LowCode</title>
+<style>
+:root{--primary:#6366F1;--primary-dark:#4F46E5;--primary-light:#EEF2FF;--body-bg:#F8FAFC;--card-bg:#fff;--text:#1E293B;--text-secondary:#475569;--text-muted:#94A3B8;--border:#E2E8F0;--border-light:#F1F5F9;--radius:8px;--radius-lg:12px;--shadow-xs:0 1px 2px rgba(0,0,0,0.04);--shadow:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.03);--shadow-md:0 4px 6px -1px rgba(0,0,0,0.07),0 2px 4px -2px rgba(0,0,0,0.04);--font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;--transition:150ms ease}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font);background:var(--body-bg);color:var(--text);line-height:1.5;font-size:14px;-webkit-font-smoothing:antialiased}
+a{color:var(--primary);text-decoration:none}
+.bc-topbar{background:#fff;border-bottom:1px solid var(--border-light);padding:0 2rem;height:48px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.bc-topbar-left{display:flex;align-items:center;gap:0.6rem}
+.bc-topbar-logo svg{width:24px;height:24px}
+.bc-topbar-title{font-size:0.9rem;font-weight:700;color:var(--text);letter-spacing:-0.02em}
+.bc-topbar-right{display:flex;align-items:center;gap:0.6rem}
+.bc-topbar-user{display:flex;align-items:center;gap:0.4rem;padding:0.25rem 0.5rem 0.25rem 0.25rem;border-radius:6px;font-size:0.8rem;font-weight:500;color:var(--text-secondary);cursor:pointer;transition:background var(--transition);border:none;background:transparent;font-family:var(--font)}
+.bc-topbar-user:hover{background:var(--border-light)}
+.bc-topbar-avatar{width:26px;height:26px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:600}
+.bc-topbar-link{padding:0.3rem 0.6rem;border-radius:6px;font-size:0.78rem;font-weight:500;border:1px solid var(--border);background:#fff;color:var(--text-muted);cursor:pointer;transition:all var(--transition);text-decoration:none;display:inline-flex;align-items:center;gap:0.25rem}
+.bc-topbar-link:hover{background:var(--border-light);color:var(--text)}
+.bc-app-main{max-width:960px;margin:0 auto;padding:2.5rem 1.5rem}
+</style>
+</head>
+<body>
+<div class="bc-topbar">
+  <div class="bc-topbar-left">
+    <div class="bc-topbar-logo">
+      <svg viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="6" fill="#6366F1"/><path d="M7 7h3.5v10H7V7zm6.5 3H17v7h-3.5v-7z" fill="#fff"/></svg>
+    </div>
+    <span class="bc-topbar-title">LowCode</span>
+  </div>
+  <div class="bc-topbar-right">
+    
+    <div class="bc-topbar-user">
+      <div class="bc-topbar-avatar">a...</div>
+      admin
+    </div>
+    <a class="bc-topbar-link" href="/app/login" onclick="document.cookie='token=;path=/;max-age=0'">Sign out</a>
+    
+  </div>
+</div>
+<main class="bc-app-main">
+<style>
+.bc-home-header{margin-bottom:2.5rem;text-align:center}
+.bc-home-header h1{font-size:1.5rem;font-weight:700;color:#1E293B;letter-spacing:-0.02em}
+.bc-home-header p{color:#94A3B8;margin-top:0.3rem;font-size:0.88rem}
+.bc-app-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem;max-width:720px;margin:0 auto}
+.bc-app-card{background:#fff;border:1px solid #F1F5F9;border-radius:12px;padding:1.5rem 1rem;text-align:center;cursor:pointer;transition:all 150ms ease;text-decoration:none;color:#1E293B;display:flex;flex-direction:column;align-items:center;gap:0.65rem}
+.bc-app-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,0.08);border-color:#E2E8F0}
+.bc-app-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff}
+.bc-app-name{font-weight:600;font-size:0.88rem}
+.bc-app-count{font-size:0.72rem;color:#94A3B8}
+</style>
+
+<div class="bc-home-header">
+  <h1>Welcome back, admin</h1>
+  <p>Select an application to get started</p>
+</div>
+
+<div class="bc-app-grid">
+  
+  <a class="bc-app-card" href="/app/crm/contact_list">
+    <div class="bc-app-icon" style="background:#8B5CF6"><svg width="24" height="24" viewBox="0 0 20 20" fill="#fff"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zm8 0a3 3 0 11-6 0 3 3 0 016 0zm-4.07 11c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg></div>
+    <div class="bc-app-name">CRM</div>
+    <div class="bc-app-count">2 views</div>
+  </a>
+  
+  <a class="bc-app-card" href="/app/sales/order_list">
+    <div class="bc-app-icon" style="background:#6366F1"><svg width="24" height="24" viewBox="0 0 20 20" fill="#fff"><path fill-rule="evenodd" d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zm2 5V6a2 2 0 10-4 0v1h4zm-6 3a1 1 0 112 0 1 1 0 01-2 0zm7-1a1 1 0 100 2 1 1 0 000-2z" clip-rule="evenodd"/></svg></div>
+    <div class="bc-app-name">Sales Management</div>
+    <div class="bc-app-count">2 views</div>
+  </a>
+  
+  <a class="bc-app-card" href="/admin">
+    <div class="bc-app-icon" style="background:#94A3B8">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="#fff"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
+    </div>
+    <div class="bc-app-name">Admin</div>
+    <div class="bc-app-count">System administration</div>
+  </a>
+</div>
+
+</main>
+</body>
+</html>
+

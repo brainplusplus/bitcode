@@ -1,0 +1,8 @@
+.bc-field { display:flex; flex-direction:column; gap:0.25rem; margin-bottom:var(--bc-spacing-sm); font-family:var(--bc-font-family,system-ui,sans-serif); }
+.bc-field-label { font-size:var(--bc-font-size-sm); font-weight:500; color:var(--bc-text); }
+.bc-field-label .required { color:var(--bc-danger); }
+.bc-html-tabs { display:flex; border-bottom:2px solid var(--bc-border-color); }
+.bc-html-tab { background:none; border:none; padding:6px 12px; cursor:pointer; font-size:var(--bc-font-size-sm); font-weight:500; color:var(--bc-text-secondary); border-bottom:2px solid transparent; margin-bottom:-2px; }
+.bc-html-tab.active { color:var(--bc-primary); border-bottom-color:var(--bc-primary); }
+.bc-html-source { width:100%; min-height:10rem; padding:8px 12px; border:1px solid var(--bc-border-color); border-top:none; font-family:var(--bc-font-mono); font-size:var(--bc-font-size-sm); resize:vertical; outline:none; box-sizing:border-box; }
+.bc-html-preview { padding:12px; border:1px solid var(--bc-border-color); border-top:none; min-height:10rem; }

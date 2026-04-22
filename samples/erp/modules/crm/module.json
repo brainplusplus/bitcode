@@ -1,0 +1,43 @@
+{
+  "name": "crm",
+  "version": "1.0.0",
+  "label": "CRM",
+  "depends": ["base"],
+  "category": "Sales",
+  "models": ["models/*.json"],
+  "apis": ["apis/*.json"],
+  "processes": ["processes/*.json"],
+  "agents": ["agents/*.json"],
+  "views": ["views/*.json"],
+  "templates": ["templates/**/*.html"],
+  "data": ["data/*.json"],
+  "i18n": ["i18n/*.json"],
+  "permissions": {
+    "crm.contact.read":   "View contacts",
+    "crm.contact.create": "Create contacts",
+    "crm.contact.write":  "Edit contacts",
+    "crm.contact.delete": "Delete contacts",
+    "crm.lead.read":      "View leads",
+    "crm.lead.create":    "Create leads",
+    "crm.lead.write":     "Edit leads",
+    "crm.lead.qualify":   "Qualify leads",
+    "crm.lead.convert":   "Convert leads to opportunity"
+  },
+  "groups": {
+    "crm.user":    { "label": "CRM / User",    "implies": ["base.user"] },
+    "crm.manager": { "label": "CRM / Manager", "implies": ["crm.user"] }
+  },
+  "menu": [
+    { "label": "CRM", "icon": "users", "children": [
+      { "label": "Dashboard",      "view": "dashboard" },
+      { "label": "Contacts",       "view": "contact/list" },
+      { "label": "Leads",          "view": "lead/list" },
+      { "label": "Leads Board",    "view": "lead/kanban" },
+      { "label": "Pipeline Chart", "view": "pipeline_chart" }
+    ]}
+  ],
+  "settings": {
+    "default_lead_source": { "type": "string", "default": "website" },
+    "auto_assign_leads":   { "type": "boolean", "default": false }
+  }
+}

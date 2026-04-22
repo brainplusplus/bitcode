@@ -1,0 +1,6 @@
+.bc-field { display:flex; flex-direction:column; gap:0.25rem; margin-bottom:var(--bc-spacing-sm); font-family:var(--bc-font-family,system-ui,sans-serif); }
+.bc-field-label { font-size:var(--bc-font-size-sm); font-weight:500; color:var(--bc-text); }
+.bc-field-label .required { color:var(--bc-danger); }
+.cm-json-container { border:1px solid var(--bc-border-color); border-radius:var(--bc-radius-md); overflow:hidden; min-height:10rem; }
+.cm-json-container:focus-within { border-color:var(--bc-border-color-focus); box-shadow:var(--bc-input-focus-ring); }
+.cm-json-container .cm-editor { min-height:10rem; }

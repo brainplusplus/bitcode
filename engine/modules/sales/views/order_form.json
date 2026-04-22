@@ -1,0 +1,24 @@
+{
+  "name": "order_form",
+  "type": "form",
+  "model": "order",
+  "title": "Sales Order",
+  "layout": [
+    { "row": [
+      { "field": "customer_id", "width": 6 },
+      { "field": "order_date", "width": 3 },
+      { "field": "status", "width": 3, "readonly": true }
+    ]},
+    { "tabs": [
+      { "label": "Lines", "view": "order_line_list" },
+      { "label": "Notes", "fields": ["notes"] }
+    ]},
+    { "row": [
+      { "field": "total", "readonly": true }
+    ]}
+  ],
+  "actions": [
+    { "label": "Confirm", "process": "confirm_order", "variant": "primary", "visible": "status == 'draft'" },
+    { "label": "Cancel", "process": "cancel_order", "variant": "danger", "confirm": "Are you sure?" }
+  ]
+}

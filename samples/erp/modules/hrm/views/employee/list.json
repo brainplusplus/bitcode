@@ -1,0 +1,9 @@
+{
+  "name": "employee_list",
+  "type": "list",
+  "model": "employee",
+  "title": "Employees",
+  "fields": ["employee_id", "name", "email", "department_id", "position_id", "status", "hire_date"],
+  "filters": ["department_id", "status", "position_id"],
+  "sort": { "field": "name", "order": "asc" }
+}

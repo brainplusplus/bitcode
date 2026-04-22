@@ -1,0 +1,105 @@
+{
+  "common.loading": "Загрузка...",
+  "common.save": "Сохранить",
+  "common.create": "Создать",
+  "common.cancel": "Отмена",
+  "common.search": "Поиск...",
+  "common.noResults": "Нет результатов",
+  "common.prev": "Назад",
+  "common.next": "Далее",
+  "common.page": "Страница",
+  "common.total": "Итого",
+  "common.delete": "Удалить",
+  "common.confirm": "Подтвердить",
+  "common.copy": "Копировать",
+  "common.copied": "Скопировано",
+  "common.of": "из",
+  "common.records_one": "{count} запись",
+  "common.records_few": "{count} записи",
+  "common.records_many": "{count} записей",
+  "common.back": "Назад",
+  "common.finish": "Завершить",
+  "common.close": "Закрыть",
+  "common.ok": "ОК",
+  "common.yes": "Да",
+  "common.no": "Нет",
+  "common.edit": "Редактировать",
+  "common.actions": "Действия",
+  "common.filter": "Фильтр",
+  "common.reset": "Сбросить",
+  "common.apply": "Применить",
+  "common.selectAll": "Выбрать все",
+  "common.deselectAll": "Снять выделение",
+
+  "datatable.filterColumn": "Фильтр столбца",
+  "datatable.noRecords": "Записи не найдены",
+  "datatable.show": "Показать",
+  "datatable.exportXls": "Экспорт XLS",
+  "datatable.presetName": "Название пресета:",
+  "datatable.presets": "Пресеты",
+  "datatable.saveFilter": "Сохранить фильтр",
+  "datatable.deleteSelected": "Удалить выбранные",
+  "datatable.columns": "Столбцы",
+
+  "filter.addCondition": "+ Условие",
+  "filter.addGroup": "+ Группа",
+  "filter.removeGroup": "Удалить группу",
+  "filter.valuePlaceholder": "Значение...",
+  "filter.remove": "Удалить",
+  "filter.visual": "Визуальный",
+  "filter.json": "JSON",
+  "filter.applyJson": "Применить JSON",
+  "filter.empty": "Нет фильтров. Нажмите «+ Условие» для добавления.",
+
+  "wizard.back": "Назад",
+  "wizard.next": "Далее",
+  "wizard.finish": "Завершить",
+
+  "quickentry.title": "Быстрое создание",
+  "quickentry.saving": "Сохранение...",
+
+  "report.title": "Отчёт",
+  "report.rows_one": "{count} строка",
+  "report.rows_few": "{count} строки",
+  "report.rows_many": "{count} строк",
+  "report.exportCsv": "Экспорт CSV",
+  "report.average": "Среднее",
+
+  "activity.title": "Активность",
+  "activity.activities_one": "{count} активность",
+  "activity.activities_few": "{count} активности",
+  "activity.activities_many": "{count} активностей",
+  "activity.noActivities": "Пока нет активностей",
+
+  "timeline.title": "История изменений",
+  "timeline.noChanges": "Изменения не зафиксированы",
+
+  "calendar.loadingEvents": "Загрузка событий...",
+
+  "map.title": "Карта",
+  "map.locations_one": "{count} местоположение",
+  "map.locations_few": "{count} местоположения",
+  "map.locations_many": "{count} местоположений",
+  "map.loadingLocations": "Загрузка местоположений...",
+
+  "handle.dragToReorder": "Перетащите для сортировки",
+
+  "barcode.placeholder": "Введите значение штрихкода...",
+  "barcode.qrError": "Ошибка QR",
+  "barcode.barcodeError": "Ошибка штрихкода",
+
+  "placeholder.default": "Компонент LowCode",
+
+  "tab.default": "Вкладка",
+
+  "form.saving": "Сохранение...",
+
+  "export.title": "Экспорт",
+
+  "print.title": "Печать",
+
+  "toast.dismiss": "Закрыть",
+
+  "confirm.title": "Подтверждение",
+  "confirm.message": "Вы уверены?"
+}

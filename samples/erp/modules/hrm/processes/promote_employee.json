@@ -1,0 +1,12 @@
+{
+  "name": "promote_employee",
+  "steps": [
+    { "type": "validate", "rules": { "status": { "eq": "active" } }, "error": "Only active employees can be promoted" },
+    { "type": "validate", "rules": { "position_id": { "required": true } }, "error": "New position is required for promotion" },
+    { "type": "assign", "variable": "old_position", "value": "{{input.position_id}}" },
+    { "type": "update", "model": "employee", "set": { "position_id": "{{input.new_position_id}}", "salary": "{{input.new_salary}}" } },
+    { "type": "log", "message": "Employee {{input.name}} promoted to new position" },
+    { "type": "emit", "event": "employee.promoted", "data": { "employee_id": "{{input.id}}" } },
+    { "type": "script", "runtime": "typescript", "script": "scripts/on_promotion.ts" }
+  ]
+}

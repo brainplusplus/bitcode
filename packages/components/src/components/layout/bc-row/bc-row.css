@@ -1,0 +1,14 @@
+:host {
+  display: block;
+  margin-bottom: var(--bc-spacing-sm);
+}
+
+.bc-row {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.gap-xs { gap: var(--bc-spacing-xs); }
+.gap-sm { gap: var(--bc-spacing-sm); }
+.gap-md { gap: var(--bc-spacing-md); }
+.gap-lg { gap: var(--bc-spacing-lg); }

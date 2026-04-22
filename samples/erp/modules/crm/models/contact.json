@@ -1,0 +1,26 @@
+{
+  "name": "contact",
+  "module": "crm",
+  "label": "Contact",
+  "fields": {
+    "name":       { "type": "string", "required": true, "max": 200, "label": "Full Name" },
+    "email":      { "type": "email", "label": "Email", "widget": "email" },
+    "phone":      { "type": "string", "max": 20, "label": "Phone", "widget": "phone" },
+    "company":    { "type": "string", "max": 200, "label": "Company" },
+    "job_title":  { "type": "string", "max": 100, "label": "Job Title" },
+    "type":       { "type": "selection", "options": ["person", "company"], "default": "person", "label": "Type" },
+    "address":    { "type": "text", "label": "Address" },
+    "notes":      { "type": "richtext", "toolbar": "minimal", "label": "Notes" },
+    "photo":      { "type": "image", "max_size": "5MB", "accept": "image/*", "label": "Photo" },
+    "tags":       { "type": "many2many", "model": "tag", "label": "Tags" },
+    "leads":      { "type": "one2many", "model": "lead", "inverse": "contact_id" }
+  },
+  "record_rules": [
+    { "groups": ["crm.user"],    "domain": [["created_by", "=", "{{user.id}}"]] },
+    { "groups": ["crm.manager"], "domain": [] }
+  ],
+  "indexes": [
+    ["company"],
+    ["email"]
+  ]
+}

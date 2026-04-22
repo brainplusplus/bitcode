@@ -1,0 +1,17 @@
+.bc-field { display:flex; flex-direction:column; gap:0.25rem; margin-bottom:var(--bc-spacing-sm); font-family:var(--bc-font-family,system-ui,sans-serif); }
+.bc-field-label { font-size:var(--bc-font-size-sm); font-weight:500; color:var(--bc-text); }
+.bc-field-label .required { color:var(--bc-danger); }
+.bc-md-tabs { display:flex; gap:0; border-bottom:2px solid var(--bc-border-color); }
+.bc-md-tab { background:none; border:none; padding:6px 12px; cursor:pointer; font-size:var(--bc-font-size-sm); font-weight:500; color:var(--bc-text-secondary); border-bottom:2px solid transparent; margin-bottom:-2px; }
+.bc-md-tab.active { color:var(--bc-primary); border-bottom-color:var(--bc-primary); }
+.bc-md-editor { width:100%; min-height:12rem; padding:8px 12px; border:1px solid var(--bc-border-color); border-top:none; border-radius:0 0 var(--bc-radius-md) var(--bc-radius-md); font-family:var(--bc-font-mono); font-size:var(--bc-font-size-sm); resize:vertical; outline:none; box-sizing:border-box; }
+.bc-md-editor:focus { border-color:var(--bc-border-color-focus); box-shadow:var(--bc-input-focus-ring); }
+.bc-md-preview { padding:12px; border:1px solid var(--bc-border-color); border-top:none; border-radius:0 0 var(--bc-radius-md) var(--bc-radius-md); min-height:12rem; font-size:var(--bc-font-size-base); line-height:1.6; }
+.bc-md-preview h1,.bc-md-preview h2,.bc-md-preview h3 { margin:0.5rem 0 0.25rem; }
+.bc-md-preview p { margin:0.25rem 0; }
+.bc-md-preview code { background:var(--bc-bg-tertiary,#f3f4f6); padding:1px 4px; border-radius:2px; font-family:var(--bc-font-mono); font-size:0.875em; }
+.bc-md-preview pre { background:#1e1e2e; color:#cdd6f4; padding:0.75rem; border-radius:var(--bc-radius-md); overflow-x:auto; }
+.bc-md-preview pre code { background:none; padding:0; }
+.bc-md-preview blockquote { border-inline-start:3px solid var(--bc-border-color); padding-inline-start:0.75rem; color:var(--bc-text-secondary); margin:0.5rem 0; }
+.bc-md-preview ul,.bc-md-preview ol { padding-inline-start:1.5rem; }
+.bc-md-preview a { color:var(--bc-primary); }

@@ -1,0 +1,14 @@
+:host {
+  display: block;
+}
+
+.bc-column {
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .bc-column {
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+  }
+}

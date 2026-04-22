@@ -1,0 +1,20 @@
+{
+  "name": "order",
+  "module": "sales",
+  "label": "Sales Order",
+  "fields": {
+    "customer_id": { "type": "many2one", "model": "contact", "required": true, "label": "Customer" },
+    "order_date":  { "type": "date", "default": "now", "label": "Order Date" },
+    "status":      { "type": "selection", "options": ["draft", "confirmed", "done", "cancelled"], "default": "draft" },
+    "total":       { "type": "decimal", "computed": "sum(lines.subtotal)", "precision": 2, "label": "Total" },
+    "notes":       { "type": "text" },
+    "lines":       { "type": "one2many", "model": "order_line", "inverse": "order_id" }
+  },
+  "record_rules": [
+    { "groups": ["sales.user"], "domain": [["created_by", "=", "{{user.id}}"]] },
+    { "groups": ["sales.manager"], "domain": [] }
+  ],
+  "indexes": [
+    ["customer_id", "order_date"]
+  ]
+}

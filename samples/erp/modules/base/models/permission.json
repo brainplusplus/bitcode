@@ -1,0 +1,10 @@
+{
+  "name": "permission",
+  "module": "base",
+  "label": "Permission",
+  "fields": {
+    "name":         { "type": "string", "required": true, "unique": true, "max": 100 },
+    "display_name": { "type": "string", "max": 200 },
+    "module_name":  { "type": "string", "max": 100 }
+  }
+}

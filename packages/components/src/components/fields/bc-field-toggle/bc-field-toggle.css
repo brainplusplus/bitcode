@@ -1,0 +1,44 @@
+@import '../field-base.css';
+
+.bc-field-inline {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--bc-spacing-sm);
+}
+
+.bc-toggle {
+  position: relative;
+  width: 2.75rem;
+  height: 1.5rem;
+  border-radius: var(--bc-radius-full);
+  border: none;
+  background: var(--bc-border-color);
+  cursor: pointer;
+  transition: background var(--bc-transition);
+  padding: 0;
+}
+
+.bc-toggle.active {
+  background: var(--bc-primary);
+}
+
+.bc-toggle:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.bc-toggle-knob {
+  position: absolute;
+  top: 0.125rem;
+  inset-inline-start: 0.125rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  background: white;
+  box-shadow: var(--bc-shadow-sm);
+  transition: transform var(--bc-transition);
+}
+
+.bc-toggle.active .bc-toggle-knob {
+  transform: translateX(1.25rem);
+}

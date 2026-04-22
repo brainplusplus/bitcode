@@ -1,0 +1,7 @@
+<div class="lc-kanban-card">
+  <div style="display:flex;justify-content:space-between;align-items:center;">
+    <span class="lc-kanban-card-title">{{.name}}</span>
+    {{template "templates/partials/status_badge.html" .status}}
+  </div>
+  <div class="lc-kanban-card-field">{{.employee_id}} · {{.email}}</div>
+</div>

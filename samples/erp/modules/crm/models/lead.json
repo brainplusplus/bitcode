@@ -1,0 +1,34 @@
+{
+  "name": "lead",
+  "module": "crm",
+  "label": "Lead",
+  "fields": {
+    "name":             { "type": "string", "required": true, "max": 200, "label": "Lead Title" },
+    "contact_id":       { "type": "many2one", "model": "contact", "label": "Contact" },
+    "email":            { "type": "email", "label": "Email", "widget": "email" },
+    "phone":            { "type": "string", "max": 20, "label": "Phone", "widget": "phone" },
+    "company":          { "type": "string", "max": 200, "label": "Company" },
+    "source":           { "type": "selection", "options": ["website", "referral", "cold_call", "event", "social_media", "other"], "default": "website", "label": "Source" },
+    "status":           { "type": "selection", "options": ["new", "contacted", "qualified", "proposal", "won", "lost"], "default": "new", "label": "Status", "widget": "statusbar" },
+    "priority":         { "type": "radio", "options": ["low", "medium", "high", "urgent"], "default": "medium", "label": "Priority" },
+    "expected_revenue": { "type": "currency", "currency": "IDR", "precision": 0, "default": 0, "label": "Expected Revenue" },
+    "probability":      { "type": "percent", "min": 0, "max": 100, "default": 10, "label": "Probability" },
+    "expected_close":   { "type": "date", "label": "Expected Close Date" },
+    "assigned_to":      { "type": "many2one", "model": "user", "label": "Assigned To" },
+    "lost_reason":      { "type": "text", "label": "Lost Reason", "depends_on": "status == 'lost'", "mandatory_if": "status == 'lost'" },
+    "notes":            { "type": "richtext", "toolbar": "minimal", "label": "Notes" },
+    "tags":             { "type": "many2many", "model": "tag", "label": "Tags" },
+    "weighted_revenue": { "type": "currency", "currency": "IDR", "precision": 0, "computed": "expected_revenue * probability / 100", "label": "Weighted Revenue" },
+    "rating":           { "type": "rating", "max_stars": 5, "label": "Lead Score" },
+    "color":            { "type": "color", "label": "Card Color" }
+  },
+  "record_rules": [
+    { "groups": ["crm.user"],    "domain": [["assigned_to", "=", "{{user.id}}"]] },
+    { "groups": ["crm.manager"], "domain": [] }
+  ],
+  "indexes": [
+    ["status"],
+    ["assigned_to"],
+    ["source", "status"]
+  ]
+}

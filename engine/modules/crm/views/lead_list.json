@@ -1,0 +1,9 @@
+{
+  "name": "lead_list",
+  "type": "list",
+  "model": "lead",
+  "title": "Leads",
+  "fields": ["name", "email", "source", "status", "expected_revenue"],
+  "filters": ["status", "source"],
+  "sort": { "field": "created_at", "order": "desc" }
+}

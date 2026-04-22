@@ -1,0 +1,16 @@
+{
+  "name": "user_form",
+  "type": "form",
+  "model": "user",
+  "title": "User",
+  "layout": [
+    { "row": [
+      { "field": "username", "width": 6 },
+      { "field": "email", "width": 6 }
+    ]},
+    { "row": [
+      { "field": "password_hash", "width": 6, "label": "Password" },
+      { "field": "last_login", "width": 6, "readonly": true }
+    ]}
+  ]
+}

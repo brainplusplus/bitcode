@@ -1,0 +1,11 @@
+{
+  "name": "submit_leave",
+  "steps": [
+    { "type": "validate", "rules": { "start_date": { "required": true }, "end_date": { "required": true }, "days": { "required": true } }, "error": "Start date, end date, and number of days are required" },
+    { "type": "query", "model": "employee", "domain": [["user_id", "=", "{{user_id}}"]], "into": "employee" },
+    { "type": "if", "condition": "{{employee.leave_balance > 0}}", "then": "proceed", "else": "no_balance" },
+    { "type": "update", "model": "leave_request", "set": { "status": "submitted" } },
+    { "type": "log", "message": "Leave request submitted by employee {{employee.name}} for {{input.days}} days" },
+    { "type": "emit", "event": "leave.submitted", "data": { "employee_id": "{{employee.id}}", "days": "{{input.days}}" } }
+  ]
+}

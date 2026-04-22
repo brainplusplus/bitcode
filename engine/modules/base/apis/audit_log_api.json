@@ -1,0 +1,6 @@
+{
+  "name": "audit_log_api",
+  "model": "audit_log",
+  "auto_crud": true,
+  "auth": true
+}

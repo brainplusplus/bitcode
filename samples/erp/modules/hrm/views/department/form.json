@@ -1,0 +1,19 @@
+{
+  "name": "department_form",
+  "type": "form",
+  "model": "department",
+  "title": "Department",
+  "layout": [
+    { "row": [
+      { "field": "name", "width": 6 },
+      { "field": "code", "width": 3 },
+      { "field": "parent_id", "width": 3 }
+    ]},
+    { "row": [
+      { "field": "manager_id", "width": 6 }
+    ]},
+    { "tabs": [
+      { "label": "Employees", "view": "employee_list" }
+    ]}
+  ]
+}

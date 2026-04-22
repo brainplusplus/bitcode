@@ -1,0 +1,9 @@
+{
+  "name": "position_list",
+  "type": "list",
+  "model": "job_position",
+  "title": "Job Positions",
+  "fields": ["title", "department_id", "status", "headcount", "min_salary", "max_salary"],
+  "filters": ["department_id", "status"],
+  "sort": { "field": "title", "order": "asc" }
+}

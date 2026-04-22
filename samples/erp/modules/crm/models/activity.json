@@ -1,0 +1,19 @@
+{
+  "name": "activity",
+  "module": "crm",
+  "label": "Activity",
+  "fields": {
+    "lead_id":     { "type": "many2one", "model": "lead", "required": true, "label": "Lead" },
+    "contact_id":  { "type": "many2one", "model": "contact", "label": "Contact" },
+    "type":        { "type": "selection", "options": ["call", "email", "meeting", "note", "task"], "required": true, "label": "Type" },
+    "summary":     { "type": "string", "required": true, "max": 500, "label": "Summary" },
+    "description": { "type": "text", "label": "Description" },
+    "due_date":    { "type": "datetime", "label": "Due Date" },
+    "done":        { "type": "boolean", "default": false, "label": "Done" }
+  },
+  "indexes": [
+    ["lead_id"],
+    ["contact_id"],
+    ["due_date"]
+  ]
+}

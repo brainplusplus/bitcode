@@ -1,0 +1,38 @@
+{
+  "name": "leave_form",
+  "type": "form",
+  "model": "leave_request",
+  "title": "Leave Request",
+  "layout": [
+    { "header": {
+      "status_field": "status",
+      "widget": "statusbar",
+      "buttons": [
+        { "label": "Submit",  "process": "submit_leave",  "variant": "primary", "visible": "status == 'draft'" },
+        { "label": "Approve", "process": "approve_leave", "variant": "primary", "visible": "status == 'submitted'" },
+        { "label": "Reject",  "process": "reject_leave",  "variant": "danger",  "visible": "status == 'submitted'" },
+        { "label": "Cancel",  "process": "cancel_leave",  "variant": "danger",  "visible": "status == 'draft' || status == 'submitted'", "confirm": "Cancel this request?" }
+      ]
+    }},
+    { "section": { "title": "Leave Details" }, "rows": [
+      { "row": [
+        { "field": "employee_id", "width": 6 },
+        { "field": "leave_type", "width": 6 }
+      ]},
+      { "row": [
+        { "field": "start_date", "width": 4 },
+        { "field": "end_date", "width": 4 },
+        { "field": "days", "width": 4 }
+      ]}
+    ]},
+    { "section": { "title": "Details", "collapsible": true }, "rows": [
+      { "row": [
+        { "field": "reason", "width": 12 }
+      ]},
+      { "row": [
+        { "field": "approved_by", "width": 6 },
+        { "field": "reject_reason", "width": 6 }
+      ]}
+    ]}
+  ]
+}

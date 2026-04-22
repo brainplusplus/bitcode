@@ -1,0 +1,15 @@
+{
+  "name": "lead_list",
+  "type": "list",
+  "model": "lead",
+  "title": "Leads",
+  "fields": ["name", "contact_id", "company", "source", "status", "priority", "expected_revenue", "probability", "assigned_to"],
+  "filters": ["status", "source", "priority", "assigned_to"],
+  "sort": { "field": "created_at", "order": "desc" },
+  "actions": [
+    { "label": "Qualify",  "process": "qualify_lead",  "permission": "crm.lead.qualify", "visible": "status == 'contacted'", "variant": "primary" },
+    { "label": "Proposal", "process": "convert_lead",  "permission": "crm.lead.write",   "visible": "status == 'qualified'" },
+    { "label": "Won!",     "process": "win_lead",      "permission": "crm.lead.write",   "visible": "status == 'proposal'",  "variant": "primary" },
+    { "label": "Lost",     "process": "lose_lead",     "permission": "crm.lead.write",   "visible": "status != 'won' && status != 'lost'", "variant": "danger", "confirm": "Mark this lead as lost?" }
+  ]
+}

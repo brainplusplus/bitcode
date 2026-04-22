@@ -1,0 +1,17 @@
+{
+  "name": "employee_workflow",
+  "model": "employee",
+  "field": "status",
+  "states": {
+    "probation":  { "label": "Probation" },
+    "active":     { "label": "Active" },
+    "on_leave":   { "label": "On Leave" },
+    "terminated": { "label": "Terminated" }
+  },
+  "transitions": [
+    { "from": "probation", "to": "active",     "action": "activate",  "permission": "hrm.employee.write" },
+    { "from": "active",    "to": "on_leave",   "action": "leave",     "permission": "hrm.employee.write" },
+    { "from": "on_leave",  "to": "active",     "action": "return",    "permission": "hrm.employee.write" },
+    { "from": ["probation", "active", "on_leave"], "to": "terminated", "action": "terminate", "permission": "hrm.employee.write" }
+  ]
+}

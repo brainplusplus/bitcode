@@ -1,0 +1,7 @@
+{
+  "name": "position_api",
+  "model": "job_position",
+  "auto_crud": true,
+  "auth": true,
+  "search": ["title", "description", "requirements"]
+}

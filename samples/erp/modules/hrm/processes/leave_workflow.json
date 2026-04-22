@@ -1,0 +1,18 @@
+{
+  "name": "leave_workflow",
+  "model": "leave_request",
+  "field": "status",
+  "states": {
+    "draft":     { "label": "Draft" },
+    "submitted": { "label": "Submitted" },
+    "approved":  { "label": "Approved" },
+    "rejected":  { "label": "Rejected" },
+    "cancelled": { "label": "Cancelled" }
+  },
+  "transitions": [
+    { "from": "draft",     "to": "submitted", "action": "submit",  "permission": "hrm.leave.create",  "process": "submit_leave" },
+    { "from": "submitted", "to": "approved",  "action": "approve", "permission": "hrm.leave.approve", "process": "approve_leave" },
+    { "from": "submitted", "to": "rejected",  "action": "reject",  "permission": "hrm.leave.approve", "process": "reject_leave" },
+    { "from": ["draft", "submitted"], "to": "cancelled", "action": "cancel", "permission": "hrm.leave.create" }
+  ]
+}

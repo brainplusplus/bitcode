@@ -1,0 +1,10 @@
+{
+  "name": "qualify_lead",
+  "steps": [
+    { "type": "validate", "rules": { "status": { "eq": "contacted" } }, "error": "Only contacted leads can be qualified" },
+    { "type": "validate", "rules": { "email": { "required": true } }, "error": "Email is required to qualify a lead" },
+    { "type": "update", "model": "lead", "set": { "status": "qualified", "probability": 40 } },
+    { "type": "log", "message": "Lead {{input.name}} qualified by user {{user_id}}" },
+    { "type": "emit", "event": "lead.qualified", "data": { "lead_id": "{{input.id}}" } }
+  ]
+}

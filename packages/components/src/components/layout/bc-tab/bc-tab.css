@@ -1,0 +1,7 @@
+:host {
+  display: block;
+}
+
+.bc-tab {
+  padding: var(--bc-spacing-sm) 0;
+}

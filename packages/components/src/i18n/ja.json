@@ -1,0 +1,97 @@
+{
+  "common.loading": "読み込み中...",
+  "common.save": "保存",
+  "common.create": "作成",
+  "common.cancel": "キャンセル",
+  "common.search": "検索...",
+  "common.noResults": "結果なし",
+  "common.prev": "前へ",
+  "common.next": "次へ",
+  "common.page": "ページ",
+  "common.total": "合計",
+  "common.delete": "削除",
+  "common.confirm": "確認",
+  "common.copy": "コピー",
+  "common.copied": "コピー済み",
+  "common.of": "/",
+  "common.records_other": "{count} 件",
+  "common.back": "戻る",
+  "common.finish": "完了",
+  "common.close": "閉じる",
+  "common.ok": "OK",
+  "common.yes": "はい",
+  "common.no": "いいえ",
+  "common.edit": "編集",
+  "common.actions": "操作",
+  "common.filter": "フィルター",
+  "common.reset": "リセット",
+  "common.apply": "適用",
+  "common.selectAll": "すべて選択",
+  "common.deselectAll": "選択解除",
+
+  "datatable.filterColumn": "列をフィルター",
+  "datatable.noRecords": "レコードが見つかりません",
+  "datatable.show": "表示",
+  "datatable.exportXls": "XLS エクスポート",
+  "datatable.presetName": "プリセット名：",
+  "datatable.presets": "プリセット",
+  "datatable.saveFilter": "フィルターを保存",
+  "datatable.deleteSelected": "選択項目を削除",
+  "datatable.columns": "列",
+
+  "filter.addCondition": "+ 条件",
+  "filter.addGroup": "+ グループ",
+  "filter.removeGroup": "グループを削除",
+  "filter.valuePlaceholder": "値...",
+  "filter.remove": "削除",
+  "filter.visual": "ビジュアル",
+  "filter.json": "JSON",
+  "filter.applyJson": "JSON を適用",
+  "filter.empty": "フィルターがありません。「+ 条件」をクリックして追加してください。",
+
+  "wizard.back": "戻る",
+  "wizard.next": "次へ",
+  "wizard.finish": "完了",
+
+  "quickentry.title": "クイック作成",
+  "quickentry.saving": "保存中...",
+
+  "report.title": "レポート",
+  "report.rows_other": "{count} 行",
+  "report.exportCsv": "CSV エクスポート",
+  "report.average": "平均",
+
+  "activity.title": "アクティビティ",
+  "activity.activities_other": "{count} 件のアクティビティ",
+  "activity.noActivities": "アクティビティはまだありません",
+
+  "timeline.title": "変更履歴",
+  "timeline.noChanges": "変更は記録されていません",
+
+  "calendar.loadingEvents": "イベントを読み込み中...",
+
+  "map.title": "マップ",
+  "map.locations_other": "{count} 件の場所",
+  "map.loadingLocations": "場所を読み込み中...",
+
+  "handle.dragToReorder": "ドラッグして並べ替え",
+
+  "barcode.placeholder": "バーコード値を入力...",
+  "barcode.qrError": "QR エラー",
+  "barcode.barcodeError": "バーコードエラー",
+
+  "placeholder.default": "LowCode コンポーネント",
+
+  "tab.default": "タブ",
+
+  "form.saving": "保存中...",
+
+  "export.title": "エクスポート",
+
+  "print.title": "印刷",
+
+  "toast.dismiss": "閉じる",
+
+  "confirm.title": "確認",
+  "confirm.message": "よろしいですか？"
+}

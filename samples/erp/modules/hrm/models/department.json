@@ -1,0 +1,12 @@
+{
+  "name": "department",
+  "module": "hrm",
+  "label": "Department",
+  "fields": {
+    "name":       { "type": "string", "required": true, "unique": true, "max": 100, "label": "Department Name" },
+    "code":       { "type": "string", "required": true, "unique": true, "max": 10, "label": "Code" },
+    "manager_id": { "type": "many2one", "model": "employee", "label": "Manager" },
+    "parent_id":  { "type": "many2one", "model": "department", "label": "Parent Department" },
+    "employees":  { "type": "one2many", "model": "employee", "inverse": "department_id" }
+  }
+}

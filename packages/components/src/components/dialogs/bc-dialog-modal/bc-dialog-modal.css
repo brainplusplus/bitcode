@@ -1,0 +1,11 @@
+:host {
+  display: block;
+  font-family: var(--bc-font-family, system-ui, sans-serif);
+}
+
+.bc-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: var(--bc-z-modal, 300); }
+.bc-dialog { background: var(--bc-bg); border-radius: var(--bc-radius-xl); box-shadow: var(--bc-shadow-xl); min-width: 24rem; max-width: 90vw; max-height: 90vh; overflow: auto; }
+.bc-dialog-header { display: flex; justify-content: space-between; align-items: center; padding: var(--bc-spacing-md); border-bottom: 1px solid var(--bc-border-color); }
+.bc-dialog-header h3 { margin: 0; font-size: var(--bc-font-size-lg); }
+.bc-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--bc-text-secondary); padding: 0; line-height: 1; }
+.bc-dialog-body { padding: var(--bc-spacing-md); }

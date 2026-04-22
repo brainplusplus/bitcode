@@ -1,0 +1,7 @@
+{
+  "name": "leave_calendar",
+  "type": "calendar",
+  "model": "leave_request",
+  "title": "Leave Calendar",
+  "fields": ["employee_id", "leave_type", "start_date", "end_date", "status"]
+}

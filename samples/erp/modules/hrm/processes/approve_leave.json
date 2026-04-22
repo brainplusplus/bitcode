@@ -1,0 +1,10 @@
+{
+  "name": "approve_leave",
+  "steps": [
+    { "type": "validate", "rules": { "status": { "eq": "submitted" } }, "error": "Only submitted requests can be approved" },
+    { "type": "update", "model": "leave_request", "set": { "status": "approved" } },
+    { "type": "log", "message": "Leave request approved for employee {{input.employee_id}}" },
+    { "type": "emit", "event": "leave.approved" },
+    { "type": "script", "runtime": "typescript", "script": "scripts/on_leave_approved.ts" }
+  ]
+}

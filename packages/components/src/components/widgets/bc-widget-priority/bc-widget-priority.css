@@ -1,0 +1,5 @@
+:host {
+  display: block;
+  font-family: var(--bc-font-family, system-ui, sans-serif);
+}
+.bc-priority { display: flex; gap: 0.125rem; } .star { background: none; border: none; font-size: 1.25rem; cursor: pointer; color: var(--bc-border-color); padding: 0; } .star.filled { color: var(--bc-warning); } .star:disabled { cursor: default; }

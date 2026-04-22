@@ -1,0 +1,24 @@
+@import '../field-base.css';
+
+.bc-rating {
+  display: flex;
+  gap: 0.125rem;
+}
+
+.bc-star {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--bc-border-color);
+  padding: 0;
+  transition: color var(--bc-transition);
+}
+
+.bc-star.filled {
+  color: var(--bc-warning);
+}
+
+.bc-star:disabled {
+  cursor: default;
+}

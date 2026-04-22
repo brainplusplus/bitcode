@@ -1,0 +1,33 @@
+{
+  "name": "contact_form",
+  "type": "form",
+  "model": "contact",
+  "title": "Contact",
+  "layout": [
+    { "button_box": [
+      { "label": "Leads", "icon": "users", "count_model": "lead", "count_domain": [["contact_id", "=", "{{id}}"]] }
+    ]},
+    { "section": { "title": "Contact Information" }, "rows": [
+      { "row": [
+        { "field": "name", "width": 5 },
+        { "field": "type", "width": 3 },
+        { "field": "photo", "width": 4 }
+      ]},
+      { "row": [
+        { "field": "email", "width": 4, "widget": "email" },
+        { "field": "phone", "width": 4, "widget": "phone" },
+        { "field": "company", "width": 4 }
+      ]},
+      { "row": [
+        { "field": "job_title", "width": 6 },
+        { "field": "tags", "width": 6 }
+      ]}
+    ]},
+    { "tabs": [
+      { "label": "Address", "fields": ["address"] },
+      { "label": "Notes", "fields": ["notes"] },
+      { "label": "Leads", "view": "lead_list" }
+    ]},
+    { "chatter": true }
+  ]
+}

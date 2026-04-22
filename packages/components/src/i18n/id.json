@@ -1,0 +1,97 @@
+{
+  "common.loading": "Memuat...",
+  "common.save": "Simpan",
+  "common.create": "Buat",
+  "common.cancel": "Batal",
+  "common.search": "Cari...",
+  "common.noResults": "Tidak ada hasil",
+  "common.prev": "Sebelumnya",
+  "common.next": "Berikutnya",
+  "common.page": "Halaman",
+  "common.total": "Total",
+  "common.delete": "Hapus",
+  "common.confirm": "Konfirmasi",
+  "common.copy": "Salin",
+  "common.copied": "Tersalin",
+  "common.of": "dari",
+  "common.records_other": "{count} rekaman",
+  "common.back": "Kembali",
+  "common.finish": "Selesai",
+  "common.close": "Tutup",
+  "common.ok": "OK",
+  "common.yes": "Ya",
+  "common.no": "Tidak",
+  "common.edit": "Ubah",
+  "common.actions": "Aksi",
+  "common.filter": "Filter",
+  "common.reset": "Reset",
+  "common.apply": "Terapkan",
+  "common.selectAll": "Pilih semua",
+  "common.deselectAll": "Batal pilih semua",
+
+  "datatable.filterColumn": "Filter kolom",
+  "datatable.noRecords": "Tidak ada data ditemukan",
+  "datatable.show": "Tampilkan",
+  "datatable.exportXls": "Ekspor XLS",
+  "datatable.presetName": "Nama preset:",
+  "datatable.presets": "Preset",
+  "datatable.saveFilter": "Simpan Filter",
+  "datatable.deleteSelected": "Hapus Terpilih",
+  "datatable.columns": "Kolom",
+
+  "filter.addCondition": "+ Kondisi",
+  "filter.addGroup": "+ Grup",
+  "filter.removeGroup": "Hapus grup",
+  "filter.valuePlaceholder": "Nilai...",
+  "filter.remove": "Hapus",
+  "filter.visual": "Visual",
+  "filter.json": "JSON",
+  "filter.applyJson": "Terapkan JSON",
+  "filter.empty": "Tidak ada filter. Klik \"+ Kondisi\" untuk menambahkan.",
+
+  "wizard.back": "Kembali",
+  "wizard.next": "Berikutnya",
+  "wizard.finish": "Selesai",
+
+  "quickentry.title": "Buat Cepat",
+  "quickentry.saving": "Menyimpan...",
+
+  "report.title": "Laporan",
+  "report.rows_other": "{count} baris",
+  "report.exportCsv": "Ekspor CSV",
+  "report.average": "Rata-rata",
+
+  "activity.title": "Aktivitas",
+  "activity.activities_other": "{count} aktivitas",
+  "activity.noActivities": "Belum ada aktivitas",
+
+  "timeline.title": "Riwayat Perubahan",
+  "timeline.noChanges": "Tidak ada perubahan tercatat",
+
+  "calendar.loadingEvents": "Memuat acara...",
+
+  "map.title": "Peta",
+  "map.locations_other": "{count} lokasi",
+  "map.loadingLocations": "Memuat lokasi...",
+
+  "handle.dragToReorder": "Seret untuk mengurutkan",
+
+  "barcode.placeholder": "Masukkan nilai barcode...",
+  "barcode.qrError": "Kesalahan QR",
+  "barcode.barcodeError": "Kesalahan Barcode",
+
+  "placeholder.default": "Komponen LowCode",
+
+  "tab.default": "Tab",
+
+  "form.saving": "Menyimpan...",
+
+  "export.title": "Ekspor",
+
+  "print.title": "Cetak",
+
+  "toast.dismiss": "Tutup",
+
+  "confirm.title": "Konfirmasi",
+  "confirm.message": "Apakah Anda yakin?"
+}

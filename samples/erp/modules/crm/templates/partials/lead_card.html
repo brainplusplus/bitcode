@@ -1,0 +1,10 @@
+<div class="lc-kanban-card">
+  <div style="display:flex;justify-content:space-between;align-items:center;">
+    <span class="lc-kanban-card-title">{{.name}}</span>
+    {{template "templates/partials/status_badge.html" .status}}
+  </div>
+  <div class="lc-kanban-card-field">{{.company}}</div>
+  {{if .expected_revenue}}
+  <div style="margin-top:0.4rem;font-weight:600;color:#10B981;">${{.expected_revenue}}</div>
+  {{end}}
+</div>

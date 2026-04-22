@@ -1,0 +1,6 @@
+{
+  "name": "lead_api",
+  "model": "lead",
+  "auto_crud": true,
+  "auth": true
+}

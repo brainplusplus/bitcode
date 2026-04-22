@@ -1,0 +1,9 @@
+{
+  "name": "record_rule_list",
+  "type": "list",
+  "model": "record_rule",
+  "title": "Record Rules",
+  "fields": ["name", "model_name", "group_names", "can_read", "can_create", "can_write", "can_delete", "is_global"],
+  "filters": ["model_name", "is_global"],
+  "sort": { "field": "name", "order": "asc" }
+}

@@ -1,0 +1,97 @@
+{
+  "common.loading": "加载中...",
+  "common.save": "保存",
+  "common.create": "创建",
+  "common.cancel": "取消",
+  "common.search": "搜索...",
+  "common.noResults": "无结果",
+  "common.prev": "上一页",
+  "common.next": "下一页",
+  "common.page": "页",
+  "common.total": "总计",
+  "common.delete": "删除",
+  "common.confirm": "确认",
+  "common.copy": "复制",
+  "common.copied": "已复制",
+  "common.of": "/",
+  "common.records_other": "{count} 条记录",
+  "common.back": "返回",
+  "common.finish": "完成",
+  "common.close": "关闭",
+  "common.ok": "确定",
+  "common.yes": "是",
+  "common.no": "否",
+  "common.edit": "编辑",
+  "common.actions": "操作",
+  "common.filter": "筛选",
+  "common.reset": "重置",
+  "common.apply": "应用",
+  "common.selectAll": "全选",
+  "common.deselectAll": "取消全选",
+
+  "datatable.filterColumn": "筛选列",
+  "datatable.noRecords": "未找到记录",
+  "datatable.show": "显示",
+  "datatable.exportXls": "导出 XLS",
+  "datatable.presetName": "预设名称：",
+  "datatable.presets": "预设",
+  "datatable.saveFilter": "保存筛选",
+  "datatable.deleteSelected": "删除所选",
+  "datatable.columns": "列",
+
+  "filter.addCondition": "+ 条件",
+  "filter.addGroup": "+ 分组",
+  "filter.removeGroup": "删除分组",
+  "filter.valuePlaceholder": "值...",
+  "filter.remove": "删除",
+  "filter.visual": "可视化",
+  "filter.json": "JSON",
+  "filter.applyJson": "应用 JSON",
+  "filter.empty": "暂无筛选条件。点击「+ 条件」添加。",
+
+  "wizard.back": "返回",
+  "wizard.next": "下一步",
+  "wizard.finish": "完成",
+
+  "quickentry.title": "快速创建",
+  "quickentry.saving": "保存中...",
+
+  "report.title": "报表",
+  "report.rows_other": "{count} 行",
+  "report.exportCsv": "导出 CSV",
+  "report.average": "平均值",
+
+  "activity.title": "活动",
+  "activity.activities_other": "{count} 项活动",
+  "activity.noActivities": "暂无活动",
+
+  "timeline.title": "变更历史",
+  "timeline.noChanges": "暂无变更记录",
+
+  "calendar.loadingEvents": "加载事件中...",
+
+  "map.title": "地图",
+  "map.locations_other": "{count} 个位置",
+  "map.loadingLocations": "加载位置中...",
+
+  "handle.dragToReorder": "拖动排序",
+
+  "barcode.placeholder": "输入条码值...",
+  "barcode.qrError": "二维码错误",
+  "barcode.barcodeError": "条码错误",
+
+  "placeholder.default": "LowCode 组件",
+
+  "tab.default": "标签页",
+
+  "form.saving": "保存中...",
+
+  "export.title": "导出",
+
+  "print.title": "打印",
+
+  "toast.dismiss": "关闭",
+
+  "confirm.title": "确认",
+  "confirm.message": "确定要执行此操作吗？"
+}

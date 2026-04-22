@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package plugin;
+
+option go_package = "github.com/bitcode-engine/engine/pkg/plugin/proto";
+
+service PluginService {
+  rpc Execute (ExecuteRequest) returns (ExecuteResponse);
+  rpc HealthCheck (HealthRequest) returns (HealthResponse);
+}
+
+message ExecuteRequest {
+  string script = 1;
+  string params_json = 2;
+  string user_id = 3;
+  string tenant_id = 4;
+}
+
+message ExecuteResponse {
+  string result_json = 1;
+  string error = 2;
+}
+
+message HealthRequest {}
+
+message HealthResponse {
+  bool healthy = 1;
+  string runtime = 2;
+  string version = 3;
+}

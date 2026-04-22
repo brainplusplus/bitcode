@@ -1,0 +1,6 @@
+{
+  "name": "contact_api",
+  "model": "contact",
+  "auto_crud": true,
+  "auth": true
+}

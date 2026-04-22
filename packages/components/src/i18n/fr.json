@@ -1,0 +1,101 @@
+{
+  "common.loading": "Chargement...",
+  "common.save": "Enregistrer",
+  "common.create": "Cr\u00e9er",
+  "common.cancel": "Annuler",
+  "common.search": "Rechercher...",
+  "common.noResults": "Aucun r\u00e9sultat",
+  "common.prev": "Pr\u00e9c\u00e9dent",
+  "common.next": "Suivant",
+  "common.page": "Page",
+  "common.total": "Total",
+  "common.delete": "Supprimer",
+  "common.confirm": "Confirmer",
+  "common.copy": "Copier",
+  "common.copied": "Copi\u00e9",
+  "common.of": "sur",
+  "common.records_one": "{count} enregistrement",
+  "common.records_other": "{count} enregistrements",
+  "common.back": "Retour",
+  "common.finish": "Terminer",
+  "common.close": "Fermer",
+  "common.ok": "OK",
+  "common.yes": "Oui",
+  "common.no": "Non",
+  "common.edit": "Modifier",
+  "common.actions": "Actions",
+  "common.filter": "Filtrer",
+  "common.reset": "R\u00e9initialiser",
+  "common.apply": "Appliquer",
+  "common.selectAll": "Tout s\u00e9lectionner",
+  "common.deselectAll": "Tout d\u00e9s\u00e9lectionner",
+
+  "datatable.filterColumn": "Filtrer la colonne",
+  "datatable.noRecords": "Aucun enregistrement trouv\u00e9",
+  "datatable.show": "Afficher",
+  "datatable.exportXls": "Exporter XLS",
+  "datatable.presetName": "Nom du pr\u00e9r\u00e9glage :",
+  "datatable.presets": "Pr\u00e9r\u00e9glages",
+  "datatable.saveFilter": "Enregistrer le filtre",
+  "datatable.deleteSelected": "Supprimer la s\u00e9lection",
+  "datatable.columns": "Colonnes",
+
+  "filter.addCondition": "+ Condition",
+  "filter.addGroup": "+ Groupe",
+  "filter.removeGroup": "Supprimer le groupe",
+  "filter.valuePlaceholder": "Valeur...",
+  "filter.remove": "Supprimer",
+  "filter.visual": "Visuel",
+  "filter.json": "JSON",
+  "filter.applyJson": "Appliquer JSON",
+  "filter.empty": "Aucun filtre. Cliquez sur \u00ab + Condition \u00bb pour ajouter.",
+
+  "wizard.back": "Retour",
+  "wizard.next": "Suivant",
+  "wizard.finish": "Terminer",
+
+  "quickentry.title": "Cr\u00e9ation rapide",
+  "quickentry.saving": "Enregistrement...",
+
+  "report.title": "Rapport",
+  "report.rows_one": "{count} ligne",
+  "report.rows_other": "{count} lignes",
+  "report.exportCsv": "Exporter CSV",
+  "report.average": "Moyenne",
+
+  "activity.title": "Activit\u00e9",
+  "activity.activities_one": "{count} activit\u00e9",
+  "activity.activities_other": "{count} activit\u00e9s",
+  "activity.noActivities": "Aucune activit\u00e9 pour le moment",
+
+  "timeline.title": "Historique des modifications",
+  "timeline.noChanges": "Aucune modification enregistr\u00e9e",
+
+  "calendar.loadingEvents": "Chargement des \u00e9v\u00e9nements...",
+
+  "map.title": "Carte",
+  "map.locations_one": "{count} emplacement",
+  "map.locations_other": "{count} emplacements",
+  "map.loadingLocations": "Chargement des emplacements...",
+
+  "handle.dragToReorder": "Glisser pour r\u00e9ordonner",
+
+  "barcode.placeholder": "Saisir la valeur du code-barres...",
+  "barcode.qrError": "Erreur QR",
+  "barcode.barcodeError": "Erreur code-barres",
+
+  "placeholder.default": "Composant LowCode",
+
+  "tab.default": "Onglet",
+
+  "form.saving": "Enregistrement...",
+
+  "export.title": "Exporter",
+
+  "print.title": "Imprimer",
+
+  "toast.dismiss": "Fermer",
+
+  "confirm.title": "Confirmer",
+  "confirm.message": "\u00cates-vous s\u00fbr ?"
+}

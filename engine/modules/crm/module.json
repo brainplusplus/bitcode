@@ -1,0 +1,30 @@
+{
+  "name": "crm",
+  "version": "1.0.0",
+  "label": "CRM",
+  "depends": ["base"],
+  "category": "Sales",
+  "models": ["models/*.json"],
+  "apis": ["apis/*.json"],
+  "views": ["views/*.json"],
+  "data": ["data/*.json"],
+  "permissions": {
+    "crm.contact.read": "View contacts",
+    "crm.contact.create": "Create contacts",
+    "crm.contact.write": "Edit contacts",
+    "crm.contact.delete": "Delete contacts",
+    "crm.lead.read": "View leads",
+    "crm.lead.create": "Create leads",
+    "crm.lead.write": "Edit leads"
+  },
+  "groups": {
+    "crm.user": { "label": "CRM / User", "implies": ["base.user"] },
+    "crm.manager": { "label": "CRM / Manager", "implies": ["crm.user"] }
+  },
+  "menu": [
+    { "label": "CRM", "icon": "users", "children": [
+      { "label": "Contacts", "view": "contact_list" },
+      { "label": "Leads", "view": "lead_list" }
+    ]}
+  ]
+}

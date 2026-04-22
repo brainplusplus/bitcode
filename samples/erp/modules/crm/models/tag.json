@@ -1,0 +1,9 @@
+{
+  "name": "tag",
+  "module": "crm",
+  "label": "Tag",
+  "fields": {
+    "name":  { "type": "string", "required": true, "unique": true, "max": 50 },
+    "color": { "type": "string", "max": 7, "default": "#3B82F6" }
+  }
+}

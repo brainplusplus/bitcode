@@ -1,0 +1,16 @@
+.bc-favorites{font-family:var(--bc-font-family,system-ui,sans-serif)}
+.bc-fav-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.bc-fav-label{font-size:var(--bc-font-size-xs);font-weight:600;color:var(--bc-text-secondary);text-transform:uppercase;letter-spacing:0.05em}
+.bc-fav-save-btn{background:none;border:none;color:var(--bc-primary);cursor:pointer;font-size:var(--bc-font-size-sm);font-weight:500;padding:0}
+.bc-fav-save-btn:hover{text-decoration:underline}
+.bc-fav-save-form{display:flex;gap:6px;margin-bottom:8px}
+.bc-fav-input{flex:1;padding:4px 8px;border:1px solid var(--bc-border-color);border-radius:var(--bc-radius-md);font-size:var(--bc-font-size-sm);font-family:inherit;outline:none}
+.bc-fav-input:focus{border-color:var(--bc-border-color-focus)}
+.bc-fav-add{padding:4px 10px;background:var(--bc-primary);color:white;border:none;border-radius:var(--bc-radius-md);cursor:pointer;font-size:var(--bc-font-size-sm)}
+.bc-fav-list{display:flex;flex-direction:column;gap:2px}
+.bc-fav-item{display:flex;justify-content:space-between;align-items:center;padding:4px 8px;border-radius:var(--bc-radius-sm)}
+.bc-fav-item:hover{background:var(--bc-bg-hover)}
+.bc-fav-name{background:none;border:none;cursor:pointer;font-size:var(--bc-font-size-sm);color:var(--bc-primary);padding:0;text-align:start;font-family:inherit}
+.bc-fav-name:hover{text-decoration:underline}
+.bc-fav-remove{background:none;border:none;cursor:pointer;color:var(--bc-text-secondary);font-size:1rem;padding:0;line-height:1}
+.bc-fav-remove:hover{color:var(--bc-danger)}

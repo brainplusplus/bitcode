@@ -1,0 +1,10 @@
+.bc-view{font-family:var(--bc-font-family,system-ui,sans-serif)}
+.bc-cal-loading{padding:16px;text-align:center;color:var(--bc-text-secondary)}
+.bc-cal-container{padding:16px;min-height:30rem}
+.bc-cal-container .fc{font-family:var(--bc-font-family,system-ui,sans-serif);font-size:var(--bc-font-size-sm)}
+.bc-cal-container .fc .fc-button{background:var(--bc-primary);border-color:var(--bc-primary);font-size:var(--bc-font-size-sm);padding:4px 12px}
+.bc-cal-container .fc .fc-button:hover{background:var(--bc-primary-hover)}
+.bc-cal-container .fc .fc-button-active{background:var(--bc-primary-hover)!important}
+.bc-cal-container .fc .fc-today-button{background:var(--bc-bg);color:var(--bc-text);border-color:var(--bc-border-color)}
+.bc-cal-container .fc-event{border-radius:var(--bc-radius-sm);padding:2px 4px;font-size:var(--bc-font-size-xs)}
+.bc-cal-container .fc-daygrid-day.fc-day-today{background:var(--bc-primary-light,#eef2ff)}

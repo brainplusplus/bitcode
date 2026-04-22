@@ -1,0 +1,5 @@
+:host {
+  display: block;
+  font-family: var(--bc-font-family, system-ui, sans-serif);
+}
+.bc-statusbar { display: flex; gap: 0; } .step { padding: 0.25rem 0.75rem; font-size: var(--bc-font-size-xs); background: var(--bc-bg-tertiary); border: 1px solid var(--bc-border-color); text-transform: capitalize; } .step:first-child { border-radius: var(--bc-radius-full) 0 0 var(--bc-radius-full); } .step:last-child { border-radius: 0 var(--bc-radius-full) var(--bc-radius-full) 0; } .step + .step { border-inline-start: none; } .step.done { background: var(--bc-primary-light); color: var(--bc-primary); } .step.active { background: var(--bc-primary); color: white; font-weight: 600; }

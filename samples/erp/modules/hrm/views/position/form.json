@@ -1,0 +1,23 @@
+{
+  "name": "position_form",
+  "type": "form",
+  "model": "job_position",
+  "title": "Job Position",
+  "layout": [
+    { "row": [
+      { "field": "title", "width": 6 },
+      { "field": "department_id", "width": 3 },
+      { "field": "status", "width": 3 }
+    ]},
+    { "row": [
+      { "field": "headcount", "width": 4 },
+      { "field": "min_salary", "width": 4 },
+      { "field": "max_salary", "width": 4 }
+    ]},
+    { "tabs": [
+      { "label": "Description", "fields": ["description"] },
+      { "label": "Requirements", "fields": ["requirements"] },
+      { "label": "Employees", "view": "employee_list" }
+    ]}
+  ]
+}

@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Users — LowCode</title>
+<style>
+:root {
+  --sidebar-w: 256px;
+  --nav-h: 48px;
+  --primary: #6366F1;
+  --primary-dark: #4F46E5;
+  --primary-light: #EEF2FF;
+  --primary-lighter: #E0E7FF;
+  --danger: #EF4444;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --sidebar-bg: #FFFFFF;
+  --sidebar-border: #F1F5F9;
+  --sidebar-text: #64748B;
+  --sidebar-text-hover: #334155;
+  --sidebar-text-active: #1E293B;
+  --sidebar-accent: var(--primary);
+  --body-bg: #F8FAFC;
+  --card-bg: #FFFFFF;
+  --text: #1E293B;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
+  --border: #E2E8F0;
+  --border-light: #F1F5F9;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow: 0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.03);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07),0 2px 4px -2px rgba(0,0,0,0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08),0 4px 6px -4px rgba(0,0,0,0.03);
+  --font: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+  --mono: 'SF Mono','Cascadia Code','Consolas',monospace;
+  --transition: 150ms ease;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font);background:var(--body-bg);color:var(--text);line-height:1.5;font-size:14px;-webkit-font-smoothing:antialiased}
+a{color:var(--primary);text-decoration:none}
+a:hover{text-decoration:none}
+
+ 
+.bc-sidebar{position:fixed;top:0;left:0;bottom:0;width:var(--sidebar-w);background:var(--sidebar-bg);border-right:1px solid var(--border-light);display:flex;flex-direction:column;z-index:100;transition:transform var(--transition)}
+.bc-sidebar-brand{padding:0.65rem 1rem;display:flex;align-items:center;gap:0.6rem;height:var(--nav-h);border-bottom:1px solid var(--border-light)}
+.bc-sidebar-brand svg{width:24px;height:24px;flex-shrink:0}
+.bc-sidebar-brand span{font-size:0.9rem;font-weight:700;color:var(--text);letter-spacing:-0.02em}
+.bc-sidebar-nav{flex:1;overflow-y:auto;padding:0.5rem 0}
+.bc-sidebar-nav::-webkit-scrollbar{width:3px}
+.bc-sidebar-nav::-webkit-scrollbar-thumb{background:#E2E8F0;border-radius:3px}
+
+ 
+.bc-nav-group{margin-bottom:0.25rem}
+.bc-nav-group-header{display:flex;align-items:center;justify-content:space-between;padding:0.4rem 0.75rem 0.4rem 1rem;cursor:pointer;user-select:none}
+.bc-nav-group-label{font-size:0.68rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted)}
+.bc-nav-group-chevron{width:14px;height:14px;color:var(--text-muted);transition:transform var(--transition);flex-shrink:0}
+.bc-nav-group.collapsed .bc-nav-group-chevron{transform:rotate(-90deg)}
+.bc-nav-group-items{overflow:hidden;transition:max-height 200ms ease}
+.bc-nav-group.collapsed .bc-nav-group-items{max-height:0!important;overflow:hidden}
+
+ 
+.bc-nav-section{padding:0.5rem 1rem 0.2rem;font-size:0.68rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted)}
+
+ 
+.bc-nav-item{display:flex;align-items:center;gap:0.5rem;padding:0.4rem 0.75rem 0.4rem 1rem;margin:1px 0.5rem;border-radius:6px;color:var(--sidebar-text);font-size:0.82rem;transition:all var(--transition);cursor:pointer;text-decoration:none;position:relative}
+.bc-nav-item:hover{background:var(--border-light);color:var(--sidebar-text-hover);text-decoration:none}
+.bc-nav-item.active{background:var(--primary-light);color:var(--primary-dark);font-weight:600}
+.bc-nav-item.active::before{content:'';position:absolute;left:-0.5rem;top:0.35rem;bottom:0.35rem;width:3px;border-radius:0 3px 3px 0;background:var(--sidebar-accent)}
+.bc-nav-item svg{width:16px;height:16px;opacity:0.55;flex-shrink:0}
+.bc-nav-item.active svg{opacity:0.85;color:var(--primary)}
+.bc-nav-child{padding-left:2.25rem}
+
+ 
+.bc-sidebar-footer{padding:0.5rem;border-top:1px solid var(--border-light);font-size:0.75rem;color:var(--text-muted)}
+
+ 
+.bc-navbar{position:fixed;top:0;left:var(--sidebar-w);right:0;height:var(--nav-h);background:var(--card-bg);border-bottom:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between;padding:0 1.25rem;z-index:90}
+.bc-navbar-left{display:flex;align-items:center;gap:0.75rem}
+.bc-breadcrumb{display:flex;align-items:center;gap:0.35rem;font-size:0.8rem;color:var(--text-muted)}
+.bc-breadcrumb a{color:var(--text-muted)}
+.bc-breadcrumb a:hover{color:var(--primary)}
+.bc-breadcrumb .sep{color:#CBD5E1;font-size:0.7rem}
+.bc-navbar-right{display:flex;align-items:center;gap:0.6rem}
+
+ 
+.bc-app-switcher-btn{width:32px;height:32px;border-radius:6px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-muted);transition:all var(--transition)}
+.bc-app-switcher-btn:hover{background:var(--border-light);color:var(--text)}
+.bc-app-switcher-dropdown{position:absolute;top:calc(var(--nav-h) - 4px);right:1rem;background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);padding:0.75rem;display:none;min-width:200px;z-index:200}
+.bc-app-switcher-dropdown.open{display:block}
+.bc-app-switcher-dropdown a{display:flex;align-items:center;gap:0.5rem;padding:0.45rem 0.6rem;border-radius:6px;color:var(--text);font-size:0.8rem;transition:background var(--transition)}
+.bc-app-switcher-dropdown a:hover{background:var(--border-light)}
+
+ 
+.bc-user-btn{display:flex;align-items:center;gap:0.4rem;padding:0.25rem 0.5rem 0.25rem 0.25rem;border-radius:6px;border:none;background:transparent;cursor:pointer;font-family:var(--font);font-size:0.8rem;color:var(--text-secondary);transition:all var(--transition)}
+.bc-user-btn:hover{background:var(--border-light)}
+.bc-user-avatar{width:26px;height:26px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:600}
+.bc-user-dropdown{position:absolute;top:calc(var(--nav-h) - 4px);right:1rem;background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-lg);display:none;min-width:180px;z-index:200;overflow:hidden}
+.bc-user-dropdown.open{display:block}
+.bc-user-dropdown a{display:flex;align-items:center;gap:0.5rem;padding:0.55rem 0.85rem;color:var(--text-secondary);font-size:0.8rem;transition:background var(--transition)}
+.bc-user-dropdown a:hover{background:var(--border-light);color:var(--text)}
+.bc-user-dropdown .bc-divider{height:1px;background:var(--border-light);margin:0.25rem 0}
+
+.bc-btn-sm{padding:0.3rem 0.6rem;border-radius:6px;font-size:0.78rem;font-weight:500;border:1px solid var(--border);background:var(--card-bg);color:var(--text-muted);cursor:pointer;transition:all var(--transition);text-decoration:none;display:inline-flex;align-items:center;gap:0.25rem}
+.bc-btn-sm:hover{background:var(--border-light);color:var(--text);text-decoration:none}
+
+ 
+.bc-main{margin-left:var(--sidebar-w);margin-top:var(--nav-h);padding:1.25rem 1.5rem;min-height:calc(100vh - var(--nav-h))}
+
+ 
+.bc-card{background:var(--card-bg);border-radius:var(--radius);box-shadow:var(--shadow-xs);border:1px solid var(--border-light)}
+.bc-card-header{padding:0.85rem 1.15rem;border-bottom:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between}
+.bc-card-header h2{font-size:0.88rem;font-weight:600;color:var(--text)}
+.bc-card-body{padding:1.15rem}
+
+ 
+.bc-table{width:100%;border-collapse:collapse}
+.bc-table th{padding:0.55rem 0.85rem;text-align:left;font-weight:600;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-muted);background:var(--body-bg);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:1}
+.bc-table td{padding:0.6rem 0.85rem;border-bottom:1px solid var(--border-light);font-size:0.82rem;color:var(--text)}
+.bc-table tbody tr{transition:background var(--transition)}
+.bc-table tbody tr:hover{background:#F8FAFF}
+.bc-table tbody tr:last-child td{border-bottom:none}
+
+ 
+.bc-badge{display:inline-flex;align-items:center;padding:0.12rem 0.5rem;border-radius:10px;font-size:0.7rem;font-weight:500;line-height:1.5}
+.bc-badge-blue{background:var(--primary-light);color:#4338CA}
+.bc-badge-green{background:#ECFDF5;color:#047857}
+.bc-badge-yellow{background:#FFFBEB;color:#B45309}
+.bc-badge-red{background:#FEF2F2;color:#B91C1C}
+.bc-badge-gray{background:#F8FAFC;color:#475569}
+
+ 
+.bc-btn{display:inline-flex;align-items:center;gap:0.35rem;padding:0.45rem 0.85rem;border-radius:6px;font-size:0.82rem;font-weight:500;border:none;cursor:pointer;transition:all var(--transition);text-decoration:none;font-family:var(--font)}
+.bc-btn:hover{text-decoration:none}
+.bc-btn-primary{background:var(--primary);color:#fff;box-shadow:0 1px 2px rgba(99,102,241,0.3)}
+.bc-btn-primary:hover{background:var(--primary-dark);box-shadow:0 2px 4px rgba(99,102,241,0.35)}
+.bc-btn-danger{background:var(--danger);color:#fff}
+.bc-btn-danger:hover{background:#DC2626}
+.bc-btn-secondary{background:var(--card-bg);color:var(--text-secondary);border:1px solid var(--border)}
+.bc-btn-secondary:hover{background:var(--border-light);color:var(--text)}
+
+ 
+.bc-form-group{margin-bottom:0.85rem}
+.bc-label{display:block;font-size:0.78rem;font-weight:500;color:var(--text-secondary);margin-bottom:0.25rem}
+.bc-input{width:100%;padding:0.5rem 0.7rem;border:1px solid var(--border);border-radius:6px;font-size:0.82rem;font-family:var(--font);transition:all var(--transition);outline:none;background:var(--card-bg);color:var(--text)}
+.bc-input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(99,102,241,0.1)}
+.bc-input::placeholder{color:var(--text-muted)}
+.bc-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394A3B8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 0.7rem center;padding-right:2rem}
+textarea.bc-input{resize:vertical;min-height:72px}
+
+ 
+.bc-row{display:flex;gap:1rem;flex-wrap:wrap}
+.bc-col-1{flex:0 0 calc(8.33% - 1rem)}.bc-col-2{flex:0 0 calc(16.66% - 1rem)}.bc-col-3{flex:0 0 calc(25% - 1rem)}.bc-col-4{flex:0 0 calc(33.33% - 1rem)}.bc-col-5{flex:0 0 calc(41.66% - 1rem)}.bc-col-6{flex:0 0 calc(50% - 1rem)}.bc-col-7{flex:0 0 calc(58.33% - 1rem)}.bc-col-8{flex:0 0 calc(66.66% - 1rem)}.bc-col-9{flex:0 0 calc(75% - 1rem)}.bc-col-10{flex:0 0 calc(83.33% - 1rem)}.bc-col-11{flex:0 0 calc(91.66% - 1rem)}.bc-col-12{flex:0 0 100%}
+
+ 
+.bc-pagination{display:flex;align-items:center;gap:0.2rem}
+.bc-page-btn{padding:0.3rem 0.55rem;border-radius:6px;font-size:0.78rem;border:1px solid var(--border);background:var(--card-bg);color:var(--text-muted);cursor:pointer;transition:all var(--transition)}
+.bc-page-btn:hover{background:var(--border-light);color:var(--text)}
+.bc-page-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.bc-page-info{font-size:0.78rem;color:var(--text-muted)}
+
+ 
+.bc-tabs{display:flex;gap:0;border-bottom:1px solid var(--border-light);margin-bottom:1rem}
+.bc-tab{padding:0.5rem 0.85rem;font-size:0.82rem;font-weight:500;color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all var(--transition)}
+.bc-tab:hover{color:var(--text)}
+.bc-tab.active{color:var(--primary);border-bottom-color:var(--primary)}
+
+ 
+.bc-kanban{display:flex;gap:0.75rem;overflow-x:auto;padding-bottom:0.75rem}
+.bc-kanban-col{flex:0 0 280px;background:var(--body-bg);border-radius:var(--radius);border:1px solid var(--border-light);display:flex;flex-direction:column}
+.bc-kanban-col-header{padding:0.65rem 0.85rem;font-weight:600;font-size:0.82rem;border-bottom:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between}
+.bc-kanban-col-count{background:var(--border-light);padding:0.1rem 0.45rem;border-radius:10px;font-size:0.68rem;font-weight:600;color:var(--text-muted)}
+.bc-kanban-col-body{padding:0.4rem;flex:1;min-height:80px}
+.bc-kanban-card{background:var(--card-bg);border-radius:6px;padding:0.65rem;margin-bottom:0.4rem;box-shadow:var(--shadow-xs);border:1px solid var(--border-light);transition:all var(--transition)}
+.bc-kanban-card:hover{box-shadow:var(--shadow);border-color:var(--border)}
+.bc-kanban-card-title{font-weight:600;font-size:0.82rem;margin-bottom:0.15rem;color:var(--text)}
+.bc-kanban-card-field{font-size:0.75rem;color:var(--text-muted)}
+
+ 
+.bc-empty{text-align:center;padding:2.5rem 1rem;color:var(--text-muted)}
+.bc-empty svg{width:40px;height:40px;margin-bottom:0.75rem;opacity:0.3}
+.bc-empty p{font-size:0.85rem}
+
+ 
+.bc-stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:0.85rem;margin-bottom:1.25rem}
+.bc-stat-card{background:var(--card-bg);border-radius:var(--radius);padding:1rem;box-shadow:var(--shadow-xs);border:1px solid var(--border-light)}
+.bc-stat-value{font-size:1.6rem;font-weight:700;line-height:1.2;letter-spacing:-0.02em}
+.bc-stat-label{font-size:0.75rem;color:var(--text-muted);margin-top:0.15rem}
+
+ 
+.bc-menu-toggle{display:none;background:none;border:none;cursor:pointer;padding:0.35rem;border-radius:6px;color:var(--text-muted)}
+.bc-menu-toggle:hover{background:var(--border-light)}
+@media(max-width:768px){
+  .bc-sidebar{transform:translateX(-100%)}
+  .bc-sidebar.open{transform:translateX(0);box-shadow:var(--shadow-lg)}
+  .bc-navbar{left:0}
+  .bc-main{margin-left:0}
+  .bc-menu-toggle{display:flex;align-items:center;justify-content:center}
+  .bc-kanban{flex-direction:column}
+  .bc-kanban-col{flex:none;width:100%}
+}
+
+ 
+.bc-actions{display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap}
+.bc-search-box{display:flex;align-items:center;gap:0.35rem;padding:0.35rem 0.65rem;border:1px solid var(--border);border-radius:6px;background:var(--card-bg);transition:border var(--transition)}
+.bc-search-box:focus-within{border-color:var(--primary);box-shadow:0 0 0 3px rgba(99,102,241,0.08)}
+.bc-search-box input{border:none;outline:none;font-size:0.8rem;font-family:var(--font);background:transparent;width:180px;color:var(--text)}
+.bc-search-box input::placeholder{color:var(--text-muted)}
+.bc-filter-tag{display:inline-flex;align-items:center;gap:0.25rem;padding:0.2rem 0.5rem;border-radius:10px;font-size:0.7rem;background:var(--primary-light);color:var(--primary-dark)}
+</style>
+</head>
+<body>
+<aside class="bc-sidebar" id="sidebar">
+  <div class="bc-sidebar-brand">
+    <svg viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="6" fill="#6366F1"/><path d="M7 7h3.5v10H7V7zm6.5 3H17v7h-3.5v-7z" fill="#fff"/></svg>
+    <span>LowCode</span>
+  </div>
+  <nav class="bc-sidebar-nav">
+    <a class="bc-nav-item" href="/app/home">
+      <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
+      Home
+    </a>
+    
+    <div class="bc-nav-group">
+      <div class="bc-nav-group-header">
+        <span class="bc-nav-group-label">CRM</span>
+        <svg class="bc-nav-group-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+      </div>
+      <div class="bc-nav-group-items" style="max-height:500px">
+        
+        <a class="bc-nav-item bc-nav-child" href="/app/crm/contact_list">
+          <svg viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="2.5"/></svg>
+          Contacts
+        </a>
+        
+        <a class="bc-nav-item bc-nav-child" href="/app/crm/lead_list">
+          <svg viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="2.5"/></svg>
+          Leads
+        </a>
+        
+      </div>
+    </div>
+    
+    <div class="bc-nav-group">
+      <div class="bc-nav-group-header">
+        <span class="bc-nav-group-label">Sales</span>
+        <svg class="bc-nav-group-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+      </div>
+      <div class="bc-nav-group-items" style="max-height:500px">
+        
+        <a class="bc-nav-item bc-nav-child" href="/app/sales/order_list">
+          <svg viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="2.5"/></svg>
+          Orders
+        </a>
+        
+        <a class="bc-nav-item bc-nav-child" href="/app/sales/contact_list">
+          <svg viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="2.5"/></svg>
+          Customers
+        </a>
+        
+      </div>
+    </div>
+    
+  </nav>
+  <div class="bc-sidebar-footer">
+    
+    
+    <div class="bc-nav-group">
+      <div class="bc-nav-group-header">
+        <span class="bc-nav-group-label">Users &amp; Companies</span>
+        <svg class="bc-nav-group-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+      </div>
+      <div class="bc-nav-group-items" style="max-height:500px">
+        
+        <a class="bc-nav-item bc-nav-child active" href="/app/base/user_list">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
+          Users
+        </a>
+        
+        <a class="bc-nav-item bc-nav-child" href="/app/base/group_list">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
+          Groups
+        </a>
+        
+        <a class="bc-nav-item bc-nav-child" href="/app/base/role_list">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
+          Roles
+        </a>
+        
+      </div>
+    </div>
+    
+    <div class="bc-nav-group">
+      <div class="bc-nav-group-header">
+        <span class="bc-nav-group-label">Technical</span>
+        <svg class="bc-nav-group-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+      </div>
+      <div class="bc-nav-group-items" style="max-height:500px">
+        
+        <a class="bc-nav-item bc-nav-child" href="/app/base/permission_list">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
+          Permissions
+        </a>
+        
+        <a class="bc-nav-item bc-nav-child" href="/app/base/record_rule_list">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
+          Record Rules
+        </a>
+        
+      </div>
+    </div>
+    
+    <div class="bc-nav-group">
+      <div class="bc-nav-group-header">
+        <span class="bc-nav-group-label">General Settings</span>
+        <svg class="bc-nav-group-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+      </div>
+      <div class="bc-nav-group-items" style="max-height:500px">
+        
+        <a class="bc-nav-item bc-nav-child" href="/app/base/setting_list">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
+          Settings
+        </a>
+        
+        <a class="bc-nav-item bc-nav-child" href="/app/base/audit_log_list">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
+          Audit Logs
+        </a>
+        
+      </div>
+    </div>
+    
+    
+    <a class="bc-nav-item" href="/admin" style="margin-top:0.25rem">
+      <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+      Admin Panel
+    </a>
+    <div style="padding:0.35rem 1rem;font-size:0.65rem;color:var(--text-muted);opacity:0.5">LowCode Engine v0.1</div>
+  </div>
+</aside>
+
+<header class="bc-navbar">
+  <div class="bc-navbar-left">
+    <button class="bc-menu-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">
+      <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
+    </button>
+    <div class="bc-breadcrumb">
+      <a href="/app/home">
+        <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" style="vertical-align:-2px;opacity:0.5"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
+      </a>
+      <span class="sep">/</span><span style="text-transform:capitalize">base</span>
+      <span class="sep">/</span><span style="font-weight:500;color:var(--text)">Users</span>
+    </div>
+  </div>
+  <div class="bc-navbar-right">
+    <div style="position:relative">
+      <button class="bc-app-switcher-btn" onclick="toggleDropdown(this,'bc-app-switcher-dropdown')" title="Apps">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="1" width="4" height="4" rx="1"/><rect x="6" y="1" width="4" height="4" rx="1"/><rect x="11" y="1" width="4" height="4" rx="1"/><rect x="1" y="6" width="4" height="4" rx="1"/><rect x="6" y="6" width="4" height="4" rx="1"/><rect x="11" y="6" width="4" height="4" rx="1"/><rect x="1" y="11" width="4" height="4" rx="1"/><rect x="6" y="11" width="4" height="4" rx="1"/><rect x="11" y="11" width="4" height="4" rx="1"/></svg>
+      </button>
+      <div class="bc-app-switcher-dropdown">
+        <a href="/app/home">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="var(--text-muted)"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
+          All Apps
+        </a>
+        
+        
+        <a href="/app/crm/contact_list">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="var(--text-muted)"><circle cx="10" cy="10" r="3"/></svg>
+          Contacts
+        </a>
+        
+        <a href="/app/crm/lead_list">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="var(--text-muted)"><circle cx="10" cy="10" r="3"/></svg>
+          Leads
+        </a>
+        
+        
+        
+        <a href="/app/sales/order_list">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="var(--text-muted)"><circle cx="10" cy="10" r="3"/></svg>
+          Orders
+        </a>
+        
+        <a href="/app/sales/contact_list">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="var(--text-muted)"><circle cx="10" cy="10" r="3"/></svg>
+          Customers
+        </a>
+        
+        
+        <div style="height:1px;background:var(--border-light);margin:0.35rem 0"></div>
+        <a href="/admin">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="var(--text-muted)"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
+          Admin Panel
+        </a>
+      </div>
+    </div>
+    
+    <div style="position:relative">
+      <button class="bc-user-btn" onclick="toggleDropdown(this,'bc-user-dropdown')">
+        <div class="bc-user-avatar">a...</div>
+        admin
+        <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor" style="opacity:0.4"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+      </button>
+      <div class="bc-user-dropdown">
+        <a href="/admin">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" style="opacity:0.4"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clip-rule="evenodd"/></svg>
+          Admin Panel
+        </a>
+        <div class="bc-divider"></div>
+        <a href="/app/login" onclick="document.cookie='token=;path=/;max-age=0'" style="color:var(--danger)">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" style="opacity:0.5"><path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"/></svg>
+          Sign out
+        </a>
+      </div>
+    </div>
+    
+  </div>
+</header>
+
+<main class="bc-main">
+<div class="bc-card">
+  <div class="bc-card-header">
+    <h2>Users</h2>
+    <div class="bc-actions">
+      
+      <div class="bc-search-box">
+        <svg width="14" height="14" viewBox="0 0 20 20" fill="#999"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/></svg>
+        <input type="text" placeholder="Search..." id="bc-search">
+      </div>
+      
+      
+      <div style="display:flex;gap:0.4rem;">
+        
+        <a class="bc-btn bc-btn-secondary" href="#">Deactivate</a>
+        
+      </div>
+      
+    </div>
+  </div>
+  
+  <div style="overflow-x:auto;">
+    <table class="bc-table">
+      <thead>
+        <tr>
+          <th>username</th><th>email</th><th>last_login</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        <tr>
+          
+          
+          <td>admin</td>
+          
+          <td>admin@localhost</td>
+          
+          <td>2026-04-18 09:59:55.2779558&#43;07:00</td>
+          
+        </tr>
+        
+      </tbody>
+    </table>
+  </div>
+  
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var search = document.getElementById('bc-search');
+  if (!search) return;
+  search.addEventListener('input', function() {
+    var q = this.value.toLowerCase();
+    var rows = document.querySelectorAll('.bc-table tbody tr');
+    rows.forEach(function(row) {
+      row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+  });
+});
+</script>
+
+</main>
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+  var toggle=document.querySelector('.bc-menu-toggle');
+  var sidebar=document.querySelector('.bc-sidebar');
+  if(toggle&&sidebar){toggle.addEventListener('click',function(){sidebar.classList.toggle('open')})}
+  document.querySelectorAll('.bc-nav-group-header').forEach(function(h){
+    h.addEventListener('click',function(){this.parentElement.classList.toggle('collapsed')})
+  });
+  document.addEventListener('click',function(e){
+    document.querySelectorAll('.bc-app-switcher-dropdown,.bc-user-dropdown').forEach(function(d){
+      if(!d.parentElement.contains(e.target))d.classList.remove('open')
+    })
+  });
+});
+function toggleDropdown(el,cls){
+  var dd=el.parentElement.querySelector('.'+cls);
+  if(dd){
+    document.querySelectorAll('.bc-app-switcher-dropdown,.bc-user-dropdown').forEach(function(d){if(d!==dd)d.classList.remove('open')});
+    dd.classList.toggle('open');
+  }
+}
+</script>
+</body>
+</html>
+

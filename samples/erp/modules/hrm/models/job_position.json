@@ -1,0 +1,20 @@
+{
+  "name": "job_position",
+  "module": "hrm",
+  "label": "Job Position",
+  "fields": {
+    "title":         { "type": "string", "required": true, "max": 200, "label": "Position Title" },
+    "department_id": { "type": "many2one", "model": "department", "required": true, "label": "Department" },
+    "description":   { "type": "text", "label": "Description" },
+    "requirements":  { "type": "text", "label": "Requirements" },
+    "min_salary":    { "type": "decimal", "precision": 2, "label": "Min Salary" },
+    "max_salary":    { "type": "decimal", "precision": 2, "label": "Max Salary" },
+    "headcount":     { "type": "integer", "default": 1, "label": "Headcount" },
+    "status":        { "type": "selection", "options": ["open", "filled", "closed"], "default": "open", "label": "Status" },
+    "employees":     { "type": "one2many", "model": "employee", "inverse": "position_id" }
+  },
+  "indexes": [
+    ["department_id"],
+    ["status"]
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "name": "enrich_leads",
+  "steps": [
+    { "type": "query", "model": "lead", "domain": [["status", "=", "new"]], "into": "new_leads" },
+    { "type": "loop", "over": "new_leads", "steps": [
+      {
+        "type": "switch",
+        "field": "{{_item.source}}",
+        "case_steps": {
+          "website": [
+            { "type": "call", "process": "enrich_from_web" },
+            { "type": "log", "message": "Enriched {{_item.name}} from website" }
+          ],
+          "referral": [
+            { "type": "assign", "variable": "priority", "value": "high" },
+            { "type": "update", "model": "lead", "set": { "priority": "high" } }
+          ],
+          "default": [
+            { "type": "log", "message": "Skipping lead {{_item.name}} (source: {{_item.source}})" }
+          ]
+        }
+      },
+      { "type": "log", "message": "Processing lead: {{_item.name}} from {{_item.source}}" }
+    ]},
+    { "type": "http", "method": "POST", "url": "https://api.example.com/webhook/leads-enriched", "body": { "count": "{{new_leads.length}}" }, "into": "webhook_result" },
+    { "type": "log", "message": "Enrichment complete. Webhook response: {{webhook_result}}" }
+  ]
+}

@@ -1,0 +1,97 @@
+{
+  "common.loading": "로딩 중...",
+  "common.save": "저장",
+  "common.create": "생성",
+  "common.cancel": "취소",
+  "common.search": "검색...",
+  "common.noResults": "결과 없음",
+  "common.prev": "이전",
+  "common.next": "다음",
+  "common.page": "페이지",
+  "common.total": "합계",
+  "common.delete": "삭제",
+  "common.confirm": "확인",
+  "common.copy": "복사",
+  "common.copied": "복사됨",
+  "common.of": "/",
+  "common.records_other": "{count}개 레코드",
+  "common.back": "뒤로",
+  "common.finish": "완료",
+  "common.close": "닫기",
+  "common.ok": "확인",
+  "common.yes": "예",
+  "common.no": "아니오",
+  "common.edit": "편집",
+  "common.actions": "작업",
+  "common.filter": "필터",
+  "common.reset": "초기화",
+  "common.apply": "적용",
+  "common.selectAll": "전체 선택",
+  "common.deselectAll": "선택 해제",
+
+  "datatable.filterColumn": "열 필터",
+  "datatable.noRecords": "레코드를 찾을 수 없습니다",
+  "datatable.show": "표시",
+  "datatable.exportXls": "XLS 내보내기",
+  "datatable.presetName": "프리셋 이름:",
+  "datatable.presets": "프리셋",
+  "datatable.saveFilter": "필터 저장",
+  "datatable.deleteSelected": "선택 항목 삭제",
+  "datatable.columns": "열",
+
+  "filter.addCondition": "+ 조건",
+  "filter.addGroup": "+ 그룹",
+  "filter.removeGroup": "그룹 삭제",
+  "filter.valuePlaceholder": "값...",
+  "filter.remove": "삭제",
+  "filter.visual": "비주얼",
+  "filter.json": "JSON",
+  "filter.applyJson": "JSON 적용",
+  "filter.empty": "필터가 없습니다. \"+ 조건\"을 클릭하여 추가하세요.",
+
+  "wizard.back": "뒤로",
+  "wizard.next": "다음",
+  "wizard.finish": "완료",
+
+  "quickentry.title": "빠른 생성",
+  "quickentry.saving": "저장 중...",
+
+  "report.title": "보고서",
+  "report.rows_other": "{count}개 행",
+  "report.exportCsv": "CSV 내보내기",
+  "report.average": "평균",
+
+  "activity.title": "활동",
+  "activity.activities_other": "{count}개 활동",
+  "activity.noActivities": "아직 활동이 없습니다",
+
+  "timeline.title": "변경 이력",
+  "timeline.noChanges": "기록된 변경 사항 없음",
+
+  "calendar.loadingEvents": "이벤트 로딩 중...",
+
+  "map.title": "지도",
+  "map.locations_other": "{count}개 위치",
+  "map.loadingLocations": "위치 로딩 중...",
+
+  "handle.dragToReorder": "드래그하여 정렬",
+
+  "barcode.placeholder": "바코드 값 입력...",
+  "barcode.qrError": "QR 오류",
+  "barcode.barcodeError": "바코드 오류",
+
+  "placeholder.default": "LowCode 컴포넌트",
+
+  "tab.default": "탭",
+
+  "form.saving": "저장 중...",
+
+  "export.title": "내보내기",
+
+  "print.title": "인쇄",
+
+  "toast.dismiss": "닫기",
+
+  "confirm.title": "확인",
+  "confirm.message": "정말 실행하시겠습니까?"
+}

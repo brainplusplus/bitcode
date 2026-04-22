@@ -1,0 +1,9 @@
+{
+  "name": "permission_list",
+  "type": "list",
+  "model": "permission",
+  "title": "Permissions",
+  "fields": ["name", "display_name", "module_name"],
+  "filters": ["module_name"],
+  "sort": { "field": "name", "order": "asc" }
+}

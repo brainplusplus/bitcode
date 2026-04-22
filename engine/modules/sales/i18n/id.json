@@ -1,0 +1,16 @@
+{
+  "locale": "id",
+  "translations": {
+    "Sales Order": "Pesanan Penjualan",
+    "Customer": "Pelanggan",
+    "Order Date": "Tanggal Pesanan",
+    "Total": "Total",
+    "Status": "Status",
+    "Draft": "Draf",
+    "Confirmed": "Dikonfirmasi",
+    "Done": "Selesai",
+    "Cancelled": "Dibatalkan",
+    "Confirm": "Konfirmasi",
+    "Cancel": "Batalkan"
+  }
+}

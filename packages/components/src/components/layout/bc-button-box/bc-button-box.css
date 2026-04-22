@@ -1,0 +1,42 @@
+:host {
+  display: block;
+}
+
+.bc-button-box {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--bc-spacing-xs);
+  padding: var(--bc-spacing-sm) var(--bc-spacing-md);
+}
+
+.bc-smart-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--bc-spacing-sm) var(--bc-spacing-md);
+  border: 1px solid var(--bc-border-color);
+  border-radius: var(--bc-radius-md);
+  background: var(--bc-bg);
+  cursor: pointer;
+  transition: all var(--bc-transition);
+  font-family: var(--bc-font-family);
+  min-width: 5rem;
+}
+
+.bc-smart-btn:hover {
+  background: var(--bc-bg-hover);
+  border-color: var(--bc-primary);
+}
+
+.bc-smart-count {
+  font-size: var(--bc-font-size-lg);
+  font-weight: var(--bc-font-weight-bold);
+  color: var(--bc-primary);
+}
+
+.bc-smart-label {
+  font-size: var(--bc-font-size-xs);
+  color: var(--bc-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}

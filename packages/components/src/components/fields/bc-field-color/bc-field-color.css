@@ -1,0 +1,22 @@
+@import '../field-base.css';
+
+.bc-color-wrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--bc-spacing-sm);
+}
+
+input[type="color"] {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--bc-border-color);
+  border-radius: var(--bc-radius-md);
+  cursor: pointer;
+  padding: 0.125rem;
+}
+
+.bc-color-hex {
+  font-family: var(--bc-font-mono);
+  font-size: var(--bc-font-size-sm);
+  color: var(--bc-text-secondary);
+}

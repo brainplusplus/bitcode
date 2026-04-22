@@ -1,0 +1,11 @@
+{
+  "name": "crm_dashboard",
+  "type": "custom",
+  "template": "templates/dashboard.html",
+  "data_sources": {
+    "new_leads":       { "model": "lead", "domain": [["status", "=", "new"]] },
+    "qualified_leads": { "model": "lead", "domain": [["status", "=", "qualified"]] },
+    "won_leads":       { "model": "lead", "domain": [["status", "=", "won"]] },
+    "recent_contacts": { "model": "contact" }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "leave_api",
+  "model": "leave_request",
+  "auto_crud": true,
+  "auth": true,
+  "workflow": "leave_workflow",
+  "actions": {
+    "submit":  { "transition": "submit",  "permission": "hrm.leave.create" },
+    "approve": { "transition": "approve", "permission": "hrm.leave.approve" },
+    "reject":  { "transition": "reject",  "permission": "hrm.leave.approve" },
+    "cancel":  { "transition": "cancel",  "permission": "hrm.leave.create" }
+  },
+  "search": ["reason"]
+}

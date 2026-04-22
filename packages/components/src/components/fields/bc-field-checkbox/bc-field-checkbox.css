@@ -1,0 +1,22 @@
+@import '../field-base.css';
+
+.bc-field-inline {
+  flex-direction: row;
+  align-items: center;
+}
+
+.bc-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: var(--bc-spacing-sm);
+  cursor: pointer;
+  font-size: var(--bc-font-size-base);
+  color: var(--bc-text);
+}
+
+input[type="checkbox"] {
+  width: 1.125rem;
+  height: 1.125rem;
+  accent-color: var(--bc-primary);
+  cursor: pointer;
+}

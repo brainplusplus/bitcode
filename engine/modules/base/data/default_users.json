@@ -1,0 +1,10 @@
+{
+  "users": [
+    {
+      "username": "admin",
+      "email": "admin@localhost",
+      "password": "admin123",
+      "active": true
+    }
+  ]
+}

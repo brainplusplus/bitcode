@@ -1,0 +1,8 @@
+{
+  "name": "department_list",
+  "type": "list",
+  "model": "department",
+  "title": "Departments",
+  "fields": ["name", "code", "manager_id", "parent_id"],
+  "sort": { "field": "name", "order": "asc" }
+}

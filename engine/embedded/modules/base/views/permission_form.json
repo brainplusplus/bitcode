@@ -1,0 +1,13 @@
+{
+  "name": "permission_form",
+  "type": "form",
+  "model": "permission",
+  "title": "Permission",
+  "layout": [
+    { "row": [
+      { "field": "name", "width": 4 },
+      { "field": "display_name", "width": 4 },
+      { "field": "module_name", "width": 4 }
+    ]}
+  ]
+}

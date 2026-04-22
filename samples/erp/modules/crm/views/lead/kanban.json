@@ -1,0 +1,9 @@
+{
+  "name": "lead_kanban",
+  "type": "kanban",
+  "model": "lead",
+  "title": "Lead Pipeline",
+  "group_by": "status",
+  "fields": ["name", "company", "expected_revenue", "assigned_to", "priority"],
+  "sort": { "field": "priority", "order": "desc" }
+}

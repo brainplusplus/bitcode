@@ -1,0 +1,25 @@
+{
+  "name": "record_rule_form",
+  "type": "form",
+  "model": "record_rule",
+  "title": "Record Rule",
+  "layout": [
+    { "row": [
+      { "field": "name", "width": 6 },
+      { "field": "model_name", "width": 6 }
+    ]},
+    { "row": [
+      { "field": "group_names", "width": 6 },
+      { "field": "is_global", "width": 6 }
+    ]},
+    { "row": [
+      { "field": "domain_filter", "width": 12 }
+    ]},
+    { "row": [
+      { "field": "can_read", "width": 3 },
+      { "field": "can_create", "width": 3 },
+      { "field": "can_write", "width": 3 },
+      { "field": "can_delete", "width": 3 }
+    ]}
+  ]
+}

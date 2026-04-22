@@ -1,0 +1,9 @@
+{
+  "name": "lose_lead",
+  "steps": [
+    { "type": "validate", "rules": { "lost_reason": { "required": true } }, "error": "Lost reason is required" },
+    { "type": "update", "model": "lead", "set": { "status": "lost", "probability": 0 } },
+    { "type": "log", "message": "DEAL LOST: {{input.name}} - Reason: {{input.lost_reason}}" },
+    { "type": "emit", "event": "lead.lost" }
+  ]
+}

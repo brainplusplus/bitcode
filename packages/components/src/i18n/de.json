@@ -1,0 +1,101 @@
+{
+  "common.loading": "Wird geladen...",
+  "common.save": "Speichern",
+  "common.create": "Erstellen",
+  "common.cancel": "Abbrechen",
+  "common.search": "Suchen...",
+  "common.noResults": "Keine Ergebnisse",
+  "common.prev": "Zur\u00fcck",
+  "common.next": "Weiter",
+  "common.page": "Seite",
+  "common.total": "Gesamt",
+  "common.delete": "L\u00f6schen",
+  "common.confirm": "Best\u00e4tigen",
+  "common.copy": "Kopieren",
+  "common.copied": "Kopiert",
+  "common.of": "von",
+  "common.records_one": "{count} Datensatz",
+  "common.records_other": "{count} Datens\u00e4tze",
+  "common.back": "Zur\u00fcck",
+  "common.finish": "Fertigstellen",
+  "common.close": "Schlie\u00dfen",
+  "common.ok": "OK",
+  "common.yes": "Ja",
+  "common.no": "Nein",
+  "common.edit": "Bearbeiten",
+  "common.actions": "Aktionen",
+  "common.filter": "Filtern",
+  "common.reset": "Zur\u00fccksetzen",
+  "common.apply": "Anwenden",
+  "common.selectAll": "Alle ausw\u00e4hlen",
+  "common.deselectAll": "Auswahl aufheben",
+
+  "datatable.filterColumn": "Spalte filtern",
+  "datatable.noRecords": "Keine Datens\u00e4tze gefunden",
+  "datatable.show": "Anzeigen",
+  "datatable.exportXls": "XLS exportieren",
+  "datatable.presetName": "Vorlagenname:",
+  "datatable.presets": "Vorlagen",
+  "datatable.saveFilter": "Filter speichern",
+  "datatable.deleteSelected": "Ausgew\u00e4hlte l\u00f6schen",
+  "datatable.columns": "Spalten",
+
+  "filter.addCondition": "+ Bedingung",
+  "filter.addGroup": "+ Gruppe",
+  "filter.removeGroup": "Gruppe entfernen",
+  "filter.valuePlaceholder": "Wert...",
+  "filter.remove": "Entfernen",
+  "filter.visual": "Visuell",
+  "filter.json": "JSON",
+  "filter.applyJson": "JSON anwenden",
+  "filter.empty": "Keine Filter. Klicken Sie auf \u00ab + Bedingung \u00bb zum Hinzuf\u00fcgen.",
+
+  "wizard.back": "Zur\u00fcck",
+  "wizard.next": "Weiter",
+  "wizard.finish": "Fertigstellen",
+
+  "quickentry.title": "Schnellerfassung",
+  "quickentry.saving": "Wird gespeichert...",
+
+  "report.title": "Bericht",
+  "report.rows_one": "{count} Zeile",
+  "report.rows_other": "{count} Zeilen",
+  "report.exportCsv": "CSV exportieren",
+  "report.average": "Durchschnitt",
+
+  "activity.title": "Aktivit\u00e4t",
+  "activity.activities_one": "{count} Aktivit\u00e4t",
+  "activity.activities_other": "{count} Aktivit\u00e4ten",
+  "activity.noActivities": "Noch keine Aktivit\u00e4ten",
+
+  "timeline.title": "\u00c4nderungsverlauf",
+  "timeline.noChanges": "Keine \u00c4nderungen erfasst",
+
+  "calendar.loadingEvents": "Termine werden geladen...",
+
+  "map.title": "Karte",
+  "map.locations_one": "{count} Standort",
+  "map.locations_other": "{count} Standorte",
+  "map.loadingLocations": "Standorte werden geladen...",
+
+  "handle.dragToReorder": "Ziehen zum Sortieren",
+
+  "barcode.placeholder": "Barcode-Wert eingeben...",
+  "barcode.qrError": "QR-Fehler",
+  "barcode.barcodeError": "Barcode-Fehler",
+
+  "placeholder.default": "LowCode-Komponente",
+
+  "tab.default": "Tab",
+
+  "form.saving": "Wird gespeichert...",
+
+  "export.title": "Exportieren",
+
+  "print.title": "Drucken",
+
+  "toast.dismiss": "Schlie\u00dfen",
+
+  "confirm.title": "Best\u00e4tigen",
+  "confirm.message": "Sind Sie sicher?"
+}

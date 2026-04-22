@@ -1,0 +1,37 @@
+{
+  "name": "employee",
+  "module": "hrm",
+  "label": "Employee",
+  "fields": {
+    "employee_id":   { "type": "string", "required": true, "unique": true, "max": 20, "label": "Employee ID" },
+    "user_id":       { "type": "many2one", "model": "user", "label": "User Account" },
+    "name":          { "type": "string", "required": true, "max": 200, "label": "Full Name" },
+    "email":         { "type": "email", "required": true, "label": "Work Email", "widget": "email" },
+    "phone":         { "type": "string", "max": 20, "label": "Phone", "widget": "phone" },
+    "department_id": { "type": "many2one", "model": "department", "required": true, "label": "Department" },
+    "position_id":   { "type": "many2one", "model": "job_position", "label": "Job Position" },
+    "manager_id":    { "type": "many2one", "model": "employee", "label": "Direct Manager" },
+    "hire_date":     { "type": "date", "required": true, "label": "Hire Date" },
+    "birth_date":    { "type": "date", "label": "Birth Date" },
+    "gender":        { "type": "selection", "options": ["male", "female", "other"], "label": "Gender" },
+    "marital_status":{ "type": "selection", "options": ["single", "married", "divorced", "widowed"], "label": "Marital Status" },
+    "address":       { "type": "text", "label": "Address" },
+    "salary":        { "type": "currency", "currency": "IDR", "precision": 0, "label": "Salary" },
+    "status":        { "type": "selection", "options": ["active", "probation", "on_leave", "terminated"], "default": "probation", "label": "Status", "widget": "statusbar" },
+    "photo":         { "type": "image", "max_size": "5MB", "accept": "image/*", "label": "Photo" },
+    "notes":         { "type": "richtext", "toolbar": "minimal", "label": "Notes" },
+    "leave_balance": { "type": "integer", "default": 12, "label": "Leave Balance (days)" },
+    "leaves":        { "type": "one2many", "model": "leave_request", "inverse": "employee_id" }
+  },
+  "record_rules": [
+    { "groups": ["hrm.user"],    "domain": [["user_id", "=", "{{user.id}}"]] },
+    { "groups": ["hrm.officer"], "domain": [] },
+    { "groups": ["hrm.manager"], "domain": [] }
+  ],
+  "indexes": [
+    ["department_id"],
+    ["position_id"],
+    ["status"],
+    ["employee_id"]
+  ]
+}

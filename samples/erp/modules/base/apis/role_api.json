@@ -1,0 +1,6 @@
+{
+  "name": "role_api",
+  "model": "role",
+  "auto_crud": true,
+  "auth": true
+}

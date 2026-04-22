@@ -1,0 +1,27 @@
+@import '../field-base.css';
+
+.bc-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--bc-spacing-sm);
+}
+
+.bc-radio-group.horizontal {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.bc-radio-option {
+  display: flex;
+  align-items: center;
+  gap: var(--bc-spacing-xs);
+  cursor: pointer;
+  font-size: var(--bc-font-size-base);
+  color: var(--bc-text);
+}
+
+input[type="radio"] {
+  accent-color: var(--bc-primary);
+  width: 1rem;
+  height: 1rem;
+}

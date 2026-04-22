@@ -1,0 +1,11 @@
+.bc-view{font-family:var(--bc-font-family,system-ui,sans-serif);border:1px solid var(--bc-border-color);border-radius:var(--bc-radius-lg);background:var(--bc-bg)}
+.bc-tree-header{padding:12px 16px;border-bottom:1px solid var(--bc-border-color);background:var(--bc-bg-secondary)}
+.bc-tree-header h2{margin:0;font-size:var(--bc-font-size-lg);font-weight:600}
+.bc-tree-loading{padding:16px;text-align:center;color:var(--bc-text-secondary)}
+.bc-tree-body{padding:4px 0}
+.bc-tree-row{display:flex;align-items:center;gap:6px;padding:6px 8px;cursor:pointer;border-radius:var(--bc-radius-sm);margin:1px 4px;transition:background 100ms}
+.bc-tree-row:hover{background:var(--bc-bg-hover)}
+.bc-tree-icon{font-size:0.7rem;width:1rem;text-align:center;color:var(--bc-text-secondary);flex-shrink:0}
+.bc-tree-icon.has-children{color:var(--bc-primary);cursor:pointer}
+.bc-tree-name{font-size:var(--bc-font-size-sm);color:var(--bc-text)}
+.bc-tree-count{font-size:var(--bc-font-size-xs);color:var(--bc-text-secondary)}

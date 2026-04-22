@@ -1,0 +1,55 @@
+{
+  "name": "enrich_lead_dag",
+  "nodes": {
+    "validate": {
+      "type": "validate",
+      "label": "Validate Lead",
+      "rules": { "status": { "eq": "new" } },
+      "error": "Only new leads can be enriched"
+    },
+    "fetch_company": {
+      "type": "http",
+      "label": "Fetch Company Data",
+      "method": "GET",
+      "url": "https://api.example.com/company/{{input.company}}"
+    },
+    "fetch_social": {
+      "type": "http",
+      "label": "Fetch Social Profile",
+      "method": "GET",
+      "url": "https://api.example.com/social/{{input.email}}"
+    },
+    "score_lead": {
+      "type": "script",
+      "label": "Calculate Lead Score",
+      "runtime": "typescript",
+      "script": "scripts/score_lead.ts"
+    },
+    "update_lead": {
+      "type": "update",
+      "label": "Save Enriched Data",
+      "model": "lead",
+      "set": { "status": "enriched", "enriched": true }
+    },
+    "notify_vip": {
+      "type": "emit",
+      "label": "Notify VIP Team",
+      "event": "lead.vip_enriched",
+      "data": { "lead_id": "{{input.id}}" }
+    },
+    "log_done": {
+      "type": "log",
+      "label": "Log Completion",
+      "message": "Lead {{input.name}} enriched successfully"
+    }
+  },
+  "edges": [
+    { "from": "validate", "to": "fetch_company" },
+    { "from": "validate", "to": "fetch_social" },
+    { "from": "fetch_company", "to": "score_lead" },
+    { "from": "fetch_social", "to": "score_lead" },
+    { "from": "score_lead", "to": "update_lead" },
+    { "from": "update_lead", "to": "log_done" },
+    { "from": "update_lead", "to": "notify_vip", "condition": "{{input.is_vip}}" }
+  ]
+}

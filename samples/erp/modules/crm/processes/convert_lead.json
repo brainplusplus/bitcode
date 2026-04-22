@@ -1,0 +1,34 @@
+{
+  "name": "convert_lead",
+  "steps": [
+    {
+      "type": "validate",
+      "label": "Validate Lead",
+      "rules": { "status": { "eq": "qualified" } },
+      "error": "Only qualified leads can receive a proposal"
+    },
+    {
+      "type": "if",
+      "label": "Check Revenue",
+      "condition": "{{input.expected_revenue > 50000}}",
+      "then_steps": [
+        { "type": "assign", "variable": "deal_type", "value": "enterprise" },
+        { "type": "log", "message": "{{t('High-value lead detected')}}: {{input.name}} ({{input.expected_revenue}})" }
+      ],
+      "else_steps": [
+        { "type": "assign", "variable": "deal_type", "value": "standard" }
+      ]
+    },
+    {
+      "type": "update",
+      "label": "Update Lead Status",
+      "model": "lead",
+      "set": { "status": "proposal", "probability": 60 }
+    },
+    {
+      "type": "emit",
+      "label": "Send Proposal Event",
+      "event": "lead.proposal_sent"
+    }
+  ]
+}

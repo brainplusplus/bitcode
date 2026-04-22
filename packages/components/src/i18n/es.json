@@ -1,0 +1,101 @@
+{
+  "common.loading": "Cargando...",
+  "common.save": "Guardar",
+  "common.create": "Crear",
+  "common.cancel": "Cancelar",
+  "common.search": "Buscar...",
+  "common.noResults": "Sin resultados",
+  "common.prev": "Anterior",
+  "common.next": "Siguiente",
+  "common.page": "P\u00e1gina",
+  "common.total": "Total",
+  "common.delete": "Eliminar",
+  "common.confirm": "Confirmar",
+  "common.copy": "Copiar",
+  "common.copied": "Copiado",
+  "common.of": "de",
+  "common.records_one": "{count} registro",
+  "common.records_other": "{count} registros",
+  "common.back": "Atr\u00e1s",
+  "common.finish": "Finalizar",
+  "common.close": "Cerrar",
+  "common.ok": "OK",
+  "common.yes": "S\u00ed",
+  "common.no": "No",
+  "common.edit": "Editar",
+  "common.actions": "Acciones",
+  "common.filter": "Filtrar",
+  "common.reset": "Restablecer",
+  "common.apply": "Aplicar",
+  "common.selectAll": "Seleccionar todo",
+  "common.deselectAll": "Deseleccionar todo",
+
+  "datatable.filterColumn": "Filtrar columna",
+  "datatable.noRecords": "No se encontraron registros",
+  "datatable.show": "Mostrar",
+  "datatable.exportXls": "Exportar XLS",
+  "datatable.presetName": "Nombre del preset:",
+  "datatable.presets": "Presets",
+  "datatable.saveFilter": "Guardar filtro",
+  "datatable.deleteSelected": "Eliminar seleccionados",
+  "datatable.columns": "Columnas",
+
+  "filter.addCondition": "+ Condici\u00f3n",
+  "filter.addGroup": "+ Grupo",
+  "filter.removeGroup": "Eliminar grupo",
+  "filter.valuePlaceholder": "Valor...",
+  "filter.remove": "Eliminar",
+  "filter.visual": "Visual",
+  "filter.json": "JSON",
+  "filter.applyJson": "Aplicar JSON",
+  "filter.empty": "Sin filtros. Haga clic en \u00ab + Condici\u00f3n \u00bb para agregar.",
+
+  "wizard.back": "Atr\u00e1s",
+  "wizard.next": "Siguiente",
+  "wizard.finish": "Finalizar",
+
+  "quickentry.title": "Creaci\u00f3n r\u00e1pida",
+  "quickentry.saving": "Guardando...",
+
+  "report.title": "Informe",
+  "report.rows_one": "{count} fila",
+  "report.rows_other": "{count} filas",
+  "report.exportCsv": "Exportar CSV",
+  "report.average": "Promedio",
+
+  "activity.title": "Actividad",
+  "activity.activities_one": "{count} actividad",
+  "activity.activities_other": "{count} actividades",
+  "activity.noActivities": "A\u00fan no hay actividades",
+
+  "timeline.title": "Historial de cambios",
+  "timeline.noChanges": "No se registraron cambios",
+
+  "calendar.loadingEvents": "Cargando eventos...",
+
+  "map.title": "Mapa",
+  "map.locations_one": "{count} ubicaci\u00f3n",
+  "map.locations_other": "{count} ubicaciones",
+  "map.loadingLocations": "Cargando ubicaciones...",
+
+  "handle.dragToReorder": "Arrastrar para reordenar",
+
+  "barcode.placeholder": "Ingrese el valor del c\u00f3digo de barras...",
+  "barcode.qrError": "Error de QR",
+  "barcode.barcodeError": "Error de c\u00f3digo de barras",
+
+  "placeholder.default": "Componente LowCode",
+
+  "tab.default": "Pesta\u00f1a",
+
+  "form.saving": "Guardando...",
+
+  "export.title": "Exportar",
+
+  "print.title": "Imprimir",
+
+  "toast.dismiss": "Cerrar",
+
+  "confirm.title": "Confirmar",
+  "confirm.message": "\u00bfEst\u00e1 seguro?"
+}

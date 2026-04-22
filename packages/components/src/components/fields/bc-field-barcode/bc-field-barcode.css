@@ -1,0 +1,7 @@
+.bc-field { display:flex; flex-direction:column; gap:0.25rem; margin-bottom:var(--bc-spacing-sm); font-family:var(--bc-font-family,system-ui,sans-serif); }
+.bc-field-label { font-size:var(--bc-font-size-sm); font-weight:500; color:var(--bc-text); }
+.bc-field-input { width:100%; height:var(--bc-input-height,2.5rem); padding:0.5rem 0.75rem; border:1px solid var(--bc-border-color); border-radius:var(--bc-radius-md); font-family:inherit; font-size:var(--bc-font-size-base); outline:none; box-sizing:border-box; }
+.bc-field-input:focus { border-color:var(--bc-border-color-focus); box-shadow:var(--bc-input-focus-ring); }
+.bc-barcode-display { padding:8px; text-align:center; min-height:4rem; display:flex; align-items:center; justify-content:center; }
+.bc-barcode-display svg { max-width:100%; }
+.bc-barcode-display img { max-width:150px; }

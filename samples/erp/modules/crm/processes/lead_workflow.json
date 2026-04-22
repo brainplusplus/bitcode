@@ -1,0 +1,20 @@
+{
+  "name": "lead_workflow",
+  "model": "lead",
+  "field": "status",
+  "states": {
+    "new":       { "label": "New" },
+    "contacted": { "label": "Contacted" },
+    "qualified": { "label": "Qualified" },
+    "proposal":  { "label": "Proposal" },
+    "won":       { "label": "Won" },
+    "lost":      { "label": "Lost" }
+  },
+  "transitions": [
+    { "from": "new",       "to": "contacted", "action": "contact",  "permission": "crm.lead.write" },
+    { "from": "contacted", "to": "qualified", "action": "qualify",   "permission": "crm.lead.qualify", "process": "qualify_lead" },
+    { "from": "qualified", "to": "proposal",  "action": "proposal",  "permission": "crm.lead.write",   "process": "convert_lead" },
+    { "from": "proposal",  "to": "won",       "action": "win",       "permission": "crm.lead.write",   "process": "win_lead" },
+    { "from": ["new", "contacted", "qualified", "proposal"], "to": "lost", "action": "lose", "permission": "crm.lead.write", "process": "lose_lead" }
+  ]
+}

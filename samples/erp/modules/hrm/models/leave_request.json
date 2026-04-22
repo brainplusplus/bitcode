@@ -1,0 +1,25 @@
+{
+  "name": "leave_request",
+  "module": "hrm",
+  "label": "Leave Request",
+  "fields": {
+    "employee_id": { "type": "many2one", "model": "employee", "required": true, "label": "Employee" },
+    "leave_type":  { "type": "selection", "options": ["annual", "sick", "personal", "maternity", "unpaid"], "required": true, "label": "Leave Type" },
+    "start_date":  { "type": "date", "required": true, "label": "Start Date" },
+    "end_date":    { "type": "date", "required": true, "label": "End Date" },
+    "days":        { "type": "integer", "required": true, "min": 1, "label": "Number of Days" },
+    "reason":      { "type": "text", "label": "Reason", "mandatory_if": "leave_type == 'personal' || leave_type == 'unpaid'" },
+    "status":      { "type": "selection", "options": ["draft", "submitted", "approved", "rejected", "cancelled"], "default": "draft", "label": "Status", "widget": "statusbar" },
+    "approved_by": { "type": "many2one", "model": "user", "label": "Approved By", "depends_on": "status == 'approved'" },
+    "reject_reason": { "type": "text", "label": "Rejection Reason", "depends_on": "status == 'rejected'", "mandatory_if": "status == 'rejected'" }
+  },
+  "record_rules": [
+    { "groups": ["hrm.user"],    "domain": [["created_by", "=", "{{user.id}}"]] },
+    { "groups": ["hrm.officer"], "domain": [] }
+  ],
+  "indexes": [
+    ["employee_id"],
+    ["status"],
+    ["start_date"]
+  ]
+}

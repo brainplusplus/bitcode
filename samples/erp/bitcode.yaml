@@ -1,0 +1,25 @@
+name: erp-sample
+version: 0.1.0
+port: 8989
+
+database:
+  driver: sqlite          # sqlite (default), postgres, mysql
+  # driver: postgres
+  # host: localhost
+  # port: 5432
+  # user: bitcode
+  # password: bitcode
+  # name: erp_sample
+
+cache:
+  driver: memory          # memory (default), redis
+  # driver: redis
+  # redis_url: redis://localhost:6379
+
+tenant:
+  enabled: false          # set true for multi-tenancy
+  strategy: header        # header, subdomain, path
+  header: X-Tenant-ID
+
+jwt_secret: sample-erp-secret-change-in-prod!
+module_dir: modules

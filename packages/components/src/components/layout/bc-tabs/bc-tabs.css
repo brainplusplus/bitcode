@@ -1,0 +1,37 @@
+:host {
+  display: block;
+  margin-bottom: var(--bc-spacing-lg);
+}
+
+.bc-tabs-nav {
+  display: flex;
+  border-bottom: 2px solid var(--bc-border-color);
+  gap: 0;
+}
+
+.bc-tab-btn {
+  padding: var(--bc-spacing-sm) var(--bc-spacing-md);
+  border: none;
+  background: none;
+  font-family: var(--bc-font-family);
+  font-size: var(--bc-font-size-sm);
+  font-weight: var(--bc-font-weight-medium);
+  color: var(--bc-text-secondary);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: color var(--bc-transition), border-color var(--bc-transition);
+}
+
+.bc-tab-btn:hover {
+  color: var(--bc-text);
+}
+
+.bc-tab-btn.active {
+  color: var(--bc-primary);
+  border-bottom-color: var(--bc-primary);
+}
+
+.bc-tabs-content {
+  padding: var(--bc-spacing-md) 0;
+}

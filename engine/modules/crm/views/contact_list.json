@@ -1,0 +1,9 @@
+{
+  "name": "contact_list",
+  "type": "list",
+  "model": "contact",
+  "title": "Contacts",
+  "fields": ["name", "email", "phone", "company"],
+  "filters": ["company"],
+  "sort": { "field": "name", "order": "asc" }
+}

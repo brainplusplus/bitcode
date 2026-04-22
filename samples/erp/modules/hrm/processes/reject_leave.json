@@ -1,0 +1,9 @@
+{
+  "name": "reject_leave",
+  "steps": [
+    { "type": "validate", "rules": { "reject_reason": { "required": true } }, "error": "Rejection reason is required" },
+    { "type": "update", "model": "leave_request", "set": { "status": "rejected" } },
+    { "type": "log", "message": "Leave request rejected: {{input.reject_reason}}" },
+    { "type": "emit", "event": "leave.rejected" }
+  ]
+}

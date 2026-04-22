@@ -1,0 +1,28 @@
+{
+  "name": "hr_agent",
+  "triggers": [
+    {
+      "event": "leave.submitted",
+      "action": "notify_manager_leave",
+      "script": "scripts/on_leave_submitted.ts"
+    },
+    {
+      "event": "leave.approved",
+      "action": "update_leave_balance",
+      "script": "scripts/on_leave_approved.ts"
+    },
+    {
+      "event": "employee.promoted",
+      "action": "notify_promotion",
+      "script": "scripts/on_promotion.ts"
+    }
+  ],
+  "cron": [
+    {
+      "schedule": "0 8 * * 1",
+      "action": "weekly_attendance_report",
+      "script": "scripts/weekly_attendance.ts"
+    }
+  ],
+  "retry": { "max": 3, "backoff": "exponential" }
+}

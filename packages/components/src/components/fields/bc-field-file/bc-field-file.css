@@ -1,0 +1,12 @@
+@import '../field-base.css';
+
+.bc-file-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--bc-spacing-xs);
+}
+
+.bc-file-name {
+  font-size: var(--bc-font-size-sm);
+  color: var(--bc-text-secondary);
+}

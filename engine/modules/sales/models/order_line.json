@@ -1,0 +1,12 @@
+{
+  "name": "order_line",
+  "module": "sales",
+  "label": "Order Line",
+  "fields": {
+    "order_id":    { "type": "many2one", "model": "order", "required": true },
+    "description": { "type": "string", "required": true, "max": 500 },
+    "quantity":    { "type": "decimal", "required": true, "precision": 2, "min": 0 },
+    "unit_price":  { "type": "decimal", "required": true, "precision": 2, "min": 0 },
+    "subtotal":    { "type": "decimal", "computed": "quantity * unit_price", "precision": 2 }
+  }
+}

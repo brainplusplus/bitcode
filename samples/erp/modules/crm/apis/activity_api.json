@@ -1,0 +1,7 @@
+{
+  "name": "activity_api",
+  "model": "activity",
+  "auto_crud": true,
+  "auth": true,
+  "search": ["summary", "description"]
+}

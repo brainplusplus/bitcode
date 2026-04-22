@@ -1,0 +1,8 @@
+{
+  "name": "confirm_order",
+  "steps": [
+    { "type": "validate", "rules": { "status": { "eq": "draft" } }, "error": "Only draft orders can be confirmed" },
+    { "type": "update", "model": "order", "set": { "status": "confirmed" } },
+    { "type": "emit", "event": "order.confirmed" }
+  ]
+}

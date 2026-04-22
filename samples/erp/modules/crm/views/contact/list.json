@@ -1,0 +1,12 @@
+{
+  "name": "contact_list",
+  "type": "list",
+  "model": "contact",
+  "title": "Contacts",
+  "fields": ["name", "email", "phone", "company", "type"],
+  "filters": ["type", "company"],
+  "sort": { "field": "name", "order": "asc" },
+  "actions": [
+    { "label": "Log Activity", "process": "log_activity", "permission": "crm.contact.write" }
+  ]
+}

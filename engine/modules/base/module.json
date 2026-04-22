@@ -1,0 +1,57 @@
+{
+  "name": "base",
+  "version": "1.0.0",
+  "label": "Base",
+  "depends": [],
+  "category": "Core",
+  "models": ["models/*.json"],
+  "apis": ["apis/*.json"],
+  "processes": ["processes/*.json"],
+  "views": ["views/*.json"],
+  "templates": ["templates/**/*.html"],
+  "data": ["data/*.json"],
+  "permissions": {
+    "base.user.read": "View users",
+    "base.user.create": "Create users",
+    "base.user.write": "Edit users",
+    "base.user.delete": "Delete users",
+    "base.role.read": "View roles",
+    "base.role.write": "Edit roles",
+    "base.group.read": "View groups",
+    "base.group.write": "Edit groups",
+    "base.settings.read": "View settings",
+    "base.settings.write": "Edit settings",
+    "base.audit.read": "View audit logs"
+  },
+  "groups": {
+    "base.user": { "label": "Base / User", "implies": [] },
+    "base.admin": { "label": "Base / Admin", "implies": ["base.user"] }
+  },
+  "menu": [
+    {
+      "label": "Users & Companies",
+      "icon": "users",
+      "children": [
+        { "label": "Users", "view": "user_list" },
+        { "label": "Groups", "view": "group_list" },
+        { "label": "Roles", "view": "role_list" }
+      ]
+    },
+    {
+      "label": "Technical",
+      "icon": "settings",
+      "children": [
+        { "label": "Permissions", "view": "permission_list" },
+        { "label": "Record Rules", "view": "record_rule_list" }
+      ]
+    },
+    {
+      "label": "General Settings",
+      "icon": "sliders",
+      "children": [
+        { "label": "Settings", "view": "setting_list" },
+        { "label": "Audit Logs", "view": "audit_log_list" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+:host {
+  display: block;
+  font-family: var(--bc-font-family, system-ui, sans-serif);
+}
+.bc-copy { background: none; border: 1px solid var(--bc-border-color); border-radius: var(--bc-radius-md); padding: 0.25rem 0.5rem; font-size: var(--bc-font-size-xs); cursor: pointer; color: var(--bc-text-secondary); transition: all var(--bc-transition); } .bc-copy:hover { border-color: var(--bc-primary); color: var(--bc-primary); }

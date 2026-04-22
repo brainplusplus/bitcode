@@ -1,0 +1,8 @@
+{{if eq . "active"}}  <span class="bc-badge bc-badge-green">{{.}}</span>
+{{else if eq . "draft"}}  <span class="bc-badge bc-badge-gray">{{.}}</span>
+{{else if eq . "confirmed"}}<span class="bc-badge bc-badge-blue">{{.}}</span>
+{{else if eq . "done"}}     <span class="bc-badge bc-badge-green">{{.}}</span>
+{{else if eq . "cancelled"}}<span class="bc-badge bc-badge-red">{{.}}</span>
+{{else if eq . "pending"}}  <span class="bc-badge bc-badge-yellow">{{.}}</span>
+{{else}}<span class="bc-badge bc-badge-gray">{{.}}</span>
+{{end}}

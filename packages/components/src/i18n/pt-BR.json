@@ -1,0 +1,101 @@
+{
+  "common.loading": "Carregando...",
+  "common.save": "Salvar",
+  "common.create": "Criar",
+  "common.cancel": "Cancelar",
+  "common.search": "Pesquisar...",
+  "common.noResults": "Nenhum resultado",
+  "common.prev": "Anterior",
+  "common.next": "Pr\u00f3ximo",
+  "common.page": "P\u00e1gina",
+  "common.total": "Total",
+  "common.delete": "Excluir",
+  "common.confirm": "Confirmar",
+  "common.copy": "Copiar",
+  "common.copied": "Copiado",
+  "common.of": "de",
+  "common.records_one": "{count} registro",
+  "common.records_other": "{count} registros",
+  "common.back": "Voltar",
+  "common.finish": "Concluir",
+  "common.close": "Fechar",
+  "common.ok": "OK",
+  "common.yes": "Sim",
+  "common.no": "N\u00e3o",
+  "common.edit": "Editar",
+  "common.actions": "A\u00e7\u00f5es",
+  "common.filter": "Filtrar",
+  "common.reset": "Redefinir",
+  "common.apply": "Aplicar",
+  "common.selectAll": "Selecionar tudo",
+  "common.deselectAll": "Desmarcar tudo",
+
+  "datatable.filterColumn": "Filtrar coluna",
+  "datatable.noRecords": "Nenhum registro encontrado",
+  "datatable.show": "Exibir",
+  "datatable.exportXls": "Exportar XLS",
+  "datatable.presetName": "Nome do preset:",
+  "datatable.presets": "Presets",
+  "datatable.saveFilter": "Salvar filtro",
+  "datatable.deleteSelected": "Excluir selecionados",
+  "datatable.columns": "Colunas",
+
+  "filter.addCondition": "+ Condi\u00e7\u00e3o",
+  "filter.addGroup": "+ Grupo",
+  "filter.removeGroup": "Remover grupo",
+  "filter.valuePlaceholder": "Valor...",
+  "filter.remove": "Remover",
+  "filter.visual": "Visual",
+  "filter.json": "JSON",
+  "filter.applyJson": "Aplicar JSON",
+  "filter.empty": "Sem filtros. Clique em \u00ab + Condi\u00e7\u00e3o \u00bb para adicionar.",
+
+  "wizard.back": "Voltar",
+  "wizard.next": "Pr\u00f3ximo",
+  "wizard.finish": "Concluir",
+
+  "quickentry.title": "Cria\u00e7\u00e3o r\u00e1pida",
+  "quickentry.saving": "Salvando...",
+
+  "report.title": "Relat\u00f3rio",
+  "report.rows_one": "{count} linha",
+  "report.rows_other": "{count} linhas",
+  "report.exportCsv": "Exportar CSV",
+  "report.average": "M\u00e9dia",
+
+  "activity.title": "Atividade",
+  "activity.activities_one": "{count} atividade",
+  "activity.activities_other": "{count} atividades",
+  "activity.noActivities": "Nenhuma atividade ainda",
+
+  "timeline.title": "Hist\u00f3rico de altera\u00e7\u00f5es",
+  "timeline.noChanges": "Nenhuma altera\u00e7\u00e3o registrada",
+
+  "calendar.loadingEvents": "Carregando eventos...",
+
+  "map.title": "Mapa",
+  "map.locations_one": "{count} localiza\u00e7\u00e3o",
+  "map.locations_other": "{count} localiza\u00e7\u00f5es",
+  "map.loadingLocations": "Carregando localiza\u00e7\u00f5es...",
+
+  "handle.dragToReorder": "Arraste para reordenar",
+
+  "barcode.placeholder": "Insira o valor do c\u00f3digo de barras...",
+  "barcode.qrError": "Erro de QR",
+  "barcode.barcodeError": "Erro de c\u00f3digo de barras",
+
+  "placeholder.default": "Componente LowCode",
+
+  "tab.default": "Aba",
+
+  "form.saving": "Salvando...",
+
+  "export.title": "Exportar",
+
+  "print.title": "Imprimir",
+
+  "toast.dismiss": "Fechar",
+
+  "confirm.title": "Confirmar",
+  "confirm.message": "Tem certeza?"
+}

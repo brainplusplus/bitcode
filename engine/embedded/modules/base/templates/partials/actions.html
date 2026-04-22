@@ -1,0 +1,5 @@
+{{range .}}
+<a class="bc-btn {{if eq .Variant "primary"}}bc-btn-primary{{else if eq .Variant "danger"}}bc-btn-danger{{else}}bc-btn-secondary{{end}}" href="#" {{if .Confirm}}onclick="return confirm('{{.Confirm}}')"{{end}}>
+  {{.Label}}
+</a>
+{{end}}

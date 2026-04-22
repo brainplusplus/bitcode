@@ -1,0 +1,7 @@
+.bc-view{font-family:var(--bc-font-family,system-ui,sans-serif)}
+.bc-gantt-header{padding:12px 16px;border-bottom:1px solid var(--bc-border-color);background:var(--bc-bg-secondary)}
+.bc-gantt-header h2{margin:0;font-size:var(--bc-font-size-lg);font-weight:600}
+.bc-gantt-loading{padding:16px;text-align:center;color:var(--bc-text-secondary)}
+.bc-gantt-container{padding:16px;overflow-x:auto;min-height:20rem}
+.bc-gantt-container .gantt .bar{fill:var(--bc-primary)}
+.bc-gantt-container .gantt .bar-progress{fill:var(--bc-primary-hover)}

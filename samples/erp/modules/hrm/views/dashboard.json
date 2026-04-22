@@ -1,0 +1,10 @@
+{
+  "name": "hrm_dashboard",
+  "type": "custom",
+  "template": "templates/dashboard.html",
+  "data_sources": {
+    "active_employees":  { "model": "employee", "domain": [["status", "=", "active"]] },
+    "pending_leaves":    { "model": "leave_request", "domain": [["status", "=", "submitted"]] },
+    "open_positions":    { "model": "job_position", "domain": [["status", "=", "open"]] }
+  }
+}

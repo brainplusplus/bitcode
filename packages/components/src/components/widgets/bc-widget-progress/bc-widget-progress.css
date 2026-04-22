@@ -1,0 +1,5 @@
+:host {
+  display: block;
+  font-family: var(--bc-font-family, system-ui, sans-serif);
+}
+.bc-progress { position: relative; height: 1.25rem; background: var(--bc-bg-tertiary); border-radius: var(--bc-radius-full); overflow: hidden; } .bc-progress-bar { height: 100%; border-radius: var(--bc-radius-full); transition: width var(--bc-transition-slow); } .bc-progress-primary { background: var(--bc-primary); } .bc-progress-success { background: var(--bc-success); } .bc-progress-warning { background: var(--bc-warning); } .bc-progress-danger { background: var(--bc-danger); } .bc-progress-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: var(--bc-font-size-xs); font-weight: 600; color: var(--bc-text); }

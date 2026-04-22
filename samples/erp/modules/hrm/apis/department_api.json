@@ -1,0 +1,7 @@
+{
+  "name": "department_api",
+  "model": "department",
+  "auto_crud": true,
+  "auth": true,
+  "search": ["name", "code"]
+}

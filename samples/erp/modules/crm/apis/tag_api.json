@@ -1,0 +1,5 @@
+{
+  "name": "tag_api",
+  "model": "tag",
+  "auto_crud": true
+}

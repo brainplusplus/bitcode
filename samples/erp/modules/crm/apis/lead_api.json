@@ -1,0 +1,14 @@
+{
+  "name": "lead_api",
+  "model": "lead",
+  "auto_crud": true,
+  "auth": true,
+  "workflow": "lead_workflow",
+  "actions": {
+    "qualify":  { "transition": "qualify",  "permission": "crm.lead.qualify" },
+    "proposal": { "transition": "proposal", "permission": "crm.lead.write" },
+    "win":      { "transition": "win",      "permission": "crm.lead.write" },
+    "lose":     { "transition": "lose",     "permission": "crm.lead.write" }
+  },
+  "search": ["name", "email", "company"]
+}

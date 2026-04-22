@@ -1,0 +1,51 @@
+{
+  "name": "employee_form",
+  "type": "form",
+  "model": "employee",
+  "title": "Employee",
+  "layout": [
+    { "header": {
+      "status_field": "status",
+      "widget": "statusbar",
+      "buttons": [
+        { "label": "Activate", "process": "activate_employee", "variant": "primary", "visible": "status == 'probation'" },
+        { "label": "Promote",  "process": "promote_employee",  "visible": "status == 'active'" },
+        { "label": "Terminate","process": "terminate_employee", "variant": "danger", "confirm": "Terminate this employee?" }
+      ]
+    }},
+    { "button_box": [
+      { "label": "Leaves", "icon": "calendar", "count_model": "leave_request", "count_domain": [["employee_id", "=", "{{id}}"]] }
+    ]},
+    { "section": { "title": "Personal Information" }, "rows": [
+      { "row": [
+        { "field": "employee_id", "width": 3 },
+        { "field": "name", "width": 5 },
+        { "field": "photo", "width": 4 }
+      ]},
+      { "row": [
+        { "field": "email", "width": 4, "widget": "email" },
+        { "field": "phone", "width": 4, "widget": "phone" },
+        { "field": "gender", "width": 4 }
+      ]}
+    ]},
+    { "section": { "title": "Employment Details" }, "rows": [
+      { "row": [
+        { "field": "department_id", "width": 4 },
+        { "field": "position_id", "width": 4 },
+        { "field": "manager_id", "width": 4 }
+      ]},
+      { "row": [
+        { "field": "hire_date", "width": 3 },
+        { "field": "birth_date", "width": 3 },
+        { "field": "salary", "width": 3 },
+        { "field": "leave_balance", "width": 3, "readonly": true }
+      ]}
+    ]},
+    { "tabs": [
+      { "label": "Address", "fields": ["address"] },
+      { "label": "Notes", "fields": ["notes"] },
+      { "label": "Leave Requests", "view": "leave_list" }
+    ]},
+    { "chatter": true }
+  ]
+}

@@ -1,0 +1,53 @@
+<aside class="bc-sidebar" id="sidebar">
+  <div class="bc-sidebar-brand">
+    <svg viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="6" fill="#6366F1"/><path d="M7 7h3.5v10H7V7zm6.5 3H17v7h-3.5v-7z" fill="#fff"/></svg>
+    <span>LowCode</span>
+  </div>
+  <nav class="bc-sidebar-nav">
+    <a class="bc-nav-item{{if eq .CurrentPath "/app/home"}} active{{end}}" href="/app/home">
+      <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
+      Home
+    </a>
+    {{range .Menu}}
+    <div class="bc-nav-group">
+      <div class="bc-nav-group-header">
+        <span class="bc-nav-group-label">{{.Label}}</span>
+        <svg class="bc-nav-group-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+      </div>
+      <div class="bc-nav-group-items" style="max-height:500px">
+        {{range .Children}}
+        <a class="bc-nav-item bc-nav-child{{if eq $.ActiveView .ViewPath}} active{{end}}" href="/app/{{.ViewPath}}">
+          <svg viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="2.5"/></svg>
+          {{.Label}}
+        </a>
+        {{end}}
+      </div>
+    </div>
+    {{end}}
+  </nav>
+  <div class="bc-sidebar-footer">
+    {{if .SettingsMenu}}
+    {{range .SettingsMenu}}
+    <div class="bc-nav-group">
+      <div class="bc-nav-group-header">
+        <span class="bc-nav-group-label">{{.Label}}</span>
+        <svg class="bc-nav-group-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+      </div>
+      <div class="bc-nav-group-items" style="max-height:500px">
+        {{range .Children}}
+        <a class="bc-nav-item bc-nav-child{{if eq $.ActiveView .ViewPath}} active{{end}}" href="/app/{{.ViewPath}}">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
+          {{.Label}}
+        </a>
+        {{end}}
+      </div>
+    </div>
+    {{end}}
+    {{end}}
+    <a class="bc-nav-item" href="/admin" style="margin-top:0.25rem">
+      <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+      Admin Panel
+    </a>
+    <div style="padding:0.35rem 1rem;font-size:0.65rem;color:var(--text-muted);opacity:0.5">LowCode Engine v0.1</div>
+  </div>
+</aside>

@@ -1,0 +1,4 @@
+.bc-field { display:flex; flex-direction:column; gap:0.25rem; margin-bottom:var(--bc-spacing-sm); font-family:var(--bc-font-family,system-ui,sans-serif); }
+.bc-field-label { font-size:var(--bc-font-size-sm); font-weight:500; color:var(--bc-text); }
+.bc-map-container { height:300px; border:1px solid var(--bc-border-color); border-radius:var(--bc-radius-md); z-index:0; }
+.bc-geo-coords { font-family:var(--bc-font-mono); font-size:var(--bc-font-size-xs); color:var(--bc-text-secondary); margin-top:4px; }

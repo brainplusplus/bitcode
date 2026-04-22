@@ -1,0 +1,9 @@
+{
+  "name": "group_list",
+  "type": "list",
+  "model": "group",
+  "title": "Groups",
+  "fields": ["name", "display_name", "category"],
+  "filters": ["category"],
+  "sort": { "field": "name", "order": "asc" }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "pipeline_chart",
+  "type": "chart",
+  "title": "Pipeline Revenue by Status",
+  "register_to": ["hrm"],
+  "data_sources": {
+    "new_leads":       { "model": "lead", "domain": [["status", "=", "new"]] },
+    "qualified_leads": { "model": "lead", "domain": [["status", "=", "qualified"]] },
+    "proposal_leads":  { "model": "lead", "domain": [["status", "=", "proposal"]] },
+    "won_leads":       { "model": "lead", "domain": [["status", "=", "won"]] },
+    "lost_leads":      { "model": "lead", "domain": [["status", "=", "lost"]] }
+  }
+}

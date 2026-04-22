@@ -1,0 +1,5 @@
+.bc-filter-bar{display:flex;gap:6px;flex-wrap:wrap;font-family:var(--bc-font-family,system-ui,sans-serif);padding:8px 0}
+.bc-fb-btn{padding:4px 12px;border:1px solid var(--bc-border-color);border-radius:var(--bc-radius-full);background:var(--bc-bg);cursor:pointer;font-size:var(--bc-font-size-sm);font-family:inherit;color:var(--bc-text-secondary);transition:all 150ms;display:flex;align-items:center;gap:4px}
+.bc-fb-btn:hover{border-color:var(--bc-primary);color:var(--bc-primary)}
+.bc-fb-btn.active{background:var(--bc-primary);color:white;border-color:var(--bc-primary)}
+.bc-fb-icon{font-size:0.85em}

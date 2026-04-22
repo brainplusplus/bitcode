@@ -1,0 +1,70 @@
+:host {
+  display: block;
+}
+
+.bc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--bc-spacing-sm) var(--bc-spacing-md);
+  background: var(--bc-bg-secondary);
+  border-bottom: 1px solid var(--bc-border-color);
+  border-radius: var(--bc-radius-lg) var(--bc-radius-lg) 0 0;
+  flex-wrap: wrap;
+  gap: var(--bc-spacing-sm);
+}
+
+.bc-header-actions {
+  display: flex;
+  gap: var(--bc-spacing-sm);
+}
+
+.bc-btn {
+  padding: 0.375rem 0.75rem;
+  border: 1px solid var(--bc-border-color);
+  border-radius: var(--bc-radius-md);
+  font-family: var(--bc-font-family);
+  font-size: var(--bc-font-size-sm);
+  font-weight: var(--bc-font-weight-medium);
+  cursor: pointer;
+  transition: all var(--bc-transition);
+  background: var(--bc-bg);
+  color: var(--bc-text);
+}
+
+.bc-btn:hover { background: var(--bc-bg-hover); }
+.bc-btn-primary { background: var(--bc-primary); color: var(--bc-primary-text); border-color: var(--bc-primary); }
+.bc-btn-primary:hover { background: var(--bc-primary-hover); }
+.bc-btn-danger { background: var(--bc-danger); color: #fff; border-color: var(--bc-danger); }
+
+.bc-header-statusbar {
+  display: flex;
+  gap: 0;
+}
+
+.bc-status-step {
+  padding: 0.25rem 0.75rem;
+  font-size: var(--bc-font-size-xs);
+  font-weight: var(--bc-font-weight-medium);
+  color: var(--bc-text-secondary);
+  background: var(--bc-bg-tertiary);
+  border: 1px solid var(--bc-border-color);
+  text-transform: capitalize;
+}
+
+.bc-status-step:first-child { border-radius: var(--bc-radius-full) 0 0 var(--bc-radius-full); }
+.bc-status-step:last-child { border-radius: 0 var(--bc-radius-full) var(--bc-radius-full) 0; }
+.bc-status-step + .bc-status-step { border-inline-start: none; }
+
+.bc-status-step.done {
+  background: var(--bc-primary-light);
+  color: var(--bc-primary);
+  border-color: var(--bc-primary);
+}
+
+.bc-status-step.active {
+  background: var(--bc-primary);
+  color: var(--bc-primary-text);
+  border-color: var(--bc-primary);
+  font-weight: var(--bc-font-weight-bold);
+}

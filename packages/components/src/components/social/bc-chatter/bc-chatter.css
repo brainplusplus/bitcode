@@ -1,0 +1,24 @@
+.bc-chatter{font-family:var(--bc-font-family,system-ui,sans-serif);border-top:1px solid var(--bc-border-color);padding:16px 0}
+.bc-chatter-header{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.bc-chatter-header h4{margin:0;font-size:var(--bc-font-size-base);font-weight:600}
+.bc-chatter-count{background:var(--bc-bg-tertiary,#f3f4f6);padding:1px 8px;border-radius:var(--bc-radius-full);font-size:var(--bc-font-size-xs);font-weight:500}
+.bc-chatter-compose{margin-bottom:16px}
+.bc-chatter-tabs{display:flex;gap:0;margin-bottom:8px}
+.bc-ch-tab{background:none;border:none;padding:6px 12px;cursor:pointer;font-size:var(--bc-font-size-sm);font-weight:500;color:var(--bc-text-secondary);border-bottom:2px solid transparent}
+.bc-ch-tab.active{color:var(--bc-primary);border-bottom-color:var(--bc-primary)}
+.bc-chatter-input{width:100%;min-height:4rem;padding:8px 12px;border:1px solid var(--bc-border-color);border-radius:var(--bc-radius-md);font-family:inherit;font-size:var(--bc-font-size-sm);resize:vertical;outline:none;box-sizing:border-box}
+.bc-chatter-input:focus{border-color:var(--bc-border-color-focus);box-shadow:var(--bc-input-focus-ring)}
+.bc-chatter-send{margin-top:8px;padding:6px 16px;background:var(--bc-primary);color:white;border:none;border-radius:var(--bc-radius-md);cursor:pointer;font-size:var(--bc-font-size-sm);font-weight:500}
+.bc-chatter-send:hover:not(:disabled){background:var(--bc-primary-hover)}
+.bc-chatter-send:disabled{opacity:0.5;cursor:not-allowed}
+.bc-chatter-thread{display:flex;flex-direction:column;gap:12px}
+.bc-chatter-msg{display:flex;gap:10px}
+.bc-chatter-msg.is-note{background:var(--bc-warning-light,#fffbeb);padding:8px;border-radius:var(--bc-radius-md)}
+.bc-msg-avatar{width:2rem;height:2rem;border-radius:50%;background:var(--bc-primary);color:white;display:flex;align-items:center;justify-content:center;font-size:var(--bc-font-size-sm);font-weight:600;flex-shrink:0}
+.bc-msg-body{flex:1}
+.bc-msg-header{display:flex;align-items:center;gap:8px}
+.bc-msg-user{font-size:var(--bc-font-size-sm);font-weight:600;color:var(--bc-text)}
+.bc-msg-date{font-size:var(--bc-font-size-xs);color:var(--bc-text-secondary)}
+.bc-msg-badge{font-size:var(--bc-font-size-xs);background:var(--bc-warning);color:white;padding:1px 6px;border-radius:var(--bc-radius-full);font-weight:500}
+.bc-msg-text{font-size:var(--bc-font-size-sm);color:var(--bc-text);margin-top:4px;line-height:1.5}
+.bc-chatter-empty{padding:2rem;text-align:center;color:var(--bc-text-secondary);font-size:var(--bc-font-size-sm)}

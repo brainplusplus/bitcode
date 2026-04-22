@@ -1,0 +1,26 @@
+<div style="margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;">
+  <h2 style="font-size:1.1rem;font-weight:600;">{{.title}}</h2>
+</div>
+<div class="bc-kanban">
+  {{range $group, $items := .groups}}
+  <div class="bc-kanban-col">
+    <div class="bc-kanban-col-header">
+      <span>{{$group}}</span>
+      <span class="bc-kanban-col-count">{{len $items}}</span>
+    </div>
+    <div class="bc-kanban-col-body">
+      {{range $items}}
+      <div class="bc-kanban-card">
+        {{range $.fields}}
+        {{$val := index $items 0}}
+        <div class="bc-kanban-card-field"><strong>{{.}}:</strong> {{index $ .}}</div>
+        {{end}}
+      </div>
+      {{end}}
+      {{if not $items}}
+      <div style="text-align:center;padding:1.5rem;color:var(--text-muted);font-size:0.8rem;">No items</div>
+      {{end}}
+    </div>
+  </div>
+  {{end}}
+</div>

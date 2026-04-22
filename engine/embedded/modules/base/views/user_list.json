@@ -1,0 +1,12 @@
+{
+  "name": "user_list",
+  "type": "list",
+  "model": "user",
+  "title": "Users",
+  "fields": ["username", "email", "last_login"],
+  "filters": ["username", "email"],
+  "sort": { "field": "username", "order": "asc" },
+  "actions": [
+    { "label": "Deactivate", "process": "deactivate_user", "permission": "base.user.write", "confirm": "Are you sure you want to deactivate this user?" }
+  ]
+}

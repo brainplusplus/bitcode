@@ -1,0 +1,9 @@
+{
+  "name": "role",
+  "module": "base",
+  "label": "Role",
+  "fields": {
+    "name":         { "type": "string", "required": true, "unique": true, "max": 100 },
+    "display_name": { "type": "string", "max": 200 }
+  }
+}

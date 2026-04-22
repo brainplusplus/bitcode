@@ -1,0 +1,49 @@
+{
+  "name": "hrm",
+  "version": "1.0.0",
+  "label": "Human Resources",
+  "depends": ["base"],
+  "category": "HR",
+  "models": ["models/*.json"],
+  "apis": ["apis/*.json"],
+  "processes": ["processes/*.json"],
+  "agents": ["agents/*.json"],
+  "views": ["views/*.json"],
+  "templates": ["templates/**/*.html"],
+  "data": ["data/*.json"],
+  "i18n": ["i18n/*.json"],
+  "permissions": {
+    "hrm.employee.read":     "View employees",
+    "hrm.employee.create":   "Create employees",
+    "hrm.employee.write":    "Edit employees",
+    "hrm.employee.delete":   "Delete employees",
+    "hrm.employee.promote":  "Promote employees",
+    "hrm.position.read":     "View job positions",
+    "hrm.position.create":   "Create job positions",
+    "hrm.position.write":    "Edit job positions",
+    "hrm.department.read":   "View departments",
+    "hrm.department.write":  "Edit departments",
+    "hrm.leave.read":        "View leave requests",
+    "hrm.leave.create":      "Create leave requests",
+    "hrm.leave.approve":     "Approve leave requests"
+  },
+  "groups": {
+    "hrm.user":    { "label": "HR / User",    "implies": ["base.user"] },
+    "hrm.officer": { "label": "HR / Officer",  "implies": ["hrm.user"] },
+    "hrm.manager": { "label": "HR / Manager", "implies": ["hrm.officer"] }
+  },
+  "menu": [
+    { "label": "HR", "icon": "briefcase", "children": [
+      { "label": "Dashboard",      "view": "dashboard" },
+      { "label": "Employees",      "view": "employee/list" },
+      { "label": "Departments",    "view": "department/list" },
+      { "label": "Job Positions",   "view": "position/list" },
+      { "label": "Leave Requests",  "view": "leave/list" },
+      { "label": "Leave Calendar",  "view": "leave/calendar" }
+    ]}
+  ],
+  "settings": {
+    "default_work_hours": { "type": "integer", "default": 8 },
+    "annual_leave_days":  { "type": "integer", "default": 12 }
+  }
+}

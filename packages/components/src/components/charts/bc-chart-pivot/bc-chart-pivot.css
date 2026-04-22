@@ -1,0 +1,8 @@
+.bc-pivot{overflow-x:auto;font-family:var(--bc-font-family,system-ui,sans-serif);border:1px solid var(--bc-border-color);border-radius:var(--bc-radius-lg);background:var(--bc-bg)}
+.bc-pivot-table{width:100%;border-collapse:collapse;font-size:var(--bc-font-size-sm)}
+.bc-pivot-table th{text-align:start;padding:8px 12px;background:var(--bc-bg-secondary);border:1px solid var(--bc-border-color);font-weight:600;text-transform:capitalize;white-space:nowrap}
+.bc-pivot-table td{padding:8px 12px;border:1px solid var(--bc-border-color)}
+.bc-pivot-row-header{font-weight:500;background:var(--bc-bg-secondary)}
+.bc-pivot-cell{text-align:end;font-variant-numeric:tabular-nums}
+.bc-pivot-total{font-weight:700;background:var(--bc-bg-secondary);text-align:end}
+.bc-pivot-footer{font-weight:700;background:var(--bc-bg-secondary)}

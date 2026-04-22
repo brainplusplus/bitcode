@@ -1,0 +1,13 @@
+[
+  {
+    "name": "base.user",
+    "display_name": "Base / User",
+    "category": "Base"
+  },
+  {
+    "name": "base.admin",
+    "display_name": "Base / Admin",
+    "category": "Base",
+    "implies": ["base.user"]
+  }
+]

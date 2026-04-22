@@ -1,0 +1,12 @@
+{
+  "name": "order_list",
+  "type": "list",
+  "model": "order",
+  "title": "Sales Orders",
+  "fields": ["order_date", "customer_id", "total", "status"],
+  "filters": ["status", "order_date", "customer_id"],
+  "sort": { "field": "order_date", "order": "desc" },
+  "actions": [
+    { "label": "Confirm", "process": "confirm_order", "permission": "sales.order.confirm", "visible": "status == 'draft'" }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "name": "onboard_employee",
+  "steps": [
+    { "type": "validate", "rules": { "status": { "eq": "probation" } }, "error": "Only probation employees can be onboarded" },
+    { "type": "switch", "field": "{{input.department_id}}", "cases": {
+      "engineering": "setup_dev_tools",
+      "sales":       "setup_crm_access",
+      "default":     "setup_basic"
+    }},
+    { "type": "assign", "variable": "onboard_type", "value": "standard" },
+    { "type": "script", "runtime": "python", "script": "scripts/generate_onboard_checklist.py" },
+    { "type": "http", "method": "POST", "url": "https://api.example.com/webhook/new-employee", "body": {
+      "employee_id": "{{input.employee_id}}",
+      "name": "{{input.name}}",
+      "department": "{{input.department_id}}"
+    }},
+    { "type": "log", "message": "Onboarding started for {{input.name}}" },
+    { "type": "emit", "event": "employee.onboarded" }
+  ]
+}

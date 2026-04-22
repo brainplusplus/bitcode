@@ -1,0 +1,13 @@
+{
+  "name": "employee_api",
+  "model": "employee",
+  "auto_crud": true,
+  "auth": true,
+  "workflow": "employee_workflow",
+  "actions": {
+    "activate": { "transition": "activate", "permission": "hrm.employee.write" },
+    "promote":  { "transition": "promote",  "permission": "hrm.employee.promote" },
+    "terminate":{ "transition": "terminate", "permission": "hrm.employee.write" }
+  },
+  "search": ["name", "email", "employee_id"]
+}

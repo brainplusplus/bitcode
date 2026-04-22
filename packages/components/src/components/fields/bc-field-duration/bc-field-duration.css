@@ -1,0 +1,17 @@
+@import '../field-base.css';
+
+.bc-duration-inputs {
+  display: flex;
+  align-items: center;
+  gap: var(--bc-spacing-xs);
+}
+
+.bc-duration-part {
+  width: 4rem;
+  text-align: center;
+}
+
+.bc-duration-sep {
+  font-size: var(--bc-font-size-sm);
+  color: var(--bc-text-secondary);
+}

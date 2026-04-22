@@ -1,0 +1,35 @@
+{
+  "name": "sales",
+  "version": "1.0.0",
+  "label": "Sales Management",
+  "depends": ["base", "crm"],
+  "category": "Sales",
+  "models": ["models/*.json"],
+  "apis": ["apis/*.json"],
+  "processes": ["processes/*.json"],
+  "views": ["views/*.json"],
+  "data": ["data/*.json"],
+  "i18n": ["i18n/*.json"],
+  "permissions": {
+    "sales.order.read": "View orders",
+    "sales.order.create": "Create orders",
+    "sales.order.write": "Edit orders",
+    "sales.order.delete": "Delete orders",
+    "sales.order.confirm": "Confirm orders",
+    "sales.order.complete": "Complete orders",
+    "sales.order.cancel": "Cancel orders"
+  },
+  "groups": {
+    "sales.user": { "label": "Sales / User", "implies": ["crm.user"] },
+    "sales.manager": { "label": "Sales / Manager", "implies": ["sales.user"] }
+  },
+  "menu": [
+    { "label": "Sales", "icon": "shopping-cart", "children": [
+      { "label": "Orders", "view": "order_list" },
+      { "label": "Customers", "view": "contact_list" }
+    ]}
+  ],
+  "settings": {
+    "default_currency": { "type": "string", "default": "USD" }
+  }
+}
