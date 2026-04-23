@@ -1,13 +1,13 @@
 .PHONY: build cli dev test lint clean tidy
 
 build:
-	go build -o bin/engine cmd/engine/main.go
+	go build -o bin/engine ./cmd/engine/
 
 cli:
-	go build -o bin/bitcode cmd/bitcode/main.go
+	go build -o bin/bitcode ./cmd/bitcode/
 
 dev:
-	go run cmd/engine/main.go
+	go run ./cmd/engine/
 
 test:
 	go test ./... -v

@@ -7,6 +7,8 @@ import (
 	"os/signal"
 	"path/filepath"
 	"strconv"
+	"strings"
+	"sync"
 	"syscall"
 	"time"
 
@@ -74,29 +76,63 @@ func initCmd() *cobra.Command {
 func devCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "dev",
-		Short: "Start development server",
+		Short: "Start development server with hot reload",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			app, err := buildApp()
-			if err != nil {
-				return err
+			var (
+				mu         sync.Mutex
+				currentApp *internal.App
+			)
+
+			startApp := func() error {
+				app, err := buildApp()
+				if err != nil {
+					return err
+				}
+				if err := app.LoadModules(); err != nil {
+					return fmt.Errorf("failed to load modules: %w", err)
+				}
+				mu.Lock()
+				currentApp = app
+				mu.Unlock()
+
+				go func() {
+					if err := app.Start(); err != nil {
+						errMsg := err.Error()
+						if strings.Contains(errMsg, "server closed") || strings.Contains(errMsg, "use of closed network connection") {
+							return
+						}
+						log.Printf("[DEV] server error: %v", err)
+					}
+				}()
+				return nil
 			}
 
-			if err := app.LoadModules(); err != nil {
-				return fmt.Errorf("failed to load modules: %w", err)
+			stopApp := func() {
+				mu.Lock()
+				app := currentApp
+				currentApp = nil
+				mu.Unlock()
+				if app != nil {
+					app.Shutdown()
+				}
+			}
+
+			if err := startApp(); err != nil {
+				return err
 			}
 
 			moduleDir := envOrDefault("MODULE_DIR", "modules")
 			w := watcher.New(moduleDir, 2*time.Second, func() {
-				log.Println("[DEV] reloading modules...")
-				app.LoadModules()
+				log.Println("[DEV] changes detected, restarting server...")
+				stopApp()
+				time.Sleep(100 * time.Millisecond)
+				if err := startApp(); err != nil {
+					log.Printf("[DEV] restart failed: %v", err)
+				} else {
+					log.Println("[DEV] server restarted")
+				}
 			})
 			go w.Start()
-
-			go func() {
-				if err := app.Start(); err != nil {
-					log.Fatalf("server error: %v", err)
-				}
-			}()
 
 			quit := make(chan os.Signal, 1)
 			signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
@@ -104,7 +140,8 @@ func devCmd() *cobra.Command {
 
 			w.Stop()
 			fmt.Println("Shutting down...")
-			return app.Shutdown()
+			stopApp()
+			return nil
 		},
 	}
 }
