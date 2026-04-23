@@ -1,12 +1,172 @@
 @import '../field-base.css';
 
-.bc-file-wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: var(--bc-spacing-xs);
+.bc-file-dropzone {
+  border: 2px dashed var(--bc-border-color, #d1d5db);
+  border-radius: 8px;
+  padding: 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: var(--bc-bg-secondary, #f9fafb);
 }
 
-.bc-file-name {
-  font-size: var(--bc-font-size-sm);
-  color: var(--bc-text-secondary);
+.bc-file-dropzone:hover {
+  border-color: var(--bc-primary, #3b82f6);
+  background: var(--bc-bg-hover, #eff6ff);
+}
+
+.bc-file-dropzone.dragging {
+  border-color: var(--bc-primary, #3b82f6);
+  background: var(--bc-bg-hover, #eff6ff);
+  border-style: solid;
+}
+
+.bc-file-dropzone.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.bc-file-dropzone-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.bc-file-icon {
+  width: 2rem;
+  height: 2rem;
+  color: var(--bc-text-secondary, #6b7280);
+}
+
+.bc-file-dropzone-text {
+  font-size: var(--bc-font-size-sm, 0.875rem);
+  color: var(--bc-text-primary, #374151);
+  font-weight: 500;
+}
+
+.bc-file-dropzone-hint {
+  font-size: var(--bc-font-size-xs, 0.75rem);
+  color: var(--bc-text-secondary, #9ca3af);
+}
+
+.bc-file-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.bc-file-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--bc-bg-primary, #fff);
+  border: 1px solid var(--bc-border-color, #e5e7eb);
+  border-radius: 6px;
+  position: relative;
+  overflow: hidden;
+}
+
+.bc-file-item.error {
+  border-color: var(--bc-danger, #ef4444);
+  background: #fef2f2;
+}
+
+.bc-file-item-preview {
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bc-bg-secondary, #f3f4f6);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.bc-file-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bc-file-type-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--bc-text-secondary, #6b7280);
+}
+
+.bc-file-item-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.bc-file-item-name {
+  font-size: var(--bc-font-size-sm, 0.875rem);
+  color: var(--bc-text-primary, #374151);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bc-file-item-size {
+  font-size: var(--bc-font-size-xs, 0.75rem);
+  color: var(--bc-text-secondary, #9ca3af);
+}
+
+.bc-file-item-error {
+  font-size: var(--bc-font-size-xs, 0.75rem);
+  color: var(--bc-danger, #ef4444);
+}
+
+.bc-file-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--bc-bg-secondary, #e5e7eb);
+}
+
+.bc-file-progress-bar {
+  height: 100%;
+  background: var(--bc-primary, #3b82f6);
+  transition: width 0.3s ease;
+  animation: progress-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes progress-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.bc-file-remove {
+  flex-shrink: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--bc-text-secondary, #9ca3af);
+  padding: 0;
+  border-radius: 4px;
+  transition: all 0.15s;
+}
+
+.bc-file-remove:hover {
+  color: var(--bc-danger, #ef4444);
+  background: #fef2f2;
+}
+
+.bc-file-remove svg {
+  width: 1rem;
+  height: 1rem;
 }

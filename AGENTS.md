@@ -113,7 +113,7 @@ bitcode/
 - [x] Plugin TypeScript runtime — `plugins/typescript/index.js` Node.js JSON-RPC process
 - [x] Pagination in list views — `page`, `page_size`, `total_pages` in API responses
 - [x] Search — `?q=term` searches across fields listed in API `search` config
-- [x] File upload handler — `POST /api/upload` stores files, `GET /uploads/*` serves them
+- [x] File upload handler — Enhanced: local + S3 storage, attachments table, thumbnails, versioning, path formatting, duplicate detection
 - [x] WebSocket — `websocket/hub.go` broadcasts domain events to connected clients
 - [x] Multi-tenancy — Tenant middleware (header/subdomain/path) + repository isolation
 - [x] Admin UI — `admin/admin.go` Frappe-inspired panel at `/admin` (sidebar, dashboard, models with tabs, modules with tabs, views, health)

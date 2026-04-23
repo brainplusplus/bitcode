@@ -20,6 +20,7 @@ import (
 	"github.com/bitcode-engine/engine/internal/infrastructure/i18n"
 	"github.com/bitcode-engine/engine/internal/infrastructure/module"
 	"github.com/bitcode-engine/engine/internal/infrastructure/persistence"
+	infrastorage "github.com/bitcode-engine/engine/internal/infrastructure/storage"
 	"github.com/bitcode-engine/engine/internal/presentation/admin"
 	"github.com/bitcode-engine/engine/internal/presentation/api"
 	"github.com/bitcode-engine/engine/internal/presentation/middleware"
@@ -38,6 +39,7 @@ type AppConfig struct {
 	DB              persistence.DatabaseConfig
 	Cache           cache.CacheConfig
 	Tenant          middleware.TenantConfig
+	Storage         infrastorage.StorageConfig
 	JWTSecret       string
 	Port            string
 	ModuleDir       string
@@ -82,6 +84,10 @@ func NewApp(cfg AppConfig) (*App, error) {
 
 	if err := persistence.AutoMigrateViewRevisions(db); err != nil {
 		log.Printf("[WARN] failed to migrate view_revisions: %v", err)
+	}
+
+	if err := infrastorage.AutoMigrateAttachments(db); err != nil {
+		log.Printf("[WARN] failed to migrate attachments: %v", err)
 	}
 
 	fiberApp := fiber.New(fiber.Config{
@@ -183,7 +189,19 @@ func (a *App) setupRoutes() {
 	authHandler := api.NewAuthHandler(a.DB, a.JWTConfig)
 	authHandler.Register(a.Fiber)
 
-	api.RegisterUploadRoutes(a.Fiber, api.DefaultUploadConfig())
+	storageCfg := a.Config.Storage
+	if storageCfg.Driver == "" {
+		storageCfg = infrastorage.DefaultStorageConfig()
+	}
+	storageDriver, err := infrastorage.NewStorageDriver(storageCfg)
+	if err != nil {
+		log.Printf("[WARN] failed to initialize storage driver: %v, falling back to local", err)
+		storageDriver = infrastorage.NewLocalStorage(storageCfg.Local)
+	}
+	attRepo := infrastorage.NewAttachmentRepository(a.DB)
+	thumbSvc := infrastorage.NewThumbnailService(storageDriver, storageCfg.Thumbnail)
+	fileHandler := api.NewFileHandler(attRepo, storageDriver, thumbSvc, storageCfg, a.JWTConfig)
+	fileHandler.Register(a.Fiber)
 
 	a.WSHub.ConnectToEventBus(a.EventBus)
 	a.WSHub.RegisterRoutes(a.Fiber)

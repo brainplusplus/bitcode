@@ -84,6 +84,14 @@ type FieldDefinition struct {
 	HalfStars    bool   `json:"half_stars,omitempty"`
 	Rows         int    `json:"rows,omitempty"`
 	Accept       string `json:"accept,omitempty"`
+	Multiple     bool   `json:"multiple,omitempty"`
+	PathFormat   string `json:"path_format,omitempty"`
+	NameFormat   string `json:"name_format,omitempty"`
+}
+
+type FileConfig struct {
+	MaxSize           int64    `json:"max_size,omitempty"`
+	AllowedExtensions []string `json:"allowed_extensions,omitempty"`
 }
 
 type RecordRuleDefinition struct {
@@ -99,6 +107,7 @@ type ModelDefinition struct {
 	Fields      map[string]FieldDefinition `json:"fields"`
 	RecordRules []RecordRuleDefinition     `json:"record_rules,omitempty"`
 	Indexes     [][]string                 `json:"indexes,omitempty"`
+	FileConfig  *FileConfig                `json:"file_config,omitempty"`
 }
 
 func ParseModel(data []byte) (*ModelDefinition, error) {

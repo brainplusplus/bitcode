@@ -65,6 +65,7 @@ Before the gap list — what's already **production-solid**:
 8. **Web Components** — 94 Stencil.js components: 30+ field types, layout, views, charts, dialogs, widgets, search, social, print.
 9. **Multi-database** — SQLite (zero-config default), PostgreSQL, MySQL. Auto-migration from JSON definitions.
 10. **Real-time** — WebSocket hub broadcasting domain events to connected clients.
+11. **File Storage** — Local + S3 storage with attachments table, path/name formatting, thumbnails, versioning, duplicate detection.
 
 ---
 
@@ -320,6 +321,7 @@ Detailed per-feature documentation lives in `engine/docs/features/`:
 | WebSocket | [websocket.md](../engine/docs/features/websocket.md) | ✅ |
 | Multi-tenancy | [multitenancy.md](../engine/docs/features/multitenancy.md) | ✅ |
 | Admin UI | [admin.md](../engine/docs/features/admin.md) | ✅ |
+| File Storage | [storage.md](../engine/docs/features/storage.md) | ✅ |
 
 ---
 

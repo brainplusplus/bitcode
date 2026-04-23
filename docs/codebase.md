@@ -71,9 +71,12 @@ engine/
 │   │   ├── event/
 │   │   │   ├── bus.go                          # In-process event bus — Subscribe, SubscribeAll, Publish
 │   │   │   └── bus_test.go                     # 4 tests
-│   │   └── setting/
-│   │       ├── setting.go                      # Key-value store — Get, Set, GetWithDefault, LoadDefaults
-│   │       └── setting_test.go                 # 5 tests
+│   │   ├── setting/
+│   │   │   ├── setting.go                      # Key-value store — Get, Set, GetWithDefault, LoadDefaults
+│   │   │   └── setting_test.go                 # 5 tests
+│   │   └── storage/
+│   │       ├── storage.go                      # StorageDriver interface, PutOptions, URLOptions, ScanHook interface
+│   │       └── attachment.go                   # Attachment entity — GORM model for attachments table
 │   │
 │   ├── runtime/                                # Execution engines
 │   │   ├── executor/
@@ -125,6 +128,15 @@ engine/
 │   │   ├── i18n/
 │   │   │   ├── loader.go                       # Translator — LoadFile/LoadJSON, Translate with locale fallback
 │   │   │   └── i18n_test.go                    # 4 tests
+│   │   ├── storage/
+│   │   │   ├── config.go                       # StorageConfig, LocalStorageConfig, S3StorageConfig, ThumbnailConfig
+│   │   │   ├── local.go                        # LocalStorage — filesystem StorageDriver implementation
+│   │   │   ├── s3.go                           # S3Storage — AWS S3 StorageDriver implementation
+│   │   │   ├── formatter.go                    # FormatPath/FormatName — template variable resolution
+│   │   │   │                                   #   NewStorageDriver() — factory for local/S3
+│   │   │   ├── repository.go                   # AttachmentRepository — GORM CRUD for attachments table
+│   │   │   │                                   #   AutoMigrateAttachments(), FindByHash, FindVersions, CleanupVersions
+│   │   │   └── thumbnail.go                    # ThumbnailService — generate thumbnails, on-demand resize
 │   │   └── watcher/
 │   │       └── watcher.go                      # FileWatcher — poll for .json/.html changes, trigger reload
 │   │
@@ -133,7 +145,9 @@ engine/
 │       │   ├── router.go                       # Dynamic route registration from API definitions
 │       │   ├── crud_handler.go                 # Auto-CRUD handler — List/Read/Create/Update/Delete with pagination
 │       │   ├── auth_handler.go                 # POST /auth/login, POST /auth/register
-│       │   └── upload_handler.go               # POST /api/upload, GET /uploads/* (file serving)
+│       │   ├── upload_handler.go               # Legacy upload handler (replaced by file_handler)
+│       │   └── file_handler.go                 # FileHandler — upload, download, list, delete, versions, resize, thumbnail
+│       │                                       #   Single + multiple upload, duplicate detection, versioning
 │       ├── middleware/
 │       │   ├── auth.go                         # JWT validation, user context injection
 │       │   ├── permission.go                   # RBAC permission checking

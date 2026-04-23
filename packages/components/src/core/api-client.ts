@@ -93,6 +93,66 @@ export class LcApiClient {
     if (!res.ok) throw new Error(`Upload failed: ${res.status}`);
     return res.json();
   }
+
+  async uploadFile(formData: FormData): Promise<{
+    id: string;
+    name: string;
+    url: string;
+    thumbnail_url: string | null;
+    size: number;
+    mime_type: string;
+    ext: string;
+    hash: string;
+    version: number;
+    created_at: string;
+  }> {
+    const res = await fetch(`${this.baseUrl}/api/upload`, {
+      method: 'POST',
+      headers: this.headers,
+      body: formData,
+    });
+    if (!res.ok) {
+      const body = await res.text();
+      throw new Error(`Upload failed: ${res.status} ${body}`);
+    }
+    return res.json();
+  }
+
+  async uploadFiles(formData: FormData): Promise<{
+    files: Array<{
+      id: string;
+      name: string;
+      url: string;
+      thumbnail_url: string | null;
+      size: number;
+      mime_type: string;
+    }>;
+    total: number;
+    errors: string[];
+  }> {
+    const res = await fetch(`${this.baseUrl}/api/uploads`, {
+      method: 'POST',
+      headers: this.headers,
+      body: formData,
+    });
+    if (!res.ok) {
+      const body = await res.text();
+      throw new Error(`Upload failed: ${res.status} ${body}`);
+    }
+    return res.json();
+  }
+
+  async getFileMetadata(fileId: string): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>(`/api/files/${fileId}`);
+  }
+
+  async deleteFile(fileId: string): Promise<void> {
+    await this.request<void>(`/api/files/${fileId}`, { method: 'DELETE' });
+  }
+
+  async getFileVersions(fileId: string): Promise<Record<string, unknown>[]> {
+    return this.request<Record<string, unknown>[]>(`/api/files/${fileId}/versions`);
+  }
 }
 
 let _client: LcApiClient | undefined;

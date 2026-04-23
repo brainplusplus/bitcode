@@ -96,6 +96,10 @@ All config via environment variables or `bitcode.toml`/`bitcode.yaml`. Defaults 
 | `TENANT_ENABLED` | `false` | Enable multi-tenancy |
 | `TENANT_STRATEGY` | `header` | Tenant detection: `header`, `subdomain`, `path` |
 | `TENANT_HEADER` | `X-Tenant-ID` | Header name for tenant ID |
+| `STORAGE_DRIVER` | `local` | Storage: `local`, `s3` |
+| `STORAGE_LOCAL_PATH` | `uploads` | Local upload directory |
+| `STORAGE_S3_BUCKET` | - | S3 bucket name |
+| `STORAGE_S3_REGION` | - | S3 region |
 
 ### PostgreSQL
 
@@ -126,6 +130,7 @@ docker-compose up -d
 - **Process engine** — 14 step types (validate, query, create, update, delete, if, switch, loop, emit, call, script, http, assign, log)
 - **Plugin system** — TypeScript + Python via JSON-RPC, gRPC proto defined
 - **Template engine** — Go html/template with helpers and partials
+- **File storage** — Local + S3 with attachments table, thumbnails, versioning, path formatting
 - **View system** — List, form, kanban, calendar, chart, custom views (SSR)
 - **Web Components** — 94 Stencil.js components (fields, layout, views, charts, dialogs, widgets)
 - **Event bus** — Domain events with agent handlers
@@ -163,6 +168,7 @@ docker-compose up -d
 - [WebSocket](engine/docs/features/websocket.md) — Real-time event broadcasting
 - [Multi-tenancy](engine/docs/features/multitenancy.md) — Header/subdomain/path strategies
 - [Admin UI](engine/docs/features/admin.md) — Built-in admin panel
+- [File Storage](engine/docs/features/storage.md) — Local + S3, attachments, thumbnails, versioning
 
 | Other | |
 |-------|---|
