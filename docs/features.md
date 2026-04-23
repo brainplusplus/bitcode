@@ -223,7 +223,8 @@ The `@bitcode/components` Stencil library (94 components) provides rich UI widge
 | Print | export, print, report-link | 3 | ❌ Not wired |
 | Social | activity, chatter, timeline | 3 | ❌ Not wired |
 | Other | placeholder | 1 | — |
-| **Total** | | **94** | |
+| Editor | bc-view-editor (drag-drop form layout builder) | 1 | ✅ Wired to admin panel |
+| **Total** | | **95** | |
 
 **Key gap**: Components are built but the engine primarily uses SSR (Go templates). Full SPA mode with client-side component rendering is not yet implemented.
 
@@ -324,7 +325,7 @@ Detailed per-feature documentation lives in `engine/docs/features/`:
 
 ## Test Coverage
 
-93+ tests across 14 packages. All passing. See [codebase.md](codebase.md) for the full breakdown.
+181 tests across 28 packages. All passing. See [engine/docs/codebase.md](../engine/docs/codebase.md) for the full breakdown.
 
 ```bash
 cd engine && go test ./... -v

@@ -1,8 +1,0 @@
-{{if eq . "active"}}  <span class="lc-badge lc-badge-green">{{.}}</span>
-{{else if eq . "draft"}}  <span class="lc-badge lc-badge-gray">{{.}}</span>
-{{else if eq . "confirmed"}}<span class="lc-badge lc-badge-blue">{{.}}</span>
-{{else if eq . "done"}}     <span class="lc-badge lc-badge-green">{{.}}</span>
-{{else if eq . "cancelled"}}<span class="lc-badge lc-badge-red">{{.}}</span>
-{{else if eq . "pending"}}  <span class="lc-badge lc-badge-yellow">{{.}}</span>
-{{else}}<span class="lc-badge lc-badge-gray">{{.}}</span>
-{{end}}

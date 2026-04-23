@@ -1,0 +1,246 @@
+.ve-container {
+  display: flex;
+  gap: 0;
+  min-height: 500px;
+  border: 1px solid #e2e6e9;
+  border-radius: 6px;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  font-size: 13px;
+  color: #1f272e;
+  background: #fff;
+}
+
+.ve-palette,
+.ve-properties {
+  width: 200px;
+  min-width: 200px;
+  background: #fafbfc;
+  border-right: 1px solid #e2e6e9;
+  overflow-y: auto;
+}
+
+.ve-properties {
+  border-right: none;
+  border-left: 1px solid #e2e6e9;
+}
+
+.ve-palette-title {
+  padding: 10px 12px;
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #8d99a6;
+  border-bottom: 1px solid #e2e6e9;
+}
+
+.ve-search {
+  width: 100%;
+  padding: 6px 12px;
+  border: none;
+  border-bottom: 1px solid #e2e6e9;
+  font-size: 12px;
+  outline: none;
+  background: #fff;
+}
+
+.ve-field-list {
+  padding: 4px;
+}
+
+.ve-field-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 8px;
+  margin: 1px 0;
+  border-radius: 4px;
+  cursor: grab;
+  transition: background 0.15s;
+}
+
+.ve-field-item:hover {
+  background: #e8f0fe;
+}
+
+.ve-field-name {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.ve-field-type {
+  font-size: 10px;
+  color: #8d99a6;
+  background: #f0f2f4;
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+.ve-canvas {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  background: #f4f5f6;
+}
+
+.ve-section {
+  background: #fff;
+  border: 1px solid #e2e6e9;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+
+.ve-section-header {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  background: #fafbfc;
+  border-bottom: 1px solid #e2e6e9;
+  gap: 8px;
+}
+
+.ve-section-title-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 600;
+  outline: none;
+  color: #1f272e;
+}
+
+.ve-row {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 8px 12px;
+  gap: 8px;
+  min-height: 44px;
+  border-bottom: 1px dashed #f0f2f4;
+  position: relative;
+  align-items: flex-start;
+}
+
+.ve-row:last-child {
+  border-bottom: none;
+}
+
+.ve-field {
+  background: #f8f9fa;
+  border: 1px solid #e2e6e9;
+  border-radius: 4px;
+  padding: 6px 8px;
+  min-height: 36px;
+}
+
+.ve-field-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #5a6a7a;
+  margin-bottom: 2px;
+}
+
+.ve-field-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ve-field-controls select {
+  font-size: 10px;
+  padding: 1px 2px;
+  border: 1px solid #e2e6e9;
+  border-radius: 3px;
+  background: #fff;
+  color: #8d99a6;
+}
+
+.ve-drop-zone {
+  flex: 1;
+  min-height: 36px;
+  border: 2px dashed #d0d5dd;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #8d99a6;
+  font-size: 11px;
+  transition: all 0.15s;
+}
+
+.ve-drop-zone:hover {
+  border-color: #5e64ff;
+  color: #5e64ff;
+  background: #eef0ff;
+}
+
+.ve-add-row {
+  padding: 4px 12px 8px;
+  min-height: 28px;
+}
+
+.ve-btn-add,
+.ve-btn-add-section {
+  background: none;
+  border: 1px dashed #d0d5dd;
+  border-radius: 4px;
+  padding: 4px 12px;
+  font-size: 11px;
+  color: #8d99a6;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.ve-btn-add:hover,
+.ve-btn-add-section:hover {
+  border-color: #5e64ff;
+  color: #5e64ff;
+}
+
+.ve-btn-add-section {
+  width: 100%;
+  padding: 8px;
+}
+
+.ve-btn-remove,
+.ve-btn-remove-sm,
+.ve-btn-remove-row {
+  background: none;
+  border: none;
+  color: #ccc;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 0 4px;
+  transition: color 0.15s;
+}
+
+.ve-btn-remove:hover,
+.ve-btn-remove-sm:hover,
+.ve-btn-remove-row:hover {
+  color: #fc4438;
+}
+
+.ve-btn-remove-sm {
+  font-size: 14px;
+}
+
+.ve-btn-remove-row {
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  font-size: 12px;
+}
+
+.ve-empty {
+  padding: 16px 12px;
+  color: #8d99a6;
+  font-size: 12px;
+  text-align: center;
+}
+
+.ve-prop-content {
+  padding: 12px;
+  font-size: 12px;
+}

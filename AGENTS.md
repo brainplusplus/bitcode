@@ -116,7 +116,7 @@ bitcode/
 - [x] File upload handler — `POST /api/upload` stores files, `GET /uploads/*` serves them
 - [x] WebSocket — `websocket/hub.go` broadcasts domain events to connected clients
 - [x] Multi-tenancy — Tenant middleware (header/subdomain/path) + repository isolation
-- [x] Admin UI — `admin/admin.go` built-in panel at `/admin` (dashboard, models, modules, views)
+- [x] Admin UI — `admin/admin.go` Frappe-inspired panel at `/admin` (sidebar, dashboard, models with tabs, modules with tabs, views, health)
 - [x] Python plugin runtime — `plugins/python/runtime.py` JSON-RPC over stdin/stdout
 - [x] gRPC plugin protocol — `pkg/plugin/proto/plugin.proto` service definition
 - [x] Template layout system — Views wrapped in layout with sidebar, navbar, modern CSS
@@ -127,6 +127,12 @@ bitcode/
 - [x] DAG executor — Parallel step execution for process engine
 - [x] Component compiler — Compiles view JSON into Stencil Web Component HTML
 - [x] Stencil Web Components — 94 components (fields, layout, views, charts, dialogs, widgets, search, social, print)
+- [x] Embedded module system — Base module embedded in binary via `go:embed`, 3-layer resolution (project → global → embedded)
+- [x] `bitcode publish` CLI — Extract embedded modules to project for customization (whole/per-type/per-file)
+- [x] Menu visibility — `menu_visibility` field in module.json (`app` or `admin`)
+- [x] Include menus — `include_menus` field to import menu items from other modules
+- [x] View editor — Admin view detail with tabs (info, preview, editor, revisions), JSON editor, `bc-view-editor` Stencil component
+- [x] View versioning — `view_revisions` DB table, auto-revision on save, rollback, configurable limit
 
 ### Remaining (Engine)
 
@@ -147,7 +153,7 @@ go test ./pkg/ddd/        # Specific package
 go test ./... -count=1    # No cache
 ```
 
-Current: 93+ tests, 0 failures. Build: OK.
+Current: 181 tests, 0 failures. Build: OK.
 
 ## Build
 

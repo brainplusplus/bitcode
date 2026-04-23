@@ -1,6 +1,0 @@
-{
-  "name": "record_rule_api",
-  "model": "record_rule",
-  "auto_crud": true,
-  "auth": true
-}

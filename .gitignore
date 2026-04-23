@@ -47,3 +47,5 @@ dist/
 
 # Cache
 .ruff_cache/
+# CocoIndex Code (ccc)
+/.cocoindex_code/

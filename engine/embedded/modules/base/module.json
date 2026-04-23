@@ -27,6 +27,7 @@
     "base.user": { "label": "Base / User", "implies": [] },
     "base.admin": { "label": "Base / Admin", "implies": ["base.user"] }
   },
+  "menu_visibility": "admin",
   "menu": [
     {
       "label": "Users & Companies",
@@ -53,5 +54,8 @@
         { "label": "Audit Logs", "view": "audit_log_list" }
       ]
     }
-  ]
+  ],
+  "settings": {
+    "view_revision_limit": { "type": "integer", "default": 50 }
+  }
 }

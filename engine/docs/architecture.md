@@ -85,7 +85,7 @@ External concerns.
 |---------|---------------|
 | `persistence/` | Database connection (SQLite/Postgres/MySQL), dynamic table migration, generic repository |
 | `cache/` | Cache interface + MemoryCache (default) + RedisCache (optional) |
-| `module/` | Module registry, dependency resolver (topological sort), module loader |
+| `module/` | Module registry, dependency resolver, module loader, ModuleFS (DiskFS/EmbedFS/LayeredFS), 3-layer resolution |
 | `i18n/` | Translation loader and translator |
 | `watcher/` | File watcher for hot reload in dev mode |
 
@@ -129,10 +129,16 @@ HTTP Request
   → Domain Events → Event Bus → Agent handlers
 ```
 
-### Module Loading
+### Module Loading (3-Layer Resolution)
 
 ```
-Scan modules/ directory
+Build LayeredFS:
+  Layer 1: Project FS    → ./modules/         (highest priority, user overrides)
+  Layer 2: Global FS     → ~/.bitcode/modules/ (shared across projects)
+  Layer 3: Embedded FS   → binary (go:embed)   (default fallback, base module)
+
+Discover modules across all layers
+  → Per-file merge: project file overrides embedded file
   → Parse each module.json
   → Resolve dependencies (topological sort)
   → For each module (in dependency order):
@@ -140,8 +146,11 @@ Scan modules/ directory
       → Parse APIs → Register Fiber routes
       → Parse views → Register in view map
       → Load templates
+      → Build menu (respect menu_visibility + include_menus)
       → Register in ModuleRegistry
 ```
+
+CLI: `bitcode publish base` extracts embedded module files to project for customization.
 
 ### Process Execution
 

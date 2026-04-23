@@ -1,6 +1,0 @@
-{
-  "name": "setting_api",
-  "model": "setting",
-  "auto_crud": true,
-  "auth": true
-}

@@ -1,6 +1,0 @@
-{
-  "name": "group_api",
-  "model": "group",
-  "auto_crud": true,
-  "auth": true
-}

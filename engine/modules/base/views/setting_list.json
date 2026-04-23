@@ -1,9 +1,0 @@
-{
-  "name": "setting_list",
-  "type": "list",
-  "model": "setting",
-  "title": "Settings",
-  "fields": ["key", "value", "module_name"],
-  "filters": ["module_name"],
-  "sort": { "field": "key", "order": "asc" }
-}

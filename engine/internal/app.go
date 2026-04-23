@@ -80,6 +80,10 @@ func NewApp(cfg AppConfig) (*App, error) {
 
 	log.Printf("[DB] connected using %s driver", cfg.DB.Driver)
 
+	if err := persistence.AutoMigrateViewRevisions(db); err != nil {
+		log.Printf("[WARN] failed to migrate view_revisions: %v", err)
+	}
+
 	fiberApp := fiber.New(fiber.Config{
 		AppName:      "LowCode Engine",
 		ErrorHandler: defaultErrorHandler,
@@ -184,11 +188,19 @@ func (a *App) setupRoutes() {
 	a.WSHub.ConnectToEventBus(a.EventBus)
 	a.WSHub.RegisterRoutes(a.Fiber)
 
-	adminPanel := admin.NewAdminPanel(a.DB, a.ModelRegistry, a.ModuleRegistry, a.viewsByName())
+	adminPanel := admin.NewAdminPanel(a.DB, a.ModelRegistry, a.ModuleRegistry, a.viewsByName, admin.HealthInfo{
+		Version:     "0.1.0",
+		DBDriver:    a.Config.DB.Driver,
+		CacheDriver: a.Config.Cache.Driver,
+		Processes:   a.ProcessRegistry.List(),
+	}, a.Config.ModuleDir)
 	adminPanel.RegisterRoutes(a.Fiber)
 
 	a.setupComponentAssets()
 
+	a.Fiber.Get("/", func(c *fiber.Ctx) error {
+		return c.Redirect("/app/home")
+	})
 	a.Fiber.Get("/app", a.handleAppRoot)
 	a.Fiber.Get("/app/login", a.handleLoginPage)
 	a.Fiber.Post("/app/login", a.handleLoginSubmit)
@@ -308,7 +320,7 @@ func (a *App) handleHomePage(c *fiber.Ctx) error {
 	}
 
 	modules := a.ModuleRegistry.InstalledNames()
-	menu := a.buildMenu()
+	menu := a.buildMenu("")
 
 	type moduleCard struct {
 		Name      string
@@ -396,7 +408,7 @@ func (a *App) handleHomePage(c *fiber.Ctx) error {
 		"Username":     username,
 		"Module":       "",
 		"Menu":         menu,
-		"SettingsMenu": a.buildSettingsMenu(),
+		"SettingsMenu": []view.MenuEntry{},
 		"CurrentPath":  "/app/home",
 		"ActiveView":   "",
 		"Modules":      modules,
@@ -473,14 +485,14 @@ func (a *App) handleViewGet(c *fiber.Ctx) error {
 		}
 	}
 
-	menu := a.buildMenu()
+	menu := a.buildMenu(moduleName)
 	activeView := moduleName + "/" + viewPath
 
 	opts := view.RenderOptions{
 		Module:       moduleName,
 		Username:     username,
 		Menu:         menu,
-		SettingsMenu: a.buildSettingsMenu(),
+		SettingsMenu: []view.MenuEntry{},
 		ViewPath:     moduleName + "/" + viewPath,
 		UseLayout:    true,
 		CurrentPath:  c.Path(),
@@ -589,17 +601,66 @@ func (a *App) findFirstView(moduleName string) string {
 	return ""
 }
 
-func (a *App) buildMenu() []view.MenuEntry {
+func (a *App) buildMenu(currentModule string) []view.MenuEntry {
 	var menu []view.MenuEntry
 
+	includedModules := map[string][]string{}
+	if currentModule != "" {
+		if installed, err := a.ModuleRegistry.Get(currentModule); err == nil {
+			for _, inc := range installed.Definition.IncludeMenus {
+				includedModules[inc.Module] = inc.Views
+			}
+		}
+	}
+
 	for _, modName := range a.moduleOrder {
-		if modName == "base" {
+		installed, err := a.ModuleRegistry.Get(modName)
+		if err != nil {
 			continue
 		}
+		modDef := installed.Definition
+
+		vis := modDef.MenuVisibility
+		if vis == "admin" {
+			continue
+		}
+
+		if currentModule != "" && modName != currentModule {
+			allowedViews, isIncluded := includedModules[modName]
+			if !isIncluded {
+				continue
+			}
+			menuItems, ok := a.moduleMenus[modName]
+			if !ok || len(menuItems) == 0 {
+				continue
+			}
+			for _, item := range menuItems {
+				entry := view.MenuEntry{
+					Module: modName,
+					Label:  item.Label,
+					Icon:   item.Icon,
+				}
+				for _, child := range item.Children {
+					if len(allowedViews) > 0 && !containsStr(allowedViews, child.View) {
+						continue
+					}
+					entry.Children = append(entry.Children, view.MenuChild{
+						Label:    child.Label,
+						ViewPath: modName + "/" + child.View,
+					})
+				}
+				if len(entry.Children) > 0 {
+					menu = append(menu, entry)
+				}
+			}
+			continue
+		}
+
 		menuItems, ok := a.moduleMenus[modName]
-		if !ok {
+		if !ok || len(menuItems) == 0 {
 			continue
 		}
+
 		for _, item := range menuItems {
 			entry := view.MenuEntry{
 				Module: modName,
@@ -607,10 +668,9 @@ func (a *App) buildMenu() []view.MenuEntry {
 				Icon:   item.Icon,
 			}
 			for _, child := range item.Children {
-				viewPath := modName + "/" + child.View
 				entry.Children = append(entry.Children, view.MenuChild{
 					Label:    child.Label,
-					ViewPath: viewPath,
+					ViewPath: modName + "/" + child.View,
 				})
 			}
 			menu = append(menu, entry)
@@ -620,33 +680,26 @@ func (a *App) buildMenu() []view.MenuEntry {
 	return menu
 }
 
-func (a *App) buildSettingsMenu() []view.MenuEntry {
-	menuItems, ok := a.moduleMenus["base"]
-	if !ok {
-		return nil
-	}
-	var entries []view.MenuEntry
-	for _, item := range menuItems {
-		entry := view.MenuEntry{
-			Module: "base",
-			Label:  item.Label,
-			Icon:   item.Icon,
+func containsStr(slice []string, s string) bool {
+	for _, v := range slice {
+		if v == s {
+			return true
 		}
-		for _, child := range item.Children {
-			entry.Children = append(entry.Children, view.MenuChild{
-				Label:    child.Label,
-				ViewPath: "base/" + child.View,
-			})
-		}
-		entries = append(entries, entry)
 	}
-	return entries
+	return false
 }
 
-func (a *App) viewsByName() map[string]*parser.ViewDefinition {
-	result := make(map[string]*parser.ViewDefinition)
+func (a *App) viewsByName() map[string]*admin.ViewInfo {
+	result := make(map[string]*admin.ViewInfo)
 	for _, entry := range a.viewDefs {
-		result[entry.Module+"/"+entry.Def.Name] = entry.Def
+		key := entry.Module + "/" + entry.Def.Name
+		editable := entry.Path != "" && !strings.HasPrefix(entry.Path, os.TempDir())
+		result[key] = &admin.ViewInfo{
+			Def:      entry.Def,
+			Module:   entry.Module,
+			FilePath: entry.Path,
+			Editable: editable,
+		}
 	}
 	return result
 }

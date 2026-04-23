@@ -1,9 +1,0 @@
-{
-  "name": "role_list",
-  "type": "list",
-  "model": "role",
-  "title": "Roles",
-  "fields": ["name", "display_name"],
-  "filters": ["name"],
-  "sort": { "field": "name", "order": "asc" }
-}

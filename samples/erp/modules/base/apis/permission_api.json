@@ -1,6 +1,0 @@
-{
-  "name": "permission_api",
-  "model": "permission",
-  "auto_crud": true,
-  "auth": true
-}

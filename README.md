@@ -66,6 +66,9 @@ bitcode dev                  # Start dev server (hot reload)
 bitcode validate             # Validate all JSON definitions
 bitcode module list          # List available modules
 bitcode module create mymod  # Scaffold new module
+bitcode publish base         # Extract embedded module to project
+bitcode publish base --models    # Extract only models
+bitcode publish --list       # List publishable modules
 bitcode user create admin admin@example.com
 bitcode user list
 bitcode db migrate           # Run database migrations

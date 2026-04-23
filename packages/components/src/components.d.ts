@@ -8,7 +8,7 @@ import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 import { FieldChangeEvent } from "./core/types";
 export { FieldChangeEvent } from "./core/types";
 export namespace Components {
-    interface LcActivity {
+    interface BcActivity {
         /**
           * @default ''
          */
@@ -18,13 +18,13 @@ export namespace Components {
          */
         "recordId": string;
     }
-    interface LcButtonBox {
+    interface BcButtonBox {
         /**
           * @default '[]'
          */
         "buttons": string;
     }
-    interface LcChartArea {
+    interface BcChartArea {
         /**
           * @default ''
          */
@@ -34,7 +34,7 @@ export namespace Components {
          */
         "data": string;
     }
-    interface LcChartBar {
+    interface BcChartBar {
         /**
           * @default ''
          */
@@ -44,7 +44,7 @@ export namespace Components {
          */
         "data": string;
     }
-    interface LcChartFunnel {
+    interface BcChartFunnel {
         /**
           * @default ''
          */
@@ -54,7 +54,7 @@ export namespace Components {
          */
         "data": string;
     }
-    interface LcChartGauge {
+    interface BcChartGauge {
         /**
           * @default ''
          */
@@ -68,7 +68,7 @@ export namespace Components {
          */
         "value": string;
     }
-    interface LcChartHeatmap {
+    interface BcChartHeatmap {
         /**
           * @default ''
          */
@@ -78,7 +78,7 @@ export namespace Components {
          */
         "data": string;
     }
-    interface LcChartKpi {
+    interface BcChartKpi {
         /**
           * @default 'primary'
          */
@@ -104,7 +104,7 @@ export namespace Components {
          */
         "valueSuffix": string;
     }
-    interface LcChartLine {
+    interface BcChartLine {
         /**
           * @default ''
          */
@@ -114,7 +114,7 @@ export namespace Components {
          */
         "data": string;
     }
-    interface LcChartPie {
+    interface BcChartPie {
         /**
           * @default ''
          */
@@ -124,7 +124,7 @@ export namespace Components {
          */
         "data": string;
     }
-    interface LcChartPivot {
+    interface BcChartPivot {
         /**
           * @default 'sum'
          */
@@ -146,7 +146,7 @@ export namespace Components {
          */
         "valueField": string;
     }
-    interface LcChartProgress {
+    interface BcChartProgress {
         /**
           * @default 'primary'
          */
@@ -168,7 +168,7 @@ export namespace Components {
          */
         "value": string;
     }
-    interface LcChartScorecard {
+    interface BcChartScorecard {
         /**
           * @default ''
          */
@@ -182,7 +182,7 @@ export namespace Components {
          */
         "value": string;
     }
-    interface LcChatter {
+    interface BcChatter {
         /**
           * @default ''
          */
@@ -192,7 +192,7 @@ export namespace Components {
          */
         "recordId": string;
     }
-    interface LcChildTable {
+    interface BcChildTable {
         /**
           * @default '[]'
          */
@@ -214,13 +214,13 @@ export namespace Components {
          */
         "summary": string;
     }
-    interface LcColumn {
+    interface BcColumn {
         /**
           * @default 12
          */
         "width": number;
     }
-    interface LcDatatable {
+    interface BcDatatable {
         /**
           * @default '[]'
          */
@@ -270,7 +270,7 @@ export namespace Components {
          */
         "showJsonFilter": boolean;
     }
-    interface LcDialogConfirm {
+    interface BcDialogConfirm {
         /**
           * @default ''
          */
@@ -280,7 +280,7 @@ export namespace Components {
          */
         "open": boolean;
     }
-    interface LcDialogModal {
+    interface BcDialogModal {
         /**
           * @default ''
          */
@@ -290,7 +290,7 @@ export namespace Components {
          */
         "open": boolean;
     }
-    interface LcDialogQuickentry {
+    interface BcDialogQuickentry {
         /**
           * @default ''
          */
@@ -308,7 +308,7 @@ export namespace Components {
          */
         "open": boolean;
     }
-    interface LcDialogWizard {
+    interface BcDialogWizard {
         /**
           * @default ''
          */
@@ -322,7 +322,7 @@ export namespace Components {
          */
         "steps": string;
     }
-    interface LcExport {
+    interface BcExport {
         /**
           * @default ''
          */
@@ -332,7 +332,7 @@ export namespace Components {
          */
         "label": string;
     }
-    interface LcFavorites {
+    interface BcFavorites {
         /**
           * @default 'Search...'
          */
@@ -342,7 +342,7 @@ export namespace Components {
          */
         "value": string;
     }
-    interface LcFieldBarcode {
+    interface BcFieldBarcode {
         /**
           * @default false
          */
@@ -364,7 +364,7 @@ export namespace Components {
          */
         "value": string;
     }
-    interface LcFieldCheckbox {
+    interface BcFieldCheckbox {
         /**
           * @default false
          */
@@ -382,7 +382,7 @@ export namespace Components {
          */
         "value": boolean;
     }
-    interface LcFieldCode {
+    interface BcFieldCode {
         /**
           * @default false
          */
@@ -420,7 +420,7 @@ export namespace Components {
          */
         "value": string;
     }
-    interface LcFieldColor {
+    interface BcFieldColor {
         /**
           * @default false
          */
@@ -438,7 +438,7 @@ export namespace Components {
          */
         "value": string;
     }
-    interface LcFieldCurrency {
+    interface BcFieldCurrency {
         /**
           * @default "USD"
          */
@@ -476,7 +476,7 @@ export namespace Components {
          */
         "value": number;
     }
-    interface LcFieldDate {
+    interface BcFieldDate {
         /**
           * @default false
          */
@@ -506,7 +506,7 @@ export namespace Components {
          */
         "value": string;
     }
-    interface LcFieldDatetime {
+    interface BcFieldDatetime {
         /**
           * @default false
          */
@@ -536,7 +536,7 @@ export namespace Components {
          */
         "value": string;
     }
-    interface LcFieldDecimal {
+    interface BcFieldDecimal {
         /**
           * @default false
          */
@@ -570,7 +570,7 @@ export namespace Components {
          */
         "value": number;
     }
-    interface LcFieldDuration {
+    interface BcFieldDuration {
         /**
           * @default false
          */
@@ -588,7 +588,7 @@ export namespace Components {
          */
         "value": number;
     }
-    interface LcFieldDynlink {
+    interface BcFieldDynlink {
         /**
           * @default false
          */
@@ -630,7 +630,7 @@ export namespace Components {
          */
         "value": string;
     }
-    interface LcFieldFile {
+    interface BcFieldFile {
         /**
           * @default ''
          */
@@ -660,7 +660,7 @@ export namespace Components {
          */
         "value": string;
     }
-    interface LcFieldFloat {
+    interface BcFieldFloat {
         /**
           * @default false
          */
@@ -694,7 +694,7 @@ export namespace Components {
          */
         "value": number;
     }
-    interface LcFieldGeo {
+    interface BcFieldGeo {
         /**
           * @default false
          */
@@ -720,7 +720,7 @@ export namespace Components {
          */
         "zoom": number;
     }
-    interface LcFieldHtml {
+    interface BcFieldHtml {
         /**
           * @default false
          */
@@ -758,7 +758,7 @@ export namespace Components {
          */
         "value": string;
     }
-    interface LcFieldImage {
+    interface BcFieldImage {
         /**
           * @default 'image/*'
          */
@@ -788,7 +788,7 @@ export namespace Components {
          */
         "value": string;
     }
-    interface LcFieldInteger {
+    interface BcFieldInteger {
         /**
           * @default false
          */
@@ -830,7 +830,7 @@ export namespace Components {
          */
         "value": number;
     }
-    interface LcFieldJson {
+    interface BcFieldJson {
         /**
           * @default false
          */
@@ -868,7 +868,7 @@ export namespace Components {
          */
         "value": string;
     }
-    interface LcFieldLink {
+    interface BcFieldLink {
         /**
           * @default false
          */
@@ -914,7 +914,7 @@ export namespace Components {
          */
         "value": string;
     }
-    interface LcFieldMarkdown {
+    interface BcFieldMarkdown {
         /**
           * @default false
          */
@@ -952,7 +952,7 @@ export namespace Components {
          */
         "value": string;
     }
-    interface LcFieldMulticheck {
+    interface BcFieldMulticheck {
         /**
           * @default false
          */
@@ -982,7 +982,7 @@ export namespace Components {
          */
         "value": string;
     }
-    interface LcFieldPassword {
+    interface BcFieldPassword {
         /**
           * @default false
          */
@@ -1012,7 +1012,7 @@ export namespace Components {
          */
         "value": string;
     }
-    interface LcFieldPercent {
+    interface BcFieldPercent {
         /**
           * @default false
          */
@@ -1050,7 +1050,7 @@ export namespace Components {
          */
         "value": number;
     }
-    interface LcFieldRadio {
+    interface BcFieldRadio {
         /**
           * @default 'vertical'
          */
@@ -1076,7 +1076,7 @@ export namespace Components {
          */
         "value": string;
     }
-    interface LcFieldRating {
+    interface BcFieldRating {
         /**
           * @default false
          */
@@ -1098,7 +1098,7 @@ export namespace Components {
          */
         "value": number;
     }
-    interface LcFieldRichtext {
+    interface BcFieldRichtext {
         /**
           * @default false
          */
@@ -1132,7 +1132,7 @@ export namespace Components {
          */
         "value": string;
     }
-    interface LcFieldSelect {
+    interface BcFieldSelect {
         /**
           * @default false
          */
@@ -1166,7 +1166,7 @@ export namespace Components {
          */
         "value": string;
     }
-    interface LcFieldSignature {
+    interface BcFieldSignature {
         /**
           * @default false
          */
@@ -1192,7 +1192,7 @@ export namespace Components {
          */
         "width": number;
     }
-    interface LcFieldSmalltext {
+    interface BcFieldSmalltext {
         /**
           * @default false
          */
@@ -1226,7 +1226,7 @@ export namespace Components {
          */
         "value": string;
     }
-    interface LcFieldString {
+    interface BcFieldString {
         /**
           * @default false
          */
@@ -1260,7 +1260,7 @@ export namespace Components {
          */
         "value": string;
     }
-    interface LcFieldTableselect {
+    interface BcFieldTableselect {
         /**
           * @default false
          */
@@ -1298,7 +1298,7 @@ export namespace Components {
          */
         "value": string;
     }
-    interface LcFieldTags {
+    interface BcFieldTags {
         /**
           * @default false
          */
@@ -1336,7 +1336,7 @@ export namespace Components {
          */
         "value": string;
     }
-    interface LcFieldText {
+    interface BcFieldText {
         /**
           * @default false
          */
@@ -1366,7 +1366,7 @@ export namespace Components {
          */
         "value": string;
     }
-    interface LcFieldTime {
+    interface BcFieldTime {
         /**
           * @default false
          */
@@ -1396,7 +1396,7 @@ export namespace Components {
          */
         "value": string;
     }
-    interface LcFieldToggle {
+    interface BcFieldToggle {
         /**
           * @default false
          */
@@ -1414,7 +1414,7 @@ export namespace Components {
          */
         "value": boolean;
     }
-    interface LcFilterBar {
+    interface BcFilterBar {
         /**
           * @default 'Search...'
          */
@@ -1428,7 +1428,7 @@ export namespace Components {
          */
         "value": string;
     }
-    interface LcFilterBuilder {
+    interface BcFilterBuilder {
         /**
           * @default '[]'
          */
@@ -1446,7 +1446,7 @@ export namespace Components {
          */
         "value": string;
     }
-    interface LcFilterPanel {
+    interface BcFilterPanel {
         /**
           * @default '[]'
          */
@@ -1460,7 +1460,7 @@ export namespace Components {
          */
         "value": string;
     }
-    interface LcHeader {
+    interface BcHeader {
         /**
           * @default '[]'
          */
@@ -1478,13 +1478,13 @@ export namespace Components {
          */
         "statusValue": string;
     }
-    interface LcHtmlBlock {
+    interface BcHtmlBlock {
         /**
           * @default ''
          */
         "content": string;
     }
-    interface LcLookupModal {
+    interface BcLookupModal {
         /**
           * @default ''
          */
@@ -1514,13 +1514,13 @@ export namespace Components {
          */
         "open": boolean;
     }
-    interface LcPlaceholder {
+    interface BcPlaceholder {
         /**
           * @default ''
          */
         "text": string;
     }
-    interface LcPrint {
+    interface BcPrint {
         /**
           * @default ''
          */
@@ -1530,7 +1530,7 @@ export namespace Components {
          */
         "label": string;
     }
-    interface LcReportLink {
+    interface BcReportLink {
         /**
           * @default ''
          */
@@ -1540,13 +1540,13 @@ export namespace Components {
          */
         "label": string;
     }
-    interface LcRow {
+    interface BcRow {
         /**
           * @default 'md'
          */
         "gap": string;
     }
-    interface LcSearch {
+    interface BcSearch {
         /**
           * @default ''
          */
@@ -1560,7 +1560,7 @@ export namespace Components {
          */
         "value": string;
     }
-    interface LcSection {
+    interface BcSection {
         /**
           * @default false
          */
@@ -1578,23 +1578,23 @@ export namespace Components {
          */
         "sectionTitle": string;
     }
-    interface LcSeparator {
+    interface BcSeparator {
         /**
           * @default ''
          */
         "label": string;
     }
-    interface LcSheet {
+    interface BcSheet {
     }
-    interface LcTab {
+    interface BcTab {
         /**
           * @default ''
          */
         "label": string;
     }
-    interface LcTabs {
+    interface BcTabs {
     }
-    interface LcTimeline {
+    interface BcTimeline {
         /**
           * @default ''
          */
@@ -1604,7 +1604,7 @@ export namespace Components {
          */
         "recordId": string;
     }
-    interface LcToast {
+    interface BcToast {
         /**
           * @default ''
          */
@@ -1630,7 +1630,7 @@ export namespace Components {
          */
         "variant": string;
     }
-    interface LcViewActivity {
+    interface BcViewActivity {
         /**
           * @default '{}'
          */
@@ -1648,7 +1648,7 @@ export namespace Components {
          */
         "viewTitle": string;
     }
-    interface LcViewCalendar {
+    interface BcViewCalendar {
         /**
           * @default '{}'
          */
@@ -1674,7 +1674,21 @@ export namespace Components {
          */
         "viewTitle": string;
     }
-    interface LcViewForm {
+    interface BcViewEditor {
+        /**
+          * @default '[]'
+         */
+        "modelFields": string;
+        /**
+          * @default false
+         */
+        "readonly": boolean;
+        /**
+          * @default '{}'
+         */
+        "viewJson": string;
+    }
+    interface BcViewForm {
         /**
           * @default '{}'
          */
@@ -1696,7 +1710,7 @@ export namespace Components {
          */
         "viewTitle": string;
     }
-    interface LcViewGantt {
+    interface BcViewGantt {
         /**
           * @default '{}'
          */
@@ -1714,7 +1728,7 @@ export namespace Components {
          */
         "viewTitle": string;
     }
-    interface LcViewKanban {
+    interface BcViewKanban {
         /**
           * @default '{}'
          */
@@ -1732,7 +1746,7 @@ export namespace Components {
          */
         "viewTitle": string;
     }
-    interface LcViewList {
+    interface BcViewList {
         /**
           * @default '{}'
          */
@@ -1750,7 +1764,7 @@ export namespace Components {
          */
         "viewTitle": string;
     }
-    interface LcViewMap {
+    interface BcViewMap {
         /**
           * @default '{}'
          */
@@ -1776,7 +1790,7 @@ export namespace Components {
          */
         "viewTitle": string;
     }
-    interface LcViewReport {
+    interface BcViewReport {
         /**
           * @default '{}'
          */
@@ -1794,7 +1808,7 @@ export namespace Components {
          */
         "viewTitle": string;
     }
-    interface LcViewTree {
+    interface BcViewTree {
         /**
           * @default '{}'
          */
@@ -1816,7 +1830,7 @@ export namespace Components {
          */
         "viewTitle": string;
     }
-    interface LcWidgetBadge {
+    interface BcWidgetBadge {
         /**
           * @default ''
          */
@@ -1826,33 +1840,33 @@ export namespace Components {
          */
         "variant": string;
     }
-    interface LcWidgetCopy {
+    interface BcWidgetCopy {
         /**
           * @default ''
          */
         "value": string;
     }
-    interface LcWidgetDomain {
+    interface BcWidgetDomain {
         /**
           * @default '[]'
          */
         "value": string;
     }
-    interface LcWidgetEmail {
+    interface BcWidgetEmail {
         /**
           * @default ''
          */
         "value": string;
     }
-    interface LcWidgetHandle {
+    interface BcWidgetHandle {
     }
-    interface LcWidgetPhone {
+    interface BcWidgetPhone {
         /**
           * @default ''
          */
         "value": string;
     }
-    interface LcWidgetPriority {
+    interface BcWidgetPriority {
         /**
           * @default false
          */
@@ -1866,7 +1880,7 @@ export namespace Components {
          */
         "value": number;
     }
-    interface LcWidgetProgress {
+    interface BcWidgetProgress {
         /**
           * @default 100
          */
@@ -1880,7 +1894,7 @@ export namespace Components {
          */
         "variant": string;
     }
-    interface LcWidgetStatusbar {
+    interface BcWidgetStatusbar {
         /**
           * @default '[]'
          */
@@ -1890,1511 +1904,1533 @@ export namespace Components {
          */
         "value": string;
     }
-    interface LcWidgetUrl {
+    interface BcWidgetUrl {
         /**
           * @default ''
          */
         "value": string;
     }
 }
-export interface LcActivityCustomEvent<T> extends CustomEvent<T> {
+export interface BcActivityCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcActivityElement;
+    target: HTMLBcActivityElement;
 }
-export interface LcChatterCustomEvent<T> extends CustomEvent<T> {
+export interface BcChatterCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcChatterElement;
+    target: HTMLBcChatterElement;
 }
-export interface LcChildTableCustomEvent<T> extends CustomEvent<T> {
+export interface BcChildTableCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcChildTableElement;
+    target: HTMLBcChildTableElement;
 }
-export interface LcDatatableCustomEvent<T> extends CustomEvent<T> {
+export interface BcDatatableCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcDatatableElement;
+    target: HTMLBcDatatableElement;
 }
-export interface LcDialogConfirmCustomEvent<T> extends CustomEvent<T> {
+export interface BcDialogConfirmCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcDialogConfirmElement;
+    target: HTMLBcDialogConfirmElement;
 }
-export interface LcDialogModalCustomEvent<T> extends CustomEvent<T> {
+export interface BcDialogModalCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcDialogModalElement;
+    target: HTMLBcDialogModalElement;
 }
-export interface LcDialogQuickentryCustomEvent<T> extends CustomEvent<T> {
+export interface BcDialogQuickentryCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcDialogQuickentryElement;
+    target: HTMLBcDialogQuickentryElement;
 }
-export interface LcDialogWizardCustomEvent<T> extends CustomEvent<T> {
+export interface BcDialogWizardCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcDialogWizardElement;
+    target: HTMLBcDialogWizardElement;
 }
-export interface LcFavoritesCustomEvent<T> extends CustomEvent<T> {
+export interface BcFavoritesCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcFavoritesElement;
+    target: HTMLBcFavoritesElement;
 }
-export interface LcFieldBarcodeCustomEvent<T> extends CustomEvent<T> {
+export interface BcFieldBarcodeCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcFieldBarcodeElement;
+    target: HTMLBcFieldBarcodeElement;
 }
-export interface LcFieldCheckboxCustomEvent<T> extends CustomEvent<T> {
+export interface BcFieldCheckboxCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcFieldCheckboxElement;
+    target: HTMLBcFieldCheckboxElement;
 }
-export interface LcFieldCodeCustomEvent<T> extends CustomEvent<T> {
+export interface BcFieldCodeCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcFieldCodeElement;
+    target: HTMLBcFieldCodeElement;
 }
-export interface LcFieldColorCustomEvent<T> extends CustomEvent<T> {
+export interface BcFieldColorCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcFieldColorElement;
+    target: HTMLBcFieldColorElement;
 }
-export interface LcFieldCurrencyCustomEvent<T> extends CustomEvent<T> {
+export interface BcFieldCurrencyCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcFieldCurrencyElement;
+    target: HTMLBcFieldCurrencyElement;
 }
-export interface LcFieldDateCustomEvent<T> extends CustomEvent<T> {
+export interface BcFieldDateCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcFieldDateElement;
+    target: HTMLBcFieldDateElement;
 }
-export interface LcFieldDatetimeCustomEvent<T> extends CustomEvent<T> {
+export interface BcFieldDatetimeCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcFieldDatetimeElement;
+    target: HTMLBcFieldDatetimeElement;
 }
-export interface LcFieldDecimalCustomEvent<T> extends CustomEvent<T> {
+export interface BcFieldDecimalCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcFieldDecimalElement;
+    target: HTMLBcFieldDecimalElement;
 }
-export interface LcFieldDurationCustomEvent<T> extends CustomEvent<T> {
+export interface BcFieldDurationCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcFieldDurationElement;
+    target: HTMLBcFieldDurationElement;
 }
-export interface LcFieldDynlinkCustomEvent<T> extends CustomEvent<T> {
+export interface BcFieldDynlinkCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcFieldDynlinkElement;
+    target: HTMLBcFieldDynlinkElement;
 }
-export interface LcFieldFileCustomEvent<T> extends CustomEvent<T> {
+export interface BcFieldFileCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcFieldFileElement;
+    target: HTMLBcFieldFileElement;
 }
-export interface LcFieldFloatCustomEvent<T> extends CustomEvent<T> {
+export interface BcFieldFloatCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcFieldFloatElement;
+    target: HTMLBcFieldFloatElement;
 }
-export interface LcFieldGeoCustomEvent<T> extends CustomEvent<T> {
+export interface BcFieldGeoCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcFieldGeoElement;
+    target: HTMLBcFieldGeoElement;
 }
-export interface LcFieldHtmlCustomEvent<T> extends CustomEvent<T> {
+export interface BcFieldHtmlCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcFieldHtmlElement;
+    target: HTMLBcFieldHtmlElement;
 }
-export interface LcFieldImageCustomEvent<T> extends CustomEvent<T> {
+export interface BcFieldImageCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcFieldImageElement;
+    target: HTMLBcFieldImageElement;
 }
-export interface LcFieldIntegerCustomEvent<T> extends CustomEvent<T> {
+export interface BcFieldIntegerCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcFieldIntegerElement;
+    target: HTMLBcFieldIntegerElement;
 }
-export interface LcFieldJsonCustomEvent<T> extends CustomEvent<T> {
+export interface BcFieldJsonCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcFieldJsonElement;
+    target: HTMLBcFieldJsonElement;
 }
-export interface LcFieldLinkCustomEvent<T> extends CustomEvent<T> {
+export interface BcFieldLinkCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcFieldLinkElement;
+    target: HTMLBcFieldLinkElement;
 }
-export interface LcFieldMarkdownCustomEvent<T> extends CustomEvent<T> {
+export interface BcFieldMarkdownCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcFieldMarkdownElement;
+    target: HTMLBcFieldMarkdownElement;
 }
-export interface LcFieldMulticheckCustomEvent<T> extends CustomEvent<T> {
+export interface BcFieldMulticheckCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcFieldMulticheckElement;
+    target: HTMLBcFieldMulticheckElement;
 }
-export interface LcFieldPasswordCustomEvent<T> extends CustomEvent<T> {
+export interface BcFieldPasswordCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcFieldPasswordElement;
+    target: HTMLBcFieldPasswordElement;
 }
-export interface LcFieldPercentCustomEvent<T> extends CustomEvent<T> {
+export interface BcFieldPercentCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcFieldPercentElement;
+    target: HTMLBcFieldPercentElement;
 }
-export interface LcFieldRadioCustomEvent<T> extends CustomEvent<T> {
+export interface BcFieldRadioCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcFieldRadioElement;
+    target: HTMLBcFieldRadioElement;
 }
-export interface LcFieldRatingCustomEvent<T> extends CustomEvent<T> {
+export interface BcFieldRatingCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcFieldRatingElement;
+    target: HTMLBcFieldRatingElement;
 }
-export interface LcFieldRichtextCustomEvent<T> extends CustomEvent<T> {
+export interface BcFieldRichtextCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcFieldRichtextElement;
+    target: HTMLBcFieldRichtextElement;
 }
-export interface LcFieldSelectCustomEvent<T> extends CustomEvent<T> {
+export interface BcFieldSelectCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcFieldSelectElement;
+    target: HTMLBcFieldSelectElement;
 }
-export interface LcFieldSignatureCustomEvent<T> extends CustomEvent<T> {
+export interface BcFieldSignatureCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcFieldSignatureElement;
+    target: HTMLBcFieldSignatureElement;
 }
-export interface LcFieldSmalltextCustomEvent<T> extends CustomEvent<T> {
+export interface BcFieldSmalltextCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcFieldSmalltextElement;
+    target: HTMLBcFieldSmalltextElement;
 }
-export interface LcFieldStringCustomEvent<T> extends CustomEvent<T> {
+export interface BcFieldStringCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcFieldStringElement;
+    target: HTMLBcFieldStringElement;
 }
-export interface LcFieldTableselectCustomEvent<T> extends CustomEvent<T> {
+export interface BcFieldTableselectCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcFieldTableselectElement;
+    target: HTMLBcFieldTableselectElement;
 }
-export interface LcFieldTagsCustomEvent<T> extends CustomEvent<T> {
+export interface BcFieldTagsCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcFieldTagsElement;
+    target: HTMLBcFieldTagsElement;
 }
-export interface LcFieldTextCustomEvent<T> extends CustomEvent<T> {
+export interface BcFieldTextCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcFieldTextElement;
+    target: HTMLBcFieldTextElement;
 }
-export interface LcFieldTimeCustomEvent<T> extends CustomEvent<T> {
+export interface BcFieldTimeCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcFieldTimeElement;
+    target: HTMLBcFieldTimeElement;
 }
-export interface LcFieldToggleCustomEvent<T> extends CustomEvent<T> {
+export interface BcFieldToggleCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcFieldToggleElement;
+    target: HTMLBcFieldToggleElement;
 }
-export interface LcFilterBarCustomEvent<T> extends CustomEvent<T> {
+export interface BcFilterBarCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcFilterBarElement;
+    target: HTMLBcFilterBarElement;
 }
-export interface LcFilterBuilderCustomEvent<T> extends CustomEvent<T> {
+export interface BcFilterBuilderCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcFilterBuilderElement;
+    target: HTMLBcFilterBuilderElement;
 }
-export interface LcFilterPanelCustomEvent<T> extends CustomEvent<T> {
+export interface BcFilterPanelCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcFilterPanelElement;
+    target: HTMLBcFilterPanelElement;
 }
-export interface LcHeaderCustomEvent<T> extends CustomEvent<T> {
+export interface BcHeaderCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcHeaderElement;
+    target: HTMLBcHeaderElement;
 }
-export interface LcLookupModalCustomEvent<T> extends CustomEvent<T> {
+export interface BcLookupModalCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcLookupModalElement;
+    target: HTMLBcLookupModalElement;
 }
-export interface LcSearchCustomEvent<T> extends CustomEvent<T> {
+export interface BcSearchCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcSearchElement;
+    target: HTMLBcSearchElement;
 }
-export interface LcToastCustomEvent<T> extends CustomEvent<T> {
+export interface BcToastCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcToastElement;
+    target: HTMLBcToastElement;
 }
-export interface LcViewFormCustomEvent<T> extends CustomEvent<T> {
+export interface BcViewEditorCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcViewFormElement;
+    target: HTMLBcViewEditorElement;
 }
-export interface LcViewKanbanCustomEvent<T> extends CustomEvent<T> {
+export interface BcViewFormCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcViewKanbanElement;
+    target: HTMLBcViewFormElement;
 }
-export interface LcViewListCustomEvent<T> extends CustomEvent<T> {
+export interface BcViewKanbanCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcViewListElement;
+    target: HTMLBcViewKanbanElement;
 }
-export interface LcWidgetPriorityCustomEvent<T> extends CustomEvent<T> {
+export interface BcViewListCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLLcWidgetPriorityElement;
+    target: HTMLBcViewListElement;
+}
+export interface BcWidgetPriorityCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLBcWidgetPriorityElement;
 }
 declare global {
-    interface HTMLLcActivityElementEventMap {
+    interface HTMLBcActivityElementEventMap {
         "lcActivitySchedule": {type: string; summary: string; dueDate: string};
     }
-    interface HTMLLcActivityElement extends Components.LcActivity, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcActivityElementEventMap>(type: K, listener: (this: HTMLLcActivityElement, ev: LcActivityCustomEvent<HTMLLcActivityElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcActivityElement extends Components.BcActivity, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcActivityElementEventMap>(type: K, listener: (this: HTMLBcActivityElement, ev: BcActivityCustomEvent<HTMLBcActivityElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcActivityElementEventMap>(type: K, listener: (this: HTMLLcActivityElement, ev: LcActivityCustomEvent<HTMLLcActivityElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcActivityElementEventMap>(type: K, listener: (this: HTMLBcActivityElement, ev: BcActivityCustomEvent<HTMLBcActivityElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcActivityElement: {
-        prototype: HTMLLcActivityElement;
-        new (): HTMLLcActivityElement;
+    var HTMLBcActivityElement: {
+        prototype: HTMLBcActivityElement;
+        new (): HTMLBcActivityElement;
     };
-    interface HTMLLcButtonBoxElement extends Components.LcButtonBox, HTMLStencilElement {
+    interface HTMLBcButtonBoxElement extends Components.BcButtonBox, HTMLStencilElement {
     }
-    var HTMLLcButtonBoxElement: {
-        prototype: HTMLLcButtonBoxElement;
-        new (): HTMLLcButtonBoxElement;
+    var HTMLBcButtonBoxElement: {
+        prototype: HTMLBcButtonBoxElement;
+        new (): HTMLBcButtonBoxElement;
     };
-    interface HTMLLcChartAreaElement extends Components.LcChartArea, HTMLStencilElement {
+    interface HTMLBcChartAreaElement extends Components.BcChartArea, HTMLStencilElement {
     }
-    var HTMLLcChartAreaElement: {
-        prototype: HTMLLcChartAreaElement;
-        new (): HTMLLcChartAreaElement;
+    var HTMLBcChartAreaElement: {
+        prototype: HTMLBcChartAreaElement;
+        new (): HTMLBcChartAreaElement;
     };
-    interface HTMLLcChartBarElement extends Components.LcChartBar, HTMLStencilElement {
+    interface HTMLBcChartBarElement extends Components.BcChartBar, HTMLStencilElement {
     }
-    var HTMLLcChartBarElement: {
-        prototype: HTMLLcChartBarElement;
-        new (): HTMLLcChartBarElement;
+    var HTMLBcChartBarElement: {
+        prototype: HTMLBcChartBarElement;
+        new (): HTMLBcChartBarElement;
     };
-    interface HTMLLcChartFunnelElement extends Components.LcChartFunnel, HTMLStencilElement {
+    interface HTMLBcChartFunnelElement extends Components.BcChartFunnel, HTMLStencilElement {
     }
-    var HTMLLcChartFunnelElement: {
-        prototype: HTMLLcChartFunnelElement;
-        new (): HTMLLcChartFunnelElement;
+    var HTMLBcChartFunnelElement: {
+        prototype: HTMLBcChartFunnelElement;
+        new (): HTMLBcChartFunnelElement;
     };
-    interface HTMLLcChartGaugeElement extends Components.LcChartGauge, HTMLStencilElement {
+    interface HTMLBcChartGaugeElement extends Components.BcChartGauge, HTMLStencilElement {
     }
-    var HTMLLcChartGaugeElement: {
-        prototype: HTMLLcChartGaugeElement;
-        new (): HTMLLcChartGaugeElement;
+    var HTMLBcChartGaugeElement: {
+        prototype: HTMLBcChartGaugeElement;
+        new (): HTMLBcChartGaugeElement;
     };
-    interface HTMLLcChartHeatmapElement extends Components.LcChartHeatmap, HTMLStencilElement {
+    interface HTMLBcChartHeatmapElement extends Components.BcChartHeatmap, HTMLStencilElement {
     }
-    var HTMLLcChartHeatmapElement: {
-        prototype: HTMLLcChartHeatmapElement;
-        new (): HTMLLcChartHeatmapElement;
+    var HTMLBcChartHeatmapElement: {
+        prototype: HTMLBcChartHeatmapElement;
+        new (): HTMLBcChartHeatmapElement;
     };
-    interface HTMLLcChartKpiElement extends Components.LcChartKpi, HTMLStencilElement {
+    interface HTMLBcChartKpiElement extends Components.BcChartKpi, HTMLStencilElement {
     }
-    var HTMLLcChartKpiElement: {
-        prototype: HTMLLcChartKpiElement;
-        new (): HTMLLcChartKpiElement;
+    var HTMLBcChartKpiElement: {
+        prototype: HTMLBcChartKpiElement;
+        new (): HTMLBcChartKpiElement;
     };
-    interface HTMLLcChartLineElement extends Components.LcChartLine, HTMLStencilElement {
+    interface HTMLBcChartLineElement extends Components.BcChartLine, HTMLStencilElement {
     }
-    var HTMLLcChartLineElement: {
-        prototype: HTMLLcChartLineElement;
-        new (): HTMLLcChartLineElement;
+    var HTMLBcChartLineElement: {
+        prototype: HTMLBcChartLineElement;
+        new (): HTMLBcChartLineElement;
     };
-    interface HTMLLcChartPieElement extends Components.LcChartPie, HTMLStencilElement {
+    interface HTMLBcChartPieElement extends Components.BcChartPie, HTMLStencilElement {
     }
-    var HTMLLcChartPieElement: {
-        prototype: HTMLLcChartPieElement;
-        new (): HTMLLcChartPieElement;
+    var HTMLBcChartPieElement: {
+        prototype: HTMLBcChartPieElement;
+        new (): HTMLBcChartPieElement;
     };
-    interface HTMLLcChartPivotElement extends Components.LcChartPivot, HTMLStencilElement {
+    interface HTMLBcChartPivotElement extends Components.BcChartPivot, HTMLStencilElement {
     }
-    var HTMLLcChartPivotElement: {
-        prototype: HTMLLcChartPivotElement;
-        new (): HTMLLcChartPivotElement;
+    var HTMLBcChartPivotElement: {
+        prototype: HTMLBcChartPivotElement;
+        new (): HTMLBcChartPivotElement;
     };
-    interface HTMLLcChartProgressElement extends Components.LcChartProgress, HTMLStencilElement {
+    interface HTMLBcChartProgressElement extends Components.BcChartProgress, HTMLStencilElement {
     }
-    var HTMLLcChartProgressElement: {
-        prototype: HTMLLcChartProgressElement;
-        new (): HTMLLcChartProgressElement;
+    var HTMLBcChartProgressElement: {
+        prototype: HTMLBcChartProgressElement;
+        new (): HTMLBcChartProgressElement;
     };
-    interface HTMLLcChartScorecardElement extends Components.LcChartScorecard, HTMLStencilElement {
+    interface HTMLBcChartScorecardElement extends Components.BcChartScorecard, HTMLStencilElement {
     }
-    var HTMLLcChartScorecardElement: {
-        prototype: HTMLLcChartScorecardElement;
-        new (): HTMLLcChartScorecardElement;
+    var HTMLBcChartScorecardElement: {
+        prototype: HTMLBcChartScorecardElement;
+        new (): HTMLBcChartScorecardElement;
     };
-    interface HTMLLcChatterElementEventMap {
+    interface HTMLBcChatterElementEventMap {
         "lcChatterSend": {text: string; type: string};
     }
-    interface HTMLLcChatterElement extends Components.LcChatter, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcChatterElementEventMap>(type: K, listener: (this: HTMLLcChatterElement, ev: LcChatterCustomEvent<HTMLLcChatterElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcChatterElement extends Components.BcChatter, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcChatterElementEventMap>(type: K, listener: (this: HTMLBcChatterElement, ev: BcChatterCustomEvent<HTMLBcChatterElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcChatterElementEventMap>(type: K, listener: (this: HTMLLcChatterElement, ev: LcChatterCustomEvent<HTMLLcChatterElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcChatterElementEventMap>(type: K, listener: (this: HTMLBcChatterElement, ev: BcChatterCustomEvent<HTMLBcChatterElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcChatterElement: {
-        prototype: HTMLLcChatterElement;
-        new (): HTMLLcChatterElement;
+    var HTMLBcChatterElement: {
+        prototype: HTMLBcChatterElement;
+        new (): HTMLBcChatterElement;
     };
-    interface HTMLLcChildTableElementEventMap {
+    interface HTMLBcChildTableElementEventMap {
         "lcFieldChange": FieldChangeEvent;
     }
-    interface HTMLLcChildTableElement extends Components.LcChildTable, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcChildTableElementEventMap>(type: K, listener: (this: HTMLLcChildTableElement, ev: LcChildTableCustomEvent<HTMLLcChildTableElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcChildTableElement extends Components.BcChildTable, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcChildTableElementEventMap>(type: K, listener: (this: HTMLBcChildTableElement, ev: BcChildTableCustomEvent<HTMLBcChildTableElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcChildTableElementEventMap>(type: K, listener: (this: HTMLLcChildTableElement, ev: LcChildTableCustomEvent<HTMLLcChildTableElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcChildTableElementEventMap>(type: K, listener: (this: HTMLBcChildTableElement, ev: BcChildTableCustomEvent<HTMLBcChildTableElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcChildTableElement: {
-        prototype: HTMLLcChildTableElement;
-        new (): HTMLLcChildTableElement;
+    var HTMLBcChildTableElement: {
+        prototype: HTMLBcChildTableElement;
+        new (): HTMLBcChildTableElement;
     };
-    interface HTMLLcColumnElement extends Components.LcColumn, HTMLStencilElement {
+    interface HTMLBcColumnElement extends Components.BcColumn, HTMLStencilElement {
     }
-    var HTMLLcColumnElement: {
-        prototype: HTMLLcColumnElement;
-        new (): HTMLLcColumnElement;
+    var HTMLBcColumnElement: {
+        prototype: HTMLBcColumnElement;
+        new (): HTMLBcColumnElement;
     };
-    interface HTMLLcDatatableElementEventMap {
+    interface HTMLBcDatatableElementEventMap {
         "lcRowClick": { record: Record<string, unknown> };
         "lcSelectionChange": { ids: string[] };
         "lcBulkAction": { action: string; ids: string[] };
     }
-    interface HTMLLcDatatableElement extends Components.LcDatatable, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcDatatableElementEventMap>(type: K, listener: (this: HTMLLcDatatableElement, ev: LcDatatableCustomEvent<HTMLLcDatatableElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcDatatableElement extends Components.BcDatatable, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcDatatableElementEventMap>(type: K, listener: (this: HTMLBcDatatableElement, ev: BcDatatableCustomEvent<HTMLBcDatatableElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcDatatableElementEventMap>(type: K, listener: (this: HTMLLcDatatableElement, ev: LcDatatableCustomEvent<HTMLLcDatatableElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcDatatableElementEventMap>(type: K, listener: (this: HTMLBcDatatableElement, ev: BcDatatableCustomEvent<HTMLBcDatatableElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcDatatableElement: {
-        prototype: HTMLLcDatatableElement;
-        new (): HTMLLcDatatableElement;
+    var HTMLBcDatatableElement: {
+        prototype: HTMLBcDatatableElement;
+        new (): HTMLBcDatatableElement;
     };
-    interface HTMLLcDialogConfirmElementEventMap {
+    interface HTMLBcDialogConfirmElementEventMap {
         "lcDialogClose": {type: string};
     }
-    interface HTMLLcDialogConfirmElement extends Components.LcDialogConfirm, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcDialogConfirmElementEventMap>(type: K, listener: (this: HTMLLcDialogConfirmElement, ev: LcDialogConfirmCustomEvent<HTMLLcDialogConfirmElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcDialogConfirmElement extends Components.BcDialogConfirm, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcDialogConfirmElementEventMap>(type: K, listener: (this: HTMLBcDialogConfirmElement, ev: BcDialogConfirmCustomEvent<HTMLBcDialogConfirmElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcDialogConfirmElementEventMap>(type: K, listener: (this: HTMLLcDialogConfirmElement, ev: LcDialogConfirmCustomEvent<HTMLLcDialogConfirmElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcDialogConfirmElementEventMap>(type: K, listener: (this: HTMLBcDialogConfirmElement, ev: BcDialogConfirmCustomEvent<HTMLBcDialogConfirmElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcDialogConfirmElement: {
-        prototype: HTMLLcDialogConfirmElement;
-        new (): HTMLLcDialogConfirmElement;
+    var HTMLBcDialogConfirmElement: {
+        prototype: HTMLBcDialogConfirmElement;
+        new (): HTMLBcDialogConfirmElement;
     };
-    interface HTMLLcDialogModalElementEventMap {
+    interface HTMLBcDialogModalElementEventMap {
         "lcDialogClose": {type: string};
     }
-    interface HTMLLcDialogModalElement extends Components.LcDialogModal, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcDialogModalElementEventMap>(type: K, listener: (this: HTMLLcDialogModalElement, ev: LcDialogModalCustomEvent<HTMLLcDialogModalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcDialogModalElement extends Components.BcDialogModal, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcDialogModalElementEventMap>(type: K, listener: (this: HTMLBcDialogModalElement, ev: BcDialogModalCustomEvent<HTMLBcDialogModalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcDialogModalElementEventMap>(type: K, listener: (this: HTMLLcDialogModalElement, ev: LcDialogModalCustomEvent<HTMLLcDialogModalElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcDialogModalElementEventMap>(type: K, listener: (this: HTMLBcDialogModalElement, ev: BcDialogModalCustomEvent<HTMLBcDialogModalElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcDialogModalElement: {
-        prototype: HTMLLcDialogModalElement;
-        new (): HTMLLcDialogModalElement;
+    var HTMLBcDialogModalElement: {
+        prototype: HTMLBcDialogModalElement;
+        new (): HTMLBcDialogModalElement;
     };
-    interface HTMLLcDialogQuickentryElementEventMap {
+    interface HTMLBcDialogQuickentryElementEventMap {
         "lcDialogClose": {type: string; data?: Record<string, string>};
     }
-    interface HTMLLcDialogQuickentryElement extends Components.LcDialogQuickentry, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcDialogQuickentryElementEventMap>(type: K, listener: (this: HTMLLcDialogQuickentryElement, ev: LcDialogQuickentryCustomEvent<HTMLLcDialogQuickentryElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcDialogQuickentryElement extends Components.BcDialogQuickentry, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcDialogQuickentryElementEventMap>(type: K, listener: (this: HTMLBcDialogQuickentryElement, ev: BcDialogQuickentryCustomEvent<HTMLBcDialogQuickentryElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcDialogQuickentryElementEventMap>(type: K, listener: (this: HTMLLcDialogQuickentryElement, ev: LcDialogQuickentryCustomEvent<HTMLLcDialogQuickentryElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcDialogQuickentryElementEventMap>(type: K, listener: (this: HTMLBcDialogQuickentryElement, ev: BcDialogQuickentryCustomEvent<HTMLBcDialogQuickentryElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcDialogQuickentryElement: {
-        prototype: HTMLLcDialogQuickentryElement;
-        new (): HTMLLcDialogQuickentryElement;
+    var HTMLBcDialogQuickentryElement: {
+        prototype: HTMLBcDialogQuickentryElement;
+        new (): HTMLBcDialogQuickentryElement;
     };
-    interface HTMLLcDialogWizardElementEventMap {
+    interface HTMLBcDialogWizardElementEventMap {
         "lcDialogClose": {type: string; step: number};
         "lcWizardComplete": {step: number};
     }
-    interface HTMLLcDialogWizardElement extends Components.LcDialogWizard, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcDialogWizardElementEventMap>(type: K, listener: (this: HTMLLcDialogWizardElement, ev: LcDialogWizardCustomEvent<HTMLLcDialogWizardElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcDialogWizardElement extends Components.BcDialogWizard, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcDialogWizardElementEventMap>(type: K, listener: (this: HTMLBcDialogWizardElement, ev: BcDialogWizardCustomEvent<HTMLBcDialogWizardElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcDialogWizardElementEventMap>(type: K, listener: (this: HTMLLcDialogWizardElement, ev: LcDialogWizardCustomEvent<HTMLLcDialogWizardElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcDialogWizardElementEventMap>(type: K, listener: (this: HTMLBcDialogWizardElement, ev: BcDialogWizardCustomEvent<HTMLBcDialogWizardElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcDialogWizardElement: {
-        prototype: HTMLLcDialogWizardElement;
-        new (): HTMLLcDialogWizardElement;
+    var HTMLBcDialogWizardElement: {
+        prototype: HTMLBcDialogWizardElement;
+        new (): HTMLBcDialogWizardElement;
     };
-    interface HTMLLcExportElement extends Components.LcExport, HTMLStencilElement {
+    interface HTMLBcExportElement extends Components.BcExport, HTMLStencilElement {
     }
-    var HTMLLcExportElement: {
-        prototype: HTMLLcExportElement;
-        new (): HTMLLcExportElement;
+    var HTMLBcExportElement: {
+        prototype: HTMLBcExportElement;
+        new (): HTMLBcExportElement;
     };
-    interface HTMLLcFavoritesElementEventMap {
+    interface HTMLBcFavoritesElementEventMap {
         "lcFavoriteSelect": {filters: Record<string, string>};
         "lcSearch": {query: string};
     }
-    interface HTMLLcFavoritesElement extends Components.LcFavorites, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcFavoritesElementEventMap>(type: K, listener: (this: HTMLLcFavoritesElement, ev: LcFavoritesCustomEvent<HTMLLcFavoritesElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcFavoritesElement extends Components.BcFavorites, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcFavoritesElementEventMap>(type: K, listener: (this: HTMLBcFavoritesElement, ev: BcFavoritesCustomEvent<HTMLBcFavoritesElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcFavoritesElementEventMap>(type: K, listener: (this: HTMLLcFavoritesElement, ev: LcFavoritesCustomEvent<HTMLLcFavoritesElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcFavoritesElementEventMap>(type: K, listener: (this: HTMLBcFavoritesElement, ev: BcFavoritesCustomEvent<HTMLBcFavoritesElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcFavoritesElement: {
-        prototype: HTMLLcFavoritesElement;
-        new (): HTMLLcFavoritesElement;
+    var HTMLBcFavoritesElement: {
+        prototype: HTMLBcFavoritesElement;
+        new (): HTMLBcFavoritesElement;
     };
-    interface HTMLLcFieldBarcodeElementEventMap {
+    interface HTMLBcFieldBarcodeElementEventMap {
         "lcFieldChange": FieldChangeEvent;
     }
-    interface HTMLLcFieldBarcodeElement extends Components.LcFieldBarcode, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcFieldBarcodeElementEventMap>(type: K, listener: (this: HTMLLcFieldBarcodeElement, ev: LcFieldBarcodeCustomEvent<HTMLLcFieldBarcodeElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcFieldBarcodeElement extends Components.BcFieldBarcode, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcFieldBarcodeElementEventMap>(type: K, listener: (this: HTMLBcFieldBarcodeElement, ev: BcFieldBarcodeCustomEvent<HTMLBcFieldBarcodeElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcFieldBarcodeElementEventMap>(type: K, listener: (this: HTMLLcFieldBarcodeElement, ev: LcFieldBarcodeCustomEvent<HTMLLcFieldBarcodeElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcFieldBarcodeElementEventMap>(type: K, listener: (this: HTMLBcFieldBarcodeElement, ev: BcFieldBarcodeCustomEvent<HTMLBcFieldBarcodeElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcFieldBarcodeElement: {
-        prototype: HTMLLcFieldBarcodeElement;
-        new (): HTMLLcFieldBarcodeElement;
+    var HTMLBcFieldBarcodeElement: {
+        prototype: HTMLBcFieldBarcodeElement;
+        new (): HTMLBcFieldBarcodeElement;
     };
-    interface HTMLLcFieldCheckboxElementEventMap {
+    interface HTMLBcFieldCheckboxElementEventMap {
         "lcFieldChange": FieldChangeEvent;
     }
-    interface HTMLLcFieldCheckboxElement extends Components.LcFieldCheckbox, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcFieldCheckboxElementEventMap>(type: K, listener: (this: HTMLLcFieldCheckboxElement, ev: LcFieldCheckboxCustomEvent<HTMLLcFieldCheckboxElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcFieldCheckboxElement extends Components.BcFieldCheckbox, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcFieldCheckboxElementEventMap>(type: K, listener: (this: HTMLBcFieldCheckboxElement, ev: BcFieldCheckboxCustomEvent<HTMLBcFieldCheckboxElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcFieldCheckboxElementEventMap>(type: K, listener: (this: HTMLLcFieldCheckboxElement, ev: LcFieldCheckboxCustomEvent<HTMLLcFieldCheckboxElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcFieldCheckboxElementEventMap>(type: K, listener: (this: HTMLBcFieldCheckboxElement, ev: BcFieldCheckboxCustomEvent<HTMLBcFieldCheckboxElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcFieldCheckboxElement: {
-        prototype: HTMLLcFieldCheckboxElement;
-        new (): HTMLLcFieldCheckboxElement;
+    var HTMLBcFieldCheckboxElement: {
+        prototype: HTMLBcFieldCheckboxElement;
+        new (): HTMLBcFieldCheckboxElement;
     };
-    interface HTMLLcFieldCodeElementEventMap {
+    interface HTMLBcFieldCodeElementEventMap {
         "lcFieldChange": FieldChangeEvent;
     }
-    interface HTMLLcFieldCodeElement extends Components.LcFieldCode, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcFieldCodeElementEventMap>(type: K, listener: (this: HTMLLcFieldCodeElement, ev: LcFieldCodeCustomEvent<HTMLLcFieldCodeElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcFieldCodeElement extends Components.BcFieldCode, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcFieldCodeElementEventMap>(type: K, listener: (this: HTMLBcFieldCodeElement, ev: BcFieldCodeCustomEvent<HTMLBcFieldCodeElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcFieldCodeElementEventMap>(type: K, listener: (this: HTMLLcFieldCodeElement, ev: LcFieldCodeCustomEvent<HTMLLcFieldCodeElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcFieldCodeElementEventMap>(type: K, listener: (this: HTMLBcFieldCodeElement, ev: BcFieldCodeCustomEvent<HTMLBcFieldCodeElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcFieldCodeElement: {
-        prototype: HTMLLcFieldCodeElement;
-        new (): HTMLLcFieldCodeElement;
+    var HTMLBcFieldCodeElement: {
+        prototype: HTMLBcFieldCodeElement;
+        new (): HTMLBcFieldCodeElement;
     };
-    interface HTMLLcFieldColorElementEventMap {
+    interface HTMLBcFieldColorElementEventMap {
         "lcFieldChange": FieldChangeEvent;
     }
-    interface HTMLLcFieldColorElement extends Components.LcFieldColor, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcFieldColorElementEventMap>(type: K, listener: (this: HTMLLcFieldColorElement, ev: LcFieldColorCustomEvent<HTMLLcFieldColorElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcFieldColorElement extends Components.BcFieldColor, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcFieldColorElementEventMap>(type: K, listener: (this: HTMLBcFieldColorElement, ev: BcFieldColorCustomEvent<HTMLBcFieldColorElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcFieldColorElementEventMap>(type: K, listener: (this: HTMLLcFieldColorElement, ev: LcFieldColorCustomEvent<HTMLLcFieldColorElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcFieldColorElementEventMap>(type: K, listener: (this: HTMLBcFieldColorElement, ev: BcFieldColorCustomEvent<HTMLBcFieldColorElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcFieldColorElement: {
-        prototype: HTMLLcFieldColorElement;
-        new (): HTMLLcFieldColorElement;
+    var HTMLBcFieldColorElement: {
+        prototype: HTMLBcFieldColorElement;
+        new (): HTMLBcFieldColorElement;
     };
-    interface HTMLLcFieldCurrencyElementEventMap {
+    interface HTMLBcFieldCurrencyElementEventMap {
         "lcFieldChange": FieldChangeEvent;
     }
-    interface HTMLLcFieldCurrencyElement extends Components.LcFieldCurrency, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcFieldCurrencyElementEventMap>(type: K, listener: (this: HTMLLcFieldCurrencyElement, ev: LcFieldCurrencyCustomEvent<HTMLLcFieldCurrencyElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcFieldCurrencyElement extends Components.BcFieldCurrency, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcFieldCurrencyElementEventMap>(type: K, listener: (this: HTMLBcFieldCurrencyElement, ev: BcFieldCurrencyCustomEvent<HTMLBcFieldCurrencyElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcFieldCurrencyElementEventMap>(type: K, listener: (this: HTMLLcFieldCurrencyElement, ev: LcFieldCurrencyCustomEvent<HTMLLcFieldCurrencyElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcFieldCurrencyElementEventMap>(type: K, listener: (this: HTMLBcFieldCurrencyElement, ev: BcFieldCurrencyCustomEvent<HTMLBcFieldCurrencyElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcFieldCurrencyElement: {
-        prototype: HTMLLcFieldCurrencyElement;
-        new (): HTMLLcFieldCurrencyElement;
+    var HTMLBcFieldCurrencyElement: {
+        prototype: HTMLBcFieldCurrencyElement;
+        new (): HTMLBcFieldCurrencyElement;
     };
-    interface HTMLLcFieldDateElementEventMap {
+    interface HTMLBcFieldDateElementEventMap {
         "lcFieldChange": FieldChangeEvent;
     }
-    interface HTMLLcFieldDateElement extends Components.LcFieldDate, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcFieldDateElementEventMap>(type: K, listener: (this: HTMLLcFieldDateElement, ev: LcFieldDateCustomEvent<HTMLLcFieldDateElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcFieldDateElement extends Components.BcFieldDate, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcFieldDateElementEventMap>(type: K, listener: (this: HTMLBcFieldDateElement, ev: BcFieldDateCustomEvent<HTMLBcFieldDateElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcFieldDateElementEventMap>(type: K, listener: (this: HTMLLcFieldDateElement, ev: LcFieldDateCustomEvent<HTMLLcFieldDateElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcFieldDateElementEventMap>(type: K, listener: (this: HTMLBcFieldDateElement, ev: BcFieldDateCustomEvent<HTMLBcFieldDateElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcFieldDateElement: {
-        prototype: HTMLLcFieldDateElement;
-        new (): HTMLLcFieldDateElement;
+    var HTMLBcFieldDateElement: {
+        prototype: HTMLBcFieldDateElement;
+        new (): HTMLBcFieldDateElement;
     };
-    interface HTMLLcFieldDatetimeElementEventMap {
+    interface HTMLBcFieldDatetimeElementEventMap {
         "lcFieldChange": FieldChangeEvent;
     }
-    interface HTMLLcFieldDatetimeElement extends Components.LcFieldDatetime, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcFieldDatetimeElementEventMap>(type: K, listener: (this: HTMLLcFieldDatetimeElement, ev: LcFieldDatetimeCustomEvent<HTMLLcFieldDatetimeElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcFieldDatetimeElement extends Components.BcFieldDatetime, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcFieldDatetimeElementEventMap>(type: K, listener: (this: HTMLBcFieldDatetimeElement, ev: BcFieldDatetimeCustomEvent<HTMLBcFieldDatetimeElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcFieldDatetimeElementEventMap>(type: K, listener: (this: HTMLLcFieldDatetimeElement, ev: LcFieldDatetimeCustomEvent<HTMLLcFieldDatetimeElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcFieldDatetimeElementEventMap>(type: K, listener: (this: HTMLBcFieldDatetimeElement, ev: BcFieldDatetimeCustomEvent<HTMLBcFieldDatetimeElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcFieldDatetimeElement: {
-        prototype: HTMLLcFieldDatetimeElement;
-        new (): HTMLLcFieldDatetimeElement;
+    var HTMLBcFieldDatetimeElement: {
+        prototype: HTMLBcFieldDatetimeElement;
+        new (): HTMLBcFieldDatetimeElement;
     };
-    interface HTMLLcFieldDecimalElementEventMap {
+    interface HTMLBcFieldDecimalElementEventMap {
         "lcFieldChange": FieldChangeEvent;
     }
-    interface HTMLLcFieldDecimalElement extends Components.LcFieldDecimal, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcFieldDecimalElementEventMap>(type: K, listener: (this: HTMLLcFieldDecimalElement, ev: LcFieldDecimalCustomEvent<HTMLLcFieldDecimalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcFieldDecimalElement extends Components.BcFieldDecimal, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcFieldDecimalElementEventMap>(type: K, listener: (this: HTMLBcFieldDecimalElement, ev: BcFieldDecimalCustomEvent<HTMLBcFieldDecimalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcFieldDecimalElementEventMap>(type: K, listener: (this: HTMLLcFieldDecimalElement, ev: LcFieldDecimalCustomEvent<HTMLLcFieldDecimalElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcFieldDecimalElementEventMap>(type: K, listener: (this: HTMLBcFieldDecimalElement, ev: BcFieldDecimalCustomEvent<HTMLBcFieldDecimalElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcFieldDecimalElement: {
-        prototype: HTMLLcFieldDecimalElement;
-        new (): HTMLLcFieldDecimalElement;
+    var HTMLBcFieldDecimalElement: {
+        prototype: HTMLBcFieldDecimalElement;
+        new (): HTMLBcFieldDecimalElement;
     };
-    interface HTMLLcFieldDurationElementEventMap {
+    interface HTMLBcFieldDurationElementEventMap {
         "lcFieldChange": FieldChangeEvent;
     }
-    interface HTMLLcFieldDurationElement extends Components.LcFieldDuration, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcFieldDurationElementEventMap>(type: K, listener: (this: HTMLLcFieldDurationElement, ev: LcFieldDurationCustomEvent<HTMLLcFieldDurationElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcFieldDurationElement extends Components.BcFieldDuration, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcFieldDurationElementEventMap>(type: K, listener: (this: HTMLBcFieldDurationElement, ev: BcFieldDurationCustomEvent<HTMLBcFieldDurationElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcFieldDurationElementEventMap>(type: K, listener: (this: HTMLLcFieldDurationElement, ev: LcFieldDurationCustomEvent<HTMLLcFieldDurationElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcFieldDurationElementEventMap>(type: K, listener: (this: HTMLBcFieldDurationElement, ev: BcFieldDurationCustomEvent<HTMLBcFieldDurationElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcFieldDurationElement: {
-        prototype: HTMLLcFieldDurationElement;
-        new (): HTMLLcFieldDurationElement;
+    var HTMLBcFieldDurationElement: {
+        prototype: HTMLBcFieldDurationElement;
+        new (): HTMLBcFieldDurationElement;
     };
-    interface HTMLLcFieldDynlinkElementEventMap {
+    interface HTMLBcFieldDynlinkElementEventMap {
         "lcFieldChange": FieldChangeEvent;
     }
-    interface HTMLLcFieldDynlinkElement extends Components.LcFieldDynlink, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcFieldDynlinkElementEventMap>(type: K, listener: (this: HTMLLcFieldDynlinkElement, ev: LcFieldDynlinkCustomEvent<HTMLLcFieldDynlinkElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcFieldDynlinkElement extends Components.BcFieldDynlink, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcFieldDynlinkElementEventMap>(type: K, listener: (this: HTMLBcFieldDynlinkElement, ev: BcFieldDynlinkCustomEvent<HTMLBcFieldDynlinkElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcFieldDynlinkElementEventMap>(type: K, listener: (this: HTMLLcFieldDynlinkElement, ev: LcFieldDynlinkCustomEvent<HTMLLcFieldDynlinkElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcFieldDynlinkElementEventMap>(type: K, listener: (this: HTMLBcFieldDynlinkElement, ev: BcFieldDynlinkCustomEvent<HTMLBcFieldDynlinkElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcFieldDynlinkElement: {
-        prototype: HTMLLcFieldDynlinkElement;
-        new (): HTMLLcFieldDynlinkElement;
+    var HTMLBcFieldDynlinkElement: {
+        prototype: HTMLBcFieldDynlinkElement;
+        new (): HTMLBcFieldDynlinkElement;
     };
-    interface HTMLLcFieldFileElementEventMap {
+    interface HTMLBcFieldFileElementEventMap {
         "lcFieldChange": FieldChangeEvent;
     }
-    interface HTMLLcFieldFileElement extends Components.LcFieldFile, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcFieldFileElementEventMap>(type: K, listener: (this: HTMLLcFieldFileElement, ev: LcFieldFileCustomEvent<HTMLLcFieldFileElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcFieldFileElement extends Components.BcFieldFile, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcFieldFileElementEventMap>(type: K, listener: (this: HTMLBcFieldFileElement, ev: BcFieldFileCustomEvent<HTMLBcFieldFileElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcFieldFileElementEventMap>(type: K, listener: (this: HTMLLcFieldFileElement, ev: LcFieldFileCustomEvent<HTMLLcFieldFileElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcFieldFileElementEventMap>(type: K, listener: (this: HTMLBcFieldFileElement, ev: BcFieldFileCustomEvent<HTMLBcFieldFileElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcFieldFileElement: {
-        prototype: HTMLLcFieldFileElement;
-        new (): HTMLLcFieldFileElement;
+    var HTMLBcFieldFileElement: {
+        prototype: HTMLBcFieldFileElement;
+        new (): HTMLBcFieldFileElement;
     };
-    interface HTMLLcFieldFloatElementEventMap {
+    interface HTMLBcFieldFloatElementEventMap {
         "lcFieldChange": FieldChangeEvent;
     }
-    interface HTMLLcFieldFloatElement extends Components.LcFieldFloat, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcFieldFloatElementEventMap>(type: K, listener: (this: HTMLLcFieldFloatElement, ev: LcFieldFloatCustomEvent<HTMLLcFieldFloatElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcFieldFloatElement extends Components.BcFieldFloat, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcFieldFloatElementEventMap>(type: K, listener: (this: HTMLBcFieldFloatElement, ev: BcFieldFloatCustomEvent<HTMLBcFieldFloatElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcFieldFloatElementEventMap>(type: K, listener: (this: HTMLLcFieldFloatElement, ev: LcFieldFloatCustomEvent<HTMLLcFieldFloatElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcFieldFloatElementEventMap>(type: K, listener: (this: HTMLBcFieldFloatElement, ev: BcFieldFloatCustomEvent<HTMLBcFieldFloatElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcFieldFloatElement: {
-        prototype: HTMLLcFieldFloatElement;
-        new (): HTMLLcFieldFloatElement;
+    var HTMLBcFieldFloatElement: {
+        prototype: HTMLBcFieldFloatElement;
+        new (): HTMLBcFieldFloatElement;
     };
-    interface HTMLLcFieldGeoElementEventMap {
+    interface HTMLBcFieldGeoElementEventMap {
         "lcFieldChange": FieldChangeEvent;
     }
-    interface HTMLLcFieldGeoElement extends Components.LcFieldGeo, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcFieldGeoElementEventMap>(type: K, listener: (this: HTMLLcFieldGeoElement, ev: LcFieldGeoCustomEvent<HTMLLcFieldGeoElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcFieldGeoElement extends Components.BcFieldGeo, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcFieldGeoElementEventMap>(type: K, listener: (this: HTMLBcFieldGeoElement, ev: BcFieldGeoCustomEvent<HTMLBcFieldGeoElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcFieldGeoElementEventMap>(type: K, listener: (this: HTMLLcFieldGeoElement, ev: LcFieldGeoCustomEvent<HTMLLcFieldGeoElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcFieldGeoElementEventMap>(type: K, listener: (this: HTMLBcFieldGeoElement, ev: BcFieldGeoCustomEvent<HTMLBcFieldGeoElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcFieldGeoElement: {
-        prototype: HTMLLcFieldGeoElement;
-        new (): HTMLLcFieldGeoElement;
+    var HTMLBcFieldGeoElement: {
+        prototype: HTMLBcFieldGeoElement;
+        new (): HTMLBcFieldGeoElement;
     };
-    interface HTMLLcFieldHtmlElementEventMap {
+    interface HTMLBcFieldHtmlElementEventMap {
         "lcFieldChange": FieldChangeEvent;
     }
-    interface HTMLLcFieldHtmlElement extends Components.LcFieldHtml, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcFieldHtmlElementEventMap>(type: K, listener: (this: HTMLLcFieldHtmlElement, ev: LcFieldHtmlCustomEvent<HTMLLcFieldHtmlElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcFieldHtmlElement extends Components.BcFieldHtml, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcFieldHtmlElementEventMap>(type: K, listener: (this: HTMLBcFieldHtmlElement, ev: BcFieldHtmlCustomEvent<HTMLBcFieldHtmlElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcFieldHtmlElementEventMap>(type: K, listener: (this: HTMLLcFieldHtmlElement, ev: LcFieldHtmlCustomEvent<HTMLLcFieldHtmlElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcFieldHtmlElementEventMap>(type: K, listener: (this: HTMLBcFieldHtmlElement, ev: BcFieldHtmlCustomEvent<HTMLBcFieldHtmlElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcFieldHtmlElement: {
-        prototype: HTMLLcFieldHtmlElement;
-        new (): HTMLLcFieldHtmlElement;
+    var HTMLBcFieldHtmlElement: {
+        prototype: HTMLBcFieldHtmlElement;
+        new (): HTMLBcFieldHtmlElement;
     };
-    interface HTMLLcFieldImageElementEventMap {
+    interface HTMLBcFieldImageElementEventMap {
         "lcFieldChange": FieldChangeEvent;
     }
-    interface HTMLLcFieldImageElement extends Components.LcFieldImage, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcFieldImageElementEventMap>(type: K, listener: (this: HTMLLcFieldImageElement, ev: LcFieldImageCustomEvent<HTMLLcFieldImageElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcFieldImageElement extends Components.BcFieldImage, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcFieldImageElementEventMap>(type: K, listener: (this: HTMLBcFieldImageElement, ev: BcFieldImageCustomEvent<HTMLBcFieldImageElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcFieldImageElementEventMap>(type: K, listener: (this: HTMLLcFieldImageElement, ev: LcFieldImageCustomEvent<HTMLLcFieldImageElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcFieldImageElementEventMap>(type: K, listener: (this: HTMLBcFieldImageElement, ev: BcFieldImageCustomEvent<HTMLBcFieldImageElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcFieldImageElement: {
-        prototype: HTMLLcFieldImageElement;
-        new (): HTMLLcFieldImageElement;
+    var HTMLBcFieldImageElement: {
+        prototype: HTMLBcFieldImageElement;
+        new (): HTMLBcFieldImageElement;
     };
-    interface HTMLLcFieldIntegerElementEventMap {
+    interface HTMLBcFieldIntegerElementEventMap {
         "lcFieldChange": FieldChangeEvent;
     }
-    interface HTMLLcFieldIntegerElement extends Components.LcFieldInteger, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcFieldIntegerElementEventMap>(type: K, listener: (this: HTMLLcFieldIntegerElement, ev: LcFieldIntegerCustomEvent<HTMLLcFieldIntegerElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcFieldIntegerElement extends Components.BcFieldInteger, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcFieldIntegerElementEventMap>(type: K, listener: (this: HTMLBcFieldIntegerElement, ev: BcFieldIntegerCustomEvent<HTMLBcFieldIntegerElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcFieldIntegerElementEventMap>(type: K, listener: (this: HTMLLcFieldIntegerElement, ev: LcFieldIntegerCustomEvent<HTMLLcFieldIntegerElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcFieldIntegerElementEventMap>(type: K, listener: (this: HTMLBcFieldIntegerElement, ev: BcFieldIntegerCustomEvent<HTMLBcFieldIntegerElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcFieldIntegerElement: {
-        prototype: HTMLLcFieldIntegerElement;
-        new (): HTMLLcFieldIntegerElement;
+    var HTMLBcFieldIntegerElement: {
+        prototype: HTMLBcFieldIntegerElement;
+        new (): HTMLBcFieldIntegerElement;
     };
-    interface HTMLLcFieldJsonElementEventMap {
+    interface HTMLBcFieldJsonElementEventMap {
         "lcFieldChange": FieldChangeEvent;
     }
-    interface HTMLLcFieldJsonElement extends Components.LcFieldJson, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcFieldJsonElementEventMap>(type: K, listener: (this: HTMLLcFieldJsonElement, ev: LcFieldJsonCustomEvent<HTMLLcFieldJsonElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcFieldJsonElement extends Components.BcFieldJson, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcFieldJsonElementEventMap>(type: K, listener: (this: HTMLBcFieldJsonElement, ev: BcFieldJsonCustomEvent<HTMLBcFieldJsonElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcFieldJsonElementEventMap>(type: K, listener: (this: HTMLLcFieldJsonElement, ev: LcFieldJsonCustomEvent<HTMLLcFieldJsonElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcFieldJsonElementEventMap>(type: K, listener: (this: HTMLBcFieldJsonElement, ev: BcFieldJsonCustomEvent<HTMLBcFieldJsonElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcFieldJsonElement: {
-        prototype: HTMLLcFieldJsonElement;
-        new (): HTMLLcFieldJsonElement;
+    var HTMLBcFieldJsonElement: {
+        prototype: HTMLBcFieldJsonElement;
+        new (): HTMLBcFieldJsonElement;
     };
-    interface HTMLLcFieldLinkElementEventMap {
+    interface HTMLBcFieldLinkElementEventMap {
         "lcFieldChange": FieldChangeEvent;
     }
-    interface HTMLLcFieldLinkElement extends Components.LcFieldLink, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcFieldLinkElementEventMap>(type: K, listener: (this: HTMLLcFieldLinkElement, ev: LcFieldLinkCustomEvent<HTMLLcFieldLinkElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcFieldLinkElement extends Components.BcFieldLink, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcFieldLinkElementEventMap>(type: K, listener: (this: HTMLBcFieldLinkElement, ev: BcFieldLinkCustomEvent<HTMLBcFieldLinkElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcFieldLinkElementEventMap>(type: K, listener: (this: HTMLLcFieldLinkElement, ev: LcFieldLinkCustomEvent<HTMLLcFieldLinkElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcFieldLinkElementEventMap>(type: K, listener: (this: HTMLBcFieldLinkElement, ev: BcFieldLinkCustomEvent<HTMLBcFieldLinkElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcFieldLinkElement: {
-        prototype: HTMLLcFieldLinkElement;
-        new (): HTMLLcFieldLinkElement;
+    var HTMLBcFieldLinkElement: {
+        prototype: HTMLBcFieldLinkElement;
+        new (): HTMLBcFieldLinkElement;
     };
-    interface HTMLLcFieldMarkdownElementEventMap {
+    interface HTMLBcFieldMarkdownElementEventMap {
         "lcFieldChange": FieldChangeEvent;
     }
-    interface HTMLLcFieldMarkdownElement extends Components.LcFieldMarkdown, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcFieldMarkdownElementEventMap>(type: K, listener: (this: HTMLLcFieldMarkdownElement, ev: LcFieldMarkdownCustomEvent<HTMLLcFieldMarkdownElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcFieldMarkdownElement extends Components.BcFieldMarkdown, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcFieldMarkdownElementEventMap>(type: K, listener: (this: HTMLBcFieldMarkdownElement, ev: BcFieldMarkdownCustomEvent<HTMLBcFieldMarkdownElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcFieldMarkdownElementEventMap>(type: K, listener: (this: HTMLLcFieldMarkdownElement, ev: LcFieldMarkdownCustomEvent<HTMLLcFieldMarkdownElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcFieldMarkdownElementEventMap>(type: K, listener: (this: HTMLBcFieldMarkdownElement, ev: BcFieldMarkdownCustomEvent<HTMLBcFieldMarkdownElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcFieldMarkdownElement: {
-        prototype: HTMLLcFieldMarkdownElement;
-        new (): HTMLLcFieldMarkdownElement;
+    var HTMLBcFieldMarkdownElement: {
+        prototype: HTMLBcFieldMarkdownElement;
+        new (): HTMLBcFieldMarkdownElement;
     };
-    interface HTMLLcFieldMulticheckElementEventMap {
+    interface HTMLBcFieldMulticheckElementEventMap {
         "lcFieldChange": FieldChangeEvent;
     }
-    interface HTMLLcFieldMulticheckElement extends Components.LcFieldMulticheck, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcFieldMulticheckElementEventMap>(type: K, listener: (this: HTMLLcFieldMulticheckElement, ev: LcFieldMulticheckCustomEvent<HTMLLcFieldMulticheckElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcFieldMulticheckElement extends Components.BcFieldMulticheck, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcFieldMulticheckElementEventMap>(type: K, listener: (this: HTMLBcFieldMulticheckElement, ev: BcFieldMulticheckCustomEvent<HTMLBcFieldMulticheckElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcFieldMulticheckElementEventMap>(type: K, listener: (this: HTMLLcFieldMulticheckElement, ev: LcFieldMulticheckCustomEvent<HTMLLcFieldMulticheckElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcFieldMulticheckElementEventMap>(type: K, listener: (this: HTMLBcFieldMulticheckElement, ev: BcFieldMulticheckCustomEvent<HTMLBcFieldMulticheckElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcFieldMulticheckElement: {
-        prototype: HTMLLcFieldMulticheckElement;
-        new (): HTMLLcFieldMulticheckElement;
+    var HTMLBcFieldMulticheckElement: {
+        prototype: HTMLBcFieldMulticheckElement;
+        new (): HTMLBcFieldMulticheckElement;
     };
-    interface HTMLLcFieldPasswordElementEventMap {
+    interface HTMLBcFieldPasswordElementEventMap {
         "lcFieldChange": FieldChangeEvent;
     }
-    interface HTMLLcFieldPasswordElement extends Components.LcFieldPassword, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcFieldPasswordElementEventMap>(type: K, listener: (this: HTMLLcFieldPasswordElement, ev: LcFieldPasswordCustomEvent<HTMLLcFieldPasswordElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcFieldPasswordElement extends Components.BcFieldPassword, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcFieldPasswordElementEventMap>(type: K, listener: (this: HTMLBcFieldPasswordElement, ev: BcFieldPasswordCustomEvent<HTMLBcFieldPasswordElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcFieldPasswordElementEventMap>(type: K, listener: (this: HTMLLcFieldPasswordElement, ev: LcFieldPasswordCustomEvent<HTMLLcFieldPasswordElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcFieldPasswordElementEventMap>(type: K, listener: (this: HTMLBcFieldPasswordElement, ev: BcFieldPasswordCustomEvent<HTMLBcFieldPasswordElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcFieldPasswordElement: {
-        prototype: HTMLLcFieldPasswordElement;
-        new (): HTMLLcFieldPasswordElement;
+    var HTMLBcFieldPasswordElement: {
+        prototype: HTMLBcFieldPasswordElement;
+        new (): HTMLBcFieldPasswordElement;
     };
-    interface HTMLLcFieldPercentElementEventMap {
+    interface HTMLBcFieldPercentElementEventMap {
         "lcFieldChange": FieldChangeEvent;
     }
-    interface HTMLLcFieldPercentElement extends Components.LcFieldPercent, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcFieldPercentElementEventMap>(type: K, listener: (this: HTMLLcFieldPercentElement, ev: LcFieldPercentCustomEvent<HTMLLcFieldPercentElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcFieldPercentElement extends Components.BcFieldPercent, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcFieldPercentElementEventMap>(type: K, listener: (this: HTMLBcFieldPercentElement, ev: BcFieldPercentCustomEvent<HTMLBcFieldPercentElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcFieldPercentElementEventMap>(type: K, listener: (this: HTMLLcFieldPercentElement, ev: LcFieldPercentCustomEvent<HTMLLcFieldPercentElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcFieldPercentElementEventMap>(type: K, listener: (this: HTMLBcFieldPercentElement, ev: BcFieldPercentCustomEvent<HTMLBcFieldPercentElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcFieldPercentElement: {
-        prototype: HTMLLcFieldPercentElement;
-        new (): HTMLLcFieldPercentElement;
+    var HTMLBcFieldPercentElement: {
+        prototype: HTMLBcFieldPercentElement;
+        new (): HTMLBcFieldPercentElement;
     };
-    interface HTMLLcFieldRadioElementEventMap {
+    interface HTMLBcFieldRadioElementEventMap {
         "lcFieldChange": FieldChangeEvent;
     }
-    interface HTMLLcFieldRadioElement extends Components.LcFieldRadio, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcFieldRadioElementEventMap>(type: K, listener: (this: HTMLLcFieldRadioElement, ev: LcFieldRadioCustomEvent<HTMLLcFieldRadioElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcFieldRadioElement extends Components.BcFieldRadio, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcFieldRadioElementEventMap>(type: K, listener: (this: HTMLBcFieldRadioElement, ev: BcFieldRadioCustomEvent<HTMLBcFieldRadioElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcFieldRadioElementEventMap>(type: K, listener: (this: HTMLLcFieldRadioElement, ev: LcFieldRadioCustomEvent<HTMLLcFieldRadioElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcFieldRadioElementEventMap>(type: K, listener: (this: HTMLBcFieldRadioElement, ev: BcFieldRadioCustomEvent<HTMLBcFieldRadioElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcFieldRadioElement: {
-        prototype: HTMLLcFieldRadioElement;
-        new (): HTMLLcFieldRadioElement;
+    var HTMLBcFieldRadioElement: {
+        prototype: HTMLBcFieldRadioElement;
+        new (): HTMLBcFieldRadioElement;
     };
-    interface HTMLLcFieldRatingElementEventMap {
+    interface HTMLBcFieldRatingElementEventMap {
         "lcFieldChange": FieldChangeEvent;
     }
-    interface HTMLLcFieldRatingElement extends Components.LcFieldRating, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcFieldRatingElementEventMap>(type: K, listener: (this: HTMLLcFieldRatingElement, ev: LcFieldRatingCustomEvent<HTMLLcFieldRatingElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcFieldRatingElement extends Components.BcFieldRating, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcFieldRatingElementEventMap>(type: K, listener: (this: HTMLBcFieldRatingElement, ev: BcFieldRatingCustomEvent<HTMLBcFieldRatingElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcFieldRatingElementEventMap>(type: K, listener: (this: HTMLLcFieldRatingElement, ev: LcFieldRatingCustomEvent<HTMLLcFieldRatingElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcFieldRatingElementEventMap>(type: K, listener: (this: HTMLBcFieldRatingElement, ev: BcFieldRatingCustomEvent<HTMLBcFieldRatingElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcFieldRatingElement: {
-        prototype: HTMLLcFieldRatingElement;
-        new (): HTMLLcFieldRatingElement;
+    var HTMLBcFieldRatingElement: {
+        prototype: HTMLBcFieldRatingElement;
+        new (): HTMLBcFieldRatingElement;
     };
-    interface HTMLLcFieldRichtextElementEventMap {
+    interface HTMLBcFieldRichtextElementEventMap {
         "lcFieldChange": FieldChangeEvent;
     }
-    interface HTMLLcFieldRichtextElement extends Components.LcFieldRichtext, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcFieldRichtextElementEventMap>(type: K, listener: (this: HTMLLcFieldRichtextElement, ev: LcFieldRichtextCustomEvent<HTMLLcFieldRichtextElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcFieldRichtextElement extends Components.BcFieldRichtext, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcFieldRichtextElementEventMap>(type: K, listener: (this: HTMLBcFieldRichtextElement, ev: BcFieldRichtextCustomEvent<HTMLBcFieldRichtextElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcFieldRichtextElementEventMap>(type: K, listener: (this: HTMLLcFieldRichtextElement, ev: LcFieldRichtextCustomEvent<HTMLLcFieldRichtextElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcFieldRichtextElementEventMap>(type: K, listener: (this: HTMLBcFieldRichtextElement, ev: BcFieldRichtextCustomEvent<HTMLBcFieldRichtextElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcFieldRichtextElement: {
-        prototype: HTMLLcFieldRichtextElement;
-        new (): HTMLLcFieldRichtextElement;
+    var HTMLBcFieldRichtextElement: {
+        prototype: HTMLBcFieldRichtextElement;
+        new (): HTMLBcFieldRichtextElement;
     };
-    interface HTMLLcFieldSelectElementEventMap {
+    interface HTMLBcFieldSelectElementEventMap {
         "lcFieldChange": FieldChangeEvent;
     }
-    interface HTMLLcFieldSelectElement extends Components.LcFieldSelect, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcFieldSelectElementEventMap>(type: K, listener: (this: HTMLLcFieldSelectElement, ev: LcFieldSelectCustomEvent<HTMLLcFieldSelectElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcFieldSelectElement extends Components.BcFieldSelect, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcFieldSelectElementEventMap>(type: K, listener: (this: HTMLBcFieldSelectElement, ev: BcFieldSelectCustomEvent<HTMLBcFieldSelectElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcFieldSelectElementEventMap>(type: K, listener: (this: HTMLLcFieldSelectElement, ev: LcFieldSelectCustomEvent<HTMLLcFieldSelectElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcFieldSelectElementEventMap>(type: K, listener: (this: HTMLBcFieldSelectElement, ev: BcFieldSelectCustomEvent<HTMLBcFieldSelectElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcFieldSelectElement: {
-        prototype: HTMLLcFieldSelectElement;
-        new (): HTMLLcFieldSelectElement;
+    var HTMLBcFieldSelectElement: {
+        prototype: HTMLBcFieldSelectElement;
+        new (): HTMLBcFieldSelectElement;
     };
-    interface HTMLLcFieldSignatureElementEventMap {
+    interface HTMLBcFieldSignatureElementEventMap {
         "lcFieldChange": FieldChangeEvent;
     }
-    interface HTMLLcFieldSignatureElement extends Components.LcFieldSignature, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcFieldSignatureElementEventMap>(type: K, listener: (this: HTMLLcFieldSignatureElement, ev: LcFieldSignatureCustomEvent<HTMLLcFieldSignatureElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcFieldSignatureElement extends Components.BcFieldSignature, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcFieldSignatureElementEventMap>(type: K, listener: (this: HTMLBcFieldSignatureElement, ev: BcFieldSignatureCustomEvent<HTMLBcFieldSignatureElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcFieldSignatureElementEventMap>(type: K, listener: (this: HTMLLcFieldSignatureElement, ev: LcFieldSignatureCustomEvent<HTMLLcFieldSignatureElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcFieldSignatureElementEventMap>(type: K, listener: (this: HTMLBcFieldSignatureElement, ev: BcFieldSignatureCustomEvent<HTMLBcFieldSignatureElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcFieldSignatureElement: {
-        prototype: HTMLLcFieldSignatureElement;
-        new (): HTMLLcFieldSignatureElement;
+    var HTMLBcFieldSignatureElement: {
+        prototype: HTMLBcFieldSignatureElement;
+        new (): HTMLBcFieldSignatureElement;
     };
-    interface HTMLLcFieldSmalltextElementEventMap {
+    interface HTMLBcFieldSmalltextElementEventMap {
         "lcFieldChange": FieldChangeEvent;
     }
-    interface HTMLLcFieldSmalltextElement extends Components.LcFieldSmalltext, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcFieldSmalltextElementEventMap>(type: K, listener: (this: HTMLLcFieldSmalltextElement, ev: LcFieldSmalltextCustomEvent<HTMLLcFieldSmalltextElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcFieldSmalltextElement extends Components.BcFieldSmalltext, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcFieldSmalltextElementEventMap>(type: K, listener: (this: HTMLBcFieldSmalltextElement, ev: BcFieldSmalltextCustomEvent<HTMLBcFieldSmalltextElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcFieldSmalltextElementEventMap>(type: K, listener: (this: HTMLLcFieldSmalltextElement, ev: LcFieldSmalltextCustomEvent<HTMLLcFieldSmalltextElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcFieldSmalltextElementEventMap>(type: K, listener: (this: HTMLBcFieldSmalltextElement, ev: BcFieldSmalltextCustomEvent<HTMLBcFieldSmalltextElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcFieldSmalltextElement: {
-        prototype: HTMLLcFieldSmalltextElement;
-        new (): HTMLLcFieldSmalltextElement;
+    var HTMLBcFieldSmalltextElement: {
+        prototype: HTMLBcFieldSmalltextElement;
+        new (): HTMLBcFieldSmalltextElement;
     };
-    interface HTMLLcFieldStringElementEventMap {
+    interface HTMLBcFieldStringElementEventMap {
         "lcFieldChange": FieldChangeEvent;
     }
-    interface HTMLLcFieldStringElement extends Components.LcFieldString, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcFieldStringElementEventMap>(type: K, listener: (this: HTMLLcFieldStringElement, ev: LcFieldStringCustomEvent<HTMLLcFieldStringElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcFieldStringElement extends Components.BcFieldString, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcFieldStringElementEventMap>(type: K, listener: (this: HTMLBcFieldStringElement, ev: BcFieldStringCustomEvent<HTMLBcFieldStringElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcFieldStringElementEventMap>(type: K, listener: (this: HTMLLcFieldStringElement, ev: LcFieldStringCustomEvent<HTMLLcFieldStringElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcFieldStringElementEventMap>(type: K, listener: (this: HTMLBcFieldStringElement, ev: BcFieldStringCustomEvent<HTMLBcFieldStringElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcFieldStringElement: {
-        prototype: HTMLLcFieldStringElement;
-        new (): HTMLLcFieldStringElement;
+    var HTMLBcFieldStringElement: {
+        prototype: HTMLBcFieldStringElement;
+        new (): HTMLBcFieldStringElement;
     };
-    interface HTMLLcFieldTableselectElementEventMap {
+    interface HTMLBcFieldTableselectElementEventMap {
         "lcFieldChange": FieldChangeEvent;
     }
-    interface HTMLLcFieldTableselectElement extends Components.LcFieldTableselect, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcFieldTableselectElementEventMap>(type: K, listener: (this: HTMLLcFieldTableselectElement, ev: LcFieldTableselectCustomEvent<HTMLLcFieldTableselectElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcFieldTableselectElement extends Components.BcFieldTableselect, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcFieldTableselectElementEventMap>(type: K, listener: (this: HTMLBcFieldTableselectElement, ev: BcFieldTableselectCustomEvent<HTMLBcFieldTableselectElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcFieldTableselectElementEventMap>(type: K, listener: (this: HTMLLcFieldTableselectElement, ev: LcFieldTableselectCustomEvent<HTMLLcFieldTableselectElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcFieldTableselectElementEventMap>(type: K, listener: (this: HTMLBcFieldTableselectElement, ev: BcFieldTableselectCustomEvent<HTMLBcFieldTableselectElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcFieldTableselectElement: {
-        prototype: HTMLLcFieldTableselectElement;
-        new (): HTMLLcFieldTableselectElement;
+    var HTMLBcFieldTableselectElement: {
+        prototype: HTMLBcFieldTableselectElement;
+        new (): HTMLBcFieldTableselectElement;
     };
-    interface HTMLLcFieldTagsElementEventMap {
+    interface HTMLBcFieldTagsElementEventMap {
         "lcFieldChange": FieldChangeEvent;
     }
-    interface HTMLLcFieldTagsElement extends Components.LcFieldTags, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcFieldTagsElementEventMap>(type: K, listener: (this: HTMLLcFieldTagsElement, ev: LcFieldTagsCustomEvent<HTMLLcFieldTagsElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcFieldTagsElement extends Components.BcFieldTags, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcFieldTagsElementEventMap>(type: K, listener: (this: HTMLBcFieldTagsElement, ev: BcFieldTagsCustomEvent<HTMLBcFieldTagsElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcFieldTagsElementEventMap>(type: K, listener: (this: HTMLLcFieldTagsElement, ev: LcFieldTagsCustomEvent<HTMLLcFieldTagsElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcFieldTagsElementEventMap>(type: K, listener: (this: HTMLBcFieldTagsElement, ev: BcFieldTagsCustomEvent<HTMLBcFieldTagsElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcFieldTagsElement: {
-        prototype: HTMLLcFieldTagsElement;
-        new (): HTMLLcFieldTagsElement;
+    var HTMLBcFieldTagsElement: {
+        prototype: HTMLBcFieldTagsElement;
+        new (): HTMLBcFieldTagsElement;
     };
-    interface HTMLLcFieldTextElementEventMap {
+    interface HTMLBcFieldTextElementEventMap {
         "lcFieldChange": FieldChangeEvent;
     }
-    interface HTMLLcFieldTextElement extends Components.LcFieldText, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcFieldTextElementEventMap>(type: K, listener: (this: HTMLLcFieldTextElement, ev: LcFieldTextCustomEvent<HTMLLcFieldTextElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcFieldTextElement extends Components.BcFieldText, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcFieldTextElementEventMap>(type: K, listener: (this: HTMLBcFieldTextElement, ev: BcFieldTextCustomEvent<HTMLBcFieldTextElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcFieldTextElementEventMap>(type: K, listener: (this: HTMLLcFieldTextElement, ev: LcFieldTextCustomEvent<HTMLLcFieldTextElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcFieldTextElementEventMap>(type: K, listener: (this: HTMLBcFieldTextElement, ev: BcFieldTextCustomEvent<HTMLBcFieldTextElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcFieldTextElement: {
-        prototype: HTMLLcFieldTextElement;
-        new (): HTMLLcFieldTextElement;
+    var HTMLBcFieldTextElement: {
+        prototype: HTMLBcFieldTextElement;
+        new (): HTMLBcFieldTextElement;
     };
-    interface HTMLLcFieldTimeElementEventMap {
+    interface HTMLBcFieldTimeElementEventMap {
         "lcFieldChange": FieldChangeEvent;
     }
-    interface HTMLLcFieldTimeElement extends Components.LcFieldTime, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcFieldTimeElementEventMap>(type: K, listener: (this: HTMLLcFieldTimeElement, ev: LcFieldTimeCustomEvent<HTMLLcFieldTimeElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcFieldTimeElement extends Components.BcFieldTime, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcFieldTimeElementEventMap>(type: K, listener: (this: HTMLBcFieldTimeElement, ev: BcFieldTimeCustomEvent<HTMLBcFieldTimeElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcFieldTimeElementEventMap>(type: K, listener: (this: HTMLLcFieldTimeElement, ev: LcFieldTimeCustomEvent<HTMLLcFieldTimeElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcFieldTimeElementEventMap>(type: K, listener: (this: HTMLBcFieldTimeElement, ev: BcFieldTimeCustomEvent<HTMLBcFieldTimeElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcFieldTimeElement: {
-        prototype: HTMLLcFieldTimeElement;
-        new (): HTMLLcFieldTimeElement;
+    var HTMLBcFieldTimeElement: {
+        prototype: HTMLBcFieldTimeElement;
+        new (): HTMLBcFieldTimeElement;
     };
-    interface HTMLLcFieldToggleElementEventMap {
+    interface HTMLBcFieldToggleElementEventMap {
         "lcFieldChange": FieldChangeEvent;
     }
-    interface HTMLLcFieldToggleElement extends Components.LcFieldToggle, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcFieldToggleElementEventMap>(type: K, listener: (this: HTMLLcFieldToggleElement, ev: LcFieldToggleCustomEvent<HTMLLcFieldToggleElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcFieldToggleElement extends Components.BcFieldToggle, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcFieldToggleElementEventMap>(type: K, listener: (this: HTMLBcFieldToggleElement, ev: BcFieldToggleCustomEvent<HTMLBcFieldToggleElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcFieldToggleElementEventMap>(type: K, listener: (this: HTMLLcFieldToggleElement, ev: LcFieldToggleCustomEvent<HTMLLcFieldToggleElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcFieldToggleElementEventMap>(type: K, listener: (this: HTMLBcFieldToggleElement, ev: BcFieldToggleCustomEvent<HTMLBcFieldToggleElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcFieldToggleElement: {
-        prototype: HTMLLcFieldToggleElement;
-        new (): HTMLLcFieldToggleElement;
+    var HTMLBcFieldToggleElement: {
+        prototype: HTMLBcFieldToggleElement;
+        new (): HTMLBcFieldToggleElement;
     };
-    interface HTMLLcFilterBarElementEventMap {
+    interface HTMLBcFilterBarElementEventMap {
         "lcFilterChange": {field: string; value: string};
         "lcSearch": {query: string};
     }
-    interface HTMLLcFilterBarElement extends Components.LcFilterBar, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcFilterBarElementEventMap>(type: K, listener: (this: HTMLLcFilterBarElement, ev: LcFilterBarCustomEvent<HTMLLcFilterBarElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcFilterBarElement extends Components.BcFilterBar, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcFilterBarElementEventMap>(type: K, listener: (this: HTMLBcFilterBarElement, ev: BcFilterBarCustomEvent<HTMLBcFilterBarElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcFilterBarElementEventMap>(type: K, listener: (this: HTMLLcFilterBarElement, ev: LcFilterBarCustomEvent<HTMLLcFilterBarElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcFilterBarElementEventMap>(type: K, listener: (this: HTMLBcFilterBarElement, ev: BcFilterBarCustomEvent<HTMLBcFilterBarElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcFilterBarElement: {
-        prototype: HTMLLcFilterBarElement;
-        new (): HTMLLcFilterBarElement;
+    var HTMLBcFilterBarElement: {
+        prototype: HTMLBcFilterBarElement;
+        new (): HTMLBcFilterBarElement;
     };
-    interface HTMLLcFilterBuilderElementEventMap {
+    interface HTMLBcFilterBuilderElementEventMap {
         "lcFilterChange": { filter: FilterGroup };
     }
-    interface HTMLLcFilterBuilderElement extends Components.LcFilterBuilder, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcFilterBuilderElementEventMap>(type: K, listener: (this: HTMLLcFilterBuilderElement, ev: LcFilterBuilderCustomEvent<HTMLLcFilterBuilderElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcFilterBuilderElement extends Components.BcFilterBuilder, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcFilterBuilderElementEventMap>(type: K, listener: (this: HTMLBcFilterBuilderElement, ev: BcFilterBuilderCustomEvent<HTMLBcFilterBuilderElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcFilterBuilderElementEventMap>(type: K, listener: (this: HTMLLcFilterBuilderElement, ev: LcFilterBuilderCustomEvent<HTMLLcFilterBuilderElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcFilterBuilderElementEventMap>(type: K, listener: (this: HTMLBcFilterBuilderElement, ev: BcFilterBuilderCustomEvent<HTMLBcFilterBuilderElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcFilterBuilderElement: {
-        prototype: HTMLLcFilterBuilderElement;
-        new (): HTMLLcFilterBuilderElement;
+    var HTMLBcFilterBuilderElement: {
+        prototype: HTMLBcFilterBuilderElement;
+        new (): HTMLBcFilterBuilderElement;
     };
-    interface HTMLLcFilterPanelElementEventMap {
+    interface HTMLBcFilterPanelElementEventMap {
         "lcFilterChange": {filters: Record<string, string>};
         "lcSearch": {query: string};
     }
-    interface HTMLLcFilterPanelElement extends Components.LcFilterPanel, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcFilterPanelElementEventMap>(type: K, listener: (this: HTMLLcFilterPanelElement, ev: LcFilterPanelCustomEvent<HTMLLcFilterPanelElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcFilterPanelElement extends Components.BcFilterPanel, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcFilterPanelElementEventMap>(type: K, listener: (this: HTMLBcFilterPanelElement, ev: BcFilterPanelCustomEvent<HTMLBcFilterPanelElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcFilterPanelElementEventMap>(type: K, listener: (this: HTMLLcFilterPanelElement, ev: LcFilterPanelCustomEvent<HTMLLcFilterPanelElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcFilterPanelElementEventMap>(type: K, listener: (this: HTMLBcFilterPanelElement, ev: BcFilterPanelCustomEvent<HTMLBcFilterPanelElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcFilterPanelElement: {
-        prototype: HTMLLcFilterPanelElement;
-        new (): HTMLLcFilterPanelElement;
+    var HTMLBcFilterPanelElement: {
+        prototype: HTMLBcFilterPanelElement;
+        new (): HTMLBcFilterPanelElement;
     };
-    interface HTMLLcHeaderElementEventMap {
+    interface HTMLBcHeaderElementEventMap {
         "lcActionClick": { process: string };
     }
-    interface HTMLLcHeaderElement extends Components.LcHeader, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcHeaderElementEventMap>(type: K, listener: (this: HTMLLcHeaderElement, ev: LcHeaderCustomEvent<HTMLLcHeaderElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcHeaderElement extends Components.BcHeader, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcHeaderElementEventMap>(type: K, listener: (this: HTMLBcHeaderElement, ev: BcHeaderCustomEvent<HTMLBcHeaderElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcHeaderElementEventMap>(type: K, listener: (this: HTMLLcHeaderElement, ev: LcHeaderCustomEvent<HTMLLcHeaderElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcHeaderElementEventMap>(type: K, listener: (this: HTMLBcHeaderElement, ev: BcHeaderCustomEvent<HTMLBcHeaderElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcHeaderElement: {
-        prototype: HTMLLcHeaderElement;
-        new (): HTMLLcHeaderElement;
+    var HTMLBcHeaderElement: {
+        prototype: HTMLBcHeaderElement;
+        new (): HTMLBcHeaderElement;
     };
-    interface HTMLLcHtmlBlockElement extends Components.LcHtmlBlock, HTMLStencilElement {
+    interface HTMLBcHtmlBlockElement extends Components.BcHtmlBlock, HTMLStencilElement {
     }
-    var HTMLLcHtmlBlockElement: {
-        prototype: HTMLLcHtmlBlockElement;
-        new (): HTMLLcHtmlBlockElement;
+    var HTMLBcHtmlBlockElement: {
+        prototype: HTMLBcHtmlBlockElement;
+        new (): HTMLBcHtmlBlockElement;
     };
-    interface HTMLLcLookupModalElementEventMap {
+    interface HTMLBcLookupModalElementEventMap {
         "lcLookupSelect": { records: Array<Record<string, unknown>> };
         "lcLookupClose": void;
     }
-    interface HTMLLcLookupModalElement extends Components.LcLookupModal, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcLookupModalElementEventMap>(type: K, listener: (this: HTMLLcLookupModalElement, ev: LcLookupModalCustomEvent<HTMLLcLookupModalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcLookupModalElement extends Components.BcLookupModal, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcLookupModalElementEventMap>(type: K, listener: (this: HTMLBcLookupModalElement, ev: BcLookupModalCustomEvent<HTMLBcLookupModalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcLookupModalElementEventMap>(type: K, listener: (this: HTMLLcLookupModalElement, ev: LcLookupModalCustomEvent<HTMLLcLookupModalElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcLookupModalElementEventMap>(type: K, listener: (this: HTMLBcLookupModalElement, ev: BcLookupModalCustomEvent<HTMLBcLookupModalElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcLookupModalElement: {
-        prototype: HTMLLcLookupModalElement;
-        new (): HTMLLcLookupModalElement;
+    var HTMLBcLookupModalElement: {
+        prototype: HTMLBcLookupModalElement;
+        new (): HTMLBcLookupModalElement;
     };
-    interface HTMLLcPlaceholderElement extends Components.LcPlaceholder, HTMLStencilElement {
+    interface HTMLBcPlaceholderElement extends Components.BcPlaceholder, HTMLStencilElement {
     }
-    var HTMLLcPlaceholderElement: {
-        prototype: HTMLLcPlaceholderElement;
-        new (): HTMLLcPlaceholderElement;
+    var HTMLBcPlaceholderElement: {
+        prototype: HTMLBcPlaceholderElement;
+        new (): HTMLBcPlaceholderElement;
     };
-    interface HTMLLcPrintElement extends Components.LcPrint, HTMLStencilElement {
+    interface HTMLBcPrintElement extends Components.BcPrint, HTMLStencilElement {
     }
-    var HTMLLcPrintElement: {
-        prototype: HTMLLcPrintElement;
-        new (): HTMLLcPrintElement;
+    var HTMLBcPrintElement: {
+        prototype: HTMLBcPrintElement;
+        new (): HTMLBcPrintElement;
     };
-    interface HTMLLcReportLinkElement extends Components.LcReportLink, HTMLStencilElement {
+    interface HTMLBcReportLinkElement extends Components.BcReportLink, HTMLStencilElement {
     }
-    var HTMLLcReportLinkElement: {
-        prototype: HTMLLcReportLinkElement;
-        new (): HTMLLcReportLinkElement;
+    var HTMLBcReportLinkElement: {
+        prototype: HTMLBcReportLinkElement;
+        new (): HTMLBcReportLinkElement;
     };
-    interface HTMLLcRowElement extends Components.LcRow, HTMLStencilElement {
+    interface HTMLBcRowElement extends Components.BcRow, HTMLStencilElement {
     }
-    var HTMLLcRowElement: {
-        prototype: HTMLLcRowElement;
-        new (): HTMLLcRowElement;
+    var HTMLBcRowElement: {
+        prototype: HTMLBcRowElement;
+        new (): HTMLBcRowElement;
     };
-    interface HTMLLcSearchElementEventMap {
+    interface HTMLBcSearchElementEventMap {
         "lcSearch": {query: string};
     }
-    interface HTMLLcSearchElement extends Components.LcSearch, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcSearchElementEventMap>(type: K, listener: (this: HTMLLcSearchElement, ev: LcSearchCustomEvent<HTMLLcSearchElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcSearchElement extends Components.BcSearch, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcSearchElementEventMap>(type: K, listener: (this: HTMLBcSearchElement, ev: BcSearchCustomEvent<HTMLBcSearchElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcSearchElementEventMap>(type: K, listener: (this: HTMLLcSearchElement, ev: LcSearchCustomEvent<HTMLLcSearchElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcSearchElementEventMap>(type: K, listener: (this: HTMLBcSearchElement, ev: BcSearchCustomEvent<HTMLBcSearchElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcSearchElement: {
-        prototype: HTMLLcSearchElement;
-        new (): HTMLLcSearchElement;
+    var HTMLBcSearchElement: {
+        prototype: HTMLBcSearchElement;
+        new (): HTMLBcSearchElement;
     };
-    interface HTMLLcSectionElement extends Components.LcSection, HTMLStencilElement {
+    interface HTMLBcSectionElement extends Components.BcSection, HTMLStencilElement {
     }
-    var HTMLLcSectionElement: {
-        prototype: HTMLLcSectionElement;
-        new (): HTMLLcSectionElement;
+    var HTMLBcSectionElement: {
+        prototype: HTMLBcSectionElement;
+        new (): HTMLBcSectionElement;
     };
-    interface HTMLLcSeparatorElement extends Components.LcSeparator, HTMLStencilElement {
+    interface HTMLBcSeparatorElement extends Components.BcSeparator, HTMLStencilElement {
     }
-    var HTMLLcSeparatorElement: {
-        prototype: HTMLLcSeparatorElement;
-        new (): HTMLLcSeparatorElement;
+    var HTMLBcSeparatorElement: {
+        prototype: HTMLBcSeparatorElement;
+        new (): HTMLBcSeparatorElement;
     };
-    interface HTMLLcSheetElement extends Components.LcSheet, HTMLStencilElement {
+    interface HTMLBcSheetElement extends Components.BcSheet, HTMLStencilElement {
     }
-    var HTMLLcSheetElement: {
-        prototype: HTMLLcSheetElement;
-        new (): HTMLLcSheetElement;
+    var HTMLBcSheetElement: {
+        prototype: HTMLBcSheetElement;
+        new (): HTMLBcSheetElement;
     };
-    interface HTMLLcTabElement extends Components.LcTab, HTMLStencilElement {
+    interface HTMLBcTabElement extends Components.BcTab, HTMLStencilElement {
     }
-    var HTMLLcTabElement: {
-        prototype: HTMLLcTabElement;
-        new (): HTMLLcTabElement;
+    var HTMLBcTabElement: {
+        prototype: HTMLBcTabElement;
+        new (): HTMLBcTabElement;
     };
-    interface HTMLLcTabsElement extends Components.LcTabs, HTMLStencilElement {
+    interface HTMLBcTabsElement extends Components.BcTabs, HTMLStencilElement {
     }
-    var HTMLLcTabsElement: {
-        prototype: HTMLLcTabsElement;
-        new (): HTMLLcTabsElement;
+    var HTMLBcTabsElement: {
+        prototype: HTMLBcTabsElement;
+        new (): HTMLBcTabsElement;
     };
-    interface HTMLLcTimelineElement extends Components.LcTimeline, HTMLStencilElement {
+    interface HTMLBcTimelineElement extends Components.BcTimeline, HTMLStencilElement {
     }
-    var HTMLLcTimelineElement: {
-        prototype: HTMLLcTimelineElement;
-        new (): HTMLLcTimelineElement;
+    var HTMLBcTimelineElement: {
+        prototype: HTMLBcTimelineElement;
+        new (): HTMLBcTimelineElement;
     };
-    interface HTMLLcToastElementEventMap {
+    interface HTMLBcToastElementEventMap {
         "lcDialogClose": {type: string};
     }
-    interface HTMLLcToastElement extends Components.LcToast, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcToastElementEventMap>(type: K, listener: (this: HTMLLcToastElement, ev: LcToastCustomEvent<HTMLLcToastElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcToastElement extends Components.BcToast, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcToastElementEventMap>(type: K, listener: (this: HTMLBcToastElement, ev: BcToastCustomEvent<HTMLBcToastElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcToastElementEventMap>(type: K, listener: (this: HTMLLcToastElement, ev: LcToastCustomEvent<HTMLLcToastElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcToastElementEventMap>(type: K, listener: (this: HTMLBcToastElement, ev: BcToastCustomEvent<HTMLBcToastElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcToastElement: {
-        prototype: HTMLLcToastElement;
-        new (): HTMLLcToastElement;
+    var HTMLBcToastElement: {
+        prototype: HTMLBcToastElement;
+        new (): HTMLBcToastElement;
     };
-    interface HTMLLcViewActivityElement extends Components.LcViewActivity, HTMLStencilElement {
+    interface HTMLBcViewActivityElement extends Components.BcViewActivity, HTMLStencilElement {
     }
-    var HTMLLcViewActivityElement: {
-        prototype: HTMLLcViewActivityElement;
-        new (): HTMLLcViewActivityElement;
+    var HTMLBcViewActivityElement: {
+        prototype: HTMLBcViewActivityElement;
+        new (): HTMLBcViewActivityElement;
     };
-    interface HTMLLcViewCalendarElement extends Components.LcViewCalendar, HTMLStencilElement {
+    interface HTMLBcViewCalendarElement extends Components.BcViewCalendar, HTMLStencilElement {
     }
-    var HTMLLcViewCalendarElement: {
-        prototype: HTMLLcViewCalendarElement;
-        new (): HTMLLcViewCalendarElement;
+    var HTMLBcViewCalendarElement: {
+        prototype: HTMLBcViewCalendarElement;
+        new (): HTMLBcViewCalendarElement;
     };
-    interface HTMLLcViewFormElementEventMap {
+    interface HTMLBcViewEditorElementEventMap {
+        "viewChanged": { json: string };
+    }
+    interface HTMLBcViewEditorElement extends Components.BcViewEditor, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcViewEditorElementEventMap>(type: K, listener: (this: HTMLBcViewEditorElement, ev: BcViewEditorCustomEvent<HTMLBcViewEditorElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcViewEditorElementEventMap>(type: K, listener: (this: HTMLBcViewEditorElement, ev: BcViewEditorCustomEvent<HTMLBcViewEditorElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLBcViewEditorElement: {
+        prototype: HTMLBcViewEditorElement;
+        new (): HTMLBcViewEditorElement;
+    };
+    interface HTMLBcViewFormElementEventMap {
         "lcFormSubmit": {model: string; data: Record<string, unknown>; id?: string};
     }
-    interface HTMLLcViewFormElement extends Components.LcViewForm, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcViewFormElementEventMap>(type: K, listener: (this: HTMLLcViewFormElement, ev: LcViewFormCustomEvent<HTMLLcViewFormElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcViewFormElement extends Components.BcViewForm, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcViewFormElementEventMap>(type: K, listener: (this: HTMLBcViewFormElement, ev: BcViewFormCustomEvent<HTMLBcViewFormElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcViewFormElementEventMap>(type: K, listener: (this: HTMLLcViewFormElement, ev: LcViewFormCustomEvent<HTMLLcViewFormElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcViewFormElementEventMap>(type: K, listener: (this: HTMLBcViewFormElement, ev: BcViewFormCustomEvent<HTMLBcViewFormElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcViewFormElement: {
-        prototype: HTMLLcViewFormElement;
-        new (): HTMLLcViewFormElement;
+    var HTMLBcViewFormElement: {
+        prototype: HTMLBcViewFormElement;
+        new (): HTMLBcViewFormElement;
     };
-    interface HTMLLcViewGanttElement extends Components.LcViewGantt, HTMLStencilElement {
+    interface HTMLBcViewGanttElement extends Components.BcViewGantt, HTMLStencilElement {
     }
-    var HTMLLcViewGanttElement: {
-        prototype: HTMLLcViewGanttElement;
-        new (): HTMLLcViewGanttElement;
+    var HTMLBcViewGanttElement: {
+        prototype: HTMLBcViewGanttElement;
+        new (): HTMLBcViewGanttElement;
     };
-    interface HTMLLcViewKanbanElementEventMap {
+    interface HTMLBcViewKanbanElementEventMap {
         "lcKanbanMove": {id: string; from: string; to: string};
     }
-    interface HTMLLcViewKanbanElement extends Components.LcViewKanban, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcViewKanbanElementEventMap>(type: K, listener: (this: HTMLLcViewKanbanElement, ev: LcViewKanbanCustomEvent<HTMLLcViewKanbanElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcViewKanbanElement extends Components.BcViewKanban, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcViewKanbanElementEventMap>(type: K, listener: (this: HTMLBcViewKanbanElement, ev: BcViewKanbanCustomEvent<HTMLBcViewKanbanElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcViewKanbanElementEventMap>(type: K, listener: (this: HTMLLcViewKanbanElement, ev: LcViewKanbanCustomEvent<HTMLLcViewKanbanElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcViewKanbanElementEventMap>(type: K, listener: (this: HTMLBcViewKanbanElement, ev: BcViewKanbanCustomEvent<HTMLBcViewKanbanElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcViewKanbanElement: {
-        prototype: HTMLLcViewKanbanElement;
-        new (): HTMLLcViewKanbanElement;
+    var HTMLBcViewKanbanElement: {
+        prototype: HTMLBcViewKanbanElement;
+        new (): HTMLBcViewKanbanElement;
     };
-    interface HTMLLcViewListElementEventMap {
+    interface HTMLBcViewListElementEventMap {
         "lcRowSelect": {ids: string[]};
     }
-    interface HTMLLcViewListElement extends Components.LcViewList, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcViewListElementEventMap>(type: K, listener: (this: HTMLLcViewListElement, ev: LcViewListCustomEvent<HTMLLcViewListElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcViewListElement extends Components.BcViewList, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcViewListElementEventMap>(type: K, listener: (this: HTMLBcViewListElement, ev: BcViewListCustomEvent<HTMLBcViewListElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcViewListElementEventMap>(type: K, listener: (this: HTMLLcViewListElement, ev: LcViewListCustomEvent<HTMLLcViewListElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcViewListElementEventMap>(type: K, listener: (this: HTMLBcViewListElement, ev: BcViewListCustomEvent<HTMLBcViewListElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcViewListElement: {
-        prototype: HTMLLcViewListElement;
-        new (): HTMLLcViewListElement;
+    var HTMLBcViewListElement: {
+        prototype: HTMLBcViewListElement;
+        new (): HTMLBcViewListElement;
     };
-    interface HTMLLcViewMapElement extends Components.LcViewMap, HTMLStencilElement {
+    interface HTMLBcViewMapElement extends Components.BcViewMap, HTMLStencilElement {
     }
-    var HTMLLcViewMapElement: {
-        prototype: HTMLLcViewMapElement;
-        new (): HTMLLcViewMapElement;
+    var HTMLBcViewMapElement: {
+        prototype: HTMLBcViewMapElement;
+        new (): HTMLBcViewMapElement;
     };
-    interface HTMLLcViewReportElement extends Components.LcViewReport, HTMLStencilElement {
+    interface HTMLBcViewReportElement extends Components.BcViewReport, HTMLStencilElement {
     }
-    var HTMLLcViewReportElement: {
-        prototype: HTMLLcViewReportElement;
-        new (): HTMLLcViewReportElement;
+    var HTMLBcViewReportElement: {
+        prototype: HTMLBcViewReportElement;
+        new (): HTMLBcViewReportElement;
     };
-    interface HTMLLcViewTreeElement extends Components.LcViewTree, HTMLStencilElement {
+    interface HTMLBcViewTreeElement extends Components.BcViewTree, HTMLStencilElement {
     }
-    var HTMLLcViewTreeElement: {
-        prototype: HTMLLcViewTreeElement;
-        new (): HTMLLcViewTreeElement;
+    var HTMLBcViewTreeElement: {
+        prototype: HTMLBcViewTreeElement;
+        new (): HTMLBcViewTreeElement;
     };
-    interface HTMLLcWidgetBadgeElement extends Components.LcWidgetBadge, HTMLStencilElement {
+    interface HTMLBcWidgetBadgeElement extends Components.BcWidgetBadge, HTMLStencilElement {
     }
-    var HTMLLcWidgetBadgeElement: {
-        prototype: HTMLLcWidgetBadgeElement;
-        new (): HTMLLcWidgetBadgeElement;
+    var HTMLBcWidgetBadgeElement: {
+        prototype: HTMLBcWidgetBadgeElement;
+        new (): HTMLBcWidgetBadgeElement;
     };
-    interface HTMLLcWidgetCopyElement extends Components.LcWidgetCopy, HTMLStencilElement {
+    interface HTMLBcWidgetCopyElement extends Components.BcWidgetCopy, HTMLStencilElement {
     }
-    var HTMLLcWidgetCopyElement: {
-        prototype: HTMLLcWidgetCopyElement;
-        new (): HTMLLcWidgetCopyElement;
+    var HTMLBcWidgetCopyElement: {
+        prototype: HTMLBcWidgetCopyElement;
+        new (): HTMLBcWidgetCopyElement;
     };
-    interface HTMLLcWidgetDomainElement extends Components.LcWidgetDomain, HTMLStencilElement {
+    interface HTMLBcWidgetDomainElement extends Components.BcWidgetDomain, HTMLStencilElement {
     }
-    var HTMLLcWidgetDomainElement: {
-        prototype: HTMLLcWidgetDomainElement;
-        new (): HTMLLcWidgetDomainElement;
+    var HTMLBcWidgetDomainElement: {
+        prototype: HTMLBcWidgetDomainElement;
+        new (): HTMLBcWidgetDomainElement;
     };
-    interface HTMLLcWidgetEmailElement extends Components.LcWidgetEmail, HTMLStencilElement {
+    interface HTMLBcWidgetEmailElement extends Components.BcWidgetEmail, HTMLStencilElement {
     }
-    var HTMLLcWidgetEmailElement: {
-        prototype: HTMLLcWidgetEmailElement;
-        new (): HTMLLcWidgetEmailElement;
+    var HTMLBcWidgetEmailElement: {
+        prototype: HTMLBcWidgetEmailElement;
+        new (): HTMLBcWidgetEmailElement;
     };
-    interface HTMLLcWidgetHandleElement extends Components.LcWidgetHandle, HTMLStencilElement {
+    interface HTMLBcWidgetHandleElement extends Components.BcWidgetHandle, HTMLStencilElement {
     }
-    var HTMLLcWidgetHandleElement: {
-        prototype: HTMLLcWidgetHandleElement;
-        new (): HTMLLcWidgetHandleElement;
+    var HTMLBcWidgetHandleElement: {
+        prototype: HTMLBcWidgetHandleElement;
+        new (): HTMLBcWidgetHandleElement;
     };
-    interface HTMLLcWidgetPhoneElement extends Components.LcWidgetPhone, HTMLStencilElement {
+    interface HTMLBcWidgetPhoneElement extends Components.BcWidgetPhone, HTMLStencilElement {
     }
-    var HTMLLcWidgetPhoneElement: {
-        prototype: HTMLLcWidgetPhoneElement;
-        new (): HTMLLcWidgetPhoneElement;
+    var HTMLBcWidgetPhoneElement: {
+        prototype: HTMLBcWidgetPhoneElement;
+        new (): HTMLBcWidgetPhoneElement;
     };
-    interface HTMLLcWidgetPriorityElementEventMap {
+    interface HTMLBcWidgetPriorityElementEventMap {
         "lcFieldChange": {name: string; value: unknown; oldValue: unknown};
     }
-    interface HTMLLcWidgetPriorityElement extends Components.LcWidgetPriority, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLLcWidgetPriorityElementEventMap>(type: K, listener: (this: HTMLLcWidgetPriorityElement, ev: LcWidgetPriorityCustomEvent<HTMLLcWidgetPriorityElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLBcWidgetPriorityElement extends Components.BcWidgetPriority, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcWidgetPriorityElementEventMap>(type: K, listener: (this: HTMLBcWidgetPriorityElement, ev: BcWidgetPriorityCustomEvent<HTMLBcWidgetPriorityElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLLcWidgetPriorityElementEventMap>(type: K, listener: (this: HTMLLcWidgetPriorityElement, ev: LcWidgetPriorityCustomEvent<HTMLLcWidgetPriorityElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcWidgetPriorityElementEventMap>(type: K, listener: (this: HTMLBcWidgetPriorityElement, ev: BcWidgetPriorityCustomEvent<HTMLBcWidgetPriorityElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLLcWidgetPriorityElement: {
-        prototype: HTMLLcWidgetPriorityElement;
-        new (): HTMLLcWidgetPriorityElement;
+    var HTMLBcWidgetPriorityElement: {
+        prototype: HTMLBcWidgetPriorityElement;
+        new (): HTMLBcWidgetPriorityElement;
     };
-    interface HTMLLcWidgetProgressElement extends Components.LcWidgetProgress, HTMLStencilElement {
+    interface HTMLBcWidgetProgressElement extends Components.BcWidgetProgress, HTMLStencilElement {
     }
-    var HTMLLcWidgetProgressElement: {
-        prototype: HTMLLcWidgetProgressElement;
-        new (): HTMLLcWidgetProgressElement;
+    var HTMLBcWidgetProgressElement: {
+        prototype: HTMLBcWidgetProgressElement;
+        new (): HTMLBcWidgetProgressElement;
     };
-    interface HTMLLcWidgetStatusbarElement extends Components.LcWidgetStatusbar, HTMLStencilElement {
+    interface HTMLBcWidgetStatusbarElement extends Components.BcWidgetStatusbar, HTMLStencilElement {
     }
-    var HTMLLcWidgetStatusbarElement: {
-        prototype: HTMLLcWidgetStatusbarElement;
-        new (): HTMLLcWidgetStatusbarElement;
+    var HTMLBcWidgetStatusbarElement: {
+        prototype: HTMLBcWidgetStatusbarElement;
+        new (): HTMLBcWidgetStatusbarElement;
     };
-    interface HTMLLcWidgetUrlElement extends Components.LcWidgetUrl, HTMLStencilElement {
+    interface HTMLBcWidgetUrlElement extends Components.BcWidgetUrl, HTMLStencilElement {
     }
-    var HTMLLcWidgetUrlElement: {
-        prototype: HTMLLcWidgetUrlElement;
-        new (): HTMLLcWidgetUrlElement;
+    var HTMLBcWidgetUrlElement: {
+        prototype: HTMLBcWidgetUrlElement;
+        new (): HTMLBcWidgetUrlElement;
     };
     interface HTMLElementTagNameMap {
-        "bc-activity": HTMLLcActivityElement;
-        "bc-button-box": HTMLLcButtonBoxElement;
-        "bc-chart-area": HTMLLcChartAreaElement;
-        "bc-chart-bar": HTMLLcChartBarElement;
-        "bc-chart-funnel": HTMLLcChartFunnelElement;
-        "bc-chart-gauge": HTMLLcChartGaugeElement;
-        "bc-chart-heatmap": HTMLLcChartHeatmapElement;
-        "bc-chart-kpi": HTMLLcChartKpiElement;
-        "bc-chart-line": HTMLLcChartLineElement;
-        "bc-chart-pie": HTMLLcChartPieElement;
-        "bc-chart-pivot": HTMLLcChartPivotElement;
-        "bc-chart-progress": HTMLLcChartProgressElement;
-        "bc-chart-scorecard": HTMLLcChartScorecardElement;
-        "bc-chatter": HTMLLcChatterElement;
-        "bc-child-table": HTMLLcChildTableElement;
-        "bc-column": HTMLLcColumnElement;
-        "bc-datatable": HTMLLcDatatableElement;
-        "bc-dialog-confirm": HTMLLcDialogConfirmElement;
-        "bc-dialog-modal": HTMLLcDialogModalElement;
-        "bc-dialog-quickentry": HTMLLcDialogQuickentryElement;
-        "bc-dialog-wizard": HTMLLcDialogWizardElement;
-        "bc-export": HTMLLcExportElement;
-        "bc-favorites": HTMLLcFavoritesElement;
-        "bc-field-barcode": HTMLLcFieldBarcodeElement;
-        "bc-field-checkbox": HTMLLcFieldCheckboxElement;
-        "bc-field-code": HTMLLcFieldCodeElement;
-        "bc-field-color": HTMLLcFieldColorElement;
-        "bc-field-currency": HTMLLcFieldCurrencyElement;
-        "bc-field-date": HTMLLcFieldDateElement;
-        "bc-field-datetime": HTMLLcFieldDatetimeElement;
-        "bc-field-decimal": HTMLLcFieldDecimalElement;
-        "bc-field-duration": HTMLLcFieldDurationElement;
-        "bc-field-dynlink": HTMLLcFieldDynlinkElement;
-        "bc-field-file": HTMLLcFieldFileElement;
-        "bc-field-float": HTMLLcFieldFloatElement;
-        "bc-field-geo": HTMLLcFieldGeoElement;
-        "bc-field-html": HTMLLcFieldHtmlElement;
-        "bc-field-image": HTMLLcFieldImageElement;
-        "bc-field-integer": HTMLLcFieldIntegerElement;
-        "bc-field-json": HTMLLcFieldJsonElement;
-        "bc-field-link": HTMLLcFieldLinkElement;
-        "bc-field-markdown": HTMLLcFieldMarkdownElement;
-        "bc-field-multicheck": HTMLLcFieldMulticheckElement;
-        "bc-field-password": HTMLLcFieldPasswordElement;
-        "bc-field-percent": HTMLLcFieldPercentElement;
-        "bc-field-radio": HTMLLcFieldRadioElement;
-        "bc-field-rating": HTMLLcFieldRatingElement;
-        "bc-field-richtext": HTMLLcFieldRichtextElement;
-        "bc-field-select": HTMLLcFieldSelectElement;
-        "bc-field-signature": HTMLLcFieldSignatureElement;
-        "bc-field-smalltext": HTMLLcFieldSmalltextElement;
-        "bc-field-string": HTMLLcFieldStringElement;
-        "bc-field-tableselect": HTMLLcFieldTableselectElement;
-        "bc-field-tags": HTMLLcFieldTagsElement;
-        "bc-field-text": HTMLLcFieldTextElement;
-        "bc-field-time": HTMLLcFieldTimeElement;
-        "bc-field-toggle": HTMLLcFieldToggleElement;
-        "bc-filter-bar": HTMLLcFilterBarElement;
-        "bc-filter-builder": HTMLLcFilterBuilderElement;
-        "bc-filter-panel": HTMLLcFilterPanelElement;
-        "bc-header": HTMLLcHeaderElement;
-        "bc-html-block": HTMLLcHtmlBlockElement;
-        "bc-lookup-modal": HTMLLcLookupModalElement;
-        "bc-placeholder": HTMLLcPlaceholderElement;
-        "bc-print": HTMLLcPrintElement;
-        "bc-report-link": HTMLLcReportLinkElement;
-        "bc-row": HTMLLcRowElement;
-        "bc-search": HTMLLcSearchElement;
-        "bc-section": HTMLLcSectionElement;
-        "bc-separator": HTMLLcSeparatorElement;
-        "bc-sheet": HTMLLcSheetElement;
-        "bc-tab": HTMLLcTabElement;
-        "bc-tabs": HTMLLcTabsElement;
-        "bc-timeline": HTMLLcTimelineElement;
-        "bc-toast": HTMLLcToastElement;
-        "bc-view-activity": HTMLLcViewActivityElement;
-        "bc-view-calendar": HTMLLcViewCalendarElement;
-        "bc-view-form": HTMLLcViewFormElement;
-        "bc-view-gantt": HTMLLcViewGanttElement;
-        "bc-view-kanban": HTMLLcViewKanbanElement;
-        "bc-view-list": HTMLLcViewListElement;
-        "bc-view-map": HTMLLcViewMapElement;
-        "bc-view-report": HTMLLcViewReportElement;
-        "bc-view-tree": HTMLLcViewTreeElement;
-        "bc-widget-badge": HTMLLcWidgetBadgeElement;
-        "bc-widget-copy": HTMLLcWidgetCopyElement;
-        "bc-widget-domain": HTMLLcWidgetDomainElement;
-        "bc-widget-email": HTMLLcWidgetEmailElement;
-        "bc-widget-handle": HTMLLcWidgetHandleElement;
-        "bc-widget-phone": HTMLLcWidgetPhoneElement;
-        "bc-widget-priority": HTMLLcWidgetPriorityElement;
-        "bc-widget-progress": HTMLLcWidgetProgressElement;
-        "bc-widget-statusbar": HTMLLcWidgetStatusbarElement;
-        "bc-widget-url": HTMLLcWidgetUrlElement;
+        "bc-activity": HTMLBcActivityElement;
+        "bc-button-box": HTMLBcButtonBoxElement;
+        "bc-chart-area": HTMLBcChartAreaElement;
+        "bc-chart-bar": HTMLBcChartBarElement;
+        "bc-chart-funnel": HTMLBcChartFunnelElement;
+        "bc-chart-gauge": HTMLBcChartGaugeElement;
+        "bc-chart-heatmap": HTMLBcChartHeatmapElement;
+        "bc-chart-kpi": HTMLBcChartKpiElement;
+        "bc-chart-line": HTMLBcChartLineElement;
+        "bc-chart-pie": HTMLBcChartPieElement;
+        "bc-chart-pivot": HTMLBcChartPivotElement;
+        "bc-chart-progress": HTMLBcChartProgressElement;
+        "bc-chart-scorecard": HTMLBcChartScorecardElement;
+        "bc-chatter": HTMLBcChatterElement;
+        "bc-child-table": HTMLBcChildTableElement;
+        "bc-column": HTMLBcColumnElement;
+        "bc-datatable": HTMLBcDatatableElement;
+        "bc-dialog-confirm": HTMLBcDialogConfirmElement;
+        "bc-dialog-modal": HTMLBcDialogModalElement;
+        "bc-dialog-quickentry": HTMLBcDialogQuickentryElement;
+        "bc-dialog-wizard": HTMLBcDialogWizardElement;
+        "bc-export": HTMLBcExportElement;
+        "bc-favorites": HTMLBcFavoritesElement;
+        "bc-field-barcode": HTMLBcFieldBarcodeElement;
+        "bc-field-checkbox": HTMLBcFieldCheckboxElement;
+        "bc-field-code": HTMLBcFieldCodeElement;
+        "bc-field-color": HTMLBcFieldColorElement;
+        "bc-field-currency": HTMLBcFieldCurrencyElement;
+        "bc-field-date": HTMLBcFieldDateElement;
+        "bc-field-datetime": HTMLBcFieldDatetimeElement;
+        "bc-field-decimal": HTMLBcFieldDecimalElement;
+        "bc-field-duration": HTMLBcFieldDurationElement;
+        "bc-field-dynlink": HTMLBcFieldDynlinkElement;
+        "bc-field-file": HTMLBcFieldFileElement;
+        "bc-field-float": HTMLBcFieldFloatElement;
+        "bc-field-geo": HTMLBcFieldGeoElement;
+        "bc-field-html": HTMLBcFieldHtmlElement;
+        "bc-field-image": HTMLBcFieldImageElement;
+        "bc-field-integer": HTMLBcFieldIntegerElement;
+        "bc-field-json": HTMLBcFieldJsonElement;
+        "bc-field-link": HTMLBcFieldLinkElement;
+        "bc-field-markdown": HTMLBcFieldMarkdownElement;
+        "bc-field-multicheck": HTMLBcFieldMulticheckElement;
+        "bc-field-password": HTMLBcFieldPasswordElement;
+        "bc-field-percent": HTMLBcFieldPercentElement;
+        "bc-field-radio": HTMLBcFieldRadioElement;
+        "bc-field-rating": HTMLBcFieldRatingElement;
+        "bc-field-richtext": HTMLBcFieldRichtextElement;
+        "bc-field-select": HTMLBcFieldSelectElement;
+        "bc-field-signature": HTMLBcFieldSignatureElement;
+        "bc-field-smalltext": HTMLBcFieldSmalltextElement;
+        "bc-field-string": HTMLBcFieldStringElement;
+        "bc-field-tableselect": HTMLBcFieldTableselectElement;
+        "bc-field-tags": HTMLBcFieldTagsElement;
+        "bc-field-text": HTMLBcFieldTextElement;
+        "bc-field-time": HTMLBcFieldTimeElement;
+        "bc-field-toggle": HTMLBcFieldToggleElement;
+        "bc-filter-bar": HTMLBcFilterBarElement;
+        "bc-filter-builder": HTMLBcFilterBuilderElement;
+        "bc-filter-panel": HTMLBcFilterPanelElement;
+        "bc-header": HTMLBcHeaderElement;
+        "bc-html-block": HTMLBcHtmlBlockElement;
+        "bc-lookup-modal": HTMLBcLookupModalElement;
+        "bc-placeholder": HTMLBcPlaceholderElement;
+        "bc-print": HTMLBcPrintElement;
+        "bc-report-link": HTMLBcReportLinkElement;
+        "bc-row": HTMLBcRowElement;
+        "bc-search": HTMLBcSearchElement;
+        "bc-section": HTMLBcSectionElement;
+        "bc-separator": HTMLBcSeparatorElement;
+        "bc-sheet": HTMLBcSheetElement;
+        "bc-tab": HTMLBcTabElement;
+        "bc-tabs": HTMLBcTabsElement;
+        "bc-timeline": HTMLBcTimelineElement;
+        "bc-toast": HTMLBcToastElement;
+        "bc-view-activity": HTMLBcViewActivityElement;
+        "bc-view-calendar": HTMLBcViewCalendarElement;
+        "bc-view-editor": HTMLBcViewEditorElement;
+        "bc-view-form": HTMLBcViewFormElement;
+        "bc-view-gantt": HTMLBcViewGanttElement;
+        "bc-view-kanban": HTMLBcViewKanbanElement;
+        "bc-view-list": HTMLBcViewListElement;
+        "bc-view-map": HTMLBcViewMapElement;
+        "bc-view-report": HTMLBcViewReportElement;
+        "bc-view-tree": HTMLBcViewTreeElement;
+        "bc-widget-badge": HTMLBcWidgetBadgeElement;
+        "bc-widget-copy": HTMLBcWidgetCopyElement;
+        "bc-widget-domain": HTMLBcWidgetDomainElement;
+        "bc-widget-email": HTMLBcWidgetEmailElement;
+        "bc-widget-handle": HTMLBcWidgetHandleElement;
+        "bc-widget-phone": HTMLBcWidgetPhoneElement;
+        "bc-widget-priority": HTMLBcWidgetPriorityElement;
+        "bc-widget-progress": HTMLBcWidgetProgressElement;
+        "bc-widget-statusbar": HTMLBcWidgetStatusbarElement;
+        "bc-widget-url": HTMLBcWidgetUrlElement;
     }
 }
 declare namespace LocalJSX {
-    interface LcActivity {
+    interface BcActivity {
         /**
           * @default ''
          */
         "model"?: string;
-        "onLcActivitySchedule"?: (event: LcActivityCustomEvent<{type: string; summary: string; dueDate: string}>) => void;
+        "onLcActivitySchedule"?: (event: BcActivityCustomEvent<{type: string; summary: string; dueDate: string}>) => void;
         /**
           * @default ''
          */
         "recordId"?: string;
     }
-    interface LcButtonBox {
+    interface BcButtonBox {
         /**
           * @default '[]'
          */
         "buttons"?: string;
     }
-    interface LcChartArea {
+    interface BcChartArea {
         /**
           * @default ''
          */
@@ -3404,7 +3440,7 @@ declare namespace LocalJSX {
          */
         "data"?: string;
     }
-    interface LcChartBar {
+    interface BcChartBar {
         /**
           * @default ''
          */
@@ -3414,7 +3450,7 @@ declare namespace LocalJSX {
          */
         "data"?: string;
     }
-    interface LcChartFunnel {
+    interface BcChartFunnel {
         /**
           * @default ''
          */
@@ -3424,7 +3460,7 @@ declare namespace LocalJSX {
          */
         "data"?: string;
     }
-    interface LcChartGauge {
+    interface BcChartGauge {
         /**
           * @default ''
          */
@@ -3438,7 +3474,7 @@ declare namespace LocalJSX {
          */
         "value"?: string;
     }
-    interface LcChartHeatmap {
+    interface BcChartHeatmap {
         /**
           * @default ''
          */
@@ -3448,7 +3484,7 @@ declare namespace LocalJSX {
          */
         "data"?: string;
     }
-    interface LcChartKpi {
+    interface BcChartKpi {
         /**
           * @default 'primary'
          */
@@ -3474,7 +3510,7 @@ declare namespace LocalJSX {
          */
         "valueSuffix"?: string;
     }
-    interface LcChartLine {
+    interface BcChartLine {
         /**
           * @default ''
          */
@@ -3484,7 +3520,7 @@ declare namespace LocalJSX {
          */
         "data"?: string;
     }
-    interface LcChartPie {
+    interface BcChartPie {
         /**
           * @default ''
          */
@@ -3494,7 +3530,7 @@ declare namespace LocalJSX {
          */
         "data"?: string;
     }
-    interface LcChartPivot {
+    interface BcChartPivot {
         /**
           * @default 'sum'
          */
@@ -3516,7 +3552,7 @@ declare namespace LocalJSX {
          */
         "valueField"?: string;
     }
-    interface LcChartProgress {
+    interface BcChartProgress {
         /**
           * @default 'primary'
          */
@@ -3538,7 +3574,7 @@ declare namespace LocalJSX {
          */
         "value"?: string;
     }
-    interface LcChartScorecard {
+    interface BcChartScorecard {
         /**
           * @default ''
          */
@@ -3552,18 +3588,18 @@ declare namespace LocalJSX {
          */
         "value"?: string;
     }
-    interface LcChatter {
+    interface BcChatter {
         /**
           * @default ''
          */
         "model"?: string;
-        "onLcChatterSend"?: (event: LcChatterCustomEvent<{text: string; type: string}>) => void;
+        "onLcChatterSend"?: (event: BcChatterCustomEvent<{text: string; type: string}>) => void;
         /**
           * @default ''
          */
         "recordId"?: string;
     }
-    interface LcChildTable {
+    interface BcChildTable {
         /**
           * @default '[]'
          */
@@ -3576,7 +3612,7 @@ declare namespace LocalJSX {
           * @default ''
          */
         "field"?: string;
-        "onLcFieldChange"?: (event: LcChildTableCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldChange"?: (event: BcChildTableCustomEvent<FieldChangeEvent>) => void;
         /**
           * @default false
          */
@@ -3586,13 +3622,13 @@ declare namespace LocalJSX {
          */
         "summary"?: string;
     }
-    interface LcColumn {
+    interface BcColumn {
         /**
           * @default 12
          */
         "width"?: number;
     }
-    interface LcDatatable {
+    interface BcDatatable {
         /**
           * @default '[]'
          */
@@ -3617,9 +3653,9 @@ declare namespace LocalJSX {
           * @default ''
          */
         "model"?: string;
-        "onLcBulkAction"?: (event: LcDatatableCustomEvent<{ action: string; ids: string[] }>) => void;
-        "onLcRowClick"?: (event: LcDatatableCustomEvent<{ record: Record<string, unknown> }>) => void;
-        "onLcSelectionChange"?: (event: LcDatatableCustomEvent<{ ids: string[] }>) => void;
+        "onLcBulkAction"?: (event: BcDatatableCustomEvent<{ action: string; ids: string[] }>) => void;
+        "onLcRowClick"?: (event: BcDatatableCustomEvent<{ record: Record<string, unknown> }>) => void;
+        "onLcSelectionChange"?: (event: BcDatatableCustomEvent<{ ids: string[] }>) => void;
         /**
           * @default 20
          */
@@ -3645,29 +3681,29 @@ declare namespace LocalJSX {
          */
         "showJsonFilter"?: boolean;
     }
-    interface LcDialogConfirm {
+    interface BcDialogConfirm {
         /**
           * @default ''
          */
         "dialogTitle"?: string;
-        "onLcDialogClose"?: (event: LcDialogConfirmCustomEvent<{type: string}>) => void;
+        "onLcDialogClose"?: (event: BcDialogConfirmCustomEvent<{type: string}>) => void;
         /**
           * @default false
          */
         "open"?: boolean;
     }
-    interface LcDialogModal {
+    interface BcDialogModal {
         /**
           * @default ''
          */
         "dialogTitle"?: string;
-        "onLcDialogClose"?: (event: LcDialogModalCustomEvent<{type: string}>) => void;
+        "onLcDialogClose"?: (event: BcDialogModalCustomEvent<{type: string}>) => void;
         /**
           * @default false
          */
         "open"?: boolean;
     }
-    interface LcDialogQuickentry {
+    interface BcDialogQuickentry {
         /**
           * @default ''
          */
@@ -3680,19 +3716,19 @@ declare namespace LocalJSX {
           * @default ''
          */
         "model"?: string;
-        "onLcDialogClose"?: (event: LcDialogQuickentryCustomEvent<{type: string; data?: Record<string, string>}>) => void;
+        "onLcDialogClose"?: (event: BcDialogQuickentryCustomEvent<{type: string; data?: Record<string, string>}>) => void;
         /**
           * @default false
          */
         "open"?: boolean;
     }
-    interface LcDialogWizard {
+    interface BcDialogWizard {
         /**
           * @default ''
          */
         "dialogTitle"?: string;
-        "onLcDialogClose"?: (event: LcDialogWizardCustomEvent<{type: string; step: number}>) => void;
-        "onLcWizardComplete"?: (event: LcDialogWizardCustomEvent<{step: number}>) => void;
+        "onLcDialogClose"?: (event: BcDialogWizardCustomEvent<{type: string; step: number}>) => void;
+        "onLcWizardComplete"?: (event: BcDialogWizardCustomEvent<{step: number}>) => void;
         /**
           * @default false
          */
@@ -3702,7 +3738,7 @@ declare namespace LocalJSX {
          */
         "steps"?: string;
     }
-    interface LcExport {
+    interface BcExport {
         /**
           * @default ''
          */
@@ -3712,9 +3748,9 @@ declare namespace LocalJSX {
          */
         "label"?: string;
     }
-    interface LcFavorites {
-        "onLcFavoriteSelect"?: (event: LcFavoritesCustomEvent<{filters: Record<string, string>}>) => void;
-        "onLcSearch"?: (event: LcFavoritesCustomEvent<{query: string}>) => void;
+    interface BcFavorites {
+        "onLcFavoriteSelect"?: (event: BcFavoritesCustomEvent<{filters: Record<string, string>}>) => void;
+        "onLcSearch"?: (event: BcFavoritesCustomEvent<{query: string}>) => void;
         /**
           * @default 'Search...'
          */
@@ -3724,7 +3760,7 @@ declare namespace LocalJSX {
          */
         "value"?: string;
     }
-    interface LcFieldBarcode {
+    interface BcFieldBarcode {
         /**
           * @default false
          */
@@ -3741,13 +3777,13 @@ declare namespace LocalJSX {
           * @default ''
          */
         "name"?: string;
-        "onLcFieldChange"?: (event: LcFieldBarcodeCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldChange"?: (event: BcFieldBarcodeCustomEvent<FieldChangeEvent>) => void;
         /**
           * @default ''
          */
         "value"?: string;
     }
-    interface LcFieldCheckbox {
+    interface BcFieldCheckbox {
         /**
           * @default false
          */
@@ -3760,13 +3796,13 @@ declare namespace LocalJSX {
           * @default ''
          */
         "name"?: string;
-        "onLcFieldChange"?: (event: LcFieldCheckboxCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldChange"?: (event: BcFieldCheckboxCustomEvent<FieldChangeEvent>) => void;
         /**
           * @default false
          */
         "value"?: boolean;
     }
-    interface LcFieldCode {
+    interface BcFieldCode {
         /**
           * @default false
          */
@@ -3783,7 +3819,7 @@ declare namespace LocalJSX {
           * @default ''
          */
         "name"?: string;
-        "onLcFieldChange"?: (event: LcFieldCodeCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldChange"?: (event: BcFieldCodeCustomEvent<FieldChangeEvent>) => void;
         /**
           * @default ''
          */
@@ -3805,7 +3841,7 @@ declare namespace LocalJSX {
          */
         "value"?: string;
     }
-    interface LcFieldColor {
+    interface BcFieldColor {
         /**
           * @default false
          */
@@ -3818,13 +3854,13 @@ declare namespace LocalJSX {
           * @default ''
          */
         "name"?: string;
-        "onLcFieldChange"?: (event: LcFieldColorCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldChange"?: (event: BcFieldColorCustomEvent<FieldChangeEvent>) => void;
         /**
           * @default '#000000'
          */
         "value"?: string;
     }
-    interface LcFieldCurrency {
+    interface BcFieldCurrency {
         /**
           * @default "USD"
          */
@@ -3841,7 +3877,7 @@ declare namespace LocalJSX {
           * @default ''
          */
         "name"?: string;
-        "onLcFieldChange"?: (event: LcFieldCurrencyCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldChange"?: (event: BcFieldCurrencyCustomEvent<FieldChangeEvent>) => void;
         /**
           * @default ''
          */
@@ -3863,7 +3899,7 @@ declare namespace LocalJSX {
          */
         "value"?: number;
     }
-    interface LcFieldDate {
+    interface BcFieldDate {
         /**
           * @default false
          */
@@ -3876,7 +3912,7 @@ declare namespace LocalJSX {
           * @default ''
          */
         "name"?: string;
-        "onLcFieldChange"?: (event: LcFieldDateCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldChange"?: (event: BcFieldDateCustomEvent<FieldChangeEvent>) => void;
         /**
           * @default ''
          */
@@ -3894,7 +3930,7 @@ declare namespace LocalJSX {
          */
         "value"?: string;
     }
-    interface LcFieldDatetime {
+    interface BcFieldDatetime {
         /**
           * @default false
          */
@@ -3907,7 +3943,7 @@ declare namespace LocalJSX {
           * @default ''
          */
         "name"?: string;
-        "onLcFieldChange"?: (event: LcFieldDatetimeCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldChange"?: (event: BcFieldDatetimeCustomEvent<FieldChangeEvent>) => void;
         /**
           * @default ''
          */
@@ -3925,7 +3961,7 @@ declare namespace LocalJSX {
          */
         "value"?: string;
     }
-    interface LcFieldDecimal {
+    interface BcFieldDecimal {
         /**
           * @default false
          */
@@ -3938,7 +3974,7 @@ declare namespace LocalJSX {
           * @default ''
          */
         "name"?: string;
-        "onLcFieldChange"?: (event: LcFieldDecimalCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldChange"?: (event: BcFieldDecimalCustomEvent<FieldChangeEvent>) => void;
         /**
           * @default ''
          */
@@ -3960,7 +3996,7 @@ declare namespace LocalJSX {
          */
         "value"?: number;
     }
-    interface LcFieldDuration {
+    interface BcFieldDuration {
         /**
           * @default false
          */
@@ -3973,13 +4009,13 @@ declare namespace LocalJSX {
           * @default ''
          */
         "name"?: string;
-        "onLcFieldChange"?: (event: LcFieldDurationCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldChange"?: (event: BcFieldDurationCustomEvent<FieldChangeEvent>) => void;
         /**
           * @default 0
          */
         "value"?: number;
     }
-    interface LcFieldDynlink {
+    interface BcFieldDynlink {
         /**
           * @default false
          */
@@ -4000,7 +4036,7 @@ declare namespace LocalJSX {
           * @default ''
          */
         "name"?: string;
-        "onLcFieldChange"?: (event: LcFieldDynlinkCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldChange"?: (event: BcFieldDynlinkCustomEvent<FieldChangeEvent>) => void;
         /**
           * @default '[]'
          */
@@ -4022,7 +4058,7 @@ declare namespace LocalJSX {
          */
         "value"?: string;
     }
-    interface LcFieldFile {
+    interface BcFieldFile {
         /**
           * @default ''
          */
@@ -4043,7 +4079,7 @@ declare namespace LocalJSX {
           * @default ''
          */
         "name"?: string;
-        "onLcFieldChange"?: (event: LcFieldFileCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldChange"?: (event: BcFieldFileCustomEvent<FieldChangeEvent>) => void;
         /**
           * @default false
          */
@@ -4053,7 +4089,7 @@ declare namespace LocalJSX {
          */
         "value"?: string;
     }
-    interface LcFieldFloat {
+    interface BcFieldFloat {
         /**
           * @default false
          */
@@ -4066,7 +4102,7 @@ declare namespace LocalJSX {
           * @default ''
          */
         "name"?: string;
-        "onLcFieldChange"?: (event: LcFieldFloatCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldChange"?: (event: BcFieldFloatCustomEvent<FieldChangeEvent>) => void;
         /**
           * @default ''
          */
@@ -4088,7 +4124,7 @@ declare namespace LocalJSX {
          */
         "value"?: number;
     }
-    interface LcFieldGeo {
+    interface BcFieldGeo {
         /**
           * @default false
          */
@@ -4105,7 +4141,7 @@ declare namespace LocalJSX {
           * @default ''
          */
         "name"?: string;
-        "onLcFieldChange"?: (event: LcFieldGeoCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldChange"?: (event: BcFieldGeoCustomEvent<FieldChangeEvent>) => void;
         /**
           * @default ''
          */
@@ -4115,7 +4151,7 @@ declare namespace LocalJSX {
          */
         "zoom"?: number;
     }
-    interface LcFieldHtml {
+    interface BcFieldHtml {
         /**
           * @default false
          */
@@ -4132,7 +4168,7 @@ declare namespace LocalJSX {
           * @default ''
          */
         "name"?: string;
-        "onLcFieldChange"?: (event: LcFieldHtmlCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldChange"?: (event: BcFieldHtmlCustomEvent<FieldChangeEvent>) => void;
         /**
           * @default ''
          */
@@ -4154,7 +4190,7 @@ declare namespace LocalJSX {
          */
         "value"?: string;
     }
-    interface LcFieldImage {
+    interface BcFieldImage {
         /**
           * @default 'image/*'
          */
@@ -4175,7 +4211,7 @@ declare namespace LocalJSX {
           * @default ''
          */
         "name"?: string;
-        "onLcFieldChange"?: (event: LcFieldImageCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldChange"?: (event: BcFieldImageCustomEvent<FieldChangeEvent>) => void;
         /**
           * @default false
          */
@@ -4185,7 +4221,7 @@ declare namespace LocalJSX {
          */
         "value"?: string;
     }
-    interface LcFieldInteger {
+    interface BcFieldInteger {
         /**
           * @default false
          */
@@ -4206,7 +4242,7 @@ declare namespace LocalJSX {
           * @default ''
          */
         "name"?: string;
-        "onLcFieldChange"?: (event: LcFieldIntegerCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldChange"?: (event: BcFieldIntegerCustomEvent<FieldChangeEvent>) => void;
         /**
           * @default ''
          */
@@ -4228,7 +4264,7 @@ declare namespace LocalJSX {
          */
         "value"?: number;
     }
-    interface LcFieldJson {
+    interface BcFieldJson {
         /**
           * @default false
          */
@@ -4245,7 +4281,7 @@ declare namespace LocalJSX {
           * @default ''
          */
         "name"?: string;
-        "onLcFieldChange"?: (event: LcFieldJsonCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldChange"?: (event: BcFieldJsonCustomEvent<FieldChangeEvent>) => void;
         /**
           * @default ''
          */
@@ -4267,7 +4303,7 @@ declare namespace LocalJSX {
          */
         "value"?: string;
     }
-    interface LcFieldLink {
+    interface BcFieldLink {
         /**
           * @default false
          */
@@ -4292,7 +4328,7 @@ declare namespace LocalJSX {
           * @default ''
          */
         "name"?: string;
-        "onLcFieldChange"?: (event: LcFieldLinkCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldChange"?: (event: BcFieldLinkCustomEvent<FieldChangeEvent>) => void;
         /**
           * @default '[]'
          */
@@ -4314,7 +4350,7 @@ declare namespace LocalJSX {
          */
         "value"?: string;
     }
-    interface LcFieldMarkdown {
+    interface BcFieldMarkdown {
         /**
           * @default false
          */
@@ -4331,7 +4367,7 @@ declare namespace LocalJSX {
           * @default ''
          */
         "name"?: string;
-        "onLcFieldChange"?: (event: LcFieldMarkdownCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldChange"?: (event: BcFieldMarkdownCustomEvent<FieldChangeEvent>) => void;
         /**
           * @default 'Write markdown...'
          */
@@ -4353,7 +4389,7 @@ declare namespace LocalJSX {
          */
         "value"?: string;
     }
-    interface LcFieldMulticheck {
+    interface BcFieldMulticheck {
         /**
           * @default false
          */
@@ -4366,7 +4402,7 @@ declare namespace LocalJSX {
           * @default ''
          */
         "name"?: string;
-        "onLcFieldChange"?: (event: LcFieldMulticheckCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldChange"?: (event: BcFieldMulticheckCustomEvent<FieldChangeEvent>) => void;
         /**
           * @default '[]'
          */
@@ -4384,7 +4420,7 @@ declare namespace LocalJSX {
          */
         "value"?: string;
     }
-    interface LcFieldPassword {
+    interface BcFieldPassword {
         /**
           * @default false
          */
@@ -4397,7 +4433,7 @@ declare namespace LocalJSX {
           * @default ''
          */
         "name"?: string;
-        "onLcFieldChange"?: (event: LcFieldPasswordCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldChange"?: (event: BcFieldPasswordCustomEvent<FieldChangeEvent>) => void;
         /**
           * @default ''
          */
@@ -4415,7 +4451,7 @@ declare namespace LocalJSX {
          */
         "value"?: string;
     }
-    interface LcFieldPercent {
+    interface BcFieldPercent {
         /**
           * @default false
          */
@@ -4436,7 +4472,7 @@ declare namespace LocalJSX {
           * @default ''
          */
         "name"?: string;
-        "onLcFieldChange"?: (event: LcFieldPercentCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldChange"?: (event: BcFieldPercentCustomEvent<FieldChangeEvent>) => void;
         /**
           * @default ''
          */
@@ -4454,7 +4490,7 @@ declare namespace LocalJSX {
          */
         "value"?: number;
     }
-    interface LcFieldRadio {
+    interface BcFieldRadio {
         /**
           * @default 'vertical'
          */
@@ -4471,7 +4507,7 @@ declare namespace LocalJSX {
           * @default ''
          */
         "name"?: string;
-        "onLcFieldChange"?: (event: LcFieldRadioCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldChange"?: (event: BcFieldRadioCustomEvent<FieldChangeEvent>) => void;
         /**
           * @default '[]'
          */
@@ -4481,7 +4517,7 @@ declare namespace LocalJSX {
          */
         "value"?: string;
     }
-    interface LcFieldRating {
+    interface BcFieldRating {
         /**
           * @default false
          */
@@ -4498,13 +4534,13 @@ declare namespace LocalJSX {
           * @default ''
          */
         "name"?: string;
-        "onLcFieldChange"?: (event: LcFieldRatingCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldChange"?: (event: BcFieldRatingCustomEvent<FieldChangeEvent>) => void;
         /**
           * @default 0
          */
         "value"?: number;
     }
-    interface LcFieldRichtext {
+    interface BcFieldRichtext {
         /**
           * @default false
          */
@@ -4517,7 +4553,7 @@ declare namespace LocalJSX {
           * @default ''
          */
         "name"?: string;
-        "onLcFieldChange"?: (event: LcFieldRichtextCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldChange"?: (event: BcFieldRichtextCustomEvent<FieldChangeEvent>) => void;
         /**
           * @default 'Start typing...'
          */
@@ -4539,7 +4575,7 @@ declare namespace LocalJSX {
          */
         "value"?: string;
     }
-    interface LcFieldSelect {
+    interface BcFieldSelect {
         /**
           * @default false
          */
@@ -4552,7 +4588,7 @@ declare namespace LocalJSX {
           * @default ''
          */
         "name"?: string;
-        "onLcFieldChange"?: (event: LcFieldSelectCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldChange"?: (event: BcFieldSelectCustomEvent<FieldChangeEvent>) => void;
         /**
           * @default '[]'
          */
@@ -4574,7 +4610,7 @@ declare namespace LocalJSX {
          */
         "value"?: string;
     }
-    interface LcFieldSignature {
+    interface BcFieldSignature {
         /**
           * @default false
          */
@@ -4591,7 +4627,7 @@ declare namespace LocalJSX {
           * @default ''
          */
         "name"?: string;
-        "onLcFieldChange"?: (event: LcFieldSignatureCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldChange"?: (event: BcFieldSignatureCustomEvent<FieldChangeEvent>) => void;
         /**
           * @default ''
          */
@@ -4601,7 +4637,7 @@ declare namespace LocalJSX {
          */
         "width"?: number;
     }
-    interface LcFieldSmalltext {
+    interface BcFieldSmalltext {
         /**
           * @default false
          */
@@ -4614,7 +4650,7 @@ declare namespace LocalJSX {
           * @default ''
          */
         "name"?: string;
-        "onLcFieldChange"?: (event: LcFieldSmalltextCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldChange"?: (event: BcFieldSmalltextCustomEvent<FieldChangeEvent>) => void;
         /**
           * @default ''
          */
@@ -4636,7 +4672,7 @@ declare namespace LocalJSX {
          */
         "value"?: string;
     }
-    interface LcFieldString {
+    interface BcFieldString {
         /**
           * @default false
          */
@@ -4653,7 +4689,7 @@ declare namespace LocalJSX {
           * @default ''
          */
         "name"?: string;
-        "onLcFieldChange"?: (event: LcFieldStringCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldChange"?: (event: BcFieldStringCustomEvent<FieldChangeEvent>) => void;
         /**
           * @default ''
          */
@@ -4671,7 +4707,7 @@ declare namespace LocalJSX {
          */
         "value"?: string;
     }
-    interface LcFieldTableselect {
+    interface BcFieldTableselect {
         /**
           * @default false
          */
@@ -4688,7 +4724,7 @@ declare namespace LocalJSX {
           * @default ''
          */
         "name"?: string;
-        "onLcFieldChange"?: (event: LcFieldTableselectCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldChange"?: (event: BcFieldTableselectCustomEvent<FieldChangeEvent>) => void;
         /**
           * @default '[]'
          */
@@ -4710,7 +4746,7 @@ declare namespace LocalJSX {
          */
         "value"?: string;
     }
-    interface LcFieldTags {
+    interface BcFieldTags {
         /**
           * @default false
          */
@@ -4727,7 +4763,7 @@ declare namespace LocalJSX {
           * @default ''
          */
         "name"?: string;
-        "onLcFieldChange"?: (event: LcFieldTagsCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldChange"?: (event: BcFieldTagsCustomEvent<FieldChangeEvent>) => void;
         /**
           * @default '[]'
          */
@@ -4749,7 +4785,7 @@ declare namespace LocalJSX {
          */
         "value"?: string;
     }
-    interface LcFieldText {
+    interface BcFieldText {
         /**
           * @default false
          */
@@ -4762,7 +4798,7 @@ declare namespace LocalJSX {
           * @default ''
          */
         "name"?: string;
-        "onLcFieldChange"?: (event: LcFieldTextCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldChange"?: (event: BcFieldTextCustomEvent<FieldChangeEvent>) => void;
         /**
           * @default ''
          */
@@ -4780,7 +4816,7 @@ declare namespace LocalJSX {
          */
         "value"?: string;
     }
-    interface LcFieldTime {
+    interface BcFieldTime {
         /**
           * @default false
          */
@@ -4793,7 +4829,7 @@ declare namespace LocalJSX {
           * @default ''
          */
         "name"?: string;
-        "onLcFieldChange"?: (event: LcFieldTimeCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldChange"?: (event: BcFieldTimeCustomEvent<FieldChangeEvent>) => void;
         /**
           * @default ''
          */
@@ -4811,7 +4847,7 @@ declare namespace LocalJSX {
          */
         "value"?: string;
     }
-    interface LcFieldToggle {
+    interface BcFieldToggle {
         /**
           * @default false
          */
@@ -4824,15 +4860,15 @@ declare namespace LocalJSX {
           * @default ''
          */
         "name"?: string;
-        "onLcFieldChange"?: (event: LcFieldToggleCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldChange"?: (event: BcFieldToggleCustomEvent<FieldChangeEvent>) => void;
         /**
           * @default false
          */
         "value"?: boolean;
     }
-    interface LcFilterBar {
-        "onLcFilterChange"?: (event: LcFilterBarCustomEvent<{field: string; value: string}>) => void;
-        "onLcSearch"?: (event: LcFilterBarCustomEvent<{query: string}>) => void;
+    interface BcFilterBar {
+        "onLcFilterChange"?: (event: BcFilterBarCustomEvent<{field: string; value: string}>) => void;
+        "onLcSearch"?: (event: BcFilterBarCustomEvent<{query: string}>) => void;
         /**
           * @default 'Search...'
          */
@@ -4846,12 +4882,12 @@ declare namespace LocalJSX {
          */
         "value"?: string;
     }
-    interface LcFilterBuilder {
+    interface BcFilterBuilder {
         /**
           * @default '[]'
          */
         "fields"?: string;
-        "onLcFilterChange"?: (event: LcFilterBuilderCustomEvent<{ filter: FilterGroup }>) => void;
+        "onLcFilterChange"?: (event: BcFilterBuilderCustomEvent<{ filter: FilterGroup }>) => void;
         /**
           * @default '["=","!=",">","<",">=","<=","contains","starts_with","ends_with","in","is_null","is_not_null"]'
          */
@@ -4865,13 +4901,13 @@ declare namespace LocalJSX {
          */
         "value"?: string;
     }
-    interface LcFilterPanel {
+    interface BcFilterPanel {
         /**
           * @default '[]'
          */
         "categories"?: string;
-        "onLcFilterChange"?: (event: LcFilterPanelCustomEvent<{filters: Record<string, string>}>) => void;
-        "onLcSearch"?: (event: LcFilterPanelCustomEvent<{query: string}>) => void;
+        "onLcFilterChange"?: (event: BcFilterPanelCustomEvent<{filters: Record<string, string>}>) => void;
+        "onLcSearch"?: (event: BcFilterPanelCustomEvent<{query: string}>) => void;
         /**
           * @default 'Search...'
          */
@@ -4881,12 +4917,12 @@ declare namespace LocalJSX {
          */
         "value"?: string;
     }
-    interface LcHeader {
+    interface BcHeader {
         /**
           * @default '[]'
          */
         "buttons"?: string;
-        "onLcActionClick"?: (event: LcHeaderCustomEvent<{ process: string }>) => void;
+        "onLcActionClick"?: (event: BcHeaderCustomEvent<{ process: string }>) => void;
         /**
           * @default '[]'
          */
@@ -4900,13 +4936,13 @@ declare namespace LocalJSX {
          */
         "statusValue"?: string;
     }
-    interface LcHtmlBlock {
+    interface BcHtmlBlock {
         /**
           * @default ''
          */
         "content"?: string;
     }
-    interface LcLookupModal {
+    interface BcLookupModal {
         /**
           * @default ''
          */
@@ -4931,20 +4967,20 @@ declare namespace LocalJSX {
           * @default false
          */
         "multiple"?: boolean;
-        "onLcLookupClose"?: (event: LcLookupModalCustomEvent<void>) => void;
-        "onLcLookupSelect"?: (event: LcLookupModalCustomEvent<{ records: Array<Record<string, unknown>> }>) => void;
+        "onLcLookupClose"?: (event: BcLookupModalCustomEvent<void>) => void;
+        "onLcLookupSelect"?: (event: BcLookupModalCustomEvent<{ records: Array<Record<string, unknown>> }>) => void;
         /**
           * @default false
          */
         "open"?: boolean;
     }
-    interface LcPlaceholder {
+    interface BcPlaceholder {
         /**
           * @default ''
          */
         "text"?: string;
     }
-    interface LcPrint {
+    interface BcPrint {
         /**
           * @default ''
          */
@@ -4954,7 +4990,7 @@ declare namespace LocalJSX {
          */
         "label"?: string;
     }
-    interface LcReportLink {
+    interface BcReportLink {
         /**
           * @default ''
          */
@@ -4964,18 +5000,18 @@ declare namespace LocalJSX {
          */
         "label"?: string;
     }
-    interface LcRow {
+    interface BcRow {
         /**
           * @default 'md'
          */
         "gap"?: string;
     }
-    interface LcSearch {
+    interface BcSearch {
         /**
           * @default ''
          */
         "model"?: string;
-        "onLcSearch"?: (event: LcSearchCustomEvent<{query: string}>) => void;
+        "onLcSearch"?: (event: BcSearchCustomEvent<{query: string}>) => void;
         /**
           * @default ''
          */
@@ -4985,7 +5021,7 @@ declare namespace LocalJSX {
          */
         "value"?: string;
     }
-    interface LcSection {
+    interface BcSection {
         /**
           * @default false
          */
@@ -5003,23 +5039,23 @@ declare namespace LocalJSX {
          */
         "sectionTitle"?: string;
     }
-    interface LcSeparator {
+    interface BcSeparator {
         /**
           * @default ''
          */
         "label"?: string;
     }
-    interface LcSheet {
+    interface BcSheet {
     }
-    interface LcTab {
+    interface BcTab {
         /**
           * @default ''
          */
         "label"?: string;
     }
-    interface LcTabs {
+    interface BcTabs {
     }
-    interface LcTimeline {
+    interface BcTimeline {
         /**
           * @default ''
          */
@@ -5029,7 +5065,7 @@ declare namespace LocalJSX {
          */
         "recordId"?: string;
     }
-    interface LcToast {
+    interface BcToast {
         /**
           * @default ''
          */
@@ -5042,7 +5078,7 @@ declare namespace LocalJSX {
           * @default ''
          */
         "message"?: string;
-        "onLcDialogClose"?: (event: LcToastCustomEvent<{type: string}>) => void;
+        "onLcDialogClose"?: (event: BcToastCustomEvent<{type: string}>) => void;
         /**
           * @default false
          */
@@ -5056,7 +5092,7 @@ declare namespace LocalJSX {
          */
         "variant"?: string;
     }
-    interface LcViewActivity {
+    interface BcViewActivity {
         /**
           * @default '{}'
          */
@@ -5074,7 +5110,7 @@ declare namespace LocalJSX {
          */
         "viewTitle"?: string;
     }
-    interface LcViewCalendar {
+    interface BcViewCalendar {
         /**
           * @default '{}'
          */
@@ -5100,7 +5136,22 @@ declare namespace LocalJSX {
          */
         "viewTitle"?: string;
     }
-    interface LcViewForm {
+    interface BcViewEditor {
+        /**
+          * @default '[]'
+         */
+        "modelFields"?: string;
+        "onViewChanged"?: (event: BcViewEditorCustomEvent<{ json: string }>) => void;
+        /**
+          * @default false
+         */
+        "readonly"?: boolean;
+        /**
+          * @default '{}'
+         */
+        "viewJson"?: string;
+    }
+    interface BcViewForm {
         /**
           * @default '{}'
          */
@@ -5113,7 +5164,7 @@ declare namespace LocalJSX {
           * @default ''
          */
         "model"?: string;
-        "onLcFormSubmit"?: (event: LcViewFormCustomEvent<{model: string; data: Record<string, unknown>; id?: string}>) => void;
+        "onLcFormSubmit"?: (event: BcViewFormCustomEvent<{model: string; data: Record<string, unknown>; id?: string}>) => void;
         /**
           * @default ''
          */
@@ -5123,7 +5174,7 @@ declare namespace LocalJSX {
          */
         "viewTitle"?: string;
     }
-    interface LcViewGantt {
+    interface BcViewGantt {
         /**
           * @default '{}'
          */
@@ -5141,7 +5192,7 @@ declare namespace LocalJSX {
          */
         "viewTitle"?: string;
     }
-    interface LcViewKanban {
+    interface BcViewKanban {
         /**
           * @default '{}'
          */
@@ -5154,13 +5205,13 @@ declare namespace LocalJSX {
           * @default ''
          */
         "model"?: string;
-        "onLcKanbanMove"?: (event: LcViewKanbanCustomEvent<{id: string; from: string; to: string}>) => void;
+        "onLcKanbanMove"?: (event: BcViewKanbanCustomEvent<{id: string; from: string; to: string}>) => void;
         /**
           * @default ''
          */
         "viewTitle"?: string;
     }
-    interface LcViewList {
+    interface BcViewList {
         /**
           * @default '{}'
          */
@@ -5173,13 +5224,13 @@ declare namespace LocalJSX {
           * @default ''
          */
         "model"?: string;
-        "onLcRowSelect"?: (event: LcViewListCustomEvent<{ids: string[]}>) => void;
+        "onLcRowSelect"?: (event: BcViewListCustomEvent<{ids: string[]}>) => void;
         /**
           * @default ''
          */
         "viewTitle"?: string;
     }
-    interface LcViewMap {
+    interface BcViewMap {
         /**
           * @default '{}'
          */
@@ -5205,7 +5256,7 @@ declare namespace LocalJSX {
          */
         "viewTitle"?: string;
     }
-    interface LcViewReport {
+    interface BcViewReport {
         /**
           * @default '{}'
          */
@@ -5223,7 +5274,7 @@ declare namespace LocalJSX {
          */
         "viewTitle"?: string;
     }
-    interface LcViewTree {
+    interface BcViewTree {
         /**
           * @default '{}'
          */
@@ -5245,7 +5296,7 @@ declare namespace LocalJSX {
          */
         "viewTitle"?: string;
     }
-    interface LcWidgetBadge {
+    interface BcWidgetBadge {
         /**
           * @default ''
          */
@@ -5255,33 +5306,33 @@ declare namespace LocalJSX {
          */
         "variant"?: string;
     }
-    interface LcWidgetCopy {
+    interface BcWidgetCopy {
         /**
           * @default ''
          */
         "value"?: string;
     }
-    interface LcWidgetDomain {
+    interface BcWidgetDomain {
         /**
           * @default '[]'
          */
         "value"?: string;
     }
-    interface LcWidgetEmail {
+    interface BcWidgetEmail {
         /**
           * @default ''
          */
         "value"?: string;
     }
-    interface LcWidgetHandle {
+    interface BcWidgetHandle {
     }
-    interface LcWidgetPhone {
+    interface BcWidgetPhone {
         /**
           * @default ''
          */
         "value"?: string;
     }
-    interface LcWidgetPriority {
+    interface BcWidgetPriority {
         /**
           * @default false
          */
@@ -5290,13 +5341,13 @@ declare namespace LocalJSX {
           * @default 3
          */
         "max"?: number;
-        "onLcFieldChange"?: (event: LcWidgetPriorityCustomEvent<{name: string; value: unknown; oldValue: unknown}>) => void;
+        "onLcFieldChange"?: (event: BcWidgetPriorityCustomEvent<{name: string; value: unknown; oldValue: unknown}>) => void;
         /**
           * @default 0
          */
         "value"?: number;
     }
-    interface LcWidgetProgress {
+    interface BcWidgetProgress {
         /**
           * @default 100
          */
@@ -5310,7 +5361,7 @@ declare namespace LocalJSX {
          */
         "variant"?: string;
     }
-    interface LcWidgetStatusbar {
+    interface BcWidgetStatusbar {
         /**
           * @default '[]'
          */
@@ -5320,42 +5371,42 @@ declare namespace LocalJSX {
          */
         "value"?: string;
     }
-    interface LcWidgetUrl {
+    interface BcWidgetUrl {
         /**
           * @default ''
          */
         "value"?: string;
     }
 
-    interface LcActivityAttributes {
+    interface BcActivityAttributes {
         "recordId": string;
         "model": string;
     }
-    interface LcButtonBoxAttributes {
+    interface BcButtonBoxAttributes {
         "buttons": string;
     }
-    interface LcChartAreaAttributes {
+    interface BcChartAreaAttributes {
         "data": string;
         "chartTitle": string;
     }
-    interface LcChartBarAttributes {
+    interface BcChartBarAttributes {
         "data": string;
         "chartTitle": string;
     }
-    interface LcChartFunnelAttributes {
+    interface BcChartFunnelAttributes {
         "data": string;
         "chartTitle": string;
     }
-    interface LcChartGaugeAttributes {
+    interface BcChartGaugeAttributes {
         "value": string;
         "max": string;
         "chartTitle": string;
     }
-    interface LcChartHeatmapAttributes {
+    interface BcChartHeatmapAttributes {
         "data": string;
         "chartTitle": string;
     }
-    interface LcChartKpiAttributes {
+    interface BcChartKpiAttributes {
         "value": string;
         "label": string;
         "trend": string;
@@ -5363,48 +5414,48 @@ declare namespace LocalJSX {
         "valueSuffix": string;
         "color": string;
     }
-    interface LcChartLineAttributes {
+    interface BcChartLineAttributes {
         "data": string;
         "chartTitle": string;
     }
-    interface LcChartPieAttributes {
+    interface BcChartPieAttributes {
         "data": string;
         "chartTitle": string;
     }
-    interface LcChartPivotAttributes {
+    interface BcChartPivotAttributes {
         "data": string;
         "rows": string;
         "cols": string;
         "valueField": string;
         "aggFunc": string;
     }
-    interface LcChartProgressAttributes {
+    interface BcChartProgressAttributes {
         "value": string;
         "max": string;
         "label": string;
         "color": string;
         "showPercent": boolean;
     }
-    interface LcChartScorecardAttributes {
+    interface BcChartScorecardAttributes {
         "value": string;
         "target": string;
         "label": string;
     }
-    interface LcChatterAttributes {
+    interface BcChatterAttributes {
         "recordId": string;
         "model": string;
     }
-    interface LcChildTableAttributes {
+    interface BcChildTableAttributes {
         "field": string;
         "columns": string;
         "data": string;
         "summary": string;
         "readonly": boolean;
     }
-    interface LcColumnAttributes {
+    interface BcColumnAttributes {
         "width": number;
     }
-    interface LcDatatableAttributes {
+    interface BcDatatableAttributes {
         "model": string;
         "columns": string;
         "apiUrl": string;
@@ -5418,47 +5469,47 @@ declare namespace LocalJSX {
         "serverSide": boolean;
         "savedPresets": string;
     }
-    interface LcDialogConfirmAttributes {
+    interface BcDialogConfirmAttributes {
         "open": boolean;
         "dialogTitle": string;
     }
-    interface LcDialogModalAttributes {
+    interface BcDialogModalAttributes {
         "open": boolean;
         "dialogTitle": string;
     }
-    interface LcDialogQuickentryAttributes {
+    interface BcDialogQuickentryAttributes {
         "open": boolean;
         "dialogTitle": string;
         "model": string;
         "fields": string;
     }
-    interface LcDialogWizardAttributes {
+    interface BcDialogWizardAttributes {
         "open": boolean;
         "dialogTitle": string;
         "steps": string;
     }
-    interface LcExportAttributes {
+    interface BcExportAttributes {
         "label": string;
         "href": string;
     }
-    interface LcFavoritesAttributes {
+    interface BcFavoritesAttributes {
         "value": string;
         "placeholder": string;
     }
-    interface LcFieldBarcodeAttributes {
+    interface BcFieldBarcodeAttributes {
         "name": string;
         "label": string;
         "value": string;
         "format": string;
         "disabled": boolean;
     }
-    interface LcFieldCheckboxAttributes {
+    interface BcFieldCheckboxAttributes {
         "name": string;
         "label": string;
         "value": boolean;
         "disabled": boolean;
     }
-    interface LcFieldCodeAttributes {
+    interface BcFieldCodeAttributes {
         "name": string;
         "label": string;
         "value": string;
@@ -5469,13 +5520,13 @@ declare namespace LocalJSX {
         "language": string;
         "toolbar": string;
     }
-    interface LcFieldColorAttributes {
+    interface BcFieldColorAttributes {
         "name": string;
         "label": string;
         "value": string;
         "disabled": boolean;
     }
-    interface LcFieldCurrencyAttributes {
+    interface BcFieldCurrencyAttributes {
         "name": string;
         "label": string;
         "value": number;
@@ -5486,7 +5537,7 @@ declare namespace LocalJSX {
         "currency": string;
         "precision": number;
     }
-    interface LcFieldDateAttributes {
+    interface BcFieldDateAttributes {
         "name": string;
         "label": string;
         "value": string;
@@ -5495,7 +5546,7 @@ declare namespace LocalJSX {
         "readonly": boolean;
         "disabled": boolean;
     }
-    interface LcFieldDatetimeAttributes {
+    interface BcFieldDatetimeAttributes {
         "name": string;
         "label": string;
         "value": string;
@@ -5504,7 +5555,7 @@ declare namespace LocalJSX {
         "readonly": boolean;
         "disabled": boolean;
     }
-    interface LcFieldDecimalAttributes {
+    interface BcFieldDecimalAttributes {
         "name": string;
         "label": string;
         "value": number;
@@ -5514,13 +5565,13 @@ declare namespace LocalJSX {
         "disabled": boolean;
         "precision": number;
     }
-    interface LcFieldDurationAttributes {
+    interface BcFieldDurationAttributes {
         "name": string;
         "label": string;
         "value": number;
         "disabled": boolean;
     }
-    interface LcFieldDynlinkAttributes {
+    interface BcFieldDynlinkAttributes {
         "name": string;
         "label": string;
         "value": string;
@@ -5532,7 +5583,7 @@ declare namespace LocalJSX {
         "disabled": boolean;
         "options": string;
     }
-    interface LcFieldFileAttributes {
+    interface BcFieldFileAttributes {
         "name": string;
         "label": string;
         "value": string;
@@ -5541,7 +5592,7 @@ declare namespace LocalJSX {
         "required": boolean;
         "disabled": boolean;
     }
-    interface LcFieldFloatAttributes {
+    interface BcFieldFloatAttributes {
         "name": string;
         "label": string;
         "value": number;
@@ -5551,7 +5602,7 @@ declare namespace LocalJSX {
         "disabled": boolean;
         "precision": number;
     }
-    interface LcFieldGeoAttributes {
+    interface BcFieldGeoAttributes {
         "name": string;
         "label": string;
         "value": string;
@@ -5559,7 +5610,7 @@ declare namespace LocalJSX {
         "drawMode": string;
         "zoom": number;
     }
-    interface LcFieldHtmlAttributes {
+    interface BcFieldHtmlAttributes {
         "name": string;
         "label": string;
         "value": string;
@@ -5570,7 +5621,7 @@ declare namespace LocalJSX {
         "language": string;
         "toolbar": string;
     }
-    interface LcFieldImageAttributes {
+    interface BcFieldImageAttributes {
         "name": string;
         "label": string;
         "value": string;
@@ -5579,7 +5630,7 @@ declare namespace LocalJSX {
         "required": boolean;
         "disabled": boolean;
     }
-    interface LcFieldIntegerAttributes {
+    interface BcFieldIntegerAttributes {
         "name": string;
         "label": string;
         "value": number;
@@ -5591,7 +5642,7 @@ declare namespace LocalJSX {
         "max": number;
         "step": number;
     }
-    interface LcFieldJsonAttributes {
+    interface BcFieldJsonAttributes {
         "name": string;
         "label": string;
         "value": string;
@@ -5602,7 +5653,7 @@ declare namespace LocalJSX {
         "language": string;
         "toolbar": string;
     }
-    interface LcFieldLinkAttributes {
+    interface BcFieldLinkAttributes {
         "name": string;
         "label": string;
         "value": string;
@@ -5615,7 +5666,7 @@ declare namespace LocalJSX {
         "options": string;
         "lookupColumns": string;
     }
-    interface LcFieldMarkdownAttributes {
+    interface BcFieldMarkdownAttributes {
         "name": string;
         "label": string;
         "value": string;
@@ -5626,7 +5677,7 @@ declare namespace LocalJSX {
         "language": string;
         "toolbar": string;
     }
-    interface LcFieldMulticheckAttributes {
+    interface BcFieldMulticheckAttributes {
         "name": string;
         "label": string;
         "value": string;
@@ -5635,7 +5686,7 @@ declare namespace LocalJSX {
         "readonly": boolean;
         "disabled": boolean;
     }
-    interface LcFieldPasswordAttributes {
+    interface BcFieldPasswordAttributes {
         "name": string;
         "label": string;
         "value": string;
@@ -5644,7 +5695,7 @@ declare namespace LocalJSX {
         "readonly": boolean;
         "disabled": boolean;
     }
-    interface LcFieldPercentAttributes {
+    interface BcFieldPercentAttributes {
         "name": string;
         "label": string;
         "value": number;
@@ -5655,7 +5706,7 @@ declare namespace LocalJSX {
         "min": number;
         "max": number;
     }
-    interface LcFieldRadioAttributes {
+    interface BcFieldRadioAttributes {
         "name": string;
         "label": string;
         "value": string;
@@ -5663,14 +5714,14 @@ declare namespace LocalJSX {
         "direction": string;
         "disabled": boolean;
     }
-    interface LcFieldRatingAttributes {
+    interface BcFieldRatingAttributes {
         "name": string;
         "label": string;
         "value": number;
         "maxStars": number;
         "disabled": boolean;
     }
-    interface LcFieldRichtextAttributes {
+    interface BcFieldRichtextAttributes {
         "name": string;
         "label": string;
         "value": string;
@@ -5680,7 +5731,7 @@ declare namespace LocalJSX {
         "disabled": boolean;
         "toolbar": string;
     }
-    interface LcFieldSelectAttributes {
+    interface BcFieldSelectAttributes {
         "name": string;
         "label": string;
         "value": string;
@@ -5690,7 +5741,7 @@ declare namespace LocalJSX {
         "readonly": boolean;
         "disabled": boolean;
     }
-    interface LcFieldSignatureAttributes {
+    interface BcFieldSignatureAttributes {
         "name": string;
         "label": string;
         "value": string;
@@ -5698,7 +5749,7 @@ declare namespace LocalJSX {
         "width": number;
         "height": number;
     }
-    interface LcFieldSmalltextAttributes {
+    interface BcFieldSmalltextAttributes {
         "name": string;
         "label": string;
         "value": string;
@@ -5708,7 +5759,7 @@ declare namespace LocalJSX {
         "disabled": boolean;
         "rows": number;
     }
-    interface LcFieldStringAttributes {
+    interface BcFieldStringAttributes {
         "name": string;
         "label": string;
         "value": string;
@@ -5718,7 +5769,7 @@ declare namespace LocalJSX {
         "disabled": boolean;
         "max": number;
     }
-    interface LcFieldTableselectAttributes {
+    interface BcFieldTableselectAttributes {
         "name": string;
         "label": string;
         "value": string;
@@ -5729,7 +5780,7 @@ declare namespace LocalJSX {
         "disabled": boolean;
         "options": string;
     }
-    interface LcFieldTagsAttributes {
+    interface BcFieldTagsAttributes {
         "name": string;
         "label": string;
         "value": string;
@@ -5740,7 +5791,7 @@ declare namespace LocalJSX {
         "disabled": boolean;
         "options": string;
     }
-    interface LcFieldTextAttributes {
+    interface BcFieldTextAttributes {
         "name": string;
         "label": string;
         "value": string;
@@ -5749,7 +5800,7 @@ declare namespace LocalJSX {
         "readonly": boolean;
         "disabled": boolean;
     }
-    interface LcFieldTimeAttributes {
+    interface BcFieldTimeAttributes {
         "name": string;
         "label": string;
         "value": string;
@@ -5758,38 +5809,38 @@ declare namespace LocalJSX {
         "readonly": boolean;
         "disabled": boolean;
     }
-    interface LcFieldToggleAttributes {
+    interface BcFieldToggleAttributes {
         "name": string;
         "label": string;
         "value": boolean;
         "disabled": boolean;
     }
-    interface LcFilterBarAttributes {
+    interface BcFilterBarAttributes {
         "value": string;
         "presets": string;
         "placeholder": string;
     }
-    interface LcFilterBuilderAttributes {
+    interface BcFilterBuilderAttributes {
         "fields": string;
         "operators": string;
         "value": string;
         "showJsonToggle": boolean;
     }
-    interface LcFilterPanelAttributes {
+    interface BcFilterPanelAttributes {
         "value": string;
         "categories": string;
         "placeholder": string;
     }
-    interface LcHeaderAttributes {
+    interface BcHeaderAttributes {
         "buttons": string;
         "statusField": string;
         "statusValue": string;
         "states": string;
     }
-    interface LcHtmlBlockAttributes {
+    interface BcHtmlBlockAttributes {
         "content": string;
     }
-    interface LcLookupModalAttributes {
+    interface BcLookupModalAttributes {
         "open": boolean;
         "model": string;
         "displayField": string;
@@ -5798,42 +5849,42 @@ declare namespace LocalJSX {
         "apiUrl": string;
         "modalTitle": string;
     }
-    interface LcPlaceholderAttributes {
+    interface BcPlaceholderAttributes {
         "text": string;
     }
-    interface LcPrintAttributes {
+    interface BcPrintAttributes {
         "label": string;
         "href": string;
     }
-    interface LcReportLinkAttributes {
+    interface BcReportLinkAttributes {
         "label": string;
         "href": string;
     }
-    interface LcRowAttributes {
+    interface BcRowAttributes {
         "gap": string;
     }
-    interface LcSearchAttributes {
+    interface BcSearchAttributes {
         "value": string;
         "placeholder": string;
         "model": string;
     }
-    interface LcSectionAttributes {
+    interface BcSectionAttributes {
         "sectionTitle": string;
         "description": string;
         "collapsible": boolean;
         "collapsed": boolean;
     }
-    interface LcSeparatorAttributes {
+    interface BcSeparatorAttributes {
         "label": string;
     }
-    interface LcTabAttributes {
+    interface BcTabAttributes {
         "label": string;
     }
-    interface LcTimelineAttributes {
+    interface BcTimelineAttributes {
         "recordId": string;
         "model": string;
     }
-    interface LcToastAttributes {
+    interface BcToastAttributes {
         "open": boolean;
         "dialogTitle": string;
         "message": string;
@@ -5841,13 +5892,13 @@ declare namespace LocalJSX {
         "duration": number;
         "position": string;
     }
-    interface LcViewActivityAttributes {
+    interface BcViewActivityAttributes {
         "model": string;
         "viewTitle": string;
         "fields": string;
         "config": string;
     }
-    interface LcViewCalendarAttributes {
+    interface BcViewCalendarAttributes {
         "model": string;
         "viewTitle": string;
         "fields": string;
@@ -5855,32 +5906,37 @@ declare namespace LocalJSX {
         "dateField": string;
         "titleField": string;
     }
-    interface LcViewFormAttributes {
+    interface BcViewEditorAttributes {
+        "viewJson": string;
+        "modelFields": string;
+        "readonly": boolean;
+    }
+    interface BcViewFormAttributes {
         "model": string;
         "viewTitle": string;
         "recordId": string;
         "fields": string;
         "config": string;
     }
-    interface LcViewGanttAttributes {
+    interface BcViewGanttAttributes {
         "model": string;
         "viewTitle": string;
         "fields": string;
         "config": string;
     }
-    interface LcViewKanbanAttributes {
+    interface BcViewKanbanAttributes {
         "model": string;
         "viewTitle": string;
         "fields": string;
         "config": string;
     }
-    interface LcViewListAttributes {
+    interface BcViewListAttributes {
         "model": string;
         "viewTitle": string;
         "fields": string;
         "config": string;
     }
-    interface LcViewMapAttributes {
+    interface BcViewMapAttributes {
         "model": string;
         "viewTitle": string;
         "fields": string;
@@ -5888,248 +5944,250 @@ declare namespace LocalJSX {
         "geoField": string;
         "nameField": string;
     }
-    interface LcViewReportAttributes {
+    interface BcViewReportAttributes {
         "model": string;
         "viewTitle": string;
         "fields": string;
         "config": string;
     }
-    interface LcViewTreeAttributes {
+    interface BcViewTreeAttributes {
         "model": string;
         "viewTitle": string;
         "fields": string;
         "config": string;
         "parentField": string;
     }
-    interface LcWidgetBadgeAttributes {
+    interface BcWidgetBadgeAttributes {
         "value": string;
         "variant": string;
     }
-    interface LcWidgetCopyAttributes {
+    interface BcWidgetCopyAttributes {
         "value": string;
     }
-    interface LcWidgetDomainAttributes {
+    interface BcWidgetDomainAttributes {
         "value": string;
     }
-    interface LcWidgetEmailAttributes {
+    interface BcWidgetEmailAttributes {
         "value": string;
     }
-    interface LcWidgetPhoneAttributes {
+    interface BcWidgetPhoneAttributes {
         "value": string;
     }
-    interface LcWidgetPriorityAttributes {
+    interface BcWidgetPriorityAttributes {
         "value": number;
         "max": number;
         "disabled": boolean;
     }
-    interface LcWidgetProgressAttributes {
+    interface BcWidgetProgressAttributes {
         "value": number;
         "max": number;
         "variant": string;
     }
-    interface LcWidgetStatusbarAttributes {
+    interface BcWidgetStatusbarAttributes {
         "states": string;
         "value": string;
     }
-    interface LcWidgetUrlAttributes {
+    interface BcWidgetUrlAttributes {
         "value": string;
     }
 
     interface IntrinsicElements {
-        "bc-activity": Omit<LcActivity, keyof LcActivityAttributes> & { [K in keyof LcActivity & keyof LcActivityAttributes]?: LcActivity[K] } & { [K in keyof LcActivity & keyof LcActivityAttributes as `attr:${K}`]?: LcActivityAttributes[K] } & { [K in keyof LcActivity & keyof LcActivityAttributes as `prop:${K}`]?: LcActivity[K] };
-        "bc-button-box": Omit<LcButtonBox, keyof LcButtonBoxAttributes> & { [K in keyof LcButtonBox & keyof LcButtonBoxAttributes]?: LcButtonBox[K] } & { [K in keyof LcButtonBox & keyof LcButtonBoxAttributes as `attr:${K}`]?: LcButtonBoxAttributes[K] } & { [K in keyof LcButtonBox & keyof LcButtonBoxAttributes as `prop:${K}`]?: LcButtonBox[K] };
-        "bc-chart-area": Omit<LcChartArea, keyof LcChartAreaAttributes> & { [K in keyof LcChartArea & keyof LcChartAreaAttributes]?: LcChartArea[K] } & { [K in keyof LcChartArea & keyof LcChartAreaAttributes as `attr:${K}`]?: LcChartAreaAttributes[K] } & { [K in keyof LcChartArea & keyof LcChartAreaAttributes as `prop:${K}`]?: LcChartArea[K] };
-        "bc-chart-bar": Omit<LcChartBar, keyof LcChartBarAttributes> & { [K in keyof LcChartBar & keyof LcChartBarAttributes]?: LcChartBar[K] } & { [K in keyof LcChartBar & keyof LcChartBarAttributes as `attr:${K}`]?: LcChartBarAttributes[K] } & { [K in keyof LcChartBar & keyof LcChartBarAttributes as `prop:${K}`]?: LcChartBar[K] };
-        "bc-chart-funnel": Omit<LcChartFunnel, keyof LcChartFunnelAttributes> & { [K in keyof LcChartFunnel & keyof LcChartFunnelAttributes]?: LcChartFunnel[K] } & { [K in keyof LcChartFunnel & keyof LcChartFunnelAttributes as `attr:${K}`]?: LcChartFunnelAttributes[K] } & { [K in keyof LcChartFunnel & keyof LcChartFunnelAttributes as `prop:${K}`]?: LcChartFunnel[K] };
-        "bc-chart-gauge": Omit<LcChartGauge, keyof LcChartGaugeAttributes> & { [K in keyof LcChartGauge & keyof LcChartGaugeAttributes]?: LcChartGauge[K] } & { [K in keyof LcChartGauge & keyof LcChartGaugeAttributes as `attr:${K}`]?: LcChartGaugeAttributes[K] } & { [K in keyof LcChartGauge & keyof LcChartGaugeAttributes as `prop:${K}`]?: LcChartGauge[K] };
-        "bc-chart-heatmap": Omit<LcChartHeatmap, keyof LcChartHeatmapAttributes> & { [K in keyof LcChartHeatmap & keyof LcChartHeatmapAttributes]?: LcChartHeatmap[K] } & { [K in keyof LcChartHeatmap & keyof LcChartHeatmapAttributes as `attr:${K}`]?: LcChartHeatmapAttributes[K] } & { [K in keyof LcChartHeatmap & keyof LcChartHeatmapAttributes as `prop:${K}`]?: LcChartHeatmap[K] };
-        "bc-chart-kpi": Omit<LcChartKpi, keyof LcChartKpiAttributes> & { [K in keyof LcChartKpi & keyof LcChartKpiAttributes]?: LcChartKpi[K] } & { [K in keyof LcChartKpi & keyof LcChartKpiAttributes as `attr:${K}`]?: LcChartKpiAttributes[K] } & { [K in keyof LcChartKpi & keyof LcChartKpiAttributes as `prop:${K}`]?: LcChartKpi[K] };
-        "bc-chart-line": Omit<LcChartLine, keyof LcChartLineAttributes> & { [K in keyof LcChartLine & keyof LcChartLineAttributes]?: LcChartLine[K] } & { [K in keyof LcChartLine & keyof LcChartLineAttributes as `attr:${K}`]?: LcChartLineAttributes[K] } & { [K in keyof LcChartLine & keyof LcChartLineAttributes as `prop:${K}`]?: LcChartLine[K] };
-        "bc-chart-pie": Omit<LcChartPie, keyof LcChartPieAttributes> & { [K in keyof LcChartPie & keyof LcChartPieAttributes]?: LcChartPie[K] } & { [K in keyof LcChartPie & keyof LcChartPieAttributes as `attr:${K}`]?: LcChartPieAttributes[K] } & { [K in keyof LcChartPie & keyof LcChartPieAttributes as `prop:${K}`]?: LcChartPie[K] };
-        "bc-chart-pivot": Omit<LcChartPivot, keyof LcChartPivotAttributes> & { [K in keyof LcChartPivot & keyof LcChartPivotAttributes]?: LcChartPivot[K] } & { [K in keyof LcChartPivot & keyof LcChartPivotAttributes as `attr:${K}`]?: LcChartPivotAttributes[K] } & { [K in keyof LcChartPivot & keyof LcChartPivotAttributes as `prop:${K}`]?: LcChartPivot[K] };
-        "bc-chart-progress": Omit<LcChartProgress, keyof LcChartProgressAttributes> & { [K in keyof LcChartProgress & keyof LcChartProgressAttributes]?: LcChartProgress[K] } & { [K in keyof LcChartProgress & keyof LcChartProgressAttributes as `attr:${K}`]?: LcChartProgressAttributes[K] } & { [K in keyof LcChartProgress & keyof LcChartProgressAttributes as `prop:${K}`]?: LcChartProgress[K] };
-        "bc-chart-scorecard": Omit<LcChartScorecard, keyof LcChartScorecardAttributes> & { [K in keyof LcChartScorecard & keyof LcChartScorecardAttributes]?: LcChartScorecard[K] } & { [K in keyof LcChartScorecard & keyof LcChartScorecardAttributes as `attr:${K}`]?: LcChartScorecardAttributes[K] } & { [K in keyof LcChartScorecard & keyof LcChartScorecardAttributes as `prop:${K}`]?: LcChartScorecard[K] };
-        "bc-chatter": Omit<LcChatter, keyof LcChatterAttributes> & { [K in keyof LcChatter & keyof LcChatterAttributes]?: LcChatter[K] } & { [K in keyof LcChatter & keyof LcChatterAttributes as `attr:${K}`]?: LcChatterAttributes[K] } & { [K in keyof LcChatter & keyof LcChatterAttributes as `prop:${K}`]?: LcChatter[K] };
-        "bc-child-table": Omit<LcChildTable, keyof LcChildTableAttributes> & { [K in keyof LcChildTable & keyof LcChildTableAttributes]?: LcChildTable[K] } & { [K in keyof LcChildTable & keyof LcChildTableAttributes as `attr:${K}`]?: LcChildTableAttributes[K] } & { [K in keyof LcChildTable & keyof LcChildTableAttributes as `prop:${K}`]?: LcChildTable[K] };
-        "bc-column": Omit<LcColumn, keyof LcColumnAttributes> & { [K in keyof LcColumn & keyof LcColumnAttributes]?: LcColumn[K] } & { [K in keyof LcColumn & keyof LcColumnAttributes as `attr:${K}`]?: LcColumnAttributes[K] } & { [K in keyof LcColumn & keyof LcColumnAttributes as `prop:${K}`]?: LcColumn[K] };
-        "bc-datatable": Omit<LcDatatable, keyof LcDatatableAttributes> & { [K in keyof LcDatatable & keyof LcDatatableAttributes]?: LcDatatable[K] } & { [K in keyof LcDatatable & keyof LcDatatableAttributes as `attr:${K}`]?: LcDatatableAttributes[K] } & { [K in keyof LcDatatable & keyof LcDatatableAttributes as `prop:${K}`]?: LcDatatable[K] };
-        "bc-dialog-confirm": Omit<LcDialogConfirm, keyof LcDialogConfirmAttributes> & { [K in keyof LcDialogConfirm & keyof LcDialogConfirmAttributes]?: LcDialogConfirm[K] } & { [K in keyof LcDialogConfirm & keyof LcDialogConfirmAttributes as `attr:${K}`]?: LcDialogConfirmAttributes[K] } & { [K in keyof LcDialogConfirm & keyof LcDialogConfirmAttributes as `prop:${K}`]?: LcDialogConfirm[K] };
-        "bc-dialog-modal": Omit<LcDialogModal, keyof LcDialogModalAttributes> & { [K in keyof LcDialogModal & keyof LcDialogModalAttributes]?: LcDialogModal[K] } & { [K in keyof LcDialogModal & keyof LcDialogModalAttributes as `attr:${K}`]?: LcDialogModalAttributes[K] } & { [K in keyof LcDialogModal & keyof LcDialogModalAttributes as `prop:${K}`]?: LcDialogModal[K] };
-        "bc-dialog-quickentry": Omit<LcDialogQuickentry, keyof LcDialogQuickentryAttributes> & { [K in keyof LcDialogQuickentry & keyof LcDialogQuickentryAttributes]?: LcDialogQuickentry[K] } & { [K in keyof LcDialogQuickentry & keyof LcDialogQuickentryAttributes as `attr:${K}`]?: LcDialogQuickentryAttributes[K] } & { [K in keyof LcDialogQuickentry & keyof LcDialogQuickentryAttributes as `prop:${K}`]?: LcDialogQuickentry[K] };
-        "bc-dialog-wizard": Omit<LcDialogWizard, keyof LcDialogWizardAttributes> & { [K in keyof LcDialogWizard & keyof LcDialogWizardAttributes]?: LcDialogWizard[K] } & { [K in keyof LcDialogWizard & keyof LcDialogWizardAttributes as `attr:${K}`]?: LcDialogWizardAttributes[K] } & { [K in keyof LcDialogWizard & keyof LcDialogWizardAttributes as `prop:${K}`]?: LcDialogWizard[K] };
-        "bc-export": Omit<LcExport, keyof LcExportAttributes> & { [K in keyof LcExport & keyof LcExportAttributes]?: LcExport[K] } & { [K in keyof LcExport & keyof LcExportAttributes as `attr:${K}`]?: LcExportAttributes[K] } & { [K in keyof LcExport & keyof LcExportAttributes as `prop:${K}`]?: LcExport[K] };
-        "bc-favorites": Omit<LcFavorites, keyof LcFavoritesAttributes> & { [K in keyof LcFavorites & keyof LcFavoritesAttributes]?: LcFavorites[K] } & { [K in keyof LcFavorites & keyof LcFavoritesAttributes as `attr:${K}`]?: LcFavoritesAttributes[K] } & { [K in keyof LcFavorites & keyof LcFavoritesAttributes as `prop:${K}`]?: LcFavorites[K] };
-        "bc-field-barcode": Omit<LcFieldBarcode, keyof LcFieldBarcodeAttributes> & { [K in keyof LcFieldBarcode & keyof LcFieldBarcodeAttributes]?: LcFieldBarcode[K] } & { [K in keyof LcFieldBarcode & keyof LcFieldBarcodeAttributes as `attr:${K}`]?: LcFieldBarcodeAttributes[K] } & { [K in keyof LcFieldBarcode & keyof LcFieldBarcodeAttributes as `prop:${K}`]?: LcFieldBarcode[K] };
-        "bc-field-checkbox": Omit<LcFieldCheckbox, keyof LcFieldCheckboxAttributes> & { [K in keyof LcFieldCheckbox & keyof LcFieldCheckboxAttributes]?: LcFieldCheckbox[K] } & { [K in keyof LcFieldCheckbox & keyof LcFieldCheckboxAttributes as `attr:${K}`]?: LcFieldCheckboxAttributes[K] } & { [K in keyof LcFieldCheckbox & keyof LcFieldCheckboxAttributes as `prop:${K}`]?: LcFieldCheckbox[K] };
-        "bc-field-code": Omit<LcFieldCode, keyof LcFieldCodeAttributes> & { [K in keyof LcFieldCode & keyof LcFieldCodeAttributes]?: LcFieldCode[K] } & { [K in keyof LcFieldCode & keyof LcFieldCodeAttributes as `attr:${K}`]?: LcFieldCodeAttributes[K] } & { [K in keyof LcFieldCode & keyof LcFieldCodeAttributes as `prop:${K}`]?: LcFieldCode[K] };
-        "bc-field-color": Omit<LcFieldColor, keyof LcFieldColorAttributes> & { [K in keyof LcFieldColor & keyof LcFieldColorAttributes]?: LcFieldColor[K] } & { [K in keyof LcFieldColor & keyof LcFieldColorAttributes as `attr:${K}`]?: LcFieldColorAttributes[K] } & { [K in keyof LcFieldColor & keyof LcFieldColorAttributes as `prop:${K}`]?: LcFieldColor[K] };
-        "bc-field-currency": Omit<LcFieldCurrency, keyof LcFieldCurrencyAttributes> & { [K in keyof LcFieldCurrency & keyof LcFieldCurrencyAttributes]?: LcFieldCurrency[K] } & { [K in keyof LcFieldCurrency & keyof LcFieldCurrencyAttributes as `attr:${K}`]?: LcFieldCurrencyAttributes[K] } & { [K in keyof LcFieldCurrency & keyof LcFieldCurrencyAttributes as `prop:${K}`]?: LcFieldCurrency[K] };
-        "bc-field-date": Omit<LcFieldDate, keyof LcFieldDateAttributes> & { [K in keyof LcFieldDate & keyof LcFieldDateAttributes]?: LcFieldDate[K] } & { [K in keyof LcFieldDate & keyof LcFieldDateAttributes as `attr:${K}`]?: LcFieldDateAttributes[K] } & { [K in keyof LcFieldDate & keyof LcFieldDateAttributes as `prop:${K}`]?: LcFieldDate[K] };
-        "bc-field-datetime": Omit<LcFieldDatetime, keyof LcFieldDatetimeAttributes> & { [K in keyof LcFieldDatetime & keyof LcFieldDatetimeAttributes]?: LcFieldDatetime[K] } & { [K in keyof LcFieldDatetime & keyof LcFieldDatetimeAttributes as `attr:${K}`]?: LcFieldDatetimeAttributes[K] } & { [K in keyof LcFieldDatetime & keyof LcFieldDatetimeAttributes as `prop:${K}`]?: LcFieldDatetime[K] };
-        "bc-field-decimal": Omit<LcFieldDecimal, keyof LcFieldDecimalAttributes> & { [K in keyof LcFieldDecimal & keyof LcFieldDecimalAttributes]?: LcFieldDecimal[K] } & { [K in keyof LcFieldDecimal & keyof LcFieldDecimalAttributes as `attr:${K}`]?: LcFieldDecimalAttributes[K] } & { [K in keyof LcFieldDecimal & keyof LcFieldDecimalAttributes as `prop:${K}`]?: LcFieldDecimal[K] };
-        "bc-field-duration": Omit<LcFieldDuration, keyof LcFieldDurationAttributes> & { [K in keyof LcFieldDuration & keyof LcFieldDurationAttributes]?: LcFieldDuration[K] } & { [K in keyof LcFieldDuration & keyof LcFieldDurationAttributes as `attr:${K}`]?: LcFieldDurationAttributes[K] } & { [K in keyof LcFieldDuration & keyof LcFieldDurationAttributes as `prop:${K}`]?: LcFieldDuration[K] };
-        "bc-field-dynlink": Omit<LcFieldDynlink, keyof LcFieldDynlinkAttributes> & { [K in keyof LcFieldDynlink & keyof LcFieldDynlinkAttributes]?: LcFieldDynlink[K] } & { [K in keyof LcFieldDynlink & keyof LcFieldDynlinkAttributes as `attr:${K}`]?: LcFieldDynlinkAttributes[K] } & { [K in keyof LcFieldDynlink & keyof LcFieldDynlinkAttributes as `prop:${K}`]?: LcFieldDynlink[K] };
-        "bc-field-file": Omit<LcFieldFile, keyof LcFieldFileAttributes> & { [K in keyof LcFieldFile & keyof LcFieldFileAttributes]?: LcFieldFile[K] } & { [K in keyof LcFieldFile & keyof LcFieldFileAttributes as `attr:${K}`]?: LcFieldFileAttributes[K] } & { [K in keyof LcFieldFile & keyof LcFieldFileAttributes as `prop:${K}`]?: LcFieldFile[K] };
-        "bc-field-float": Omit<LcFieldFloat, keyof LcFieldFloatAttributes> & { [K in keyof LcFieldFloat & keyof LcFieldFloatAttributes]?: LcFieldFloat[K] } & { [K in keyof LcFieldFloat & keyof LcFieldFloatAttributes as `attr:${K}`]?: LcFieldFloatAttributes[K] } & { [K in keyof LcFieldFloat & keyof LcFieldFloatAttributes as `prop:${K}`]?: LcFieldFloat[K] };
-        "bc-field-geo": Omit<LcFieldGeo, keyof LcFieldGeoAttributes> & { [K in keyof LcFieldGeo & keyof LcFieldGeoAttributes]?: LcFieldGeo[K] } & { [K in keyof LcFieldGeo & keyof LcFieldGeoAttributes as `attr:${K}`]?: LcFieldGeoAttributes[K] } & { [K in keyof LcFieldGeo & keyof LcFieldGeoAttributes as `prop:${K}`]?: LcFieldGeo[K] };
-        "bc-field-html": Omit<LcFieldHtml, keyof LcFieldHtmlAttributes> & { [K in keyof LcFieldHtml & keyof LcFieldHtmlAttributes]?: LcFieldHtml[K] } & { [K in keyof LcFieldHtml & keyof LcFieldHtmlAttributes as `attr:${K}`]?: LcFieldHtmlAttributes[K] } & { [K in keyof LcFieldHtml & keyof LcFieldHtmlAttributes as `prop:${K}`]?: LcFieldHtml[K] };
-        "bc-field-image": Omit<LcFieldImage, keyof LcFieldImageAttributes> & { [K in keyof LcFieldImage & keyof LcFieldImageAttributes]?: LcFieldImage[K] } & { [K in keyof LcFieldImage & keyof LcFieldImageAttributes as `attr:${K}`]?: LcFieldImageAttributes[K] } & { [K in keyof LcFieldImage & keyof LcFieldImageAttributes as `prop:${K}`]?: LcFieldImage[K] };
-        "bc-field-integer": Omit<LcFieldInteger, keyof LcFieldIntegerAttributes> & { [K in keyof LcFieldInteger & keyof LcFieldIntegerAttributes]?: LcFieldInteger[K] } & { [K in keyof LcFieldInteger & keyof LcFieldIntegerAttributes as `attr:${K}`]?: LcFieldIntegerAttributes[K] } & { [K in keyof LcFieldInteger & keyof LcFieldIntegerAttributes as `prop:${K}`]?: LcFieldInteger[K] };
-        "bc-field-json": Omit<LcFieldJson, keyof LcFieldJsonAttributes> & { [K in keyof LcFieldJson & keyof LcFieldJsonAttributes]?: LcFieldJson[K] } & { [K in keyof LcFieldJson & keyof LcFieldJsonAttributes as `attr:${K}`]?: LcFieldJsonAttributes[K] } & { [K in keyof LcFieldJson & keyof LcFieldJsonAttributes as `prop:${K}`]?: LcFieldJson[K] };
-        "bc-field-link": Omit<LcFieldLink, keyof LcFieldLinkAttributes> & { [K in keyof LcFieldLink & keyof LcFieldLinkAttributes]?: LcFieldLink[K] } & { [K in keyof LcFieldLink & keyof LcFieldLinkAttributes as `attr:${K}`]?: LcFieldLinkAttributes[K] } & { [K in keyof LcFieldLink & keyof LcFieldLinkAttributes as `prop:${K}`]?: LcFieldLink[K] };
-        "bc-field-markdown": Omit<LcFieldMarkdown, keyof LcFieldMarkdownAttributes> & { [K in keyof LcFieldMarkdown & keyof LcFieldMarkdownAttributes]?: LcFieldMarkdown[K] } & { [K in keyof LcFieldMarkdown & keyof LcFieldMarkdownAttributes as `attr:${K}`]?: LcFieldMarkdownAttributes[K] } & { [K in keyof LcFieldMarkdown & keyof LcFieldMarkdownAttributes as `prop:${K}`]?: LcFieldMarkdown[K] };
-        "bc-field-multicheck": Omit<LcFieldMulticheck, keyof LcFieldMulticheckAttributes> & { [K in keyof LcFieldMulticheck & keyof LcFieldMulticheckAttributes]?: LcFieldMulticheck[K] } & { [K in keyof LcFieldMulticheck & keyof LcFieldMulticheckAttributes as `attr:${K}`]?: LcFieldMulticheckAttributes[K] } & { [K in keyof LcFieldMulticheck & keyof LcFieldMulticheckAttributes as `prop:${K}`]?: LcFieldMulticheck[K] };
-        "bc-field-password": Omit<LcFieldPassword, keyof LcFieldPasswordAttributes> & { [K in keyof LcFieldPassword & keyof LcFieldPasswordAttributes]?: LcFieldPassword[K] } & { [K in keyof LcFieldPassword & keyof LcFieldPasswordAttributes as `attr:${K}`]?: LcFieldPasswordAttributes[K] } & { [K in keyof LcFieldPassword & keyof LcFieldPasswordAttributes as `prop:${K}`]?: LcFieldPassword[K] };
-        "bc-field-percent": Omit<LcFieldPercent, keyof LcFieldPercentAttributes> & { [K in keyof LcFieldPercent & keyof LcFieldPercentAttributes]?: LcFieldPercent[K] } & { [K in keyof LcFieldPercent & keyof LcFieldPercentAttributes as `attr:${K}`]?: LcFieldPercentAttributes[K] } & { [K in keyof LcFieldPercent & keyof LcFieldPercentAttributes as `prop:${K}`]?: LcFieldPercent[K] };
-        "bc-field-radio": Omit<LcFieldRadio, keyof LcFieldRadioAttributes> & { [K in keyof LcFieldRadio & keyof LcFieldRadioAttributes]?: LcFieldRadio[K] } & { [K in keyof LcFieldRadio & keyof LcFieldRadioAttributes as `attr:${K}`]?: LcFieldRadioAttributes[K] } & { [K in keyof LcFieldRadio & keyof LcFieldRadioAttributes as `prop:${K}`]?: LcFieldRadio[K] };
-        "bc-field-rating": Omit<LcFieldRating, keyof LcFieldRatingAttributes> & { [K in keyof LcFieldRating & keyof LcFieldRatingAttributes]?: LcFieldRating[K] } & { [K in keyof LcFieldRating & keyof LcFieldRatingAttributes as `attr:${K}`]?: LcFieldRatingAttributes[K] } & { [K in keyof LcFieldRating & keyof LcFieldRatingAttributes as `prop:${K}`]?: LcFieldRating[K] };
-        "bc-field-richtext": Omit<LcFieldRichtext, keyof LcFieldRichtextAttributes> & { [K in keyof LcFieldRichtext & keyof LcFieldRichtextAttributes]?: LcFieldRichtext[K] } & { [K in keyof LcFieldRichtext & keyof LcFieldRichtextAttributes as `attr:${K}`]?: LcFieldRichtextAttributes[K] } & { [K in keyof LcFieldRichtext & keyof LcFieldRichtextAttributes as `prop:${K}`]?: LcFieldRichtext[K] };
-        "bc-field-select": Omit<LcFieldSelect, keyof LcFieldSelectAttributes> & { [K in keyof LcFieldSelect & keyof LcFieldSelectAttributes]?: LcFieldSelect[K] } & { [K in keyof LcFieldSelect & keyof LcFieldSelectAttributes as `attr:${K}`]?: LcFieldSelectAttributes[K] } & { [K in keyof LcFieldSelect & keyof LcFieldSelectAttributes as `prop:${K}`]?: LcFieldSelect[K] };
-        "bc-field-signature": Omit<LcFieldSignature, keyof LcFieldSignatureAttributes> & { [K in keyof LcFieldSignature & keyof LcFieldSignatureAttributes]?: LcFieldSignature[K] } & { [K in keyof LcFieldSignature & keyof LcFieldSignatureAttributes as `attr:${K}`]?: LcFieldSignatureAttributes[K] } & { [K in keyof LcFieldSignature & keyof LcFieldSignatureAttributes as `prop:${K}`]?: LcFieldSignature[K] };
-        "bc-field-smalltext": Omit<LcFieldSmalltext, keyof LcFieldSmalltextAttributes> & { [K in keyof LcFieldSmalltext & keyof LcFieldSmalltextAttributes]?: LcFieldSmalltext[K] } & { [K in keyof LcFieldSmalltext & keyof LcFieldSmalltextAttributes as `attr:${K}`]?: LcFieldSmalltextAttributes[K] } & { [K in keyof LcFieldSmalltext & keyof LcFieldSmalltextAttributes as `prop:${K}`]?: LcFieldSmalltext[K] };
-        "bc-field-string": Omit<LcFieldString, keyof LcFieldStringAttributes> & { [K in keyof LcFieldString & keyof LcFieldStringAttributes]?: LcFieldString[K] } & { [K in keyof LcFieldString & keyof LcFieldStringAttributes as `attr:${K}`]?: LcFieldStringAttributes[K] } & { [K in keyof LcFieldString & keyof LcFieldStringAttributes as `prop:${K}`]?: LcFieldString[K] };
-        "bc-field-tableselect": Omit<LcFieldTableselect, keyof LcFieldTableselectAttributes> & { [K in keyof LcFieldTableselect & keyof LcFieldTableselectAttributes]?: LcFieldTableselect[K] } & { [K in keyof LcFieldTableselect & keyof LcFieldTableselectAttributes as `attr:${K}`]?: LcFieldTableselectAttributes[K] } & { [K in keyof LcFieldTableselect & keyof LcFieldTableselectAttributes as `prop:${K}`]?: LcFieldTableselect[K] };
-        "bc-field-tags": Omit<LcFieldTags, keyof LcFieldTagsAttributes> & { [K in keyof LcFieldTags & keyof LcFieldTagsAttributes]?: LcFieldTags[K] } & { [K in keyof LcFieldTags & keyof LcFieldTagsAttributes as `attr:${K}`]?: LcFieldTagsAttributes[K] } & { [K in keyof LcFieldTags & keyof LcFieldTagsAttributes as `prop:${K}`]?: LcFieldTags[K] };
-        "bc-field-text": Omit<LcFieldText, keyof LcFieldTextAttributes> & { [K in keyof LcFieldText & keyof LcFieldTextAttributes]?: LcFieldText[K] } & { [K in keyof LcFieldText & keyof LcFieldTextAttributes as `attr:${K}`]?: LcFieldTextAttributes[K] } & { [K in keyof LcFieldText & keyof LcFieldTextAttributes as `prop:${K}`]?: LcFieldText[K] };
-        "bc-field-time": Omit<LcFieldTime, keyof LcFieldTimeAttributes> & { [K in keyof LcFieldTime & keyof LcFieldTimeAttributes]?: LcFieldTime[K] } & { [K in keyof LcFieldTime & keyof LcFieldTimeAttributes as `attr:${K}`]?: LcFieldTimeAttributes[K] } & { [K in keyof LcFieldTime & keyof LcFieldTimeAttributes as `prop:${K}`]?: LcFieldTime[K] };
-        "bc-field-toggle": Omit<LcFieldToggle, keyof LcFieldToggleAttributes> & { [K in keyof LcFieldToggle & keyof LcFieldToggleAttributes]?: LcFieldToggle[K] } & { [K in keyof LcFieldToggle & keyof LcFieldToggleAttributes as `attr:${K}`]?: LcFieldToggleAttributes[K] } & { [K in keyof LcFieldToggle & keyof LcFieldToggleAttributes as `prop:${K}`]?: LcFieldToggle[K] };
-        "bc-filter-bar": Omit<LcFilterBar, keyof LcFilterBarAttributes> & { [K in keyof LcFilterBar & keyof LcFilterBarAttributes]?: LcFilterBar[K] } & { [K in keyof LcFilterBar & keyof LcFilterBarAttributes as `attr:${K}`]?: LcFilterBarAttributes[K] } & { [K in keyof LcFilterBar & keyof LcFilterBarAttributes as `prop:${K}`]?: LcFilterBar[K] };
-        "bc-filter-builder": Omit<LcFilterBuilder, keyof LcFilterBuilderAttributes> & { [K in keyof LcFilterBuilder & keyof LcFilterBuilderAttributes]?: LcFilterBuilder[K] } & { [K in keyof LcFilterBuilder & keyof LcFilterBuilderAttributes as `attr:${K}`]?: LcFilterBuilderAttributes[K] } & { [K in keyof LcFilterBuilder & keyof LcFilterBuilderAttributes as `prop:${K}`]?: LcFilterBuilder[K] };
-        "bc-filter-panel": Omit<LcFilterPanel, keyof LcFilterPanelAttributes> & { [K in keyof LcFilterPanel & keyof LcFilterPanelAttributes]?: LcFilterPanel[K] } & { [K in keyof LcFilterPanel & keyof LcFilterPanelAttributes as `attr:${K}`]?: LcFilterPanelAttributes[K] } & { [K in keyof LcFilterPanel & keyof LcFilterPanelAttributes as `prop:${K}`]?: LcFilterPanel[K] };
-        "bc-header": Omit<LcHeader, keyof LcHeaderAttributes> & { [K in keyof LcHeader & keyof LcHeaderAttributes]?: LcHeader[K] } & { [K in keyof LcHeader & keyof LcHeaderAttributes as `attr:${K}`]?: LcHeaderAttributes[K] } & { [K in keyof LcHeader & keyof LcHeaderAttributes as `prop:${K}`]?: LcHeader[K] };
-        "bc-html-block": Omit<LcHtmlBlock, keyof LcHtmlBlockAttributes> & { [K in keyof LcHtmlBlock & keyof LcHtmlBlockAttributes]?: LcHtmlBlock[K] } & { [K in keyof LcHtmlBlock & keyof LcHtmlBlockAttributes as `attr:${K}`]?: LcHtmlBlockAttributes[K] } & { [K in keyof LcHtmlBlock & keyof LcHtmlBlockAttributes as `prop:${K}`]?: LcHtmlBlock[K] };
-        "bc-lookup-modal": Omit<LcLookupModal, keyof LcLookupModalAttributes> & { [K in keyof LcLookupModal & keyof LcLookupModalAttributes]?: LcLookupModal[K] } & { [K in keyof LcLookupModal & keyof LcLookupModalAttributes as `attr:${K}`]?: LcLookupModalAttributes[K] } & { [K in keyof LcLookupModal & keyof LcLookupModalAttributes as `prop:${K}`]?: LcLookupModal[K] };
-        "bc-placeholder": Omit<LcPlaceholder, keyof LcPlaceholderAttributes> & { [K in keyof LcPlaceholder & keyof LcPlaceholderAttributes]?: LcPlaceholder[K] } & { [K in keyof LcPlaceholder & keyof LcPlaceholderAttributes as `attr:${K}`]?: LcPlaceholderAttributes[K] } & { [K in keyof LcPlaceholder & keyof LcPlaceholderAttributes as `prop:${K}`]?: LcPlaceholder[K] };
-        "bc-print": Omit<LcPrint, keyof LcPrintAttributes> & { [K in keyof LcPrint & keyof LcPrintAttributes]?: LcPrint[K] } & { [K in keyof LcPrint & keyof LcPrintAttributes as `attr:${K}`]?: LcPrintAttributes[K] } & { [K in keyof LcPrint & keyof LcPrintAttributes as `prop:${K}`]?: LcPrint[K] };
-        "bc-report-link": Omit<LcReportLink, keyof LcReportLinkAttributes> & { [K in keyof LcReportLink & keyof LcReportLinkAttributes]?: LcReportLink[K] } & { [K in keyof LcReportLink & keyof LcReportLinkAttributes as `attr:${K}`]?: LcReportLinkAttributes[K] } & { [K in keyof LcReportLink & keyof LcReportLinkAttributes as `prop:${K}`]?: LcReportLink[K] };
-        "bc-row": Omit<LcRow, keyof LcRowAttributes> & { [K in keyof LcRow & keyof LcRowAttributes]?: LcRow[K] } & { [K in keyof LcRow & keyof LcRowAttributes as `attr:${K}`]?: LcRowAttributes[K] } & { [K in keyof LcRow & keyof LcRowAttributes as `prop:${K}`]?: LcRow[K] };
-        "bc-search": Omit<LcSearch, keyof LcSearchAttributes> & { [K in keyof LcSearch & keyof LcSearchAttributes]?: LcSearch[K] } & { [K in keyof LcSearch & keyof LcSearchAttributes as `attr:${K}`]?: LcSearchAttributes[K] } & { [K in keyof LcSearch & keyof LcSearchAttributes as `prop:${K}`]?: LcSearch[K] };
-        "bc-section": Omit<LcSection, keyof LcSectionAttributes> & { [K in keyof LcSection & keyof LcSectionAttributes]?: LcSection[K] } & { [K in keyof LcSection & keyof LcSectionAttributes as `attr:${K}`]?: LcSectionAttributes[K] } & { [K in keyof LcSection & keyof LcSectionAttributes as `prop:${K}`]?: LcSection[K] };
-        "bc-separator": Omit<LcSeparator, keyof LcSeparatorAttributes> & { [K in keyof LcSeparator & keyof LcSeparatorAttributes]?: LcSeparator[K] } & { [K in keyof LcSeparator & keyof LcSeparatorAttributes as `attr:${K}`]?: LcSeparatorAttributes[K] } & { [K in keyof LcSeparator & keyof LcSeparatorAttributes as `prop:${K}`]?: LcSeparator[K] };
-        "bc-sheet": LcSheet;
-        "bc-tab": Omit<LcTab, keyof LcTabAttributes> & { [K in keyof LcTab & keyof LcTabAttributes]?: LcTab[K] } & { [K in keyof LcTab & keyof LcTabAttributes as `attr:${K}`]?: LcTabAttributes[K] } & { [K in keyof LcTab & keyof LcTabAttributes as `prop:${K}`]?: LcTab[K] };
-        "bc-tabs": LcTabs;
-        "bc-timeline": Omit<LcTimeline, keyof LcTimelineAttributes> & { [K in keyof LcTimeline & keyof LcTimelineAttributes]?: LcTimeline[K] } & { [K in keyof LcTimeline & keyof LcTimelineAttributes as `attr:${K}`]?: LcTimelineAttributes[K] } & { [K in keyof LcTimeline & keyof LcTimelineAttributes as `prop:${K}`]?: LcTimeline[K] };
-        "bc-toast": Omit<LcToast, keyof LcToastAttributes> & { [K in keyof LcToast & keyof LcToastAttributes]?: LcToast[K] } & { [K in keyof LcToast & keyof LcToastAttributes as `attr:${K}`]?: LcToastAttributes[K] } & { [K in keyof LcToast & keyof LcToastAttributes as `prop:${K}`]?: LcToast[K] };
-        "bc-view-activity": Omit<LcViewActivity, keyof LcViewActivityAttributes> & { [K in keyof LcViewActivity & keyof LcViewActivityAttributes]?: LcViewActivity[K] } & { [K in keyof LcViewActivity & keyof LcViewActivityAttributes as `attr:${K}`]?: LcViewActivityAttributes[K] } & { [K in keyof LcViewActivity & keyof LcViewActivityAttributes as `prop:${K}`]?: LcViewActivity[K] };
-        "bc-view-calendar": Omit<LcViewCalendar, keyof LcViewCalendarAttributes> & { [K in keyof LcViewCalendar & keyof LcViewCalendarAttributes]?: LcViewCalendar[K] } & { [K in keyof LcViewCalendar & keyof LcViewCalendarAttributes as `attr:${K}`]?: LcViewCalendarAttributes[K] } & { [K in keyof LcViewCalendar & keyof LcViewCalendarAttributes as `prop:${K}`]?: LcViewCalendar[K] };
-        "bc-view-form": Omit<LcViewForm, keyof LcViewFormAttributes> & { [K in keyof LcViewForm & keyof LcViewFormAttributes]?: LcViewForm[K] } & { [K in keyof LcViewForm & keyof LcViewFormAttributes as `attr:${K}`]?: LcViewFormAttributes[K] } & { [K in keyof LcViewForm & keyof LcViewFormAttributes as `prop:${K}`]?: LcViewForm[K] };
-        "bc-view-gantt": Omit<LcViewGantt, keyof LcViewGanttAttributes> & { [K in keyof LcViewGantt & keyof LcViewGanttAttributes]?: LcViewGantt[K] } & { [K in keyof LcViewGantt & keyof LcViewGanttAttributes as `attr:${K}`]?: LcViewGanttAttributes[K] } & { [K in keyof LcViewGantt & keyof LcViewGanttAttributes as `prop:${K}`]?: LcViewGantt[K] };
-        "bc-view-kanban": Omit<LcViewKanban, keyof LcViewKanbanAttributes> & { [K in keyof LcViewKanban & keyof LcViewKanbanAttributes]?: LcViewKanban[K] } & { [K in keyof LcViewKanban & keyof LcViewKanbanAttributes as `attr:${K}`]?: LcViewKanbanAttributes[K] } & { [K in keyof LcViewKanban & keyof LcViewKanbanAttributes as `prop:${K}`]?: LcViewKanban[K] };
-        "bc-view-list": Omit<LcViewList, keyof LcViewListAttributes> & { [K in keyof LcViewList & keyof LcViewListAttributes]?: LcViewList[K] } & { [K in keyof LcViewList & keyof LcViewListAttributes as `attr:${K}`]?: LcViewListAttributes[K] } & { [K in keyof LcViewList & keyof LcViewListAttributes as `prop:${K}`]?: LcViewList[K] };
-        "bc-view-map": Omit<LcViewMap, keyof LcViewMapAttributes> & { [K in keyof LcViewMap & keyof LcViewMapAttributes]?: LcViewMap[K] } & { [K in keyof LcViewMap & keyof LcViewMapAttributes as `attr:${K}`]?: LcViewMapAttributes[K] } & { [K in keyof LcViewMap & keyof LcViewMapAttributes as `prop:${K}`]?: LcViewMap[K] };
-        "bc-view-report": Omit<LcViewReport, keyof LcViewReportAttributes> & { [K in keyof LcViewReport & keyof LcViewReportAttributes]?: LcViewReport[K] } & { [K in keyof LcViewReport & keyof LcViewReportAttributes as `attr:${K}`]?: LcViewReportAttributes[K] } & { [K in keyof LcViewReport & keyof LcViewReportAttributes as `prop:${K}`]?: LcViewReport[K] };
-        "bc-view-tree": Omit<LcViewTree, keyof LcViewTreeAttributes> & { [K in keyof LcViewTree & keyof LcViewTreeAttributes]?: LcViewTree[K] } & { [K in keyof LcViewTree & keyof LcViewTreeAttributes as `attr:${K}`]?: LcViewTreeAttributes[K] } & { [K in keyof LcViewTree & keyof LcViewTreeAttributes as `prop:${K}`]?: LcViewTree[K] };
-        "bc-widget-badge": Omit<LcWidgetBadge, keyof LcWidgetBadgeAttributes> & { [K in keyof LcWidgetBadge & keyof LcWidgetBadgeAttributes]?: LcWidgetBadge[K] } & { [K in keyof LcWidgetBadge & keyof LcWidgetBadgeAttributes as `attr:${K}`]?: LcWidgetBadgeAttributes[K] } & { [K in keyof LcWidgetBadge & keyof LcWidgetBadgeAttributes as `prop:${K}`]?: LcWidgetBadge[K] };
-        "bc-widget-copy": Omit<LcWidgetCopy, keyof LcWidgetCopyAttributes> & { [K in keyof LcWidgetCopy & keyof LcWidgetCopyAttributes]?: LcWidgetCopy[K] } & { [K in keyof LcWidgetCopy & keyof LcWidgetCopyAttributes as `attr:${K}`]?: LcWidgetCopyAttributes[K] } & { [K in keyof LcWidgetCopy & keyof LcWidgetCopyAttributes as `prop:${K}`]?: LcWidgetCopy[K] };
-        "bc-widget-domain": Omit<LcWidgetDomain, keyof LcWidgetDomainAttributes> & { [K in keyof LcWidgetDomain & keyof LcWidgetDomainAttributes]?: LcWidgetDomain[K] } & { [K in keyof LcWidgetDomain & keyof LcWidgetDomainAttributes as `attr:${K}`]?: LcWidgetDomainAttributes[K] } & { [K in keyof LcWidgetDomain & keyof LcWidgetDomainAttributes as `prop:${K}`]?: LcWidgetDomain[K] };
-        "bc-widget-email": Omit<LcWidgetEmail, keyof LcWidgetEmailAttributes> & { [K in keyof LcWidgetEmail & keyof LcWidgetEmailAttributes]?: LcWidgetEmail[K] } & { [K in keyof LcWidgetEmail & keyof LcWidgetEmailAttributes as `attr:${K}`]?: LcWidgetEmailAttributes[K] } & { [K in keyof LcWidgetEmail & keyof LcWidgetEmailAttributes as `prop:${K}`]?: LcWidgetEmail[K] };
-        "bc-widget-handle": LcWidgetHandle;
-        "bc-widget-phone": Omit<LcWidgetPhone, keyof LcWidgetPhoneAttributes> & { [K in keyof LcWidgetPhone & keyof LcWidgetPhoneAttributes]?: LcWidgetPhone[K] } & { [K in keyof LcWidgetPhone & keyof LcWidgetPhoneAttributes as `attr:${K}`]?: LcWidgetPhoneAttributes[K] } & { [K in keyof LcWidgetPhone & keyof LcWidgetPhoneAttributes as `prop:${K}`]?: LcWidgetPhone[K] };
-        "bc-widget-priority": Omit<LcWidgetPriority, keyof LcWidgetPriorityAttributes> & { [K in keyof LcWidgetPriority & keyof LcWidgetPriorityAttributes]?: LcWidgetPriority[K] } & { [K in keyof LcWidgetPriority & keyof LcWidgetPriorityAttributes as `attr:${K}`]?: LcWidgetPriorityAttributes[K] } & { [K in keyof LcWidgetPriority & keyof LcWidgetPriorityAttributes as `prop:${K}`]?: LcWidgetPriority[K] };
-        "bc-widget-progress": Omit<LcWidgetProgress, keyof LcWidgetProgressAttributes> & { [K in keyof LcWidgetProgress & keyof LcWidgetProgressAttributes]?: LcWidgetProgress[K] } & { [K in keyof LcWidgetProgress & keyof LcWidgetProgressAttributes as `attr:${K}`]?: LcWidgetProgressAttributes[K] } & { [K in keyof LcWidgetProgress & keyof LcWidgetProgressAttributes as `prop:${K}`]?: LcWidgetProgress[K] };
-        "bc-widget-statusbar": Omit<LcWidgetStatusbar, keyof LcWidgetStatusbarAttributes> & { [K in keyof LcWidgetStatusbar & keyof LcWidgetStatusbarAttributes]?: LcWidgetStatusbar[K] } & { [K in keyof LcWidgetStatusbar & keyof LcWidgetStatusbarAttributes as `attr:${K}`]?: LcWidgetStatusbarAttributes[K] } & { [K in keyof LcWidgetStatusbar & keyof LcWidgetStatusbarAttributes as `prop:${K}`]?: LcWidgetStatusbar[K] };
-        "bc-widget-url": Omit<LcWidgetUrl, keyof LcWidgetUrlAttributes> & { [K in keyof LcWidgetUrl & keyof LcWidgetUrlAttributes]?: LcWidgetUrl[K] } & { [K in keyof LcWidgetUrl & keyof LcWidgetUrlAttributes as `attr:${K}`]?: LcWidgetUrlAttributes[K] } & { [K in keyof LcWidgetUrl & keyof LcWidgetUrlAttributes as `prop:${K}`]?: LcWidgetUrl[K] };
+        "bc-activity": Omit<BcActivity, keyof BcActivityAttributes> & { [K in keyof BcActivity & keyof BcActivityAttributes]?: BcActivity[K] } & { [K in keyof BcActivity & keyof BcActivityAttributes as `attr:${K}`]?: BcActivityAttributes[K] } & { [K in keyof BcActivity & keyof BcActivityAttributes as `prop:${K}`]?: BcActivity[K] };
+        "bc-button-box": Omit<BcButtonBox, keyof BcButtonBoxAttributes> & { [K in keyof BcButtonBox & keyof BcButtonBoxAttributes]?: BcButtonBox[K] } & { [K in keyof BcButtonBox & keyof BcButtonBoxAttributes as `attr:${K}`]?: BcButtonBoxAttributes[K] } & { [K in keyof BcButtonBox & keyof BcButtonBoxAttributes as `prop:${K}`]?: BcButtonBox[K] };
+        "bc-chart-area": Omit<BcChartArea, keyof BcChartAreaAttributes> & { [K in keyof BcChartArea & keyof BcChartAreaAttributes]?: BcChartArea[K] } & { [K in keyof BcChartArea & keyof BcChartAreaAttributes as `attr:${K}`]?: BcChartAreaAttributes[K] } & { [K in keyof BcChartArea & keyof BcChartAreaAttributes as `prop:${K}`]?: BcChartArea[K] };
+        "bc-chart-bar": Omit<BcChartBar, keyof BcChartBarAttributes> & { [K in keyof BcChartBar & keyof BcChartBarAttributes]?: BcChartBar[K] } & { [K in keyof BcChartBar & keyof BcChartBarAttributes as `attr:${K}`]?: BcChartBarAttributes[K] } & { [K in keyof BcChartBar & keyof BcChartBarAttributes as `prop:${K}`]?: BcChartBar[K] };
+        "bc-chart-funnel": Omit<BcChartFunnel, keyof BcChartFunnelAttributes> & { [K in keyof BcChartFunnel & keyof BcChartFunnelAttributes]?: BcChartFunnel[K] } & { [K in keyof BcChartFunnel & keyof BcChartFunnelAttributes as `attr:${K}`]?: BcChartFunnelAttributes[K] } & { [K in keyof BcChartFunnel & keyof BcChartFunnelAttributes as `prop:${K}`]?: BcChartFunnel[K] };
+        "bc-chart-gauge": Omit<BcChartGauge, keyof BcChartGaugeAttributes> & { [K in keyof BcChartGauge & keyof BcChartGaugeAttributes]?: BcChartGauge[K] } & { [K in keyof BcChartGauge & keyof BcChartGaugeAttributes as `attr:${K}`]?: BcChartGaugeAttributes[K] } & { [K in keyof BcChartGauge & keyof BcChartGaugeAttributes as `prop:${K}`]?: BcChartGauge[K] };
+        "bc-chart-heatmap": Omit<BcChartHeatmap, keyof BcChartHeatmapAttributes> & { [K in keyof BcChartHeatmap & keyof BcChartHeatmapAttributes]?: BcChartHeatmap[K] } & { [K in keyof BcChartHeatmap & keyof BcChartHeatmapAttributes as `attr:${K}`]?: BcChartHeatmapAttributes[K] } & { [K in keyof BcChartHeatmap & keyof BcChartHeatmapAttributes as `prop:${K}`]?: BcChartHeatmap[K] };
+        "bc-chart-kpi": Omit<BcChartKpi, keyof BcChartKpiAttributes> & { [K in keyof BcChartKpi & keyof BcChartKpiAttributes]?: BcChartKpi[K] } & { [K in keyof BcChartKpi & keyof BcChartKpiAttributes as `attr:${K}`]?: BcChartKpiAttributes[K] } & { [K in keyof BcChartKpi & keyof BcChartKpiAttributes as `prop:${K}`]?: BcChartKpi[K] };
+        "bc-chart-line": Omit<BcChartLine, keyof BcChartLineAttributes> & { [K in keyof BcChartLine & keyof BcChartLineAttributes]?: BcChartLine[K] } & { [K in keyof BcChartLine & keyof BcChartLineAttributes as `attr:${K}`]?: BcChartLineAttributes[K] } & { [K in keyof BcChartLine & keyof BcChartLineAttributes as `prop:${K}`]?: BcChartLine[K] };
+        "bc-chart-pie": Omit<BcChartPie, keyof BcChartPieAttributes> & { [K in keyof BcChartPie & keyof BcChartPieAttributes]?: BcChartPie[K] } & { [K in keyof BcChartPie & keyof BcChartPieAttributes as `attr:${K}`]?: BcChartPieAttributes[K] } & { [K in keyof BcChartPie & keyof BcChartPieAttributes as `prop:${K}`]?: BcChartPie[K] };
+        "bc-chart-pivot": Omit<BcChartPivot, keyof BcChartPivotAttributes> & { [K in keyof BcChartPivot & keyof BcChartPivotAttributes]?: BcChartPivot[K] } & { [K in keyof BcChartPivot & keyof BcChartPivotAttributes as `attr:${K}`]?: BcChartPivotAttributes[K] } & { [K in keyof BcChartPivot & keyof BcChartPivotAttributes as `prop:${K}`]?: BcChartPivot[K] };
+        "bc-chart-progress": Omit<BcChartProgress, keyof BcChartProgressAttributes> & { [K in keyof BcChartProgress & keyof BcChartProgressAttributes]?: BcChartProgress[K] } & { [K in keyof BcChartProgress & keyof BcChartProgressAttributes as `attr:${K}`]?: BcChartProgressAttributes[K] } & { [K in keyof BcChartProgress & keyof BcChartProgressAttributes as `prop:${K}`]?: BcChartProgress[K] };
+        "bc-chart-scorecard": Omit<BcChartScorecard, keyof BcChartScorecardAttributes> & { [K in keyof BcChartScorecard & keyof BcChartScorecardAttributes]?: BcChartScorecard[K] } & { [K in keyof BcChartScorecard & keyof BcChartScorecardAttributes as `attr:${K}`]?: BcChartScorecardAttributes[K] } & { [K in keyof BcChartScorecard & keyof BcChartScorecardAttributes as `prop:${K}`]?: BcChartScorecard[K] };
+        "bc-chatter": Omit<BcChatter, keyof BcChatterAttributes> & { [K in keyof BcChatter & keyof BcChatterAttributes]?: BcChatter[K] } & { [K in keyof BcChatter & keyof BcChatterAttributes as `attr:${K}`]?: BcChatterAttributes[K] } & { [K in keyof BcChatter & keyof BcChatterAttributes as `prop:${K}`]?: BcChatter[K] };
+        "bc-child-table": Omit<BcChildTable, keyof BcChildTableAttributes> & { [K in keyof BcChildTable & keyof BcChildTableAttributes]?: BcChildTable[K] } & { [K in keyof BcChildTable & keyof BcChildTableAttributes as `attr:${K}`]?: BcChildTableAttributes[K] } & { [K in keyof BcChildTable & keyof BcChildTableAttributes as `prop:${K}`]?: BcChildTable[K] };
+        "bc-column": Omit<BcColumn, keyof BcColumnAttributes> & { [K in keyof BcColumn & keyof BcColumnAttributes]?: BcColumn[K] } & { [K in keyof BcColumn & keyof BcColumnAttributes as `attr:${K}`]?: BcColumnAttributes[K] } & { [K in keyof BcColumn & keyof BcColumnAttributes as `prop:${K}`]?: BcColumn[K] };
+        "bc-datatable": Omit<BcDatatable, keyof BcDatatableAttributes> & { [K in keyof BcDatatable & keyof BcDatatableAttributes]?: BcDatatable[K] } & { [K in keyof BcDatatable & keyof BcDatatableAttributes as `attr:${K}`]?: BcDatatableAttributes[K] } & { [K in keyof BcDatatable & keyof BcDatatableAttributes as `prop:${K}`]?: BcDatatable[K] };
+        "bc-dialog-confirm": Omit<BcDialogConfirm, keyof BcDialogConfirmAttributes> & { [K in keyof BcDialogConfirm & keyof BcDialogConfirmAttributes]?: BcDialogConfirm[K] } & { [K in keyof BcDialogConfirm & keyof BcDialogConfirmAttributes as `attr:${K}`]?: BcDialogConfirmAttributes[K] } & { [K in keyof BcDialogConfirm & keyof BcDialogConfirmAttributes as `prop:${K}`]?: BcDialogConfirm[K] };
+        "bc-dialog-modal": Omit<BcDialogModal, keyof BcDialogModalAttributes> & { [K in keyof BcDialogModal & keyof BcDialogModalAttributes]?: BcDialogModal[K] } & { [K in keyof BcDialogModal & keyof BcDialogModalAttributes as `attr:${K}`]?: BcDialogModalAttributes[K] } & { [K in keyof BcDialogModal & keyof BcDialogModalAttributes as `prop:${K}`]?: BcDialogModal[K] };
+        "bc-dialog-quickentry": Omit<BcDialogQuickentry, keyof BcDialogQuickentryAttributes> & { [K in keyof BcDialogQuickentry & keyof BcDialogQuickentryAttributes]?: BcDialogQuickentry[K] } & { [K in keyof BcDialogQuickentry & keyof BcDialogQuickentryAttributes as `attr:${K}`]?: BcDialogQuickentryAttributes[K] } & { [K in keyof BcDialogQuickentry & keyof BcDialogQuickentryAttributes as `prop:${K}`]?: BcDialogQuickentry[K] };
+        "bc-dialog-wizard": Omit<BcDialogWizard, keyof BcDialogWizardAttributes> & { [K in keyof BcDialogWizard & keyof BcDialogWizardAttributes]?: BcDialogWizard[K] } & { [K in keyof BcDialogWizard & keyof BcDialogWizardAttributes as `attr:${K}`]?: BcDialogWizardAttributes[K] } & { [K in keyof BcDialogWizard & keyof BcDialogWizardAttributes as `prop:${K}`]?: BcDialogWizard[K] };
+        "bc-export": Omit<BcExport, keyof BcExportAttributes> & { [K in keyof BcExport & keyof BcExportAttributes]?: BcExport[K] } & { [K in keyof BcExport & keyof BcExportAttributes as `attr:${K}`]?: BcExportAttributes[K] } & { [K in keyof BcExport & keyof BcExportAttributes as `prop:${K}`]?: BcExport[K] };
+        "bc-favorites": Omit<BcFavorites, keyof BcFavoritesAttributes> & { [K in keyof BcFavorites & keyof BcFavoritesAttributes]?: BcFavorites[K] } & { [K in keyof BcFavorites & keyof BcFavoritesAttributes as `attr:${K}`]?: BcFavoritesAttributes[K] } & { [K in keyof BcFavorites & keyof BcFavoritesAttributes as `prop:${K}`]?: BcFavorites[K] };
+        "bc-field-barcode": Omit<BcFieldBarcode, keyof BcFieldBarcodeAttributes> & { [K in keyof BcFieldBarcode & keyof BcFieldBarcodeAttributes]?: BcFieldBarcode[K] } & { [K in keyof BcFieldBarcode & keyof BcFieldBarcodeAttributes as `attr:${K}`]?: BcFieldBarcodeAttributes[K] } & { [K in keyof BcFieldBarcode & keyof BcFieldBarcodeAttributes as `prop:${K}`]?: BcFieldBarcode[K] };
+        "bc-field-checkbox": Omit<BcFieldCheckbox, keyof BcFieldCheckboxAttributes> & { [K in keyof BcFieldCheckbox & keyof BcFieldCheckboxAttributes]?: BcFieldCheckbox[K] } & { [K in keyof BcFieldCheckbox & keyof BcFieldCheckboxAttributes as `attr:${K}`]?: BcFieldCheckboxAttributes[K] } & { [K in keyof BcFieldCheckbox & keyof BcFieldCheckboxAttributes as `prop:${K}`]?: BcFieldCheckbox[K] };
+        "bc-field-code": Omit<BcFieldCode, keyof BcFieldCodeAttributes> & { [K in keyof BcFieldCode & keyof BcFieldCodeAttributes]?: BcFieldCode[K] } & { [K in keyof BcFieldCode & keyof BcFieldCodeAttributes as `attr:${K}`]?: BcFieldCodeAttributes[K] } & { [K in keyof BcFieldCode & keyof BcFieldCodeAttributes as `prop:${K}`]?: BcFieldCode[K] };
+        "bc-field-color": Omit<BcFieldColor, keyof BcFieldColorAttributes> & { [K in keyof BcFieldColor & keyof BcFieldColorAttributes]?: BcFieldColor[K] } & { [K in keyof BcFieldColor & keyof BcFieldColorAttributes as `attr:${K}`]?: BcFieldColorAttributes[K] } & { [K in keyof BcFieldColor & keyof BcFieldColorAttributes as `prop:${K}`]?: BcFieldColor[K] };
+        "bc-field-currency": Omit<BcFieldCurrency, keyof BcFieldCurrencyAttributes> & { [K in keyof BcFieldCurrency & keyof BcFieldCurrencyAttributes]?: BcFieldCurrency[K] } & { [K in keyof BcFieldCurrency & keyof BcFieldCurrencyAttributes as `attr:${K}`]?: BcFieldCurrencyAttributes[K] } & { [K in keyof BcFieldCurrency & keyof BcFieldCurrencyAttributes as `prop:${K}`]?: BcFieldCurrency[K] };
+        "bc-field-date": Omit<BcFieldDate, keyof BcFieldDateAttributes> & { [K in keyof BcFieldDate & keyof BcFieldDateAttributes]?: BcFieldDate[K] } & { [K in keyof BcFieldDate & keyof BcFieldDateAttributes as `attr:${K}`]?: BcFieldDateAttributes[K] } & { [K in keyof BcFieldDate & keyof BcFieldDateAttributes as `prop:${K}`]?: BcFieldDate[K] };
+        "bc-field-datetime": Omit<BcFieldDatetime, keyof BcFieldDatetimeAttributes> & { [K in keyof BcFieldDatetime & keyof BcFieldDatetimeAttributes]?: BcFieldDatetime[K] } & { [K in keyof BcFieldDatetime & keyof BcFieldDatetimeAttributes as `attr:${K}`]?: BcFieldDatetimeAttributes[K] } & { [K in keyof BcFieldDatetime & keyof BcFieldDatetimeAttributes as `prop:${K}`]?: BcFieldDatetime[K] };
+        "bc-field-decimal": Omit<BcFieldDecimal, keyof BcFieldDecimalAttributes> & { [K in keyof BcFieldDecimal & keyof BcFieldDecimalAttributes]?: BcFieldDecimal[K] } & { [K in keyof BcFieldDecimal & keyof BcFieldDecimalAttributes as `attr:${K}`]?: BcFieldDecimalAttributes[K] } & { [K in keyof BcFieldDecimal & keyof BcFieldDecimalAttributes as `prop:${K}`]?: BcFieldDecimal[K] };
+        "bc-field-duration": Omit<BcFieldDuration, keyof BcFieldDurationAttributes> & { [K in keyof BcFieldDuration & keyof BcFieldDurationAttributes]?: BcFieldDuration[K] } & { [K in keyof BcFieldDuration & keyof BcFieldDurationAttributes as `attr:${K}`]?: BcFieldDurationAttributes[K] } & { [K in keyof BcFieldDuration & keyof BcFieldDurationAttributes as `prop:${K}`]?: BcFieldDuration[K] };
+        "bc-field-dynlink": Omit<BcFieldDynlink, keyof BcFieldDynlinkAttributes> & { [K in keyof BcFieldDynlink & keyof BcFieldDynlinkAttributes]?: BcFieldDynlink[K] } & { [K in keyof BcFieldDynlink & keyof BcFieldDynlinkAttributes as `attr:${K}`]?: BcFieldDynlinkAttributes[K] } & { [K in keyof BcFieldDynlink & keyof BcFieldDynlinkAttributes as `prop:${K}`]?: BcFieldDynlink[K] };
+        "bc-field-file": Omit<BcFieldFile, keyof BcFieldFileAttributes> & { [K in keyof BcFieldFile & keyof BcFieldFileAttributes]?: BcFieldFile[K] } & { [K in keyof BcFieldFile & keyof BcFieldFileAttributes as `attr:${K}`]?: BcFieldFileAttributes[K] } & { [K in keyof BcFieldFile & keyof BcFieldFileAttributes as `prop:${K}`]?: BcFieldFile[K] };
+        "bc-field-float": Omit<BcFieldFloat, keyof BcFieldFloatAttributes> & { [K in keyof BcFieldFloat & keyof BcFieldFloatAttributes]?: BcFieldFloat[K] } & { [K in keyof BcFieldFloat & keyof BcFieldFloatAttributes as `attr:${K}`]?: BcFieldFloatAttributes[K] } & { [K in keyof BcFieldFloat & keyof BcFieldFloatAttributes as `prop:${K}`]?: BcFieldFloat[K] };
+        "bc-field-geo": Omit<BcFieldGeo, keyof BcFieldGeoAttributes> & { [K in keyof BcFieldGeo & keyof BcFieldGeoAttributes]?: BcFieldGeo[K] } & { [K in keyof BcFieldGeo & keyof BcFieldGeoAttributes as `attr:${K}`]?: BcFieldGeoAttributes[K] } & { [K in keyof BcFieldGeo & keyof BcFieldGeoAttributes as `prop:${K}`]?: BcFieldGeo[K] };
+        "bc-field-html": Omit<BcFieldHtml, keyof BcFieldHtmlAttributes> & { [K in keyof BcFieldHtml & keyof BcFieldHtmlAttributes]?: BcFieldHtml[K] } & { [K in keyof BcFieldHtml & keyof BcFieldHtmlAttributes as `attr:${K}`]?: BcFieldHtmlAttributes[K] } & { [K in keyof BcFieldHtml & keyof BcFieldHtmlAttributes as `prop:${K}`]?: BcFieldHtml[K] };
+        "bc-field-image": Omit<BcFieldImage, keyof BcFieldImageAttributes> & { [K in keyof BcFieldImage & keyof BcFieldImageAttributes]?: BcFieldImage[K] } & { [K in keyof BcFieldImage & keyof BcFieldImageAttributes as `attr:${K}`]?: BcFieldImageAttributes[K] } & { [K in keyof BcFieldImage & keyof BcFieldImageAttributes as `prop:${K}`]?: BcFieldImage[K] };
+        "bc-field-integer": Omit<BcFieldInteger, keyof BcFieldIntegerAttributes> & { [K in keyof BcFieldInteger & keyof BcFieldIntegerAttributes]?: BcFieldInteger[K] } & { [K in keyof BcFieldInteger & keyof BcFieldIntegerAttributes as `attr:${K}`]?: BcFieldIntegerAttributes[K] } & { [K in keyof BcFieldInteger & keyof BcFieldIntegerAttributes as `prop:${K}`]?: BcFieldInteger[K] };
+        "bc-field-json": Omit<BcFieldJson, keyof BcFieldJsonAttributes> & { [K in keyof BcFieldJson & keyof BcFieldJsonAttributes]?: BcFieldJson[K] } & { [K in keyof BcFieldJson & keyof BcFieldJsonAttributes as `attr:${K}`]?: BcFieldJsonAttributes[K] } & { [K in keyof BcFieldJson & keyof BcFieldJsonAttributes as `prop:${K}`]?: BcFieldJson[K] };
+        "bc-field-link": Omit<BcFieldLink, keyof BcFieldLinkAttributes> & { [K in keyof BcFieldLink & keyof BcFieldLinkAttributes]?: BcFieldLink[K] } & { [K in keyof BcFieldLink & keyof BcFieldLinkAttributes as `attr:${K}`]?: BcFieldLinkAttributes[K] } & { [K in keyof BcFieldLink & keyof BcFieldLinkAttributes as `prop:${K}`]?: BcFieldLink[K] };
+        "bc-field-markdown": Omit<BcFieldMarkdown, keyof BcFieldMarkdownAttributes> & { [K in keyof BcFieldMarkdown & keyof BcFieldMarkdownAttributes]?: BcFieldMarkdown[K] } & { [K in keyof BcFieldMarkdown & keyof BcFieldMarkdownAttributes as `attr:${K}`]?: BcFieldMarkdownAttributes[K] } & { [K in keyof BcFieldMarkdown & keyof BcFieldMarkdownAttributes as `prop:${K}`]?: BcFieldMarkdown[K] };
+        "bc-field-multicheck": Omit<BcFieldMulticheck, keyof BcFieldMulticheckAttributes> & { [K in keyof BcFieldMulticheck & keyof BcFieldMulticheckAttributes]?: BcFieldMulticheck[K] } & { [K in keyof BcFieldMulticheck & keyof BcFieldMulticheckAttributes as `attr:${K}`]?: BcFieldMulticheckAttributes[K] } & { [K in keyof BcFieldMulticheck & keyof BcFieldMulticheckAttributes as `prop:${K}`]?: BcFieldMulticheck[K] };
+        "bc-field-password": Omit<BcFieldPassword, keyof BcFieldPasswordAttributes> & { [K in keyof BcFieldPassword & keyof BcFieldPasswordAttributes]?: BcFieldPassword[K] } & { [K in keyof BcFieldPassword & keyof BcFieldPasswordAttributes as `attr:${K}`]?: BcFieldPasswordAttributes[K] } & { [K in keyof BcFieldPassword & keyof BcFieldPasswordAttributes as `prop:${K}`]?: BcFieldPassword[K] };
+        "bc-field-percent": Omit<BcFieldPercent, keyof BcFieldPercentAttributes> & { [K in keyof BcFieldPercent & keyof BcFieldPercentAttributes]?: BcFieldPercent[K] } & { [K in keyof BcFieldPercent & keyof BcFieldPercentAttributes as `attr:${K}`]?: BcFieldPercentAttributes[K] } & { [K in keyof BcFieldPercent & keyof BcFieldPercentAttributes as `prop:${K}`]?: BcFieldPercent[K] };
+        "bc-field-radio": Omit<BcFieldRadio, keyof BcFieldRadioAttributes> & { [K in keyof BcFieldRadio & keyof BcFieldRadioAttributes]?: BcFieldRadio[K] } & { [K in keyof BcFieldRadio & keyof BcFieldRadioAttributes as `attr:${K}`]?: BcFieldRadioAttributes[K] } & { [K in keyof BcFieldRadio & keyof BcFieldRadioAttributes as `prop:${K}`]?: BcFieldRadio[K] };
+        "bc-field-rating": Omit<BcFieldRating, keyof BcFieldRatingAttributes> & { [K in keyof BcFieldRating & keyof BcFieldRatingAttributes]?: BcFieldRating[K] } & { [K in keyof BcFieldRating & keyof BcFieldRatingAttributes as `attr:${K}`]?: BcFieldRatingAttributes[K] } & { [K in keyof BcFieldRating & keyof BcFieldRatingAttributes as `prop:${K}`]?: BcFieldRating[K] };
+        "bc-field-richtext": Omit<BcFieldRichtext, keyof BcFieldRichtextAttributes> & { [K in keyof BcFieldRichtext & keyof BcFieldRichtextAttributes]?: BcFieldRichtext[K] } & { [K in keyof BcFieldRichtext & keyof BcFieldRichtextAttributes as `attr:${K}`]?: BcFieldRichtextAttributes[K] } & { [K in keyof BcFieldRichtext & keyof BcFieldRichtextAttributes as `prop:${K}`]?: BcFieldRichtext[K] };
+        "bc-field-select": Omit<BcFieldSelect, keyof BcFieldSelectAttributes> & { [K in keyof BcFieldSelect & keyof BcFieldSelectAttributes]?: BcFieldSelect[K] } & { [K in keyof BcFieldSelect & keyof BcFieldSelectAttributes as `attr:${K}`]?: BcFieldSelectAttributes[K] } & { [K in keyof BcFieldSelect & keyof BcFieldSelectAttributes as `prop:${K}`]?: BcFieldSelect[K] };
+        "bc-field-signature": Omit<BcFieldSignature, keyof BcFieldSignatureAttributes> & { [K in keyof BcFieldSignature & keyof BcFieldSignatureAttributes]?: BcFieldSignature[K] } & { [K in keyof BcFieldSignature & keyof BcFieldSignatureAttributes as `attr:${K}`]?: BcFieldSignatureAttributes[K] } & { [K in keyof BcFieldSignature & keyof BcFieldSignatureAttributes as `prop:${K}`]?: BcFieldSignature[K] };
+        "bc-field-smalltext": Omit<BcFieldSmalltext, keyof BcFieldSmalltextAttributes> & { [K in keyof BcFieldSmalltext & keyof BcFieldSmalltextAttributes]?: BcFieldSmalltext[K] } & { [K in keyof BcFieldSmalltext & keyof BcFieldSmalltextAttributes as `attr:${K}`]?: BcFieldSmalltextAttributes[K] } & { [K in keyof BcFieldSmalltext & keyof BcFieldSmalltextAttributes as `prop:${K}`]?: BcFieldSmalltext[K] };
+        "bc-field-string": Omit<BcFieldString, keyof BcFieldStringAttributes> & { [K in keyof BcFieldString & keyof BcFieldStringAttributes]?: BcFieldString[K] } & { [K in keyof BcFieldString & keyof BcFieldStringAttributes as `attr:${K}`]?: BcFieldStringAttributes[K] } & { [K in keyof BcFieldString & keyof BcFieldStringAttributes as `prop:${K}`]?: BcFieldString[K] };
+        "bc-field-tableselect": Omit<BcFieldTableselect, keyof BcFieldTableselectAttributes> & { [K in keyof BcFieldTableselect & keyof BcFieldTableselectAttributes]?: BcFieldTableselect[K] } & { [K in keyof BcFieldTableselect & keyof BcFieldTableselectAttributes as `attr:${K}`]?: BcFieldTableselectAttributes[K] } & { [K in keyof BcFieldTableselect & keyof BcFieldTableselectAttributes as `prop:${K}`]?: BcFieldTableselect[K] };
+        "bc-field-tags": Omit<BcFieldTags, keyof BcFieldTagsAttributes> & { [K in keyof BcFieldTags & keyof BcFieldTagsAttributes]?: BcFieldTags[K] } & { [K in keyof BcFieldTags & keyof BcFieldTagsAttributes as `attr:${K}`]?: BcFieldTagsAttributes[K] } & { [K in keyof BcFieldTags & keyof BcFieldTagsAttributes as `prop:${K}`]?: BcFieldTags[K] };
+        "bc-field-text": Omit<BcFieldText, keyof BcFieldTextAttributes> & { [K in keyof BcFieldText & keyof BcFieldTextAttributes]?: BcFieldText[K] } & { [K in keyof BcFieldText & keyof BcFieldTextAttributes as `attr:${K}`]?: BcFieldTextAttributes[K] } & { [K in keyof BcFieldText & keyof BcFieldTextAttributes as `prop:${K}`]?: BcFieldText[K] };
+        "bc-field-time": Omit<BcFieldTime, keyof BcFieldTimeAttributes> & { [K in keyof BcFieldTime & keyof BcFieldTimeAttributes]?: BcFieldTime[K] } & { [K in keyof BcFieldTime & keyof BcFieldTimeAttributes as `attr:${K}`]?: BcFieldTimeAttributes[K] } & { [K in keyof BcFieldTime & keyof BcFieldTimeAttributes as `prop:${K}`]?: BcFieldTime[K] };
+        "bc-field-toggle": Omit<BcFieldToggle, keyof BcFieldToggleAttributes> & { [K in keyof BcFieldToggle & keyof BcFieldToggleAttributes]?: BcFieldToggle[K] } & { [K in keyof BcFieldToggle & keyof BcFieldToggleAttributes as `attr:${K}`]?: BcFieldToggleAttributes[K] } & { [K in keyof BcFieldToggle & keyof BcFieldToggleAttributes as `prop:${K}`]?: BcFieldToggle[K] };
+        "bc-filter-bar": Omit<BcFilterBar, keyof BcFilterBarAttributes> & { [K in keyof BcFilterBar & keyof BcFilterBarAttributes]?: BcFilterBar[K] } & { [K in keyof BcFilterBar & keyof BcFilterBarAttributes as `attr:${K}`]?: BcFilterBarAttributes[K] } & { [K in keyof BcFilterBar & keyof BcFilterBarAttributes as `prop:${K}`]?: BcFilterBar[K] };
+        "bc-filter-builder": Omit<BcFilterBuilder, keyof BcFilterBuilderAttributes> & { [K in keyof BcFilterBuilder & keyof BcFilterBuilderAttributes]?: BcFilterBuilder[K] } & { [K in keyof BcFilterBuilder & keyof BcFilterBuilderAttributes as `attr:${K}`]?: BcFilterBuilderAttributes[K] } & { [K in keyof BcFilterBuilder & keyof BcFilterBuilderAttributes as `prop:${K}`]?: BcFilterBuilder[K] };
+        "bc-filter-panel": Omit<BcFilterPanel, keyof BcFilterPanelAttributes> & { [K in keyof BcFilterPanel & keyof BcFilterPanelAttributes]?: BcFilterPanel[K] } & { [K in keyof BcFilterPanel & keyof BcFilterPanelAttributes as `attr:${K}`]?: BcFilterPanelAttributes[K] } & { [K in keyof BcFilterPanel & keyof BcFilterPanelAttributes as `prop:${K}`]?: BcFilterPanel[K] };
+        "bc-header": Omit<BcHeader, keyof BcHeaderAttributes> & { [K in keyof BcHeader & keyof BcHeaderAttributes]?: BcHeader[K] } & { [K in keyof BcHeader & keyof BcHeaderAttributes as `attr:${K}`]?: BcHeaderAttributes[K] } & { [K in keyof BcHeader & keyof BcHeaderAttributes as `prop:${K}`]?: BcHeader[K] };
+        "bc-html-block": Omit<BcHtmlBlock, keyof BcHtmlBlockAttributes> & { [K in keyof BcHtmlBlock & keyof BcHtmlBlockAttributes]?: BcHtmlBlock[K] } & { [K in keyof BcHtmlBlock & keyof BcHtmlBlockAttributes as `attr:${K}`]?: BcHtmlBlockAttributes[K] } & { [K in keyof BcHtmlBlock & keyof BcHtmlBlockAttributes as `prop:${K}`]?: BcHtmlBlock[K] };
+        "bc-lookup-modal": Omit<BcLookupModal, keyof BcLookupModalAttributes> & { [K in keyof BcLookupModal & keyof BcLookupModalAttributes]?: BcLookupModal[K] } & { [K in keyof BcLookupModal & keyof BcLookupModalAttributes as `attr:${K}`]?: BcLookupModalAttributes[K] } & { [K in keyof BcLookupModal & keyof BcLookupModalAttributes as `prop:${K}`]?: BcLookupModal[K] };
+        "bc-placeholder": Omit<BcPlaceholder, keyof BcPlaceholderAttributes> & { [K in keyof BcPlaceholder & keyof BcPlaceholderAttributes]?: BcPlaceholder[K] } & { [K in keyof BcPlaceholder & keyof BcPlaceholderAttributes as `attr:${K}`]?: BcPlaceholderAttributes[K] } & { [K in keyof BcPlaceholder & keyof BcPlaceholderAttributes as `prop:${K}`]?: BcPlaceholder[K] };
+        "bc-print": Omit<BcPrint, keyof BcPrintAttributes> & { [K in keyof BcPrint & keyof BcPrintAttributes]?: BcPrint[K] } & { [K in keyof BcPrint & keyof BcPrintAttributes as `attr:${K}`]?: BcPrintAttributes[K] } & { [K in keyof BcPrint & keyof BcPrintAttributes as `prop:${K}`]?: BcPrint[K] };
+        "bc-report-link": Omit<BcReportLink, keyof BcReportLinkAttributes> & { [K in keyof BcReportLink & keyof BcReportLinkAttributes]?: BcReportLink[K] } & { [K in keyof BcReportLink & keyof BcReportLinkAttributes as `attr:${K}`]?: BcReportLinkAttributes[K] } & { [K in keyof BcReportLink & keyof BcReportLinkAttributes as `prop:${K}`]?: BcReportLink[K] };
+        "bc-row": Omit<BcRow, keyof BcRowAttributes> & { [K in keyof BcRow & keyof BcRowAttributes]?: BcRow[K] } & { [K in keyof BcRow & keyof BcRowAttributes as `attr:${K}`]?: BcRowAttributes[K] } & { [K in keyof BcRow & keyof BcRowAttributes as `prop:${K}`]?: BcRow[K] };
+        "bc-search": Omit<BcSearch, keyof BcSearchAttributes> & { [K in keyof BcSearch & keyof BcSearchAttributes]?: BcSearch[K] } & { [K in keyof BcSearch & keyof BcSearchAttributes as `attr:${K}`]?: BcSearchAttributes[K] } & { [K in keyof BcSearch & keyof BcSearchAttributes as `prop:${K}`]?: BcSearch[K] };
+        "bc-section": Omit<BcSection, keyof BcSectionAttributes> & { [K in keyof BcSection & keyof BcSectionAttributes]?: BcSection[K] } & { [K in keyof BcSection & keyof BcSectionAttributes as `attr:${K}`]?: BcSectionAttributes[K] } & { [K in keyof BcSection & keyof BcSectionAttributes as `prop:${K}`]?: BcSection[K] };
+        "bc-separator": Omit<BcSeparator, keyof BcSeparatorAttributes> & { [K in keyof BcSeparator & keyof BcSeparatorAttributes]?: BcSeparator[K] } & { [K in keyof BcSeparator & keyof BcSeparatorAttributes as `attr:${K}`]?: BcSeparatorAttributes[K] } & { [K in keyof BcSeparator & keyof BcSeparatorAttributes as `prop:${K}`]?: BcSeparator[K] };
+        "bc-sheet": BcSheet;
+        "bc-tab": Omit<BcTab, keyof BcTabAttributes> & { [K in keyof BcTab & keyof BcTabAttributes]?: BcTab[K] } & { [K in keyof BcTab & keyof BcTabAttributes as `attr:${K}`]?: BcTabAttributes[K] } & { [K in keyof BcTab & keyof BcTabAttributes as `prop:${K}`]?: BcTab[K] };
+        "bc-tabs": BcTabs;
+        "bc-timeline": Omit<BcTimeline, keyof BcTimelineAttributes> & { [K in keyof BcTimeline & keyof BcTimelineAttributes]?: BcTimeline[K] } & { [K in keyof BcTimeline & keyof BcTimelineAttributes as `attr:${K}`]?: BcTimelineAttributes[K] } & { [K in keyof BcTimeline & keyof BcTimelineAttributes as `prop:${K}`]?: BcTimeline[K] };
+        "bc-toast": Omit<BcToast, keyof BcToastAttributes> & { [K in keyof BcToast & keyof BcToastAttributes]?: BcToast[K] } & { [K in keyof BcToast & keyof BcToastAttributes as `attr:${K}`]?: BcToastAttributes[K] } & { [K in keyof BcToast & keyof BcToastAttributes as `prop:${K}`]?: BcToast[K] };
+        "bc-view-activity": Omit<BcViewActivity, keyof BcViewActivityAttributes> & { [K in keyof BcViewActivity & keyof BcViewActivityAttributes]?: BcViewActivity[K] } & { [K in keyof BcViewActivity & keyof BcViewActivityAttributes as `attr:${K}`]?: BcViewActivityAttributes[K] } & { [K in keyof BcViewActivity & keyof BcViewActivityAttributes as `prop:${K}`]?: BcViewActivity[K] };
+        "bc-view-calendar": Omit<BcViewCalendar, keyof BcViewCalendarAttributes> & { [K in keyof BcViewCalendar & keyof BcViewCalendarAttributes]?: BcViewCalendar[K] } & { [K in keyof BcViewCalendar & keyof BcViewCalendarAttributes as `attr:${K}`]?: BcViewCalendarAttributes[K] } & { [K in keyof BcViewCalendar & keyof BcViewCalendarAttributes as `prop:${K}`]?: BcViewCalendar[K] };
+        "bc-view-editor": Omit<BcViewEditor, keyof BcViewEditorAttributes> & { [K in keyof BcViewEditor & keyof BcViewEditorAttributes]?: BcViewEditor[K] } & { [K in keyof BcViewEditor & keyof BcViewEditorAttributes as `attr:${K}`]?: BcViewEditorAttributes[K] } & { [K in keyof BcViewEditor & keyof BcViewEditorAttributes as `prop:${K}`]?: BcViewEditor[K] };
+        "bc-view-form": Omit<BcViewForm, keyof BcViewFormAttributes> & { [K in keyof BcViewForm & keyof BcViewFormAttributes]?: BcViewForm[K] } & { [K in keyof BcViewForm & keyof BcViewFormAttributes as `attr:${K}`]?: BcViewFormAttributes[K] } & { [K in keyof BcViewForm & keyof BcViewFormAttributes as `prop:${K}`]?: BcViewForm[K] };
+        "bc-view-gantt": Omit<BcViewGantt, keyof BcViewGanttAttributes> & { [K in keyof BcViewGantt & keyof BcViewGanttAttributes]?: BcViewGantt[K] } & { [K in keyof BcViewGantt & keyof BcViewGanttAttributes as `attr:${K}`]?: BcViewGanttAttributes[K] } & { [K in keyof BcViewGantt & keyof BcViewGanttAttributes as `prop:${K}`]?: BcViewGantt[K] };
+        "bc-view-kanban": Omit<BcViewKanban, keyof BcViewKanbanAttributes> & { [K in keyof BcViewKanban & keyof BcViewKanbanAttributes]?: BcViewKanban[K] } & { [K in keyof BcViewKanban & keyof BcViewKanbanAttributes as `attr:${K}`]?: BcViewKanbanAttributes[K] } & { [K in keyof BcViewKanban & keyof BcViewKanbanAttributes as `prop:${K}`]?: BcViewKanban[K] };
+        "bc-view-list": Omit<BcViewList, keyof BcViewListAttributes> & { [K in keyof BcViewList & keyof BcViewListAttributes]?: BcViewList[K] } & { [K in keyof BcViewList & keyof BcViewListAttributes as `attr:${K}`]?: BcViewListAttributes[K] } & { [K in keyof BcViewList & keyof BcViewListAttributes as `prop:${K}`]?: BcViewList[K] };
+        "bc-view-map": Omit<BcViewMap, keyof BcViewMapAttributes> & { [K in keyof BcViewMap & keyof BcViewMapAttributes]?: BcViewMap[K] } & { [K in keyof BcViewMap & keyof BcViewMapAttributes as `attr:${K}`]?: BcViewMapAttributes[K] } & { [K in keyof BcViewMap & keyof BcViewMapAttributes as `prop:${K}`]?: BcViewMap[K] };
+        "bc-view-report": Omit<BcViewReport, keyof BcViewReportAttributes> & { [K in keyof BcViewReport & keyof BcViewReportAttributes]?: BcViewReport[K] } & { [K in keyof BcViewReport & keyof BcViewReportAttributes as `attr:${K}`]?: BcViewReportAttributes[K] } & { [K in keyof BcViewReport & keyof BcViewReportAttributes as `prop:${K}`]?: BcViewReport[K] };
+        "bc-view-tree": Omit<BcViewTree, keyof BcViewTreeAttributes> & { [K in keyof BcViewTree & keyof BcViewTreeAttributes]?: BcViewTree[K] } & { [K in keyof BcViewTree & keyof BcViewTreeAttributes as `attr:${K}`]?: BcViewTreeAttributes[K] } & { [K in keyof BcViewTree & keyof BcViewTreeAttributes as `prop:${K}`]?: BcViewTree[K] };
+        "bc-widget-badge": Omit<BcWidgetBadge, keyof BcWidgetBadgeAttributes> & { [K in keyof BcWidgetBadge & keyof BcWidgetBadgeAttributes]?: BcWidgetBadge[K] } & { [K in keyof BcWidgetBadge & keyof BcWidgetBadgeAttributes as `attr:${K}`]?: BcWidgetBadgeAttributes[K] } & { [K in keyof BcWidgetBadge & keyof BcWidgetBadgeAttributes as `prop:${K}`]?: BcWidgetBadge[K] };
+        "bc-widget-copy": Omit<BcWidgetCopy, keyof BcWidgetCopyAttributes> & { [K in keyof BcWidgetCopy & keyof BcWidgetCopyAttributes]?: BcWidgetCopy[K] } & { [K in keyof BcWidgetCopy & keyof BcWidgetCopyAttributes as `attr:${K}`]?: BcWidgetCopyAttributes[K] } & { [K in keyof BcWidgetCopy & keyof BcWidgetCopyAttributes as `prop:${K}`]?: BcWidgetCopy[K] };
+        "bc-widget-domain": Omit<BcWidgetDomain, keyof BcWidgetDomainAttributes> & { [K in keyof BcWidgetDomain & keyof BcWidgetDomainAttributes]?: BcWidgetDomain[K] } & { [K in keyof BcWidgetDomain & keyof BcWidgetDomainAttributes as `attr:${K}`]?: BcWidgetDomainAttributes[K] } & { [K in keyof BcWidgetDomain & keyof BcWidgetDomainAttributes as `prop:${K}`]?: BcWidgetDomain[K] };
+        "bc-widget-email": Omit<BcWidgetEmail, keyof BcWidgetEmailAttributes> & { [K in keyof BcWidgetEmail & keyof BcWidgetEmailAttributes]?: BcWidgetEmail[K] } & { [K in keyof BcWidgetEmail & keyof BcWidgetEmailAttributes as `attr:${K}`]?: BcWidgetEmailAttributes[K] } & { [K in keyof BcWidgetEmail & keyof BcWidgetEmailAttributes as `prop:${K}`]?: BcWidgetEmail[K] };
+        "bc-widget-handle": BcWidgetHandle;
+        "bc-widget-phone": Omit<BcWidgetPhone, keyof BcWidgetPhoneAttributes> & { [K in keyof BcWidgetPhone & keyof BcWidgetPhoneAttributes]?: BcWidgetPhone[K] } & { [K in keyof BcWidgetPhone & keyof BcWidgetPhoneAttributes as `attr:${K}`]?: BcWidgetPhoneAttributes[K] } & { [K in keyof BcWidgetPhone & keyof BcWidgetPhoneAttributes as `prop:${K}`]?: BcWidgetPhone[K] };
+        "bc-widget-priority": Omit<BcWidgetPriority, keyof BcWidgetPriorityAttributes> & { [K in keyof BcWidgetPriority & keyof BcWidgetPriorityAttributes]?: BcWidgetPriority[K] } & { [K in keyof BcWidgetPriority & keyof BcWidgetPriorityAttributes as `attr:${K}`]?: BcWidgetPriorityAttributes[K] } & { [K in keyof BcWidgetPriority & keyof BcWidgetPriorityAttributes as `prop:${K}`]?: BcWidgetPriority[K] };
+        "bc-widget-progress": Omit<BcWidgetProgress, keyof BcWidgetProgressAttributes> & { [K in keyof BcWidgetProgress & keyof BcWidgetProgressAttributes]?: BcWidgetProgress[K] } & { [K in keyof BcWidgetProgress & keyof BcWidgetProgressAttributes as `attr:${K}`]?: BcWidgetProgressAttributes[K] } & { [K in keyof BcWidgetProgress & keyof BcWidgetProgressAttributes as `prop:${K}`]?: BcWidgetProgress[K] };
+        "bc-widget-statusbar": Omit<BcWidgetStatusbar, keyof BcWidgetStatusbarAttributes> & { [K in keyof BcWidgetStatusbar & keyof BcWidgetStatusbarAttributes]?: BcWidgetStatusbar[K] } & { [K in keyof BcWidgetStatusbar & keyof BcWidgetStatusbarAttributes as `attr:${K}`]?: BcWidgetStatusbarAttributes[K] } & { [K in keyof BcWidgetStatusbar & keyof BcWidgetStatusbarAttributes as `prop:${K}`]?: BcWidgetStatusbar[K] };
+        "bc-widget-url": Omit<BcWidgetUrl, keyof BcWidgetUrlAttributes> & { [K in keyof BcWidgetUrl & keyof BcWidgetUrlAttributes]?: BcWidgetUrl[K] } & { [K in keyof BcWidgetUrl & keyof BcWidgetUrlAttributes as `attr:${K}`]?: BcWidgetUrlAttributes[K] } & { [K in keyof BcWidgetUrl & keyof BcWidgetUrlAttributes as `prop:${K}`]?: BcWidgetUrl[K] };
     }
 }
 export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
-            "bc-activity": LocalJSX.IntrinsicElements["bc-activity"] & JSXBase.HTMLAttributes<HTMLLcActivityElement>;
-            "bc-button-box": LocalJSX.IntrinsicElements["bc-button-box"] & JSXBase.HTMLAttributes<HTMLLcButtonBoxElement>;
-            "bc-chart-area": LocalJSX.IntrinsicElements["bc-chart-area"] & JSXBase.HTMLAttributes<HTMLLcChartAreaElement>;
-            "bc-chart-bar": LocalJSX.IntrinsicElements["bc-chart-bar"] & JSXBase.HTMLAttributes<HTMLLcChartBarElement>;
-            "bc-chart-funnel": LocalJSX.IntrinsicElements["bc-chart-funnel"] & JSXBase.HTMLAttributes<HTMLLcChartFunnelElement>;
-            "bc-chart-gauge": LocalJSX.IntrinsicElements["bc-chart-gauge"] & JSXBase.HTMLAttributes<HTMLLcChartGaugeElement>;
-            "bc-chart-heatmap": LocalJSX.IntrinsicElements["bc-chart-heatmap"] & JSXBase.HTMLAttributes<HTMLLcChartHeatmapElement>;
-            "bc-chart-kpi": LocalJSX.IntrinsicElements["bc-chart-kpi"] & JSXBase.HTMLAttributes<HTMLLcChartKpiElement>;
-            "bc-chart-line": LocalJSX.IntrinsicElements["bc-chart-line"] & JSXBase.HTMLAttributes<HTMLLcChartLineElement>;
-            "bc-chart-pie": LocalJSX.IntrinsicElements["bc-chart-pie"] & JSXBase.HTMLAttributes<HTMLLcChartPieElement>;
-            "bc-chart-pivot": LocalJSX.IntrinsicElements["bc-chart-pivot"] & JSXBase.HTMLAttributes<HTMLLcChartPivotElement>;
-            "bc-chart-progress": LocalJSX.IntrinsicElements["bc-chart-progress"] & JSXBase.HTMLAttributes<HTMLLcChartProgressElement>;
-            "bc-chart-scorecard": LocalJSX.IntrinsicElements["bc-chart-scorecard"] & JSXBase.HTMLAttributes<HTMLLcChartScorecardElement>;
-            "bc-chatter": LocalJSX.IntrinsicElements["bc-chatter"] & JSXBase.HTMLAttributes<HTMLLcChatterElement>;
-            "bc-child-table": LocalJSX.IntrinsicElements["bc-child-table"] & JSXBase.HTMLAttributes<HTMLLcChildTableElement>;
-            "bc-column": LocalJSX.IntrinsicElements["bc-column"] & JSXBase.HTMLAttributes<HTMLLcColumnElement>;
-            "bc-datatable": LocalJSX.IntrinsicElements["bc-datatable"] & JSXBase.HTMLAttributes<HTMLLcDatatableElement>;
-            "bc-dialog-confirm": LocalJSX.IntrinsicElements["bc-dialog-confirm"] & JSXBase.HTMLAttributes<HTMLLcDialogConfirmElement>;
-            "bc-dialog-modal": LocalJSX.IntrinsicElements["bc-dialog-modal"] & JSXBase.HTMLAttributes<HTMLLcDialogModalElement>;
-            "bc-dialog-quickentry": LocalJSX.IntrinsicElements["bc-dialog-quickentry"] & JSXBase.HTMLAttributes<HTMLLcDialogQuickentryElement>;
-            "bc-dialog-wizard": LocalJSX.IntrinsicElements["bc-dialog-wizard"] & JSXBase.HTMLAttributes<HTMLLcDialogWizardElement>;
-            "bc-export": LocalJSX.IntrinsicElements["bc-export"] & JSXBase.HTMLAttributes<HTMLLcExportElement>;
-            "bc-favorites": LocalJSX.IntrinsicElements["bc-favorites"] & JSXBase.HTMLAttributes<HTMLLcFavoritesElement>;
-            "bc-field-barcode": LocalJSX.IntrinsicElements["bc-field-barcode"] & JSXBase.HTMLAttributes<HTMLLcFieldBarcodeElement>;
-            "bc-field-checkbox": LocalJSX.IntrinsicElements["bc-field-checkbox"] & JSXBase.HTMLAttributes<HTMLLcFieldCheckboxElement>;
-            "bc-field-code": LocalJSX.IntrinsicElements["bc-field-code"] & JSXBase.HTMLAttributes<HTMLLcFieldCodeElement>;
-            "bc-field-color": LocalJSX.IntrinsicElements["bc-field-color"] & JSXBase.HTMLAttributes<HTMLLcFieldColorElement>;
-            "bc-field-currency": LocalJSX.IntrinsicElements["bc-field-currency"] & JSXBase.HTMLAttributes<HTMLLcFieldCurrencyElement>;
-            "bc-field-date": LocalJSX.IntrinsicElements["bc-field-date"] & JSXBase.HTMLAttributes<HTMLLcFieldDateElement>;
-            "bc-field-datetime": LocalJSX.IntrinsicElements["bc-field-datetime"] & JSXBase.HTMLAttributes<HTMLLcFieldDatetimeElement>;
-            "bc-field-decimal": LocalJSX.IntrinsicElements["bc-field-decimal"] & JSXBase.HTMLAttributes<HTMLLcFieldDecimalElement>;
-            "bc-field-duration": LocalJSX.IntrinsicElements["bc-field-duration"] & JSXBase.HTMLAttributes<HTMLLcFieldDurationElement>;
-            "bc-field-dynlink": LocalJSX.IntrinsicElements["bc-field-dynlink"] & JSXBase.HTMLAttributes<HTMLLcFieldDynlinkElement>;
-            "bc-field-file": LocalJSX.IntrinsicElements["bc-field-file"] & JSXBase.HTMLAttributes<HTMLLcFieldFileElement>;
-            "bc-field-float": LocalJSX.IntrinsicElements["bc-field-float"] & JSXBase.HTMLAttributes<HTMLLcFieldFloatElement>;
-            "bc-field-geo": LocalJSX.IntrinsicElements["bc-field-geo"] & JSXBase.HTMLAttributes<HTMLLcFieldGeoElement>;
-            "bc-field-html": LocalJSX.IntrinsicElements["bc-field-html"] & JSXBase.HTMLAttributes<HTMLLcFieldHtmlElement>;
-            "bc-field-image": LocalJSX.IntrinsicElements["bc-field-image"] & JSXBase.HTMLAttributes<HTMLLcFieldImageElement>;
-            "bc-field-integer": LocalJSX.IntrinsicElements["bc-field-integer"] & JSXBase.HTMLAttributes<HTMLLcFieldIntegerElement>;
-            "bc-field-json": LocalJSX.IntrinsicElements["bc-field-json"] & JSXBase.HTMLAttributes<HTMLLcFieldJsonElement>;
-            "bc-field-link": LocalJSX.IntrinsicElements["bc-field-link"] & JSXBase.HTMLAttributes<HTMLLcFieldLinkElement>;
-            "bc-field-markdown": LocalJSX.IntrinsicElements["bc-field-markdown"] & JSXBase.HTMLAttributes<HTMLLcFieldMarkdownElement>;
-            "bc-field-multicheck": LocalJSX.IntrinsicElements["bc-field-multicheck"] & JSXBase.HTMLAttributes<HTMLLcFieldMulticheckElement>;
-            "bc-field-password": LocalJSX.IntrinsicElements["bc-field-password"] & JSXBase.HTMLAttributes<HTMLLcFieldPasswordElement>;
-            "bc-field-percent": LocalJSX.IntrinsicElements["bc-field-percent"] & JSXBase.HTMLAttributes<HTMLLcFieldPercentElement>;
-            "bc-field-radio": LocalJSX.IntrinsicElements["bc-field-radio"] & JSXBase.HTMLAttributes<HTMLLcFieldRadioElement>;
-            "bc-field-rating": LocalJSX.IntrinsicElements["bc-field-rating"] & JSXBase.HTMLAttributes<HTMLLcFieldRatingElement>;
-            "bc-field-richtext": LocalJSX.IntrinsicElements["bc-field-richtext"] & JSXBase.HTMLAttributes<HTMLLcFieldRichtextElement>;
-            "bc-field-select": LocalJSX.IntrinsicElements["bc-field-select"] & JSXBase.HTMLAttributes<HTMLLcFieldSelectElement>;
-            "bc-field-signature": LocalJSX.IntrinsicElements["bc-field-signature"] & JSXBase.HTMLAttributes<HTMLLcFieldSignatureElement>;
-            "bc-field-smalltext": LocalJSX.IntrinsicElements["bc-field-smalltext"] & JSXBase.HTMLAttributes<HTMLLcFieldSmalltextElement>;
-            "bc-field-string": LocalJSX.IntrinsicElements["bc-field-string"] & JSXBase.HTMLAttributes<HTMLLcFieldStringElement>;
-            "bc-field-tableselect": LocalJSX.IntrinsicElements["bc-field-tableselect"] & JSXBase.HTMLAttributes<HTMLLcFieldTableselectElement>;
-            "bc-field-tags": LocalJSX.IntrinsicElements["bc-field-tags"] & JSXBase.HTMLAttributes<HTMLLcFieldTagsElement>;
-            "bc-field-text": LocalJSX.IntrinsicElements["bc-field-text"] & JSXBase.HTMLAttributes<HTMLLcFieldTextElement>;
-            "bc-field-time": LocalJSX.IntrinsicElements["bc-field-time"] & JSXBase.HTMLAttributes<HTMLLcFieldTimeElement>;
-            "bc-field-toggle": LocalJSX.IntrinsicElements["bc-field-toggle"] & JSXBase.HTMLAttributes<HTMLLcFieldToggleElement>;
-            "bc-filter-bar": LocalJSX.IntrinsicElements["bc-filter-bar"] & JSXBase.HTMLAttributes<HTMLLcFilterBarElement>;
-            "bc-filter-builder": LocalJSX.IntrinsicElements["bc-filter-builder"] & JSXBase.HTMLAttributes<HTMLLcFilterBuilderElement>;
-            "bc-filter-panel": LocalJSX.IntrinsicElements["bc-filter-panel"] & JSXBase.HTMLAttributes<HTMLLcFilterPanelElement>;
-            "bc-header": LocalJSX.IntrinsicElements["bc-header"] & JSXBase.HTMLAttributes<HTMLLcHeaderElement>;
-            "bc-html-block": LocalJSX.IntrinsicElements["bc-html-block"] & JSXBase.HTMLAttributes<HTMLLcHtmlBlockElement>;
-            "bc-lookup-modal": LocalJSX.IntrinsicElements["bc-lookup-modal"] & JSXBase.HTMLAttributes<HTMLLcLookupModalElement>;
-            "bc-placeholder": LocalJSX.IntrinsicElements["bc-placeholder"] & JSXBase.HTMLAttributes<HTMLLcPlaceholderElement>;
-            "bc-print": LocalJSX.IntrinsicElements["bc-print"] & JSXBase.HTMLAttributes<HTMLLcPrintElement>;
-            "bc-report-link": LocalJSX.IntrinsicElements["bc-report-link"] & JSXBase.HTMLAttributes<HTMLLcReportLinkElement>;
-            "bc-row": LocalJSX.IntrinsicElements["bc-row"] & JSXBase.HTMLAttributes<HTMLLcRowElement>;
-            "bc-search": LocalJSX.IntrinsicElements["bc-search"] & JSXBase.HTMLAttributes<HTMLLcSearchElement>;
-            "bc-section": LocalJSX.IntrinsicElements["bc-section"] & JSXBase.HTMLAttributes<HTMLLcSectionElement>;
-            "bc-separator": LocalJSX.IntrinsicElements["bc-separator"] & JSXBase.HTMLAttributes<HTMLLcSeparatorElement>;
-            "bc-sheet": LocalJSX.IntrinsicElements["bc-sheet"] & JSXBase.HTMLAttributes<HTMLLcSheetElement>;
-            "bc-tab": LocalJSX.IntrinsicElements["bc-tab"] & JSXBase.HTMLAttributes<HTMLLcTabElement>;
-            "bc-tabs": LocalJSX.IntrinsicElements["bc-tabs"] & JSXBase.HTMLAttributes<HTMLLcTabsElement>;
-            "bc-timeline": LocalJSX.IntrinsicElements["bc-timeline"] & JSXBase.HTMLAttributes<HTMLLcTimelineElement>;
-            "bc-toast": LocalJSX.IntrinsicElements["bc-toast"] & JSXBase.HTMLAttributes<HTMLLcToastElement>;
-            "bc-view-activity": LocalJSX.IntrinsicElements["bc-view-activity"] & JSXBase.HTMLAttributes<HTMLLcViewActivityElement>;
-            "bc-view-calendar": LocalJSX.IntrinsicElements["bc-view-calendar"] & JSXBase.HTMLAttributes<HTMLLcViewCalendarElement>;
-            "bc-view-form": LocalJSX.IntrinsicElements["bc-view-form"] & JSXBase.HTMLAttributes<HTMLLcViewFormElement>;
-            "bc-view-gantt": LocalJSX.IntrinsicElements["bc-view-gantt"] & JSXBase.HTMLAttributes<HTMLLcViewGanttElement>;
-            "bc-view-kanban": LocalJSX.IntrinsicElements["bc-view-kanban"] & JSXBase.HTMLAttributes<HTMLLcViewKanbanElement>;
-            "bc-view-list": LocalJSX.IntrinsicElements["bc-view-list"] & JSXBase.HTMLAttributes<HTMLLcViewListElement>;
-            "bc-view-map": LocalJSX.IntrinsicElements["bc-view-map"] & JSXBase.HTMLAttributes<HTMLLcViewMapElement>;
-            "bc-view-report": LocalJSX.IntrinsicElements["bc-view-report"] & JSXBase.HTMLAttributes<HTMLLcViewReportElement>;
-            "bc-view-tree": LocalJSX.IntrinsicElements["bc-view-tree"] & JSXBase.HTMLAttributes<HTMLLcViewTreeElement>;
-            "bc-widget-badge": LocalJSX.IntrinsicElements["bc-widget-badge"] & JSXBase.HTMLAttributes<HTMLLcWidgetBadgeElement>;
-            "bc-widget-copy": LocalJSX.IntrinsicElements["bc-widget-copy"] & JSXBase.HTMLAttributes<HTMLLcWidgetCopyElement>;
-            "bc-widget-domain": LocalJSX.IntrinsicElements["bc-widget-domain"] & JSXBase.HTMLAttributes<HTMLLcWidgetDomainElement>;
-            "bc-widget-email": LocalJSX.IntrinsicElements["bc-widget-email"] & JSXBase.HTMLAttributes<HTMLLcWidgetEmailElement>;
-            "bc-widget-handle": LocalJSX.IntrinsicElements["bc-widget-handle"] & JSXBase.HTMLAttributes<HTMLLcWidgetHandleElement>;
-            "bc-widget-phone": LocalJSX.IntrinsicElements["bc-widget-phone"] & JSXBase.HTMLAttributes<HTMLLcWidgetPhoneElement>;
-            "bc-widget-priority": LocalJSX.IntrinsicElements["bc-widget-priority"] & JSXBase.HTMLAttributes<HTMLLcWidgetPriorityElement>;
-            "bc-widget-progress": LocalJSX.IntrinsicElements["bc-widget-progress"] & JSXBase.HTMLAttributes<HTMLLcWidgetProgressElement>;
-            "bc-widget-statusbar": LocalJSX.IntrinsicElements["bc-widget-statusbar"] & JSXBase.HTMLAttributes<HTMLLcWidgetStatusbarElement>;
-            "bc-widget-url": LocalJSX.IntrinsicElements["bc-widget-url"] & JSXBase.HTMLAttributes<HTMLLcWidgetUrlElement>;
+            "bc-activity": LocalJSX.IntrinsicElements["bc-activity"] & JSXBase.HTMLAttributes<HTMLBcActivityElement>;
+            "bc-button-box": LocalJSX.IntrinsicElements["bc-button-box"] & JSXBase.HTMLAttributes<HTMLBcButtonBoxElement>;
+            "bc-chart-area": LocalJSX.IntrinsicElements["bc-chart-area"] & JSXBase.HTMLAttributes<HTMLBcChartAreaElement>;
+            "bc-chart-bar": LocalJSX.IntrinsicElements["bc-chart-bar"] & JSXBase.HTMLAttributes<HTMLBcChartBarElement>;
+            "bc-chart-funnel": LocalJSX.IntrinsicElements["bc-chart-funnel"] & JSXBase.HTMLAttributes<HTMLBcChartFunnelElement>;
+            "bc-chart-gauge": LocalJSX.IntrinsicElements["bc-chart-gauge"] & JSXBase.HTMLAttributes<HTMLBcChartGaugeElement>;
+            "bc-chart-heatmap": LocalJSX.IntrinsicElements["bc-chart-heatmap"] & JSXBase.HTMLAttributes<HTMLBcChartHeatmapElement>;
+            "bc-chart-kpi": LocalJSX.IntrinsicElements["bc-chart-kpi"] & JSXBase.HTMLAttributes<HTMLBcChartKpiElement>;
+            "bc-chart-line": LocalJSX.IntrinsicElements["bc-chart-line"] & JSXBase.HTMLAttributes<HTMLBcChartLineElement>;
+            "bc-chart-pie": LocalJSX.IntrinsicElements["bc-chart-pie"] & JSXBase.HTMLAttributes<HTMLBcChartPieElement>;
+            "bc-chart-pivot": LocalJSX.IntrinsicElements["bc-chart-pivot"] & JSXBase.HTMLAttributes<HTMLBcChartPivotElement>;
+            "bc-chart-progress": LocalJSX.IntrinsicElements["bc-chart-progress"] & JSXBase.HTMLAttributes<HTMLBcChartProgressElement>;
+            "bc-chart-scorecard": LocalJSX.IntrinsicElements["bc-chart-scorecard"] & JSXBase.HTMLAttributes<HTMLBcChartScorecardElement>;
+            "bc-chatter": LocalJSX.IntrinsicElements["bc-chatter"] & JSXBase.HTMLAttributes<HTMLBcChatterElement>;
+            "bc-child-table": LocalJSX.IntrinsicElements["bc-child-table"] & JSXBase.HTMLAttributes<HTMLBcChildTableElement>;
+            "bc-column": LocalJSX.IntrinsicElements["bc-column"] & JSXBase.HTMLAttributes<HTMLBcColumnElement>;
+            "bc-datatable": LocalJSX.IntrinsicElements["bc-datatable"] & JSXBase.HTMLAttributes<HTMLBcDatatableElement>;
+            "bc-dialog-confirm": LocalJSX.IntrinsicElements["bc-dialog-confirm"] & JSXBase.HTMLAttributes<HTMLBcDialogConfirmElement>;
+            "bc-dialog-modal": LocalJSX.IntrinsicElements["bc-dialog-modal"] & JSXBase.HTMLAttributes<HTMLBcDialogModalElement>;
+            "bc-dialog-quickentry": LocalJSX.IntrinsicElements["bc-dialog-quickentry"] & JSXBase.HTMLAttributes<HTMLBcDialogQuickentryElement>;
+            "bc-dialog-wizard": LocalJSX.IntrinsicElements["bc-dialog-wizard"] & JSXBase.HTMLAttributes<HTMLBcDialogWizardElement>;
+            "bc-export": LocalJSX.IntrinsicElements["bc-export"] & JSXBase.HTMLAttributes<HTMLBcExportElement>;
+            "bc-favorites": LocalJSX.IntrinsicElements["bc-favorites"] & JSXBase.HTMLAttributes<HTMLBcFavoritesElement>;
+            "bc-field-barcode": LocalJSX.IntrinsicElements["bc-field-barcode"] & JSXBase.HTMLAttributes<HTMLBcFieldBarcodeElement>;
+            "bc-field-checkbox": LocalJSX.IntrinsicElements["bc-field-checkbox"] & JSXBase.HTMLAttributes<HTMLBcFieldCheckboxElement>;
+            "bc-field-code": LocalJSX.IntrinsicElements["bc-field-code"] & JSXBase.HTMLAttributes<HTMLBcFieldCodeElement>;
+            "bc-field-color": LocalJSX.IntrinsicElements["bc-field-color"] & JSXBase.HTMLAttributes<HTMLBcFieldColorElement>;
+            "bc-field-currency": LocalJSX.IntrinsicElements["bc-field-currency"] & JSXBase.HTMLAttributes<HTMLBcFieldCurrencyElement>;
+            "bc-field-date": LocalJSX.IntrinsicElements["bc-field-date"] & JSXBase.HTMLAttributes<HTMLBcFieldDateElement>;
+            "bc-field-datetime": LocalJSX.IntrinsicElements["bc-field-datetime"] & JSXBase.HTMLAttributes<HTMLBcFieldDatetimeElement>;
+            "bc-field-decimal": LocalJSX.IntrinsicElements["bc-field-decimal"] & JSXBase.HTMLAttributes<HTMLBcFieldDecimalElement>;
+            "bc-field-duration": LocalJSX.IntrinsicElements["bc-field-duration"] & JSXBase.HTMLAttributes<HTMLBcFieldDurationElement>;
+            "bc-field-dynlink": LocalJSX.IntrinsicElements["bc-field-dynlink"] & JSXBase.HTMLAttributes<HTMLBcFieldDynlinkElement>;
+            "bc-field-file": LocalJSX.IntrinsicElements["bc-field-file"] & JSXBase.HTMLAttributes<HTMLBcFieldFileElement>;
+            "bc-field-float": LocalJSX.IntrinsicElements["bc-field-float"] & JSXBase.HTMLAttributes<HTMLBcFieldFloatElement>;
+            "bc-field-geo": LocalJSX.IntrinsicElements["bc-field-geo"] & JSXBase.HTMLAttributes<HTMLBcFieldGeoElement>;
+            "bc-field-html": LocalJSX.IntrinsicElements["bc-field-html"] & JSXBase.HTMLAttributes<HTMLBcFieldHtmlElement>;
+            "bc-field-image": LocalJSX.IntrinsicElements["bc-field-image"] & JSXBase.HTMLAttributes<HTMLBcFieldImageElement>;
+            "bc-field-integer": LocalJSX.IntrinsicElements["bc-field-integer"] & JSXBase.HTMLAttributes<HTMLBcFieldIntegerElement>;
+            "bc-field-json": LocalJSX.IntrinsicElements["bc-field-json"] & JSXBase.HTMLAttributes<HTMLBcFieldJsonElement>;
+            "bc-field-link": LocalJSX.IntrinsicElements["bc-field-link"] & JSXBase.HTMLAttributes<HTMLBcFieldLinkElement>;
+            "bc-field-markdown": LocalJSX.IntrinsicElements["bc-field-markdown"] & JSXBase.HTMLAttributes<HTMLBcFieldMarkdownElement>;
+            "bc-field-multicheck": LocalJSX.IntrinsicElements["bc-field-multicheck"] & JSXBase.HTMLAttributes<HTMLBcFieldMulticheckElement>;
+            "bc-field-password": LocalJSX.IntrinsicElements["bc-field-password"] & JSXBase.HTMLAttributes<HTMLBcFieldPasswordElement>;
+            "bc-field-percent": LocalJSX.IntrinsicElements["bc-field-percent"] & JSXBase.HTMLAttributes<HTMLBcFieldPercentElement>;
+            "bc-field-radio": LocalJSX.IntrinsicElements["bc-field-radio"] & JSXBase.HTMLAttributes<HTMLBcFieldRadioElement>;
+            "bc-field-rating": LocalJSX.IntrinsicElements["bc-field-rating"] & JSXBase.HTMLAttributes<HTMLBcFieldRatingElement>;
+            "bc-field-richtext": LocalJSX.IntrinsicElements["bc-field-richtext"] & JSXBase.HTMLAttributes<HTMLBcFieldRichtextElement>;
+            "bc-field-select": LocalJSX.IntrinsicElements["bc-field-select"] & JSXBase.HTMLAttributes<HTMLBcFieldSelectElement>;
+            "bc-field-signature": LocalJSX.IntrinsicElements["bc-field-signature"] & JSXBase.HTMLAttributes<HTMLBcFieldSignatureElement>;
+            "bc-field-smalltext": LocalJSX.IntrinsicElements["bc-field-smalltext"] & JSXBase.HTMLAttributes<HTMLBcFieldSmalltextElement>;
+            "bc-field-string": LocalJSX.IntrinsicElements["bc-field-string"] & JSXBase.HTMLAttributes<HTMLBcFieldStringElement>;
+            "bc-field-tableselect": LocalJSX.IntrinsicElements["bc-field-tableselect"] & JSXBase.HTMLAttributes<HTMLBcFieldTableselectElement>;
+            "bc-field-tags": LocalJSX.IntrinsicElements["bc-field-tags"] & JSXBase.HTMLAttributes<HTMLBcFieldTagsElement>;
+            "bc-field-text": LocalJSX.IntrinsicElements["bc-field-text"] & JSXBase.HTMLAttributes<HTMLBcFieldTextElement>;
+            "bc-field-time": LocalJSX.IntrinsicElements["bc-field-time"] & JSXBase.HTMLAttributes<HTMLBcFieldTimeElement>;
+            "bc-field-toggle": LocalJSX.IntrinsicElements["bc-field-toggle"] & JSXBase.HTMLAttributes<HTMLBcFieldToggleElement>;
+            "bc-filter-bar": LocalJSX.IntrinsicElements["bc-filter-bar"] & JSXBase.HTMLAttributes<HTMLBcFilterBarElement>;
+            "bc-filter-builder": LocalJSX.IntrinsicElements["bc-filter-builder"] & JSXBase.HTMLAttributes<HTMLBcFilterBuilderElement>;
+            "bc-filter-panel": LocalJSX.IntrinsicElements["bc-filter-panel"] & JSXBase.HTMLAttributes<HTMLBcFilterPanelElement>;
+            "bc-header": LocalJSX.IntrinsicElements["bc-header"] & JSXBase.HTMLAttributes<HTMLBcHeaderElement>;
+            "bc-html-block": LocalJSX.IntrinsicElements["bc-html-block"] & JSXBase.HTMLAttributes<HTMLBcHtmlBlockElement>;
+            "bc-lookup-modal": LocalJSX.IntrinsicElements["bc-lookup-modal"] & JSXBase.HTMLAttributes<HTMLBcLookupModalElement>;
+            "bc-placeholder": LocalJSX.IntrinsicElements["bc-placeholder"] & JSXBase.HTMLAttributes<HTMLBcPlaceholderElement>;
+            "bc-print": LocalJSX.IntrinsicElements["bc-print"] & JSXBase.HTMLAttributes<HTMLBcPrintElement>;
+            "bc-report-link": LocalJSX.IntrinsicElements["bc-report-link"] & JSXBase.HTMLAttributes<HTMLBcReportLinkElement>;
+            "bc-row": LocalJSX.IntrinsicElements["bc-row"] & JSXBase.HTMLAttributes<HTMLBcRowElement>;
+            "bc-search": LocalJSX.IntrinsicElements["bc-search"] & JSXBase.HTMLAttributes<HTMLBcSearchElement>;
+            "bc-section": LocalJSX.IntrinsicElements["bc-section"] & JSXBase.HTMLAttributes<HTMLBcSectionElement>;
+            "bc-separator": LocalJSX.IntrinsicElements["bc-separator"] & JSXBase.HTMLAttributes<HTMLBcSeparatorElement>;
+            "bc-sheet": LocalJSX.IntrinsicElements["bc-sheet"] & JSXBase.HTMLAttributes<HTMLBcSheetElement>;
+            "bc-tab": LocalJSX.IntrinsicElements["bc-tab"] & JSXBase.HTMLAttributes<HTMLBcTabElement>;
+            "bc-tabs": LocalJSX.IntrinsicElements["bc-tabs"] & JSXBase.HTMLAttributes<HTMLBcTabsElement>;
+            "bc-timeline": LocalJSX.IntrinsicElements["bc-timeline"] & JSXBase.HTMLAttributes<HTMLBcTimelineElement>;
+            "bc-toast": LocalJSX.IntrinsicElements["bc-toast"] & JSXBase.HTMLAttributes<HTMLBcToastElement>;
+            "bc-view-activity": LocalJSX.IntrinsicElements["bc-view-activity"] & JSXBase.HTMLAttributes<HTMLBcViewActivityElement>;
+            "bc-view-calendar": LocalJSX.IntrinsicElements["bc-view-calendar"] & JSXBase.HTMLAttributes<HTMLBcViewCalendarElement>;
+            "bc-view-editor": LocalJSX.IntrinsicElements["bc-view-editor"] & JSXBase.HTMLAttributes<HTMLBcViewEditorElement>;
+            "bc-view-form": LocalJSX.IntrinsicElements["bc-view-form"] & JSXBase.HTMLAttributes<HTMLBcViewFormElement>;
+            "bc-view-gantt": LocalJSX.IntrinsicElements["bc-view-gantt"] & JSXBase.HTMLAttributes<HTMLBcViewGanttElement>;
+            "bc-view-kanban": LocalJSX.IntrinsicElements["bc-view-kanban"] & JSXBase.HTMLAttributes<HTMLBcViewKanbanElement>;
+            "bc-view-list": LocalJSX.IntrinsicElements["bc-view-list"] & JSXBase.HTMLAttributes<HTMLBcViewListElement>;
+            "bc-view-map": LocalJSX.IntrinsicElements["bc-view-map"] & JSXBase.HTMLAttributes<HTMLBcViewMapElement>;
+            "bc-view-report": LocalJSX.IntrinsicElements["bc-view-report"] & JSXBase.HTMLAttributes<HTMLBcViewReportElement>;
+            "bc-view-tree": LocalJSX.IntrinsicElements["bc-view-tree"] & JSXBase.HTMLAttributes<HTMLBcViewTreeElement>;
+            "bc-widget-badge": LocalJSX.IntrinsicElements["bc-widget-badge"] & JSXBase.HTMLAttributes<HTMLBcWidgetBadgeElement>;
+            "bc-widget-copy": LocalJSX.IntrinsicElements["bc-widget-copy"] & JSXBase.HTMLAttributes<HTMLBcWidgetCopyElement>;
+            "bc-widget-domain": LocalJSX.IntrinsicElements["bc-widget-domain"] & JSXBase.HTMLAttributes<HTMLBcWidgetDomainElement>;
+            "bc-widget-email": LocalJSX.IntrinsicElements["bc-widget-email"] & JSXBase.HTMLAttributes<HTMLBcWidgetEmailElement>;
+            "bc-widget-handle": LocalJSX.IntrinsicElements["bc-widget-handle"] & JSXBase.HTMLAttributes<HTMLBcWidgetHandleElement>;
+            "bc-widget-phone": LocalJSX.IntrinsicElements["bc-widget-phone"] & JSXBase.HTMLAttributes<HTMLBcWidgetPhoneElement>;
+            "bc-widget-priority": LocalJSX.IntrinsicElements["bc-widget-priority"] & JSXBase.HTMLAttributes<HTMLBcWidgetPriorityElement>;
+            "bc-widget-progress": LocalJSX.IntrinsicElements["bc-widget-progress"] & JSXBase.HTMLAttributes<HTMLBcWidgetProgressElement>;
+            "bc-widget-statusbar": LocalJSX.IntrinsicElements["bc-widget-statusbar"] & JSXBase.HTMLAttributes<HTMLBcWidgetStatusbarElement>;
+            "bc-widget-url": LocalJSX.IntrinsicElements["bc-widget-url"] & JSXBase.HTMLAttributes<HTMLBcWidgetUrlElement>;
         }
     }
 }

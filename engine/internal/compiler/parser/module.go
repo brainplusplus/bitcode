@@ -23,6 +23,11 @@ type SettingDefinition struct {
 	Default any    `json:"default,omitempty"`
 }
 
+type IncludeMenuDefinition struct {
+	Module string   `json:"module"`
+	Views  []string `json:"views,omitempty"`
+}
+
 type ModuleDefinition struct {
 	Name        string                       `json:"name"`
 	Version     string                       `json:"version"`
@@ -40,8 +45,10 @@ type ModuleDefinition struct {
 	I18n        []string                     `json:"i18n,omitempty"`
 	Permissions map[string]string            `json:"permissions,omitempty"`
 	Groups      map[string]GroupDefinition   `json:"groups,omitempty"`
-	Menu        []MenuItemDefinition         `json:"menu,omitempty"`
-	Settings    map[string]SettingDefinition `json:"settings,omitempty"`
+	Menu           []MenuItemDefinition         `json:"menu,omitempty"`
+	MenuVisibility string                       `json:"menu_visibility,omitempty"`
+	IncludeMenus   []IncludeMenuDefinition      `json:"include_menus,omitempty"`
+	Settings       map[string]SettingDefinition  `json:"settings,omitempty"`
 }
 
 func ParseModule(data []byte) (*ModuleDefinition, error) {

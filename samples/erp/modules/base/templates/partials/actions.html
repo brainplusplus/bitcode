@@ -1,5 +1,0 @@
-{{range .}}
-<a class="lc-btn {{if eq .Variant "primary"}}lc-btn-primary{{else if eq .Variant "danger"}}lc-btn-danger{{else}}lc-btn-secondary{{end}}" href="#" {{if .Confirm}}onclick="return confirm('{{.Confirm}}')"{{end}}>
-  {{.Label}}
-</a>
-{{end}}

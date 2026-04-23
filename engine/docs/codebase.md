@@ -6,7 +6,9 @@
 engine/
 ├── cmd/                                    # Entry points
 │   ├── engine/main.go                      # Server — connects DB, loads modules, starts Fiber
-│   └── bitcode/main.go                     # CLI — init, dev, validate, module, user, db, version
+│   └── bitcode/
+│       ├── main.go                         # CLI — init, dev, validate, module, user, db, publish, version
+│       └── publish.go                      # `bitcode publish` — extract embedded modules to project
 │
 ├── internal/                               # Private application code
 │   ├── app.go                              # Central wiring — NewApp(), LoadModules(), Start()
@@ -68,7 +70,9 @@ engine/
 │   │   ├── persistence/
 │   │   │   ├── database.go                 # NewDatabase() — SQLite/Postgres/MySQL via config
 │   │   │   ├── dynamic_model.go            # MigrateModel() — CREATE TABLE from ModelDefinition, dialect-aware
-│   │   │   └── repository.go               # GenericRepository — Create/FindByID/FindAll/Update/Delete/HardDelete
+│   │   │   ├── repository.go               # GenericRepository — Create/FindByID/FindAll/Update/Delete/HardDelete
+│   │   │   ├── view_revision.go            # ViewRevision model + repository (CRUD, cleanup, auto-migrate)
+│   │   │   └── view_revision_test.go       # 6 tests (create, list, get, cleanup)
 │   │   ├── cache/
 │   │   │   ├── cache.go                    # Cache interface + NewCache() factory (memory or redis)
 │   │   │   ├── memory.go                   # MemoryCache — in-process with TTL
@@ -77,7 +81,10 @@ engine/
 │   │   ├── module/
 │   │   │   ├── registry.go                 # Module registry — Register/Get/IsInstalled/List
 │   │   │   ├── dependency.go               # ResolveDependencies() — topological sort, circular detection
-│   │   │   ├── loader.go                   # LoadModule() — parse module dir, load models + APIs
+│   │   │   ├── loader.go                   # LoadModule() + LoadModuleFromFS() — parse module, load models + APIs
+│   │   │   ├── fs.go                       # ModuleFS interface, DiskFS, EmbedFS, LayeredFS, SubFS, ExtractModuleFS
+│   │   │   ├── fs_test.go                  # 32 tests (DiskFS, EmbedFS, LayeredFS, SubFS, Extract)
+│   │   │   ├── integration_test.go         # 4 integration tests (3-layer resolution, override, mixed)
 │   │   │   └── module_test.go              # 7 tests (registry, dependencies, parse)
 │   │   ├── i18n/
 │   │   │   ├── loader.go                   # Translator — LoadFile/LoadJSON, Translate with fallback
@@ -89,6 +96,9 @@ engine/
 │       ├── api/
 │       │   ├── router.go                   # Dynamic route registration from API definitions
 │       │   └── crud_handler.go             # Auto-CRUD handler — List/Read/Create/Update/Delete
+│       ├── admin/
+│       │   ├── admin.go                    # Admin panel — sidebar, dashboard, models (tabs), modules (tabs), views (list+detail+editor), health
+│       │   └── admin_api.go                # Admin JSON API — view save, rollback, preview, publish
 │       ├── middleware/
 │       │   ├── auth.go                     # JWT validation, user context injection
 │       │   ├── permission.go               # RBAC permission checking via PermissionChecker interface
@@ -114,16 +124,21 @@ engine/
 │   │   └── security_test.go                # 5 tests
 │   └── plugin/                             # Plugin SDK (for TS/Python plugins)
 │
-├── modules/                                # Built-in modules
-│   └── base/                               # Core module (always installed)
-│       ├── module.json                     # 11 permissions, 2 groups, menu
-│       ├── models/                         # user, role, group, permission, record_rule, audit_log, setting
-│       ├── apis/                           # auth_api, user_api
-│       ├── data/                           # default_roles, default_groups
-│       └── templates/                      # Default UI templates
-│           ├── layout.html                 # Main layout (sidebar + navbar + content area)
-│           ├── partials/                   # Reusable components (sidebar, navbar, pagination, badges, actions)
-│           └── views/                      # View templates (list, form, kanban, calendar, chart, login, home)
+├── embedded/                               # Go-embedded assets compiled into binary
+│   ├── embed.go                            # //go:embed directive for ModulesFS
+│   ├── embed_test.go                       # Verify embedding works
+│   └── modules/
+│       └── base/                           # Core module (embedded, always available)
+│           ├── module.json                 # 11 permissions, 2 groups, menu, menu_visibility: admin
+│           ├── models/                     # user, role, group, permission, record_rule, audit_log, setting
+│           ├── apis/                       # auth_api, user_api, group_api, etc.
+│           ├── views/                      # 13 view definitions (list + form for each model)
+│           ├── data/                       # default_users, default_roles, default_groups
+│           └── templates/                  # Default UI templates
+│               ├── layout.html             # Main layout (sidebar + navbar + content area)
+│               ├── layout-app.html         # App layout variant
+│               ├── partials/               # Reusable components (sidebar, navbar, pagination, badges, actions)
+│               └── views/                  # View templates (list, form, kanban, calendar, chart, login, home)
 │
 ├── Dockerfile                              # Multi-stage build
 ├── docker-compose.yml                      # Engine + Postgres + Redis
@@ -144,12 +159,14 @@ engine/
 | `domain/event` | 4 | Pub/sub, subscribe all, no subscribers |
 | `domain/setting` | 5 | Get/set, defaults, all |
 | `infrastructure/cache` | 5 | Memory cache set/get, TTL, delete, clear |
-| `infrastructure/module` | 7 | Registry, dependency resolution, circular detection |
+| `infrastructure/module` | 43 | Registry, dependencies, DiskFS, EmbedFS, LayeredFS, SubFS, Extract, LoadModuleFromFS, integration |
+| `embedded` | 4 | Verify base module embedded correctly |
 | `infrastructure/i18n` | 4 | Translate, fallback, locale detection |
 | `presentation/template` | 5 | Load/render, helpers (truncate, dict, eq) |
 | `runtime/executor` | 3 | Step dispatch, unknown type, step error |
 | `runtime/executor/steps` | 9 | Validate (eq/fail/required), emit, assign, if, process parse |
-| **Total** | **93** | |
+| `infrastructure/persistence` | 6 | ViewRevision CRUD, list, cleanup |
+| **Total** | **181** | |
 
 ## Key Interfaces
 

@@ -1,6 +1,0 @@
-{
-  "name": "user_api",
-  "model": "user",
-  "auto_crud": true,
-  "auth": true
-}

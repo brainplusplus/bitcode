@@ -1,9 +1,0 @@
-{
-  "name": "audit_log_list",
-  "type": "list",
-  "model": "audit_log",
-  "title": "Audit Logs",
-  "fields": ["user_id", "action", "model_name", "record_id", "ip_address", "created_at"],
-  "filters": ["action", "model_name", "user_id"],
-  "sort": { "field": "created_at", "order": "desc" }
-}
