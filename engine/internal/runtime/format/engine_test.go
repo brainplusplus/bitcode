@@ -2,282 +2,265 @@ package format
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 	"testing"
 	"time"
 )
 
 type mockSequenceProvider struct {
-	counter map[string]int64
+	values map[string]int64
+	calls  []sequenceCall
+}
+
+type sequenceCall struct {
+	modelName   string
+	fieldName   string
+	sequenceKey string
+	step        int
 }
 
 func newMockSequenceProvider() *mockSequenceProvider {
-	return &mockSequenceProvider{counter: make(map[string]int64)}
+	return &mockSequenceProvider{values: make(map[string]int64)}
 }
 
 func (m *mockSequenceProvider) NextValue(modelName, fieldName, sequenceKey string, step int) (int64, error) {
-	key := modelName + ":" + fieldName + ":" + sequenceKey
-	m.counter[key]++
-	return m.counter[key], nil
+	key := fmt.Sprintf("%s|%s|%s|%d", modelName, fieldName, sequenceKey, step)
+	m.values[key]++
+	m.calls = append(m.calls, sequenceCall{
+		modelName:   modelName,
+		fieldName:   fieldName,
+		sequenceKey: sequenceKey,
+		step:        step,
+	})
+	return m.values[key], nil
 }
 
-func fixedTime() time.Time {
-	return time.Date(2026, 4, 24, 10, 30, 0, 0, time.UTC)
-}
-
-func baseCtx() *FormatContext {
+func fixedContext() *FormatContext {
 	return &FormatContext{
 		Data: map[string]any{
-			"nik":           "3201234567",
-			"customer_type": "corporate",
-			"name":          "Budi Santoso",
-			"dept":          "sales",
-			"email":         "budi@test.com",
-			"branch_code":   "JKT",
+			"customer": "Acme Corp",
+			"dept":     "finance",
+			"nik":      "EMP001234",
+			"code":     42,
 		},
 		Session: map[string]any{
-			"user_id":    "usr-001",
-			"username":   "admin",
-			"tenant_id":  "tenant-001",
-			"group_id":   "grp-001",
-			"group_code": "sales_team",
+			"user_id": "usr-123",
+			"role":    "manager",
 		},
 		Settings: map[string]string{
-			"company_code":  "ACME",
-			"kode_instansi": "KEMENDIKBUD",
+			"company": "BitCode",
+			"region":  "ID",
 		},
 		ModelName: "invoice",
 		Module:    "sales",
-		Now:       fixedTime(),
+		Now:       time.Date(2026, time.April, 24, 9, 30, 45, 0, time.UTC),
 	}
 }
 
 func TestResolveDataToken(t *testing.T) {
-	e := NewEngine(newMockSequenceProvider())
-	result, err := e.Resolve("{data.nik}", baseCtx(), "test", "id", "never", 1)
+	engine := NewEngine(newMockSequenceProvider())
+
+	got, err := engine.Resolve("{data.customer}", fixedContext(), "invoice", "number", "", 1)
 	if err != nil {
-		t.Fatal(err)
+		t.Fatalf("Resolve error: %v", err)
 	}
-	if result != "3201234567" {
-		t.Fatalf("expected 3201234567, got %s", result)
+	if got != "Acme Corp" {
+		t.Fatalf("expected Acme Corp, got %q", got)
 	}
 }
 
 func TestResolveTimeTokens(t *testing.T) {
-	e := NewEngine(newMockSequenceProvider())
-	ctx := baseCtx()
+	engine := NewEngine(newMockSequenceProvider())
+	ctx := fixedContext()
 
-	tests := []struct {
-		tmpl string
-		want string
-	}{
-		{"{time.year}", "2026"},
-		{"{time.month}", "04"},
-		{"{time.day}", "24"},
-		{"{time.hour}", "10"},
-		{"{time.minute}", "30"},
-		{"{time.date}", "2026-04-24"},
-		{"{time.unix}", fmt.Sprintf("%d", fixedTime().Unix())},
+	got, err := engine.Resolve("{time.now}|{time.year}|{time.month}|{time.day}|{time.hour}|{time.minute}|{time.date}|{time.unix}", ctx, "invoice", "number", "", 1)
+	if err != nil {
+		t.Fatalf("Resolve error: %v", err)
 	}
 
-	for _, tt := range tests {
-		result, err := e.Resolve(tt.tmpl, ctx, "test", "id", "never", 1)
-		if err != nil {
-			t.Fatalf("template %s: %v", tt.tmpl, err)
+	want := strings.Join([]string{
+		"2026-04-24T09:30:45Z",
+		"2026",
+		"04",
+		"24",
+		"09",
+		"30",
+		"2026-04-24",
+		"1777023045",
+	}, "|")
+
+	if got != want {
+		t.Fatalf("expected %q, got %q", want, got)
+	}
+}
+
+func TestResolveSessionSettingAndModelTokens(t *testing.T) {
+	engine := NewEngine(newMockSequenceProvider())
+
+	got, err := engine.Resolve("{session.user_id}/{setting.company}/{model.name}/{model.module}", fixedContext(), "invoice", "number", "", 1)
+	if err != nil {
+		t.Fatalf("Resolve error: %v", err)
+	}
+	if got != "usr-123/BitCode/invoice/sales" {
+		t.Fatalf("unexpected value: %q", got)
+	}
+}
+
+func TestResolveFunctions(t *testing.T) {
+	engine := NewEngine(newMockSequenceProvider())
+
+	got, err := engine.Resolve("{upper(data.dept)}|{lower(setting.company)}|{substring(data.nik,0,3)}|{hash(data.customer)}", fixedContext(), "invoice", "number", "", 1)
+	if err != nil {
+		t.Fatalf("Resolve error: %v", err)
+	}
+
+	parts := strings.Split(got, "|")
+	if len(parts) != 4 {
+		t.Fatalf("expected 4 parts, got %d", len(parts))
+	}
+	if parts[0] != "FINANCE" {
+		t.Fatalf("expected FINANCE, got %q", parts[0])
+	}
+	if parts[1] != "bitcode" {
+		t.Fatalf("expected bitcode, got %q", parts[1])
+	}
+	if parts[2] != "EMP" {
+		t.Fatalf("expected EMP, got %q", parts[2])
+	}
+	if matched := regexp.MustCompile(`^[a-f0-9]{8}$`).MatchString(parts[3]); !matched {
+		t.Fatalf("expected 8-char hex hash, got %q", parts[3])
+	}
+}
+
+func TestResolveUUIDTokens(t *testing.T) {
+	engine := NewEngine(newMockSequenceProvider())
+
+	got, err := engine.Resolve("{uuid4}|{uuid7}", fixedContext(), "invoice", "number", "", 1)
+	if err != nil {
+		t.Fatalf("Resolve error: %v", err)
+	}
+
+	parts := strings.Split(got, "|")
+	if len(parts) != 2 {
+		t.Fatalf("expected 2 parts, got %d", len(parts))
+	}
+	for _, part := range parts {
+		if len(part) != 36 {
+			t.Fatalf("expected uuid length 36, got %q", part)
 		}
-		if result != tt.want {
-			t.Fatalf("template %s: expected %s, got %s", tt.tmpl, tt.want, result)
-		}
 	}
 }
 
-func TestResolveSessionTokens(t *testing.T) {
-	e := NewEngine(newMockSequenceProvider())
-	ctx := baseCtx()
+func TestResolveRandomTokens(t *testing.T) {
+	engine := NewEngine(newMockSequenceProvider())
 
-	result, err := e.Resolve("{session.user_id}-{session.group_code}", ctx, "test", "id", "never", 1)
+	got, err := engine.Resolve("{random(12)}|{random_fixed(6,10,99)}", fixedContext(), "invoice", "number", "", 1)
 	if err != nil {
-		t.Fatal(err)
+		t.Fatalf("Resolve error: %v", err)
 	}
-	if result != "usr-001-sales_team" {
-		t.Fatalf("expected usr-001-sales_team, got %s", result)
+
+	parts := strings.Split(got, "|")
+	if len(parts) != 2 {
+		t.Fatalf("expected 2 parts, got %d", len(parts))
+	}
+	if len(parts[0]) != 12 {
+		t.Fatalf("expected random length 12, got %d", len(parts[0]))
+	}
+	if matched := regexp.MustCompile(`^[A-Za-z0-9]{12}$`).MatchString(parts[0]); !matched {
+		t.Fatalf("expected alphanumeric random string, got %q", parts[0])
+	}
+	if len(parts[1]) != 6 {
+		t.Fatalf("expected fixed random length 6, got %d", len(parts[1]))
+	}
+	if matched := regexp.MustCompile(`^0000[1-9][0-9]?$`).MatchString(parts[1]); !matched {
+		t.Fatalf("expected zero-padded value between 10 and 99, got %q", parts[1])
 	}
 }
 
-func TestResolveSettingToken(t *testing.T) {
-	e := NewEngine(newMockSequenceProvider())
-	result, err := e.Resolve("{setting.company_code}", baseCtx(), "test", "id", "never", 1)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if result != "ACME" {
-		t.Fatalf("expected ACME, got %s", result)
-	}
-}
-
-func TestResolveModelTokens(t *testing.T) {
-	e := NewEngine(newMockSequenceProvider())
-	result, err := e.Resolve("{model.name}/{model.module}", baseCtx(), "test", "id", "never", 1)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if result != "invoice/sales" {
-		t.Fatalf("expected invoice/sales, got %s", result)
-	}
-}
-
-func TestResolveSequence(t *testing.T) {
-	e := NewEngine(newMockSequenceProvider())
-	result, err := e.Resolve("INV/{time.year}/{sequence(6)}", baseCtx(), "invoice", "code", "yearly", 1)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if result != "INV/2026/000001" {
-		t.Fatalf("expected INV/2026/000001, got %s", result)
-	}
-}
-
-func TestResolveSequenceMiddle(t *testing.T) {
-	e := NewEngine(newMockSequenceProvider())
-	result, err := e.Resolve("INV/{sequence(4)}/{time.year}", baseCtx(), "invoice", "code", "yearly", 1)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if result != "INV/0001/2026" {
-		t.Fatalf("expected INV/0001/2026, got %s", result)
-	}
-}
-
-func TestResolveUpper(t *testing.T) {
-	e := NewEngine(newMockSequenceProvider())
-	result, err := e.Resolve("{upper(data.dept)}", baseCtx(), "test", "id", "never", 1)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if result != "SALES" {
-		t.Fatalf("expected SALES, got %s", result)
-	}
-}
-
-func TestResolveLower(t *testing.T) {
-	e := NewEngine(newMockSequenceProvider())
-	result, err := e.Resolve("{lower(data.name)}", baseCtx(), "test", "id", "never", 1)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if result != "budi santoso" {
-		t.Fatalf("expected budi santoso, got %s", result)
-	}
-}
-
-func TestResolveSubstring(t *testing.T) {
-	e := NewEngine(newMockSequenceProvider())
-	result, err := e.Resolve("{substring(data.nik,0,3)}", baseCtx(), "test", "id", "never", 1)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if result != "320" {
-		t.Fatalf("expected 320, got %s", result)
-	}
-}
-
-func TestResolveHash(t *testing.T) {
-	e := NewEngine(newMockSequenceProvider())
-	result, err := e.Resolve("{hash(data.email)}", baseCtx(), "test", "id", "never", 1)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(result) != 8 {
-		t.Fatalf("expected 8 char hash, got %d chars: %s", len(result), result)
-	}
-}
-
-func TestResolveRandom(t *testing.T) {
-	e := NewEngine(newMockSequenceProvider())
-	result, err := e.Resolve("{random(8)}", baseCtx(), "test", "id", "never", 1)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(result) != 8 {
-		t.Fatalf("expected 8 chars, got %d: %s", len(result), result)
-	}
-}
-
-func TestResolveRandomFixed(t *testing.T) {
-	e := NewEngine(newMockSequenceProvider())
-	result, err := e.Resolve("{random_fixed(3,200,999)}", baseCtx(), "test", "id", "never", 1)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(result) != 3 {
-		t.Fatalf("expected 3 chars, got %d: %s", len(result), result)
-	}
-}
-
-func TestResolveUUID4(t *testing.T) {
-	e := NewEngine(newMockSequenceProvider())
-	result, err := e.Resolve("{uuid4}", baseCtx(), "test", "id", "never", 1)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(result) != 36 {
-		t.Fatalf("expected UUID length 36, got %d: %s", len(result), result)
-	}
-}
-
-func TestResolveComplexTemplate(t *testing.T) {
-	e := NewEngine(newMockSequenceProvider())
-	result, err := e.Resolve("{upper(data.dept)}-{sequence(4)}-{time.year}", baseCtx(), "order", "code", "yearly", 1)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if result != "SALES-0001-2026" {
-		t.Fatalf("expected SALES-0001-2026, got %s", result)
-	}
-}
-
-func TestResolveSuratKeluarFormat(t *testing.T) {
-	e := NewEngine(newMockSequenceProvider())
-	result, err := e.Resolve("{sequence(4)}/{upper(data.dept)}/{setting.kode_instansi}/{time.month}/{time.year}", baseCtx(), "surat", "nomor", "monthly", 1)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if result != "0001/SALES/KEMENDIKBUD/04/2026" {
-		t.Fatalf("expected 0001/SALES/KEMENDIKBUD/04/2026, got %s", result)
-	}
-}
-
-func TestResolveKeyResetMode(t *testing.T) {
+func TestResolveCombinedTemplateSequenceLast(t *testing.T) {
 	sp := newMockSequenceProvider()
-	e := NewEngine(sp)
+	engine := NewEngine(sp)
 
-	result, err := e.Resolve("INV/{time.year}/{sequence(6)}", baseCtx(), "invoice", "code", "key", 1)
+	got, err := engine.Resolve("INV/{time.year}/{sequence(6)}", fixedContext(), "invoice", "number", "never", 1)
 	if err != nil {
-		t.Fatal(err)
+		t.Fatalf("Resolve error: %v", err)
 	}
-	if result != "INV/2026/000001" {
-		t.Fatalf("expected INV/2026/000001, got %s", result)
+	if got != "INV/2026/000001" {
+		t.Fatalf("expected INV/2026/000001, got %q", got)
 	}
-
-	for key := range sp.counter {
-		if !strings.Contains(key, "INV/2026/") {
-			t.Fatalf("expected sequence key to contain INV/2026/, got key: %s", key)
-		}
+	if len(sp.calls) != 1 {
+		t.Fatalf("expected 1 sequence call, got %d", len(sp.calls))
+	}
+	if sp.calls[0].sequenceKey != "invoice:number" {
+		t.Fatalf("expected base sequence key, got %q", sp.calls[0].sequenceKey)
 	}
 }
 
-func TestResolveMissingDataField(t *testing.T) {
-	e := NewEngine(newMockSequenceProvider())
-	_, err := e.Resolve("{data.nonexistent}", baseCtx(), "test", "id", "never", 1)
+func TestResolveKeyResetModeUsesResolvedTemplateWithoutSequence(t *testing.T) {
+	sp := newMockSequenceProvider()
+	engine := NewEngine(sp)
+
+	got, err := engine.Resolve("INV/{time.year}/{data.dept}/{sequence(4)}", fixedContext(), "invoice", "number", "key", 3)
+	if err != nil {
+		t.Fatalf("Resolve error: %v", err)
+	}
+	if got != "INV/2026/finance/0001" {
+		t.Fatalf("expected INV/2026/finance/0001, got %q", got)
+	}
+	if len(sp.calls) != 1 {
+		t.Fatalf("expected 1 sequence call, got %d", len(sp.calls))
+	}
+	if sp.calls[0].sequenceKey != "INV/2026/finance/" {
+		t.Fatalf("expected resolved key reset sequence key, got %q", sp.calls[0].sequenceKey)
+	}
+	if sp.calls[0].step != 3 {
+		t.Fatalf("expected step 3, got %d", sp.calls[0].step)
+	}
+}
+
+func TestResolveTimeBasedResetModeUsesTimeComponent(t *testing.T) {
+	sp := newMockSequenceProvider()
+	engine := NewEngine(sp)
+
+	got, err := engine.Resolve("INV/{sequence(4)}", fixedContext(), "invoice", "number", "monthly", 1)
+	if err != nil {
+		t.Fatalf("Resolve error: %v", err)
+	}
+	if got != "INV/0001" {
+		t.Fatalf("expected INV/0001, got %q", got)
+	}
+	if len(sp.calls) != 1 {
+		t.Fatalf("expected 1 sequence call, got %d", len(sp.calls))
+	}
+	if sp.calls[0].sequenceKey != "invoice:number:2026-04" {
+		t.Fatalf("expected monthly sequence key, got %q", sp.calls[0].sequenceKey)
+	}
+}
+
+func TestResolveMissingDataFieldReturnsError(t *testing.T) {
+	engine := NewEngine(newMockSequenceProvider())
+
+	_, err := engine.Resolve("{data.missing}", fixedContext(), "invoice", "number", "", 1)
 	if err == nil {
 		t.Fatal("expected error for missing data field")
 	}
 }
 
-func TestResolveUnknownToken(t *testing.T) {
-	e := NewEngine(newMockSequenceProvider())
-	_, err := e.Resolve("{unknown_token}", baseCtx(), "test", "id", "never", 1)
+func TestResolveWithoutSequenceProviderReturnsError(t *testing.T) {
+	engine := NewEngine(nil)
+
+	_, err := engine.Resolve("{sequence(4)}", fixedContext(), "invoice", "number", "", 1)
 	if err == nil {
-		t.Fatal("expected error for unknown token")
+		t.Fatal("expected error when sequence provider is nil")
+	}
+}
+
+func TestResolveInvalidFunctionArgumentsReturnError(t *testing.T) {
+	engine := NewEngine(newMockSequenceProvider())
+
+	_, err := engine.Resolve("{substring(data.nik,nope,3)}", fixedContext(), "invoice", "number", "", 1)
+	if err == nil {
+		t.Fatal("expected error for invalid substring argument")
 	}
 }

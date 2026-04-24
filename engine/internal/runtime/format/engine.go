@@ -79,6 +79,10 @@ func (e *Engine) Resolve(template string, ctx *FormatContext, modelName, fieldNa
 	}
 
 	if len(seqs) > 0 {
+		if e.sequenceProvider == nil {
+			return "", fmt.Errorf("sequence provider is nil")
+		}
+
 		var seqKey string
 		if resetMode == "key" {
 			seqKey = tokenRe.ReplaceAllString(result, "")
