@@ -63,15 +63,12 @@ if %errorlevel% equ 0 (
     echo [2/2] Building and starting (no hot-reload)
     echo       Install Air for hot-reload: go install github.com/air-verse/air@latest
     echo.
-    cd ..\..\engine
-    set CGO_ENABLED=0
-    if exist bin\engine.exe del bin\engine.exe
-    go build -o bin\engine.exe cmd\engine\main.go
+    if not exist tmp mkdir tmp
+    go build -C ..\..\engine -o ..\samples\erp\tmp\engine.exe cmd\engine\main.go
     if %errorlevel% neq 0 (
         echo [ERROR] Build failed.
         pause
         exit /b 1
     )
-    cd /d "%~dp0"
-    ..\..\engine\bin\engine.exe
+    tmp\engine.exe
 )

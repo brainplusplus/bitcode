@@ -2,7 +2,7 @@ root = "."
 tmp_dir = "tmp"
 
 [build]
-  cmd = "cd ../../engine && go build -o ../samples/erp/tmp/engine.exe cmd/engine/main.go"
+  cmd = "go build -C ../../engine -o ../samples/erp/tmp/engine.exe cmd/engine/main.go"
   bin = "./tmp/engine.exe"
   include_ext = ["go", "json", "html", "yaml", "toml"]
   include_dir = ["../../engine", "modules"]
