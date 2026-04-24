@@ -1,0 +1,18 @@
+{
+  "name": "auth",
+  "version": "1.0.0",
+  "label": "Authentication",
+  "depends": ["base"],
+  "category": "Core",
+  "auth": false,
+  "views": ["views/*.json"],
+  "templates": ["templates/**/*.html"],
+  "i18n": ["i18n/*.json"],
+  "menu_visibility": "none",
+  "settings": {
+    "register_enabled": { "type": "boolean", "default": false },
+    "otp_enabled":      { "type": "boolean", "default": false },
+    "otp_channel":      { "type": "string",  "default": "email" },
+    "otp_type":         { "type": "string",  "default": "code" }
+  }
+}

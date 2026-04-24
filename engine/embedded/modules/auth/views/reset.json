@@ -1,0 +1,6 @@
+{
+  "name": "reset",
+  "type": "custom",
+  "title": "Reset Password",
+  "template": "templates/views/reset.html"
+}

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="{{.Locale}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{t .Locale "auth.forgot.title"}} — LowCode</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);display:flex;justify-content:center;align-items:center;min-height:100vh;padding:1rem}
+.auth-card{background:#fff;padding:2.5rem;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.3);width:100%;max-width:400px}
+.auth-brand{display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem}
+.auth-brand svg{width:36px;height:36px}
+.auth-brand span{font-size:1.3rem;font-weight:700;color:#1a1a2e}
+.auth-subtitle{color:#718096;margin-bottom:1.75rem;font-size:0.9rem}
+.auth-error{background:#FEE2E2;color:#991B1B;padding:0.75rem;border-radius:8px;margin-bottom:1rem;font-size:0.85rem}
+.auth-success{background:#ECFDF5;color:#065F46;padding:0.75rem;border-radius:8px;margin-bottom:1rem;font-size:0.85rem}
+.auth-info{background:#FFF7ED;color:#9A3412;padding:0.75rem;border-radius:8px;margin-bottom:1rem;font-size:0.85rem}
+.auth-label{display:block;font-weight:600;margin-bottom:0.3rem;font-size:0.85rem;color:#333}
+.auth-input{width:100%;padding:0.7rem 0.9rem;border:1.5px solid #e2e8f0;border-radius:8px;font-size:0.95rem;margin-bottom:1rem;outline:none;transition:border 0.2s,box-shadow 0.2s;font-family:inherit}
+.auth-input:focus{border-color:#6366F1;box-shadow:0 0 0 3px rgba(99,102,241,0.15)}
+.auth-btn{width:100%;padding:0.75rem;background:#6366F1;color:#fff;border:none;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;transition:background 0.2s;font-family:inherit}
+.auth-btn:hover{background:#4F46E5}
+.auth-links{text-align:center;margin-top:1.25rem;font-size:0.82rem}
+.auth-links a{color:#6366F1;text-decoration:none}
+.auth-links a:hover{text-decoration:underline}
+.auth-footer{text-align:center;margin-top:1.5rem;font-size:0.8rem;color:#a0aec0}
+</style>
+</head>
+<body>
+<div class="auth-card">
+  <div class="auth-brand">
+    <svg viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#6366F1"/><path d="M10 10h5v16h-5V10zm11 5h5v11h-5V15z" fill="#fff"/></svg>
+    <span>LowCode</span>
+  </div>
+  {{if .ChannelConfigured}}
+  <p class="auth-subtitle">{{t .Locale "auth.forgot.subtitle"}}</p>
+  {{if .Error}}
+  <div class="auth-error">{{.Error}}</div>
+  {{end}}
+  {{if .Success}}
+  <div class="auth-success">{{.Success}}</div>
+  {{end}}
+  <form method="POST" action="/app/auth/forgot">
+    <label class="auth-label">{{t .Locale "auth.forgot.email"}}</label>
+    <input class="auth-input" type="email" name="email" placeholder="{{t .Locale "auth.forgot.email_placeholder"}}" autofocus required>
+    <button class="auth-btn" type="submit">{{t .Locale "auth.forgot.submit"}}</button>
+  </form>
+  {{else}}
+  <div class="auth-info">{{t .Locale "auth.forgot.not_configured"}}</div>
+  {{end}}
+  <div class="auth-links">
+    <a href="/app/auth/login">{{t .Locale "auth.forgot.back"}}</a>
+  </div>
+  <div class="auth-footer">{{t .Locale "auth.login.powered_by"}}</div>
+</div>
+</body>
+</html>

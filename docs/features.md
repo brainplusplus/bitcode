@@ -10,11 +10,11 @@
 
 | Metric | Count |
 |--------|-------|
-| Total Features Tracked | 69 |
-| ✅ Implemented | 42 |
+| Total Features Tracked | 70 |
+| ✅ Implemented | 43 |
 | ⚠️ Partial | 2 |
 | ❌ Not Yet | 25 |
-| **Completion** | **60.9%** (effective ~62% counting partials as 0.5) |
+| **Completion** | **61.4%** (effective ~63% counting partials as 0.5) |
 
 ### Per-Category Summary
 
@@ -185,6 +185,7 @@ Before the gap list — what's already **production-solid**:
 
 | # | Feature | Status | Effort | What Exists | What's Missing |
 |---|---------|--------|--------|-------------|----------------|
+| 65 | Auth Module | ✅ | — | Embedded `auth` module with login, register, forgot password, reset, 2FA verify pages. All templates i18n-ready (11 languages). `module.json` `auth` field controls per-module auth requirement (default: true). Settings-driven: `register_enabled`, `otp_enabled`, `otp_channel`, `otp_type`. `menu_visibility: "none"` support. `?next=` redirect with sanitization. | — |
 | 57 | Two-Factor Auth (2FA) | ✅ | — | Email OTP 2FA: `POST /auth/2fa/enable`, `/auth/2fa/disable`, `/auth/2fa/validate`. Login returns `requires_2fa` + temp token when 2FA enabled. OTP via SMTP email, cached with TTL, max 3 attempts. | — |
 | 58 | Data Encryption | ✅ | — | Password hashing (bcrypt) + JWT signing + AES-256-GCM field-level encryption. Fields marked `"encrypted": true` in model JSON get transparent encrypt-on-write / decrypt-on-read. Key versioning (`v1:` prefix) for future rotation. | — |
 | 59 | Backup & Restore | ✅ | — | `bitcode db backup [path]` and `bitcode db restore [path]`. Driver-aware: SQLite file copy, PostgreSQL pg_dump/psql, MySQL mysqldump/mysql. Supports `--gzip` compression and `--force` restore. Metadata JSON per backup. | Scheduled backups (depends on cron + storage). |

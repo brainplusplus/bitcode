@@ -122,6 +122,7 @@ All config via environment variables or `bitcode.toml`/`bitcode.yaml`. Defaults 
 | `SECURITY_SESSION_DURATION` | `24h` | JWT token / cookie lifetime |
 | `SECURITY_COOKIE_SECURE` | `false` | HTTPS-only cookies |
 | `SECURITY_COOKIE_SAMESITE` | `Lax` | Cookie SameSite policy |
+| `AUTH_REGISTER_ENABLED` | `false` | Enable user registration page |
 
 ### PostgreSQL
 

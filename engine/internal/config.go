@@ -55,6 +55,8 @@ func LoadConfig(explicitPath string) (AppConfig, error) {
 	v.SetDefault("security.cookie_secure", false)
 	v.SetDefault("security.cookie_samesite", "Lax")
 
+	v.SetDefault("auth.register_enabled", false)
+
 	v.SetDefault("storage.driver", "local")
 	v.SetDefault("storage.max_size", 10*1024*1024)
 	v.SetDefault("storage.allowed_extensions", []string{".jpg", ".jpeg", ".png", ".gif", ".webp", ".pdf", ".doc", ".docx", ".xls", ".xlsx", ".csv", ".txt", ".zip"})
@@ -117,6 +119,8 @@ func LoadConfig(explicitPath string) (AppConfig, error) {
 	v.BindEnv("security.session_duration", "SECURITY_SESSION_DURATION")
 	v.BindEnv("security.cookie_secure", "SECURITY_COOKIE_SECURE")
 	v.BindEnv("security.cookie_samesite", "SECURITY_COOKIE_SAMESITE")
+
+	v.BindEnv("auth.register_enabled", "AUTH_REGISTER_ENABLED")
 
 	v.BindEnv("storage.driver", "STORAGE_DRIVER")
 	v.BindEnv("storage.max_size", "STORAGE_MAX_SIZE")

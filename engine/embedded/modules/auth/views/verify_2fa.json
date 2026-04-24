@@ -1,0 +1,6 @@
+{
+  "name": "verify_2fa",
+  "type": "custom",
+  "title": "Verify 2FA",
+  "template": "templates/views/verify_2fa.html"
+}

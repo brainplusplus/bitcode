@@ -12,10 +12,12 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	"github.com/bitcode-engine/engine/embedded"
 	"github.com/bitcode-engine/engine/internal/compiler/parser"
 	"github.com/bitcode-engine/engine/internal/domain/event"
 	domainModel "github.com/bitcode-engine/engine/internal/domain/model"
+	"github.com/bitcode-engine/engine/internal/domain/setting"
 	"github.com/bitcode-engine/engine/internal/infrastructure/cache"
 	"github.com/bitcode-engine/engine/internal/infrastructure/i18n"
 	"github.com/bitcode-engine/engine/internal/infrastructure/module"
@@ -99,6 +101,7 @@ type App struct {
 	Hydrator        *expression.Hydrator
 	AuditLogRepo    *persistence.AuditLogRepository
 	FieldEncryptor  *security.FieldEncryptor
+	SettingStore    *setting.Store
 	viewDefs        map[string]*viewEntry
 	moduleMenus     map[string][]parser.MenuItemDefinition
 	moduleOrder     []string
@@ -142,6 +145,11 @@ func NewApp(cfg AppConfig) (*App, error) {
 	wsHub := ws.NewHub()
 	go wsHub.Run()
 	translator := i18n.NewTranslator("en")
+	settingStore := setting.NewStore()
+
+	templateEngine.RegisterHelper("t", func(locale string, key string) string {
+		return translator.Translate(locale, key)
+	})
 
 	seqEngine := persistence.NewSequenceEngine(db)
 	if err := seqEngine.MigrateSequenceTable(); err != nil {
@@ -169,6 +177,7 @@ func NewApp(cfg AppConfig) (*App, error) {
 		JWTConfig:       jwtCfg,
 		WSHub:           wsHub,
 		Translator:      translator,
+		SettingStore:    settingStore,
 		SequenceEngine:  seqEngine,
 		FormatEngine:    fmtEngine,
 		PKGenerator:     pkGen,
@@ -314,9 +323,19 @@ func (a *App) setupRoutes() {
 		return c.Redirect("/app/home")
 	})
 	a.Fiber.Get("/app", a.handleAppRoot)
-	a.Fiber.Get("/app/login", a.handleLoginPage)
-	a.Fiber.Post("/app/login", a.handleLoginSubmit)
+	a.Fiber.Get("/app/login", func(c *fiber.Ctx) error {
+		return c.Redirect("/app/auth/login")
+	})
+	a.Fiber.Post("/app/login", func(c *fiber.Ctx) error {
+		return c.Redirect("/app/auth/login", 307)
+	})
 	a.Fiber.Get("/app/home", a.handleHomePage)
+	a.Fiber.Post("/app/auth/login", a.handleAuthLoginPost)
+	a.Fiber.Post("/app/auth/register", a.handleAuthRegisterPost)
+	a.Fiber.Post("/app/auth/forgot", a.handleAuthForgotPost)
+	a.Fiber.Post("/app/auth/reset", a.handleAuthResetPost)
+	a.Fiber.Post("/app/auth/verify-2fa", a.handleAuthVerify2FAPost)
+	a.Fiber.Get("/app/auth/logout", a.handleAuthLogout)
 	a.Fiber.Get("/app/:module/*", a.handleViewGet)
 	a.Fiber.Post("/app/:module/*", a.handleViewPost)
 }
@@ -357,80 +376,7 @@ func (a *App) handleAppRoot(c *fiber.Ctx) error {
 			return c.Redirect("/app/home")
 		}
 	}
-	return c.Redirect("/app/login")
-}
-
-func (a *App) handleLoginPage(c *fiber.Ctx) error {
-	errMsg := c.Query("error", "")
-
-	if a.TemplateEngine.Has("templates/views/login.html") {
-		html, err := a.TemplateEngine.Render("templates/views/login.html", map[string]any{
-			"Error": errMsg,
-		})
-		if err == nil {
-			c.Set("Content-Type", "text/html; charset=utf-8")
-			return c.SendString(html)
-		}
-	}
-
-	html := loginPageHTML(errMsg)
-	c.Set("Content-Type", "text/html; charset=utf-8")
-	return c.SendString(html)
-}
-
-func (a *App) handleLoginSubmit(c *fiber.Ctx) error {
-	username := c.FormValue("username")
-	password := c.FormValue("password")
-
-	if username == "" || password == "" {
-		return c.Redirect("/app/login?error=Username+and+password+required")
-	}
-
-	repo := persistence.NewGenericRepository(a.DB, "users")
-	users, _, err := repo.FindAll(c.Context(), [][]any{{"username", "=", username}}, 1, 1)
-	if err != nil || len(users) == 0 {
-		return c.Redirect("/app/login?error=Invalid+credentials")
-	}
-
-	hash, _ := users[0]["password_hash"].(string)
-	if !security.CheckPassword(password, hash) {
-		return c.Redirect("/app/login?error=Invalid+credentials")
-	}
-
-	userID, _ := users[0]["id"].(string)
-	token, err := security.GenerateToken(a.JWTConfig, userID, username, nil, nil)
-	if err != nil {
-		return c.Redirect("/app/login?error=Server+error")
-	}
-
-	sameSite := "Lax"
-	if a.Config.Security.CookieSameSite != "" {
-		sameSite = a.Config.Security.CookieSameSite
-	}
-	c.Cookie(&fiber.Cookie{
-		Name:     "token",
-		Value:    token,
-		Path:     "/",
-		HTTPOnly: true,
-		Secure:   a.Config.Security.CookieSecure,
-		SameSite: sameSite,
-		MaxAge:   int(a.Config.Security.SessionDuration.Seconds()),
-	})
-
-	if a.AuditLogRepo != nil {
-		a.AuditLogRepo.WriteAsync(persistence.AuditLogEntry{
-			UserID:        userID,
-			Action:        "login",
-			ModelName:     "user",
-			RecordID:      userID,
-			IPAddress:     c.IP(),
-			UserAgent:     c.Get("User-Agent"),
-			RequestMethod: c.Method(),
-			RequestPath:   c.Path(),
-		})
-	}
-
-	return c.Redirect("/app/home")
+	return c.Redirect("/app/auth/login")
 }
 
 func (a *App) handleHomePage(c *fiber.Ctx) error {
@@ -443,11 +389,11 @@ func (a *App) handleHomePage(c *fiber.Ctx) error {
 	if token != "" {
 		claims, err := security.ValidateToken(a.JWTConfig, token)
 		if err != nil {
-			return c.Redirect("/app/login")
+			return c.Redirect("/app/auth/login")
 		}
 		username = claims.Username
 	} else {
-		return c.Redirect("/app/login")
+		return c.Redirect("/app/auth/login")
 	}
 
 	modules := a.ModuleRegistry.InstalledNames()
@@ -582,6 +528,321 @@ func extractBearerToken(c *fiber.Ctx) string {
 	return ""
 }
 
+func (a *App) handleAuthLoginPost(c *fiber.Ctx) error {
+	username := c.FormValue("username")
+	password := c.FormValue("password")
+	next := sanitizeNextURL(c.Query("next", ""))
+
+	if username == "" || password == "" {
+		return c.Redirect("/app/auth/login?error=Username+and+password+required" + nextParam(next))
+	}
+
+	repo := persistence.NewGenericRepository(a.DB, "users")
+	users, _, err := repo.FindAll(c.Context(), [][]any{{"username", "=", username}}, 1, 1)
+	if err != nil || len(users) == 0 {
+		return c.Redirect("/app/auth/login?error=Invalid+credentials" + nextParam(next))
+	}
+
+	user := users[0]
+	hash, _ := user["password_hash"].(string)
+	if !security.CheckPassword(password, hash) {
+		return c.Redirect("/app/auth/login?error=Invalid+credentials" + nextParam(next))
+	}
+
+	userID, _ := user["id"].(string)
+	uname, _ := user["username"].(string)
+
+	token, err := security.GenerateToken(a.JWTConfig, userID, uname, nil, nil)
+	if err != nil {
+		return c.Redirect("/app/auth/login?error=Server+error" + nextParam(next))
+	}
+
+	sameSite := "Lax"
+	if a.Config.Security.CookieSameSite != "" {
+		sameSite = a.Config.Security.CookieSameSite
+	}
+	c.Cookie(&fiber.Cookie{
+		Name:     "token",
+		Value:    token,
+		Path:     "/",
+		HTTPOnly: true,
+		Secure:   a.Config.Security.CookieSecure,
+		SameSite: sameSite,
+		MaxAge:   int(a.Config.Security.SessionDuration.Seconds()),
+	})
+
+	repo.Update(c.Context(), userID, map[string]any{"last_login": time.Now()})
+
+	if a.AuditLogRepo != nil {
+		a.AuditLogRepo.WriteAsync(persistence.AuditLogEntry{
+			UserID:        userID,
+			Action:        "login",
+			ModelName:     "user",
+			RecordID:      userID,
+			IPAddress:     c.IP(),
+			UserAgent:     c.Get("User-Agent"),
+			RequestMethod: c.Method(),
+			RequestPath:   c.Path(),
+		})
+	}
+
+	if next != "" {
+		return c.Redirect(next)
+	}
+	return c.Redirect("/app/home")
+}
+
+func (a *App) handleAuthRegisterPost(c *fiber.Ctx) error {
+	if a.SettingStore.GetWithDefault("auth.register_enabled", "false") != "true" {
+		return c.Redirect("/app/auth/register?error=Registration+is+disabled")
+	}
+
+	username := c.FormValue("username")
+	email := c.FormValue("email")
+	password := c.FormValue("password")
+	confirmPassword := c.FormValue("confirm_password")
+
+	if username == "" || email == "" || password == "" {
+		return c.Redirect("/app/auth/register?error=All+fields+are+required")
+	}
+	if password != confirmPassword {
+		return c.Redirect("/app/auth/register?error=Passwords+do+not+match")
+	}
+
+	hash, err := security.HashPassword(password)
+	if err != nil {
+		return c.Redirect("/app/auth/register?error=Invalid+password")
+	}
+
+	repo := persistence.NewGenericRepository(a.DB, "users")
+
+	existing, _, _ := repo.FindAll(c.Context(), [][]any{{"username", "=", username}}, 1, 1)
+	if len(existing) > 0 {
+		return c.Redirect("/app/auth/register?error=Username+already+exists")
+	}
+
+	existingEmail, _, _ := repo.FindAll(c.Context(), [][]any{{"email", "=", email}}, 1, 1)
+	if len(existingEmail) > 0 {
+		return c.Redirect("/app/auth/register?error=Email+already+exists")
+	}
+
+	record := map[string]any{
+		"id":            fmt.Sprintf("%s", newUUID()),
+		"username":      username,
+		"email":         email,
+		"password_hash": hash,
+		"active":        true,
+	}
+
+	if _, err := repo.Create(c.Context(), record); err != nil {
+		return c.Redirect("/app/auth/register?error=Registration+failed")
+	}
+
+	if a.AuditLogRepo != nil {
+		a.AuditLogRepo.WriteAsync(persistence.AuditLogEntry{
+			UserID: record["id"].(string), Action: "register", ModelName: "user", RecordID: record["id"].(string),
+			IPAddress: c.IP(), UserAgent: c.Get("User-Agent"), RequestMethod: c.Method(), RequestPath: c.Path(),
+		})
+	}
+
+	return c.Redirect("/app/auth/login?success=Account+created.+Please+sign+in.")
+}
+
+func (a *App) handleAuthForgotPost(c *fiber.Ctx) error {
+	emailAddr := c.FormValue("email")
+	if emailAddr == "" {
+		return c.Redirect("/app/auth/forgot?error=Email+is+required")
+	}
+
+	repo := persistence.NewGenericRepository(a.DB, "users")
+	users, _, _ := repo.FindAll(c.Context(), [][]any{{"email", "=", emailAddr}}, 1, 1)
+	// Always show success to prevent email enumeration
+	if len(users) == 0 {
+		return c.Redirect("/app/auth/forgot?success=If+an+account+exists+with+that+email,+a+code+has+been+sent.")
+	}
+
+	user := users[0]
+	userID, _ := user["id"].(string)
+
+	otpCode, err := security.GenerateOTP(6)
+	if err != nil {
+		return c.Redirect("/app/auth/forgot?error=Server+error")
+	}
+
+	a.Cache.Set(fmt.Sprintf("reset:%s", emailAddr), otpCode, 10*time.Minute)
+
+	emailSender := a.createEmailSender()
+	if emailSender.IsConfigured() {
+		htmlBody, _ := email.RenderOTPEmail(otpCode, 10)
+		go emailSender.Send(emailAddr, "Password Reset Code", htmlBody)
+	}
+
+	if a.AuditLogRepo != nil {
+		a.AuditLogRepo.WriteAsync(persistence.AuditLogEntry{
+			UserID: userID, Action: "forgot_password", ModelName: "user", RecordID: userID,
+			IPAddress: c.IP(), UserAgent: c.Get("User-Agent"), RequestMethod: c.Method(), RequestPath: c.Path(),
+		})
+	}
+
+	return c.Redirect("/app/auth/reset?email=" + emailAddr)
+}
+
+func (a *App) handleAuthResetPost(c *fiber.Ctx) error {
+	emailAddr := c.FormValue("email")
+	code := c.FormValue("code")
+	password := c.FormValue("password")
+	confirmPassword := c.FormValue("confirm_password")
+
+	if code == "" || password == "" {
+		return c.Redirect("/app/auth/reset?email=" + emailAddr + "&error=All+fields+are+required")
+	}
+	if password != confirmPassword {
+		return c.Redirect("/app/auth/reset?email=" + emailAddr + "&error=Passwords+do+not+match")
+	}
+
+	cacheKey := fmt.Sprintf("reset:%s", emailAddr)
+	cached, ok := a.Cache.Get(cacheKey)
+	if !ok {
+		return c.Redirect("/app/auth/forgot?error=Code+expired.+Please+try+again.")
+	}
+
+	storedCode, _ := cached.(string)
+	if storedCode != code {
+		return c.Redirect("/app/auth/reset?email=" + emailAddr + "&error=Invalid+code")
+	}
+
+	a.Cache.Delete(cacheKey)
+
+	hash, err := security.HashPassword(password)
+	if err != nil {
+		return c.Redirect("/app/auth/reset?email=" + emailAddr + "&error=Invalid+password")
+	}
+
+	repo := persistence.NewGenericRepository(a.DB, "users")
+	users, _, _ := repo.FindAll(c.Context(), [][]any{{"email", "=", emailAddr}}, 1, 1)
+	if len(users) == 0 {
+		return c.Redirect("/app/auth/login?error=User+not+found")
+	}
+
+	userID, _ := users[0]["id"].(string)
+	repo.Update(c.Context(), userID, map[string]any{"password_hash": hash})
+
+	if a.AuditLogRepo != nil {
+		a.AuditLogRepo.WriteAsync(persistence.AuditLogEntry{
+			UserID: userID, Action: "password_reset", ModelName: "user", RecordID: userID,
+			IPAddress: c.IP(), UserAgent: c.Get("User-Agent"), RequestMethod: c.Method(), RequestPath: c.Path(),
+		})
+	}
+
+	return c.Redirect("/app/auth/login?success=Password+reset+successful.+Please+sign+in.")
+}
+
+func (a *App) handleAuthVerify2FAPost(c *fiber.Ctx) error {
+	tempToken := c.FormValue("temp_token")
+	code := c.FormValue("code")
+
+	if tempToken == "" || code == "" {
+		return c.Redirect("/app/auth/login?error=Verification+failed")
+	}
+
+	claims, err := security.ValidateToken(a.JWTConfig, tempToken)
+	if err != nil || claims.Purpose != "2fa" {
+		return c.Redirect("/app/auth/login?error=Session+expired.+Please+login+again.")
+	}
+
+	cacheKey := fmt.Sprintf("otp:%s", claims.UserID)
+	cached, ok := a.Cache.Get(cacheKey)
+	if !ok {
+		return c.Redirect("/app/auth/login?error=Code+expired.+Please+login+again.")
+	}
+
+	type otpEntry struct {
+		Code     string
+		Attempts int
+	}
+	entry, ok := cached.(*otpEntry)
+	if !ok {
+		a.Cache.Delete(cacheKey)
+		return c.Redirect("/app/auth/login?error=Verification+failed")
+	}
+
+	if entry.Code != code {
+		return c.Redirect("/app/auth/verify-2fa?error=Invalid+code&temp_token=" + tempToken)
+	}
+
+	a.Cache.Delete(cacheKey)
+
+	token, err := security.GenerateToken(a.JWTConfig, claims.UserID, claims.Username, nil, nil)
+	if err != nil {
+		return c.Redirect("/app/auth/login?error=Server+error")
+	}
+
+	sameSite := "Lax"
+	if a.Config.Security.CookieSameSite != "" {
+		sameSite = a.Config.Security.CookieSameSite
+	}
+	c.Cookie(&fiber.Cookie{
+		Name:     "token",
+		Value:    token,
+		Path:     "/",
+		HTTPOnly: true,
+		Secure:   a.Config.Security.CookieSecure,
+		SameSite: sameSite,
+		MaxAge:   int(a.Config.Security.SessionDuration.Seconds()),
+	})
+
+	return c.Redirect("/app/home")
+}
+
+func (a *App) handleAuthLogout(c *fiber.Ctx) error {
+	userID, _ := c.Locals("user_id").(string)
+	if a.AuditLogRepo != nil && userID != "" {
+		a.AuditLogRepo.WriteAsync(persistence.AuditLogEntry{
+			UserID: userID, Action: "logout", ModelName: "user", RecordID: userID,
+			IPAddress: c.IP(), UserAgent: c.Get("User-Agent"), RequestMethod: c.Method(), RequestPath: c.Path(),
+		})
+	}
+	c.Cookie(&fiber.Cookie{
+		Name:   "token",
+		Value:  "",
+		Path:   "/",
+		MaxAge: -1,
+	})
+	return c.Redirect("/app/auth/login")
+}
+
+func nextParam(next string) string {
+	if next == "" {
+		return ""
+	}
+	return "&next=" + next
+}
+
+func newUUID() string {
+	return fmt.Sprintf("%s", uuid.New().String())
+}
+
+func (a *App) moduleRequiresAuth(moduleName string) bool {
+	installed, err := a.ModuleRegistry.Get(moduleName)
+	if err != nil {
+		return true
+	}
+	return installed.Definition.RequiresAuth()
+}
+
+func sanitizeNextURL(next string) string {
+	if next == "" {
+		return ""
+	}
+	if !strings.HasPrefix(next, "/app/") {
+		return ""
+	}
+	if strings.Contains(next, "://") || strings.Contains(next, "\\") || strings.HasPrefix(next, "//") {
+		return ""
+	}
+	return next
+}
+
 func (a *App) handleViewGet(c *fiber.Ctx) error {
 	moduleName := c.Params("module")
 	viewPath := c.Params("*")
@@ -609,10 +870,40 @@ func (a *App) handleViewGet(c *fiber.Ctx) error {
 		token = extractBearerToken(c)
 	}
 	var username string
+	var validToken bool
 	if token != "" {
 		claims, _ := security.ValidateToken(a.JWTConfig, token)
 		if claims != nil {
 			username = claims.Username
+			validToken = true
+		}
+	}
+
+	if a.moduleRequiresAuth(moduleName) && !validToken {
+		next := sanitizeNextURL(c.OriginalURL())
+		redirectURL := "/app/auth/login"
+		if next != "" {
+			redirectURL += "?next=" + next
+		}
+		return c.Redirect(redirectURL)
+	}
+
+	locale := c.Query("lang", "en")
+	if moduleName == "auth" {
+		extraData := map[string]any{
+			"Locale":            locale,
+			"Error":             c.Query("error", ""),
+			"Success":           c.Query("success", ""),
+			"Next":              sanitizeNextURL(c.Query("next", "")),
+			"RegisterEnabled":   a.SettingStore.GetWithDefault("auth.register_enabled", "false") == "true",
+			"ChannelConfigured": a.Config.SMTP.Host != "",
+		}
+		if a.TemplateEngine.Has("templates/views/" + viewPath + ".html") {
+			html, err := a.TemplateEngine.Render("templates/views/"+viewPath+".html", extraData)
+			if err == nil {
+				c.Set("Content-Type", "text/html; charset=utf-8")
+				return c.SendString(html)
+			}
 		}
 	}
 
@@ -644,6 +935,21 @@ func (a *App) handleViewGet(c *fiber.Ctx) error {
 func (a *App) handleViewPost(c *fiber.Ctx) error {
 	moduleName := c.Params("module")
 	viewPath := c.Params("*")
+
+	if a.moduleRequiresAuth(moduleName) {
+		token := c.Cookies("token")
+		if token == "" {
+			token = extractBearerToken(c)
+		}
+		valid := false
+		if token != "" {
+			claims, _ := security.ValidateToken(a.JWTConfig, token)
+			valid = claims != nil
+		}
+		if !valid {
+			return c.Redirect("/app/auth/login")
+		}
+	}
 
 	entry := a.resolveView(moduleName, viewPath)
 	if entry == nil {
@@ -794,7 +1100,7 @@ func (a *App) buildMenu(currentModule string) []view.MenuEntry {
 		modDef := installed.Definition
 
 		vis := modDef.MenuVisibility
-		if vis == "admin" {
+		if vis == "admin" || vis == "none" {
 			continue
 		}
 
@@ -1208,42 +1514,6 @@ func defaultErrorHandler(c *fiber.Ctx, err error) error {
 	return c.Status(code).JSON(fiber.Map{"error": err.Error()})
 }
 
-func loginPageHTML(errMsg string) string {
-	errorBlock := ""
-	if errMsg != "" {
-		errorBlock = fmt.Sprintf(`<div style="background:#FEE2E2;color:#991B1B;padding:0.75rem;border-radius:6px;margin-bottom:1rem;">%s</div>`, errMsg)
-	}
-
-	return fmt.Sprintf(`<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Login - LowCode Engine</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(135deg,#1a1a2e 0%%,#16213e 50%%,#0f3460 100%%);display:flex;justify-content:center;align-items:center;min-height:100vh}
-.card{background:#fff;padding:2.5rem;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.3);width:100%%;max-width:400px}
-h1{font-size:1.5rem;margin-bottom:0.5rem;color:#1a1a2e}
-.subtitle{color:#666;margin-bottom:1.5rem;font-size:0.9rem}
-label{display:block;font-weight:600;margin-bottom:0.25rem;font-size:0.85rem;color:#333}
-input{width:100%%;padding:0.7rem 0.9rem;border:1.5px solid #e2e8f0;border-radius:8px;font-size:0.95rem;margin-bottom:1rem;outline:none;transition:border 0.2s,box-shadow 0.2s}
-input:focus{border-color:#3B82F6;box-shadow:0 0 0 3px rgba(59,130,246,0.15)}
-button{width:100%%;padding:0.75rem;background:#3B82F6;color:#fff;border:none;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;transition:background 0.2s}
-button:hover{background:#2563EB}
-.footer{text-align:center;margin-top:1.5rem;font-size:0.8rem;color:#a0aec0}
-</style></head><body>
-<div class="card">
-<h1>LowCode Engine</h1>
-<p class="subtitle">Sign in to your workspace</p>
-%s
-<form method="POST" action="/app/login">
-<label>Username</label>
-<input type="text" name="username" placeholder="admin" autofocus required>
-<label>Password</label>
-<input type="password" name="password" placeholder="password" required>
-<button type="submit">Sign In</button>
-</form>
-<div class="footer">Powered by LowCode Engine</div>
-</div></body></html>`, errorBlock)
-}
-
 func homePageHTML(username string, modules []string, views map[string]*viewEntry) string {
 	var moduleCards strings.Builder
 	for _, mod := range modules {
@@ -1273,7 +1543,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </style></head><body>
 <nav class="nav">
 <h1>LowCode Engine</h1>
-<div><a href="/admin">Admin</a><a href="/health">Health</a><a href="/app/login" onclick="document.cookie='token=;path=/;max-age=0'">Logout</a></div>
+<div><a href="/admin">Admin</a><a href="/health">Health</a><a href="/app/auth/logout">Logout</a></div>
 </nav>
 <div class="container">
 <div class="welcome"><h2>Welcome, %s</h2><p>Select a module to get started.</p></div>

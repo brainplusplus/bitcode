@@ -1,0 +1,6 @@
+{
+  "name": "forgot",
+  "type": "custom",
+  "title": "Forgot Password",
+  "template": "templates/views/forgot.html"
+}

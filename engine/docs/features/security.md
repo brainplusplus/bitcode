@@ -85,6 +85,45 @@ Operators: `=`, `!=`, `>`, `<`, `>=`, `<=`, `in`, `not in`, `like`
 
 Variables: `{{user.id}}`, `{{user.tenant_id}}`
 
+## Auth Module
+
+Embedded `auth` module provides login, register, forgot password, reset, and 2FA verification pages at `/app/auth/*`.
+
+### Per-Module Auth Control
+
+`module.json` supports an `auth` field:
+
+```json
+{ "auth": true }   // default — views require login
+{ "auth": false }  // public — views accessible without login
+```
+
+If `auth` is not set, it defaults to `true` (require authentication).
+
+### Auth Settings (Admin UI)
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `auth.register_enabled` | `false` | Show registration page |
+| `auth.otp_enabled` | `false` | Enable 2FA on login |
+| `auth.otp_channel` | `email` | OTP channel (email, whatsapp, telegram) |
+| `auth.otp_type` | `code` | OTP type (code, magic_link) |
+
+### Auth Routes
+
+| Route | Method | Description |
+|-------|--------|-------------|
+| `/app/auth/login` | GET/POST | Login page |
+| `/app/auth/register` | GET/POST | Registration (if enabled) |
+| `/app/auth/forgot` | GET/POST | Forgot password (always available if SMTP configured) |
+| `/app/auth/reset` | GET/POST | Reset password with OTP code |
+| `/app/auth/verify-2fa` | GET/POST | 2FA verification |
+| `/app/auth/logout` | GET | Logout (clear cookie) |
+
+### i18n
+
+All auth templates use `{{t .Locale "key"}}` for translations. 11 languages supported: en, id, ar, de, es, fr, ja, ko, pt-BR, ru, zh-CN.
+
 ## Middleware Chain
 
 ```

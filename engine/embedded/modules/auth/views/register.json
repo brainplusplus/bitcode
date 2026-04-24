@@ -1,0 +1,6 @@
+{
+  "name": "register",
+  "type": "custom",
+  "title": "Register",
+  "template": "templates/views/register.html"
+}

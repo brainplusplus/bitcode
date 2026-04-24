@@ -215,8 +215,9 @@ engine/
 ├── embedded/                                   # Compiled-in modules
 │   ├── embed.go                                # go:embed directive for modules/
 │   ├── embed_test.go                           # Embed tests
-│   └── modules/                                # Embedded module files (base)
-│       └── base/                               # Core module (always available)
+│   └── modules/                                # Embedded module files (base, auth)
+│       ├── base/                               # Core module (always available)
+│       └── auth/                               # Auth module — login, register, forgot, reset, 2FA (i18n x11)
 │
 ├── modules/                                    # Built-in modules (on disk)
 │   ├── base/                                   # Core module — users, roles, groups, permissions, settings

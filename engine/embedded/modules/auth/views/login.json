@@ -1,0 +1,6 @@
+{
+  "name": "login",
+  "type": "custom",
+  "title": "Login",
+  "template": "templates/views/login.html"
+}

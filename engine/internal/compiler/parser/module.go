@@ -34,6 +34,7 @@ type ModuleDefinition struct {
 	Label       string                       `json:"label,omitempty"`
 	Depends     []string                     `json:"depends,omitempty"`
 	Category    string                       `json:"category,omitempty"`
+	Auth        *bool                        `json:"auth,omitempty"`
 	Models      []string                     `json:"models,omitempty"`
 	APIs        []string                     `json:"apis,omitempty"`
 	Processes   []string                     `json:"processes,omitempty"`
@@ -49,6 +50,13 @@ type ModuleDefinition struct {
 	MenuVisibility string                       `json:"menu_visibility,omitempty"`
 	IncludeMenus   []IncludeMenuDefinition      `json:"include_menus,omitempty"`
 	Settings       map[string]SettingDefinition  `json:"settings,omitempty"`
+}
+
+func (m *ModuleDefinition) RequiresAuth() bool {
+	if m.Auth == nil {
+		return true
+	}
+	return *m.Auth
 }
 
 func ParseModule(data []byte) (*ModuleDefinition, error) {

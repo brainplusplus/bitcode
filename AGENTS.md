@@ -98,6 +98,22 @@ bitcode/
 
 **Rule: if you changed code, you changed docs. No exceptions.**
 
+### i18n Check (MANDATORY)
+
+**After ANY implementation that adds user-facing text (templates, error messages, labels, UI strings):**
+
+1. Check if the text needs i18n support
+2. If yes — use the `t` template function (`{{t .Locale "key"}}`) instead of hardcoded strings
+3. Add translation keys to the module's `i18n/*.json` files
+4. At minimum provide `en` (English) translations as the default
+5. If the module already has other locale files (e.g., `id.json`), add translations there too
+
+**Rule: no hardcoded user-facing strings in templates. Use i18n keys.**
+
+**Required languages (11):** `en`, `id`, `ar`, `de`, `es`, `fr`, `ja`, `ko`, `pt-BR`, `ru`, `zh-CN`
+
+All 11 locale files must be provided for every module that has user-facing text. English (`en`) is the default fallback.
+
 ## What To Work On Next
 
 ### Completed ✅
@@ -143,6 +159,7 @@ bitcode/
 - [x] Email Infrastructure — SMTP sender (`pkg/email`), HTML templates, configurable via `smtp.*`
 - [x] Audit Log Impersonation — `impersonated_by` column in audit_logs, auto-populated from JWT claims
 - [x] IP Whitelist / Session Policy — IP whitelist middleware (exact IP + CIDR), configurable session duration, cookie Secure/SameSite flags
+- [x] Auth Module — Embedded `auth` module (login, register, forgot, reset, 2FA verify), `module.json` `auth` field, `menu_visibility: "none"`, i18n (11 languages), `?next=` sanitization, settings-driven OTP config
 
 ### Remaining (Engine)
 
