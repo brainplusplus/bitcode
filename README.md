@@ -88,6 +88,7 @@ All config via environment variables or `bitcode.toml`/`bitcode.yaml`. Defaults 
 | `PORT` | `8080` | Server port |
 | `DB_DRIVER` | `sqlite` | Database: `sqlite`, `postgres`, `mysql` |
 | `DB_SQLITE_PATH` | `bitcode.db` | SQLite file path |
+| `DB_SCHEMA` | `public` | Postgres schema (ignored for SQLite/MySQL) |
 | `DB_HOST` | `localhost` | DB host (postgres/mysql) |
 | `DB_PORT` | `5432` | DB port |
 | `DB_USER` | `bitcode` | DB user |
@@ -159,6 +160,8 @@ docker-compose up -d
 - **Event bus** — Domain events with agent handlers
 - **Cron scheduler** — Scheduled background jobs
 - **Multi-database** — SQLite (default), PostgreSQL, MySQL
+- **Table prefix** — Per-module table name prefix (`"table": {"prefix": "crm"}` → `crm_contact`)
+- **Postgres schema** — Configurable schema via `DB_SCHEMA` (default: `public`)
 - **Cache** — Memory (default), Redis (optional)
 - **Real-time** — WebSocket domain event broadcasting
 - **Multi-tenancy** — Tenant isolation via header/subdomain/path

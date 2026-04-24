@@ -1,18 +1,18 @@
 {
-  "tags": [
+  "tag": [
     { "name": "VIP", "color": "#EF4444" },
     { "name": "Hot Lead", "color": "#F59E0B" },
     { "name": "Partner", "color": "#10B981" },
     { "name": "Enterprise", "color": "#6366F1" }
   ],
-  "contacts": [
+  "contact": [
     { "name": "Budi Santoso", "email": "budi@techcorp.id", "phone": "+6281234567890", "company": "TechCorp Indonesia", "type": "person", "job_title": "CTO" },
     { "name": "Siti Rahayu", "email": "siti@globalmart.id", "phone": "+6281234567891", "company": "GlobalMart", "type": "person", "job_title": "Procurement Manager" },
     { "name": "PT Maju Jaya", "email": "info@majujaya.id", "phone": "+6221555000", "company": "PT Maju Jaya", "type": "company" },
     { "name": "Ahmad Wijaya", "email": "ahmad@startup.io", "phone": "+6281234567892", "company": "StartupIO", "type": "person", "job_title": "CEO" },
     { "name": "Dewi Lestari", "email": "dewi@bigbank.id", "phone": "+6281234567893", "company": "BigBank Indonesia", "type": "person", "job_title": "VP Engineering" }
   ],
-  "leads": [
+  "lead": [
     { "name": "TechCorp ERP Implementation", "company": "TechCorp Indonesia", "email": "budi@techcorp.id", "source": "referral", "status": "new", "priority": "high", "expected_revenue": 150000, "probability": 20 },
     { "name": "GlobalMart Inventory System", "company": "GlobalMart", "email": "siti@globalmart.id", "source": "website", "status": "contacted", "priority": "medium", "expected_revenue": 75000, "probability": 30 },
     { "name": "Maju Jaya CRM Setup", "company": "PT Maju Jaya", "email": "info@majujaya.id", "source": "cold_call", "status": "qualified", "priority": "high", "expected_revenue": 50000, "probability": 50 },

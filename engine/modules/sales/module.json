@@ -4,6 +4,7 @@
   "label": "Sales Management",
   "depends": ["base", "crm"],
   "category": "Sales",
+  "table": { "prefix": "sale" },
   "models": ["models/*.json"],
   "apis": ["apis/*.json"],
   "processes": ["processes/*.json"],

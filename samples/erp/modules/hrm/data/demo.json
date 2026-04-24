@@ -1,18 +1,18 @@
 {
-  "departments": [
+  "department": [
     { "name": "Engineering", "code": "ENG" },
     { "name": "Human Resources", "code": "HR" },
     { "name": "Sales", "code": "SALES" },
     { "name": "Finance", "code": "FIN" }
   ],
-  "job_positions": [
+  "job_position": [
     { "title": "Software Engineer", "department": "Engineering", "status": "open", "headcount": 3, "min_salary": 8000000, "max_salary": 15000000 },
     { "title": "Senior Software Engineer", "department": "Engineering", "status": "open", "headcount": 1, "min_salary": 15000000, "max_salary": 25000000 },
     { "title": "HR Officer", "department": "Human Resources", "status": "filled", "headcount": 1, "min_salary": 6000000, "max_salary": 10000000 },
     { "title": "Sales Executive", "department": "Sales", "status": "open", "headcount": 2, "min_salary": 5000000, "max_salary": 12000000 },
     { "title": "Finance Manager", "department": "Finance", "status": "filled", "headcount": 1, "min_salary": 15000000, "max_salary": 25000000 }
   ],
-  "employees": [
+  "employee": [
     { "employee_id": "EMP001", "name": "Andi Pratama", "email": "andi@company.id", "department": "Engineering", "position": "Senior Software Engineer", "hire_date": "2022-01-15", "status": "active", "salary": 20000000 },
     { "employee_id": "EMP002", "name": "Rina Wulandari", "email": "rina@company.id", "department": "Human Resources", "position": "HR Officer", "hire_date": "2021-06-01", "status": "active", "salary": 9000000 },
     { "employee_id": "EMP003", "name": "Dimas Saputra", "email": "dimas@company.id", "department": "Sales", "position": "Sales Executive", "hire_date": "2023-03-10", "status": "active", "salary": 8000000 },

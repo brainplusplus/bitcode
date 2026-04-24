@@ -77,9 +77,96 @@ func TestRegistry_Has(t *testing.T) {
 	}
 }
 
-func TestRegistry_TableName(t *testing.T) {
+func TestRegistry_TableName_Fallback(t *testing.T) {
 	reg := NewRegistry()
-	if reg.TableName("order") != "orders" {
-		t.Errorf("expected orders, got %s", reg.TableName("order"))
+	if reg.TableName("order") != "order" {
+		t.Errorf("expected 'order', got %s", reg.TableName("order"))
+	}
+}
+
+func strPtr(s string) *string { return &s }
+
+func TestResolveTableName_NoPrefix(t *testing.T) {
+	model := &parser.ModelDefinition{Name: "contact"}
+	got := ResolveTableName(model, nil)
+	if got != "contact" {
+		t.Errorf("expected 'contact', got %q", got)
+	}
+}
+
+func TestResolveTableName_ModulePrefix(t *testing.T) {
+	model := &parser.ModelDefinition{Name: "contact"}
+	mod := &parser.ModuleDefinition{Name: "crm", Table: &parser.TableConfig{Prefix: "crm"}}
+	got := ResolveTableName(model, mod)
+	if got != "crm_contact" {
+		t.Errorf("expected 'crm_contact', got %q", got)
+	}
+}
+
+func TestResolveTableName_DirectTableName(t *testing.T) {
+	model := &parser.ModelDefinition{Name: "contact", TableName: "custom_tbl"}
+	mod := &parser.ModuleDefinition{Name: "crm", Table: &parser.TableConfig{Prefix: "crm"}}
+	got := ResolveTableName(model, mod)
+	if got != "custom_tbl" {
+		t.Errorf("expected 'custom_tbl', got %q", got)
+	}
+}
+
+func TestResolveTableName_ModelPrefixOverride(t *testing.T) {
+	model := &parser.ModelDefinition{Name: "log", TablePrefix: strPtr("sys")}
+	mod := &parser.ModuleDefinition{Name: "crm", Table: &parser.TableConfig{Prefix: "crm"}}
+	got := ResolveTableName(model, mod)
+	if got != "sys_log" {
+		t.Errorf("expected 'sys_log', got %q", got)
+	}
+}
+
+func TestResolveTableName_ModelEmptyPrefixClearsModulePrefix(t *testing.T) {
+	model := &parser.ModelDefinition{Name: "setting", TablePrefix: strPtr("")}
+	mod := &parser.ModuleDefinition{Name: "base", Table: &parser.TableConfig{Prefix: "res"}}
+	got := ResolveTableName(model, mod)
+	if got != "setting" {
+		t.Errorf("expected 'setting', got %q", got)
+	}
+}
+
+func TestResolveTableName_ModuleWithoutTableConfig(t *testing.T) {
+	model := &parser.ModelDefinition{Name: "token"}
+	mod := &parser.ModuleDefinition{Name: "auth"}
+	got := ResolveTableName(model, mod)
+	if got != "token" {
+		t.Errorf("expected 'token', got %q", got)
+	}
+}
+
+func TestRegistry_TableName_WithModule(t *testing.T) {
+	reg := NewRegistry()
+	model := &parser.ModelDefinition{
+		Name:   "contact",
+		Fields: map[string]parser.FieldDefinition{"name": {Type: "string"}},
+	}
+	mod := &parser.ModuleDefinition{Name: "crm", Table: &parser.TableConfig{Prefix: "crm"}}
+	if err := reg.RegisterWithModule(model, mod); err != nil {
+		t.Fatal(err)
+	}
+	got := reg.TableName("contact")
+	if got != "crm_contact" {
+		t.Errorf("expected 'crm_contact', got %q", got)
+	}
+}
+
+func TestRegistry_TableName_BasePrefix(t *testing.T) {
+	reg := NewRegistry()
+	model := &parser.ModelDefinition{
+		Name:   "user",
+		Fields: map[string]parser.FieldDefinition{"username": {Type: "string"}},
+	}
+	mod := &parser.ModuleDefinition{Name: "base", Table: &parser.TableConfig{Prefix: "res"}}
+	if err := reg.RegisterWithModule(model, mod); err != nil {
+		t.Fatal(err)
+	}
+	got := reg.TableName("user")
+	if got != "res_user" {
+		t.Errorf("expected 'res_user', got %q", got)
 	}
 }

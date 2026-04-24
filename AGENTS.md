@@ -150,6 +150,8 @@ All 11 locale files must be provided for every module that has user-facing text.
 - [x] View editor — Admin view detail with tabs (info, preview, editor, revisions), JSON editor, `bc-view-editor` Stencil component
 - [x] View versioning — `view_revisions` DB table, auto-revision on save, rollback, configurable limit
 - [x] Primary key strategies — 6 strategies (auto-increment, composite, UUID v4/v7/format, natural key, naming series, manual), format template engine (30+ functions), atomic sequence engine
+- [x] Table prefix — Per-module `"table": {"prefix": "crm"}` config, per-model override, centralized `ResolveTableName()` resolver, no pluralization
+- [x] Postgres schema — `DB_SCHEMA` config, `search_path` set at connection, `CREATE SCHEMA IF NOT EXISTS`
 
 - [x] Two-Factor Auth (2FA) — Email OTP with temp token flow, enable/disable/validate endpoints
 - [x] Field-Level Encryption — AES-256-GCM with `"encrypted": true` in model JSON, key versioning

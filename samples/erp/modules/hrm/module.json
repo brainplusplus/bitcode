@@ -4,6 +4,7 @@
   "label": "Human Resources",
   "depends": ["base"],
   "category": "HR",
+  "table": { "prefix": "hr" },
   "models": ["models/*.json"],
   "apis": ["apis/*.json"],
   "processes": ["processes/*.json"],

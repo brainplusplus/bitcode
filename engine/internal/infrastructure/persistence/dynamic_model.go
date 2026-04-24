@@ -27,10 +27,17 @@ func DetectDialect(db *gorm.DB) DBDialect {
 	}
 }
 
-func MigrateModel(db *gorm.DB, model *parser.ModelDefinition) error {
+type TableNameResolver interface {
+	TableName(modelName string) string
+}
+
+func MigrateModel(db *gorm.DB, model *parser.ModelDefinition, resolver TableNameResolver) error {
 	dialect := DetectDialect(db)
 	columns := buildColumns(model, dialect)
-	tableName := model.Name + "s"
+	tableName := model.Name
+	if resolver != nil {
+		tableName = resolver.TableName(model.Name)
+	}
 
 	if !db.Migrator().HasTable(tableName) {
 		sql := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s (\n%s\n)", tableName, columns)
@@ -50,7 +57,7 @@ func MigrateModel(db *gorm.DB, model *parser.ModelDefinition) error {
 
 	for fieldName, field := range model.Fields {
 		if field.Type == parser.FieldMany2Many {
-			if err := createJunctionTable(db, model.Name, fieldName, field.Model, dialect); err != nil {
+			if err := createJunctionTable(db, model.Name, fieldName, field.Model, dialect, resolver); err != nil {
 				return err
 			}
 		}
@@ -274,8 +281,12 @@ func joinStrings(strs []string, sep string) string {
 	return result
 }
 
-func createJunctionTable(db *gorm.DB, model1 string, fieldName string, model2 string, dialect DBDialect) error {
-	tableName := model1 + "_" + fieldName
+func createJunctionTable(db *gorm.DB, model1 string, fieldName string, model2 string, dialect DBDialect, resolver TableNameResolver) error {
+	baseTable := model1
+	if resolver != nil {
+		baseTable = resolver.TableName(model1)
+	}
+	tableName := baseTable + "_" + fieldName
 	if db.Migrator().HasTable(tableName) {
 		return nil
 	}

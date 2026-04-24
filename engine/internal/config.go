@@ -26,6 +26,7 @@ func LoadConfig(explicitPath string) (AppConfig, error) {
 	v.SetDefault("database.name", "bitcode")
 	v.SetDefault("database.sslmode", "disable")
 	v.SetDefault("database.sqlite_path", "bitcode.db")
+	v.SetDefault("database.schema", "public")
 	v.SetDefault("cache.driver", "memory")
 	v.SetDefault("cache.redis_url", "")
 	v.SetDefault("tenant.enabled", false)
@@ -91,6 +92,7 @@ func LoadConfig(explicitPath string) (AppConfig, error) {
 	v.BindEnv("database.name", "DB_NAME")
 	v.BindEnv("database.sslmode", "DB_SSLMODE")
 	v.BindEnv("database.sqlite_path", "DB_SQLITE_PATH")
+	v.BindEnv("database.schema", "DB_SCHEMA")
 	v.BindEnv("cache.driver", "CACHE_DRIVER")
 	v.BindEnv("cache.redis_url", "REDIS_URL")
 	v.BindEnv("tenant.enabled", "TENANT_ENABLED")
@@ -187,6 +189,7 @@ func LoadConfig(explicitPath string) (AppConfig, error) {
 			DBName:     v.GetString("database.name"),
 			SSLMode:    v.GetString("database.sslmode"),
 			SQLitePath: v.GetString("database.sqlite_path"),
+		Schema:     v.GetString("database.schema"),
 		},
 		Cache: cache.CacheConfig{
 			Driver:   v.GetString("cache.driver"),

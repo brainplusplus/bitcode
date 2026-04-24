@@ -140,6 +140,10 @@ type RecordRuleDefinition struct {
 	Domain [][]any  `json:"domain"`
 }
 
+type ModelTableConfig struct {
+	Prefix string `json:"prefix"`
+}
+
 type ModelDefinition struct {
 	Name        string                     `json:"name"`
 	Module      string                     `json:"module,omitempty"`
@@ -150,6 +154,9 @@ type ModelDefinition struct {
 	RecordRules []RecordRuleDefinition     `json:"record_rules,omitempty"`
 	Indexes     [][]string                 `json:"indexes,omitempty"`
 	FileConfig  *FileConfig                `json:"file_config,omitempty"`
+	TableRaw    json.RawMessage            `json:"table,omitempty"`
+	TableName   string                     `json:"-"`
+	TablePrefix *string                    `json:"-"`
 }
 
 func ParseModel(data []byte) (*ModelDefinition, error) {
@@ -188,6 +195,18 @@ func ParseModel(data []byte) (*ModelDefinition, error) {
 	}
 	if err := validatePrimaryKey(&model); err != nil {
 		return nil, err
+	}
+	if len(model.TableRaw) > 0 {
+		var tableName string
+		if err := json.Unmarshal(model.TableRaw, &tableName); err == nil {
+			model.TableName = tableName
+		} else {
+			var tableConfig ModelTableConfig
+			if err := json.Unmarshal(model.TableRaw, &tableConfig); err == nil {
+				prefix := tableConfig.Prefix
+				model.TablePrefix = &prefix
+			}
+		}
 	}
 	return &model, nil
 }

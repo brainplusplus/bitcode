@@ -11,7 +11,8 @@ import (
 )
 
 type DataHandler struct {
-	DB *gorm.DB
+	DB       *gorm.DB
+	Resolver interface{ TableName(string) string }
 }
 
 func (h *DataHandler) Execute(ctx context.Context, execCtx *executor.Context, step parser.StepDefinition) error {
@@ -19,7 +20,11 @@ func (h *DataHandler) Execute(ctx context.Context, execCtx *executor.Context, st
 		return fmt.Errorf("data step requires a model")
 	}
 
-	repo := persistence.NewGenericRepository(h.DB, step.Model+"s")
+	tableName := step.Model
+	if h.Resolver != nil {
+		tableName = h.Resolver.TableName(step.Model)
+	}
+	repo := persistence.NewGenericRepository(h.DB, tableName)
 	repo.SetRevisionRepo(persistence.NewDataRevisionRepository(h.DB))
 	repo.SetModelName(step.Model)
 

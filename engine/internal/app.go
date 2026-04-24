@@ -200,6 +200,8 @@ func NewApp(cfg AppConfig) (*App, error) {
 
 	app.ViewRenderer.SetModelRegistry(app.ModelRegistry)
 	app.ViewRenderer.SetHydrator(app.Hydrator)
+	app.ViewRenderer.SetTableNameResolver(app.ModelRegistry)
+	app.Hydrator.SetTableNameResolver(app.ModelRegistry)
 	app.registerStepHandlers()
 	app.setupMiddleware()
 	app.setupRoutes()
@@ -242,10 +244,10 @@ func (a *App) createEmailSender() email.Sender {
 
 func (a *App) registerStepHandlers() {
 	a.Executor.RegisterHandler(parser.StepValidate, &steps.ValidateHandler{})
-	a.Executor.RegisterHandler(parser.StepQuery, &steps.DataHandler{DB: a.DB})
-	a.Executor.RegisterHandler(parser.StepCreate, &steps.DataHandler{DB: a.DB})
-	a.Executor.RegisterHandler(parser.StepUpdate, &steps.DataHandler{DB: a.DB})
-	a.Executor.RegisterHandler(parser.StepDelete, &steps.DataHandler{DB: a.DB})
+	a.Executor.RegisterHandler(parser.StepQuery, &steps.DataHandler{DB: a.DB, Resolver: a.ModelRegistry})
+	a.Executor.RegisterHandler(parser.StepCreate, &steps.DataHandler{DB: a.DB, Resolver: a.ModelRegistry})
+	a.Executor.RegisterHandler(parser.StepUpdate, &steps.DataHandler{DB: a.DB, Resolver: a.ModelRegistry})
+	a.Executor.RegisterHandler(parser.StepDelete, &steps.DataHandler{DB: a.DB, Resolver: a.ModelRegistry})
 	a.Executor.RegisterHandler(parser.StepIf, &steps.IfHandler{Executor: a.Executor})
 	a.Executor.RegisterHandler(parser.StepSwitch, &steps.SwitchHandler{Executor: a.Executor})
 	a.Executor.RegisterHandler(parser.StepLoop, &steps.LoopHandler{Executor: a.Executor})
@@ -537,7 +539,7 @@ func (a *App) handleAuthLoginPost(c *fiber.Ctx) error {
 		return c.Redirect("/app/auth/login?error=Username+and+password+required" + nextParam(next))
 	}
 
-	repo := persistence.NewGenericRepository(a.DB, "users")
+	repo := persistence.NewGenericRepository(a.DB, a.ModelRegistry.TableName("user"))
 	users, _, err := repo.FindAll(c.Context(), [][]any{{"username", "=", username}}, 1, 1)
 	if err != nil || len(users) == 0 {
 		return c.Redirect("/app/auth/login?error=Invalid+credentials" + nextParam(next))
@@ -614,7 +616,7 @@ func (a *App) handleAuthRegisterPost(c *fiber.Ctx) error {
 		return c.Redirect("/app/auth/register?error=Invalid+password")
 	}
 
-	repo := persistence.NewGenericRepository(a.DB, "users")
+	repo := persistence.NewGenericRepository(a.DB, a.ModelRegistry.TableName("user"))
 
 	existing, _, _ := repo.FindAll(c.Context(), [][]any{{"username", "=", username}}, 1, 1)
 	if len(existing) > 0 {
@@ -654,7 +656,7 @@ func (a *App) handleAuthForgotPost(c *fiber.Ctx) error {
 		return c.Redirect("/app/auth/forgot?error=Email+is+required")
 	}
 
-	repo := persistence.NewGenericRepository(a.DB, "users")
+	repo := persistence.NewGenericRepository(a.DB, a.ModelRegistry.TableName("user"))
 	users, _, _ := repo.FindAll(c.Context(), [][]any{{"email", "=", emailAddr}}, 1, 1)
 	// Always show success to prevent email enumeration
 	if len(users) == 0 {
@@ -718,7 +720,7 @@ func (a *App) handleAuthResetPost(c *fiber.Ctx) error {
 		return c.Redirect("/app/auth/reset?email=" + emailAddr + "&error=Invalid+password")
 	}
 
-	repo := persistence.NewGenericRepository(a.DB, "users")
+	repo := persistence.NewGenericRepository(a.DB, a.ModelRegistry.TableName("user"))
 	users, _, _ := repo.FindAll(c.Context(), [][]any{{"email", "=", emailAddr}}, 1, 1)
 	if len(users) == 0 {
 		return c.Redirect("/app/auth/login?error=User+not+found")
@@ -970,11 +972,12 @@ func (a *App) handleViewPost(c *fiber.Ctx) error {
 	})
 
 	modelDef, _ := a.ModelRegistry.Get(entry.Def.Model)
+	tableName := a.ModelRegistry.TableName(entry.Def.Model)
 	var repo *persistence.GenericRepository
 	if modelDef != nil {
-		repo = persistence.NewGenericRepositoryWithModel(a.DB, entry.Def.Model+"s", modelDef)
+		repo = persistence.NewGenericRepositoryWithModel(a.DB, tableName, modelDef)
 	} else {
-		repo = persistence.NewGenericRepository(a.DB, entry.Def.Model+"s")
+		repo = persistence.NewGenericRepository(a.DB, tableName)
 	}
 
 	revisionRepo := persistence.NewDataRevisionRepository(a.DB)
@@ -1291,10 +1294,10 @@ func (a *App) installModule(modPath string) error {
 			}
 		}
 
-		if err := a.ModelRegistry.Register(m); err != nil {
+		if err := a.ModelRegistry.RegisterWithModule(m, loaded.Definition); err != nil {
 			return fmt.Errorf("failed to register model %s: %w", m.Name, err)
 		}
-		if err := persistence.MigrateModel(a.DB, m); err != nil {
+		if err := persistence.MigrateModel(a.DB, m, a.ModelRegistry); err != nil {
 			return fmt.Errorf("failed to migrate model %s: %w", m.Name, err)
 		}
 	}
@@ -1305,6 +1308,7 @@ func (a *App) installModule(modPath string) error {
 		router.SetEncryptor(a.FieldEncryptor)
 	}
 	router.SetModelRegistry(a.ModelRegistry)
+	router.SetTableNameResolver(a.ModelRegistry)
 	for _, apiDef := range loaded.APIs {
 		if apiDef.Auth {
 			basePath := apiDef.GetBasePath()
@@ -1332,7 +1336,7 @@ func (a *App) installModule(modPath string) error {
 		a.TemplateEngine.LoadDirectoryWithPrefix(templateDir, "templates")
 	}
 
-	if err := module.SeedModule(a.DB, modPath, loaded.Definition.Data); err != nil {
+	if err := module.SeedModule(a.DB, modPath, loaded.Definition.Data, a.ModelRegistry); err != nil {
 		log.Printf("[WARN] seeding failed for %s: %v", modName, err)
 	}
 

@@ -43,7 +43,7 @@ func (a *APIDefinition) GetBasePath() string {
 		return a.BasePath
 	}
 	if a.Model != "" {
-		return "/api/" + a.Model + "s"
+		return "/api/" + a.Model
 	}
 	return "/api/" + a.Name
 }

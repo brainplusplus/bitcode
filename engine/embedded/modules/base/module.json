@@ -4,6 +4,7 @@
   "label": "Base",
   "depends": [],
   "category": "Core",
+  "table": { "prefix": "res" },
   "models": ["models/*.json"],
   "apis": ["apis/*.json"],
   "processes": ["processes/*.json"],

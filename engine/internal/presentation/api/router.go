@@ -11,13 +11,14 @@ import (
 )
 
 type Router struct {
-	app            *fiber.App
-	db             *gorm.DB
-	workflowEngine *workflow.Engine
-	hydrator       *expression.Hydrator
-	revisionRepo   *persistence.DataRevisionRepository
-	encryptor      *security.FieldEncryptor
-	modelRegistry  interface{ Get(string) (*parser.ModelDefinition, error) }
+	app               *fiber.App
+	db                *gorm.DB
+	workflowEngine    *workflow.Engine
+	hydrator          *expression.Hydrator
+	revisionRepo      *persistence.DataRevisionRepository
+	encryptor         *security.FieldEncryptor
+	modelRegistry     interface{ Get(string) (*parser.ModelDefinition, error) }
+	tableNameResolver interface{ TableName(string) string }
 }
 
 func NewRouter(app *fiber.App, db *gorm.DB, wfEngine *workflow.Engine) *Router {
@@ -40,6 +41,10 @@ func (r *Router) SetModelRegistry(reg interface{ Get(string) (*parser.ModelDefin
 	r.modelRegistry = reg
 }
 
+func (r *Router) SetTableNameResolver(resolver interface{ TableName(string) string }) {
+	r.tableNameResolver = resolver
+}
+
 func (r *Router) RegisterAPI(apiDef *parser.APIDefinition) {
 	basePath := apiDef.GetBasePath()
 	endpoints := apiDef.ExpandAutoCRUD()
@@ -51,11 +56,15 @@ func (r *Router) RegisterAPI(apiDef *parser.APIDefinition) {
 		if r.modelRegistry != nil {
 			modelDef, _ = r.modelRegistry.Get(apiDef.Model)
 		}
+		tableName := apiDef.Model
+		if r.tableNameResolver != nil {
+			tableName = r.tableNameResolver.TableName(apiDef.Model)
+		}
 		var repo *persistence.GenericRepository
 		if modelDef != nil {
-			repo = persistence.NewGenericRepositoryWithModel(r.db, apiDef.Model+"s", modelDef)
+			repo = persistence.NewGenericRepositoryWithModel(r.db, tableName, modelDef)
 		} else {
-			repo = persistence.NewGenericRepository(r.db, apiDef.Model+"s")
+			repo = persistence.NewGenericRepository(r.db, tableName)
 		}
 		if r.hydrator != nil {
 			repo.SetHydrator(r.hydrator)

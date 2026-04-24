@@ -13,7 +13,11 @@ import (
 	"gorm.io/gorm"
 )
 
-func SeedModule(db *gorm.DB, modulePath string, dataPatterns []string) error {
+type TableNameResolver interface {
+	TableName(modelName string) string
+}
+
+func SeedModule(db *gorm.DB, modulePath string, dataPatterns []string, resolver TableNameResolver) error {
 	for _, pattern := range dataPatterns {
 		fullPattern := filepath.Join(modulePath, pattern)
 		matches, err := filepath.Glob(fullPattern)
@@ -21,7 +25,7 @@ func SeedModule(db *gorm.DB, modulePath string, dataPatterns []string) error {
 			continue
 		}
 		for _, match := range matches {
-			if err := seedFile(db, match); err != nil {
+			if err := seedFile(db, match, resolver); err != nil {
 				return fmt.Errorf("failed to seed %s: %w", match, err)
 			}
 		}
@@ -29,7 +33,14 @@ func SeedModule(db *gorm.DB, modulePath string, dataPatterns []string) error {
 	return nil
 }
 
-func seedFile(db *gorm.DB, path string) error {
+func resolveSeederTable(modelName string, resolver TableNameResolver) string {
+	if resolver != nil {
+		return resolver.TableName(modelName)
+	}
+	return modelName
+}
+
+func seedFile(db *gorm.DB, path string, resolver TableNameResolver) error {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return err
@@ -40,26 +51,21 @@ func seedFile(db *gorm.DB, path string) error {
 		var arr []map[string]any
 		if err2 := json.Unmarshal(data, &arr); err2 == nil {
 			base := filepath.Base(path)
-			table := base[:len(base)-len(filepath.Ext(base))]
-			table = strings.TrimPrefix(table, "default_")
-			if table[len(table)-1] != 's' {
-				table += "s"
-			}
+			modelName := base[:len(base)-len(filepath.Ext(base))]
+			modelName = strings.TrimPrefix(modelName, "default_")
+			table := resolveSeederTable(modelName, resolver)
 			return seedRecords(db, table, arr)
 		}
 		return fmt.Errorf("invalid seed JSON: %w", err)
 	}
 
-	for tableName, recordsRaw := range raw {
+	for modelName, recordsRaw := range raw {
 		var records []map[string]any
 		if err := json.Unmarshal(recordsRaw, &records); err != nil {
 			continue
 		}
 
-		table := tableName
-		if table[len(table)-1] != 's' {
-			table += "s"
-		}
+		table := resolveSeederTable(modelName, resolver)
 
 		if err := seedRecords(db, table, records); err != nil {
 			return err

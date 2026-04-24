@@ -8,13 +8,15 @@ import (
 )
 
 type Registry struct {
-	models map[string]*parser.ModelDefinition
-	mu     sync.RWMutex
+	models     map[string]*parser.ModelDefinition
+	tableNames map[string]string
+	mu         sync.RWMutex
 }
 
 func NewRegistry() *Registry {
 	return &Registry{
-		models: make(map[string]*parser.ModelDefinition),
+		models:     make(map[string]*parser.ModelDefinition),
+		tableNames: make(map[string]string),
 	}
 }
 
@@ -34,6 +36,33 @@ func (r *Registry) Register(model *parser.ModelDefinition) error {
 	r.models[key] = model
 	r.models[model.Name] = model
 	return nil
+}
+
+func (r *Registry) RegisterWithModule(model *parser.ModelDefinition, moduleDef *parser.ModuleDefinition) error {
+	if err := r.Register(model); err != nil {
+		return err
+	}
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	r.tableNames[model.Name] = ResolveTableName(model, moduleDef)
+	return nil
+}
+
+func ResolveTableName(model *parser.ModelDefinition, moduleDef *parser.ModuleDefinition) string {
+	if model.TableName != "" {
+		return model.TableName
+	}
+	if model.TablePrefix != nil {
+		prefix := *model.TablePrefix
+		if prefix == "" {
+			return model.Name
+		}
+		return prefix + "_" + model.Name
+	}
+	if moduleDef != nil && moduleDef.Table != nil && moduleDef.Table.Prefix != "" {
+		return moduleDef.Table.Prefix + "_" + model.Name
+	}
+	return model.Name
 }
 
 func (r *Registry) Get(name string) (*parser.ModelDefinition, error) {
@@ -70,5 +99,10 @@ func (r *Registry) Has(name string) bool {
 }
 
 func (r *Registry) TableName(modelName string) string {
-	return modelName + "s"
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	if tn, ok := r.tableNames[modelName]; ok {
+		return tn
+	}
+	return modelName
 }

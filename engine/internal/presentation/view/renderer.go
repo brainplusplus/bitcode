@@ -45,6 +45,18 @@ type Renderer struct {
 	componentCompiler *ComponentCompiler
 	modelRegistry     ModelLookup
 	hydrator          *expression.Hydrator
+	tableNameResolver interface{ TableName(string) string }
+}
+
+func (r *Renderer) SetTableNameResolver(resolver interface{ TableName(string) string }) {
+	r.tableNameResolver = resolver
+}
+
+func (r *Renderer) resolveTable(modelName string) string {
+	if r.tableNameResolver != nil {
+		return r.tableNameResolver.TableName(modelName)
+	}
+	return modelName
 }
 
 type ModelLookup interface {
@@ -71,7 +83,7 @@ func (r *Renderer) SetViewResolver(resolver func(name string) *parser.ViewDefini
 			return fmt.Sprintf(`<p style="color:var(--text-muted);font-size:0.85rem;">View "%s" not found</p>`, viewName)
 		}
 		if viewDef.Type == parser.ViewList && viewDef.Model != "" {
-			repo := persistence.NewGenericRepository(r.db, viewDef.Model+"s")
+			repo := persistence.NewGenericRepository(r.db, r.resolveTable(viewDef.Model))
 			records, total, err := repo.FindAll(context.Background(), nil, 1, 10)
 			if err != nil {
 				return fmt.Sprintf(`<p style="color:var(--danger);">Error loading %s: %s</p>`, viewName, err.Error())
@@ -164,7 +176,7 @@ func (r *Renderer) renderList(ctx context.Context, viewDef *parser.ViewDefinitio
 	}
 	pageSize := 20
 
-	repo := persistence.NewGenericRepository(r.db, viewDef.Model+"s")
+	repo := persistence.NewGenericRepository(r.db, r.resolveTable(viewDef.Model))
 	records, total, err := repo.FindAll(ctx, nil, page, pageSize)
 	if err != nil {
 		return "", err
@@ -215,7 +227,7 @@ func (r *Renderer) renderForm(ctx context.Context, viewDef *parser.ViewDefinitio
 
 	if recordID != "" {
 		if viewDef.Model != "" {
-			repo := persistence.NewGenericRepository(r.db, viewDef.Model+"s")
+			repo := persistence.NewGenericRepository(r.db, r.resolveTable(viewDef.Model))
 			rec, err := repo.FindByID(ctx, recordID)
 			if err == nil && rec != nil {
 				record = rec
@@ -261,7 +273,7 @@ func (r *Renderer) renderKanban(ctx context.Context, viewDef *parser.ViewDefinit
 		return "", fmt.Errorf("kanban view requires model and group_by")
 	}
 
-	repo := persistence.NewGenericRepository(r.db, viewDef.Model+"s")
+	repo := persistence.NewGenericRepository(r.db, r.resolveTable(viewDef.Model))
 	records, _, err := repo.FindAll(ctx, nil, 1, 200)
 	if err != nil {
 		return "", err
@@ -311,7 +323,7 @@ func (r *Renderer) renderCalendar(ctx context.Context, viewDef *parser.ViewDefin
 		return "", fmt.Errorf("calendar view requires a model")
 	}
 
-	repo := persistence.NewGenericRepository(r.db, viewDef.Model+"s")
+	repo := persistence.NewGenericRepository(r.db, r.resolveTable(viewDef.Model))
 	records, _, err := repo.FindAll(ctx, nil, 1, 100)
 	if err != nil {
 		return "", err
@@ -340,7 +352,7 @@ func (r *Renderer) renderChart(ctx context.Context, viewDef *parser.ViewDefiniti
 
 	for name, ds := range viewDef.DataSources {
 		if ds.Model != "" {
-			repo := persistence.NewGenericRepository(r.db, ds.Model+"s")
+			repo := persistence.NewGenericRepository(r.db, r.resolveTable(ds.Model))
 			records, _, err := repo.FindAll(ctx, ds.Domain, 1, 1000)
 			if err != nil || records == nil {
 				data[name] = []map[string]any{}
@@ -366,7 +378,7 @@ func (r *Renderer) renderCustom(ctx context.Context, viewDef *parser.ViewDefinit
 
 	for name, ds := range viewDef.DataSources {
 		if ds.Model != "" {
-			repo := persistence.NewGenericRepository(r.db, ds.Model+"s")
+			repo := persistence.NewGenericRepository(r.db, r.resolveTable(ds.Model))
 			records, _, err := repo.FindAll(ctx, ds.Domain, 1, 100)
 			if err != nil {
 				data[name] = []map[string]any{}

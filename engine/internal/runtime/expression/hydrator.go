@@ -9,8 +9,13 @@ import (
 )
 
 type Hydrator struct {
-	db            *gorm.DB
-	modelRegistry ModelLookup
+	db                *gorm.DB
+	modelRegistry     ModelLookup
+	tableNameResolver interface{ TableName(string) string }
+}
+
+func (h *Hydrator) SetTableNameResolver(resolver interface{ TableName(string) string }) {
+	h.tableNameResolver = resolver
 }
 
 type ModelLookup interface {
@@ -94,7 +99,10 @@ func (h *Hydrator) loadChildren(ctx context.Context, childModel string, inverseF
 		return nil, nil
 	}
 
-	tableName := childModel + "s"
+	tableName := childModel
+	if h.tableNameResolver != nil {
+		tableName = h.tableNameResolver.TableName(childModel)
+	}
 	var results []map[string]any
 	query := h.db.WithContext(ctx).Table(tableName).Where("active = ?", true)
 	query = query.Where(fmt.Sprintf("%s = ?", inverseField), parentID)

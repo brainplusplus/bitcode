@@ -28,6 +28,10 @@ type IncludeMenuDefinition struct {
 	Views  []string `json:"views,omitempty"`
 }
 
+type TableConfig struct {
+	Prefix string `json:"prefix"`
+}
+
 type ModuleDefinition struct {
 	Name        string                       `json:"name"`
 	Version     string                       `json:"version"`
@@ -35,6 +39,7 @@ type ModuleDefinition struct {
 	Depends     []string                     `json:"depends,omitempty"`
 	Category    string                       `json:"category,omitempty"`
 	Auth        *bool                        `json:"auth,omitempty"`
+	Table       *TableConfig                 `json:"table,omitempty"`
 	Models      []string                     `json:"models,omitempty"`
 	APIs        []string                     `json:"apis,omitempty"`
 	Processes   []string                     `json:"processes,omitempty"`

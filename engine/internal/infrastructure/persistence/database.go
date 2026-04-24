@@ -21,6 +21,7 @@ type DatabaseConfig struct {
 	DBName     string
 	SSLMode    string
 	SQLitePath string
+	Schema     string // Postgres only, default "public"
 }
 
 func NewDatabase(cfg DatabaseConfig) (*gorm.DB, error) {
@@ -81,15 +82,30 @@ func openPostgres(cfg DatabaseConfig, gormCfg *gorm.Config) (*gorm.DB, error) {
 		cfg.SSLMode = "disable"
 	}
 
+	schema := cfg.Schema
+	if schema == "" {
+		schema = "public"
+	}
+
 	dsn := fmt.Sprintf(
 		"host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
 		cfg.Host, cfg.Port, cfg.User, cfg.Password, cfg.DBName, cfg.SSLMode,
 	)
 
+	if schema != "public" {
+		dsn += fmt.Sprintf(" search_path=%s", schema)
+	}
+
 	db, err := gorm.Open(postgres.Open(dsn), gormCfg)
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to PostgreSQL: %w", err)
 	}
+
+	if schema != "public" {
+		db.Exec(fmt.Sprintf("CREATE SCHEMA IF NOT EXISTS %s", schema))
+		db.Exec(fmt.Sprintf("SET search_path TO %s", schema))
+	}
+
 	return db, nil
 }
 

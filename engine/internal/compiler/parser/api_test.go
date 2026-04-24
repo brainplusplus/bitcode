@@ -22,8 +22,8 @@ func TestParseAPI_AutoCRUD(t *testing.T) {
 	if !api.Auth {
 		t.Error("expected auth to be true")
 	}
-	if api.GetBasePath() != "/api/customers" {
-		t.Errorf("expected /api/customers, got %s", api.GetBasePath())
+	if api.GetBasePath() != "/api/customer" {
+		t.Errorf("expected /api/customer, got %s", api.GetBasePath())
 	}
 
 	endpoints := api.ExpandAutoCRUD()

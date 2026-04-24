@@ -529,7 +529,7 @@ func (a *AdminPanel) listModelData(c *fiber.Ctx) error {
 		return c.Status(404).JSON(fiber.Map{"error": "model not found"})
 	}
 
-	repo := persistence.NewGenericRepository(a.db, name+"s")
+	repo := persistence.NewGenericRepository(a.db, a.modelRegistry.TableName(name))
 	records, total, err := repo.FindAll(c.Context(), nil, 1, 50)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
@@ -1531,7 +1531,7 @@ func (a *AdminPanel) apiImpersonate(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"error": "user_id required"})
 	}
 
-	repo := persistence.NewGenericRepository(a.db, "users")
+	repo := persistence.NewGenericRepository(a.db, a.modelRegistry.TableName("user"))
 	targetUser, err := repo.FindByID(c.Context(), targetUserID)
 	if err != nil || targetUser == nil {
 		return c.Status(404).JSON(fiber.Map{"error": "user not found"})
@@ -1539,12 +1539,12 @@ func (a *AdminPanel) apiImpersonate(c *fiber.Ctx) error {
 
 	targetUsername, _ := targetUser["username"].(string)
 
-	targetRoles := loadUserRoles(a.db, targetUserID)
+	targetRoles := loadUserRoles(a.db, targetUserID, a.modelRegistry)
 	if containsRole(targetRoles, "admin") {
 		return c.Status(403).JSON(fiber.Map{"error": "cannot impersonate another admin user"})
 	}
 
-	targetGroups := loadUserGroups(a.db, targetUserID)
+	targetGroups := loadUserGroups(a.db, targetUserID, a.modelRegistry)
 
 	token, err := security.GenerateToken(
 		a.jwtConfig,
@@ -1606,15 +1606,15 @@ func (a *AdminPanel) apiStopImpersonate(c *fiber.Ctx) error {
 	}
 
 	adminID := claims.ImpersonatedBy
-	repo := persistence.NewGenericRepository(a.db, "users")
+	repo := persistence.NewGenericRepository(a.db, a.modelRegistry.TableName("user"))
 	adminUser, err := repo.FindByID(c.Context(), adminID)
 	if err != nil || adminUser == nil {
 		return c.Status(500).JSON(fiber.Map{"error": "failed to load admin user"})
 	}
 
 	adminUsername, _ := adminUser["username"].(string)
-	adminRoles := loadUserRoles(a.db, adminID)
-	adminGroups := loadUserGroups(a.db, adminID)
+	adminRoles := loadUserRoles(a.db, adminID, a.modelRegistry)
+	adminGroups := loadUserGroups(a.db, adminID, a.modelRegistry)
 
 	newToken, err := security.GenerateToken(
 		a.jwtConfig,
@@ -1655,18 +1655,22 @@ func containsRole(roles []string, target string) bool {
 	return false
 }
 
-func loadUserRoles(db *gorm.DB, userID string) []string {
+func loadUserRoles(db *gorm.DB, userID string, reg *domainModel.Registry) []string {
+	roleTable := reg.TableName("role")
+	userRoleTable := reg.TableName("user") + "_roles"
 	var roles []string
-	db.Raw(`SELECT r.name FROM roles r
-		INNER JOIN user_roles ur ON ur.role_id = r.id
-		WHERE ur.user_id = ?`, userID).Scan(&roles)
+	db.Raw(fmt.Sprintf(`SELECT r.name FROM %s r
+		INNER JOIN %s ur ON ur.role_id = r.id
+		WHERE ur.user_id = ?`, roleTable, userRoleTable), userID).Scan(&roles)
 	return roles
 }
 
-func loadUserGroups(db *gorm.DB, userID string) []string {
+func loadUserGroups(db *gorm.DB, userID string, reg *domainModel.Registry) []string {
+	groupTable := reg.TableName("group")
+	userGroupTable := reg.TableName("user") + "_groups"
 	var groups []string
-	db.Raw(`SELECT g.name FROM groups g
-		INNER JOIN user_groups ug ON ug.group_id = g.id
-		WHERE ug.user_id = ?`, userID).Scan(&groups)
+	db.Raw(fmt.Sprintf(`SELECT g.name FROM %s g
+		INNER JOIN %s ug ON ug.group_id = g.id
+		WHERE ug.user_id = ?`, groupTable, userGroupTable), userID).Scan(&groups)
 	return groups
 }

@@ -269,7 +269,7 @@ func (a *AdminPanel) apiDataRestore(c *fiber.Ctx) error {
 	delete(snapshot, "created_at")
 	delete(snapshot, "updated_at")
 
-	tableName := modelName + "s"
+	tableName := a.modelRegistry.TableName(modelName)
 	repo := persistence.NewGenericRepository(a.db, tableName)
 	if err := repo.Update(c.Context(), recordID, snapshot); err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": fmt.Sprintf("failed to restore: %v", err)})

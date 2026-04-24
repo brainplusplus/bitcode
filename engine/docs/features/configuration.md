@@ -31,6 +31,7 @@ Each layer overrides the previous. OS environment variables always win.
 | DB name | `[database] name` | `database.name` | `DB_NAME` | `bitcode` | Database name |
 | DB SSL mode | `[database] sslmode` | `database.sslmode` | `DB_SSLMODE` | `disable` | PostgreSQL SSL mode |
 | SQLite path | `[database] sqlite_path` | `database.sqlite_path` | `DB_SQLITE_PATH` | `bitcode.db` | SQLite file path |
+| DB schema | `[database] schema` | `database.schema` | `DB_SCHEMA` | `public` | Postgres schema (ignored for SQLite/MySQL) |
 | Cache driver | `[cache] driver` | `cache.driver` | `CACHE_DRIVER` | `memory` | `memory`, `redis` |
 | Redis URL | `[cache] redis_url` | `cache.redis_url` | `REDIS_URL` | - | Redis connection URL |
 | Tenant enabled | `[tenant] enabled` | `tenant.enabled` | `TENANT_ENABLED` | `false` | Enable multi-tenancy |

@@ -12,9 +12,11 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/bitcode-engine/engine/internal"
 	"github.com/bitcode-engine/engine/internal/compiler/parser"
 	"github.com/bitcode-engine/engine/internal/infrastructure/watcher"
+	"github.com/bitcode-engine/engine/pkg/security"
 	"github.com/spf13/cobra"
 )
 
@@ -296,6 +298,9 @@ func userCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
+			if err := app.LoadModules(); err != nil {
+				return err
+			}
 
 			username := args[0]
 			email := args[1]
@@ -309,12 +314,21 @@ func userCmd() *cobra.Command {
 				fmt.Println("Using default password: changeme123")
 			}
 
-			result := app.DB.Exec(
-				"INSERT INTO users (id, username, email, password_hash, active, created_at, updated_at) VALUES (gen_random_uuid(), ?, ?, crypt(?, gen_salt('bf')), true, NOW(), NOW())",
-				username, email, password,
-			)
-			if result.Error != nil {
-				return fmt.Errorf("failed to create user: %w", result.Error)
+			hash, err := security.HashPassword(password)
+			if err != nil {
+				return fmt.Errorf("failed to hash password: %w", err)
+			}
+
+			tableName := app.ModelRegistry.TableName("user")
+			record := map[string]any{
+				"id":            uuid.New().String(),
+				"username":      username,
+				"email":         email,
+				"password_hash": hash,
+				"active":        true,
+			}
+			if err := app.DB.Table(tableName).Create(&record).Error; err != nil {
+				return fmt.Errorf("failed to create user: %w", err)
 			}
 
 			fmt.Printf("User %s (%s) created.\n", username, email)
@@ -330,9 +344,13 @@ func userCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
+			if err := app.LoadModules(); err != nil {
+				return err
+			}
 
+			tableName := app.ModelRegistry.TableName("user")
 			var results []map[string]any
-			app.DB.Table("users").Select("id, username, email, active").Find(&results)
+			app.DB.Table(tableName).Select("id, username, email, active").Find(&results)
 
 			fmt.Printf("%-36s %-20s %-30s %s\n", "ID", "USERNAME", "EMAIL", "ACTIVE")
 			fmt.Println("------------------------------------------------------------------------------------")

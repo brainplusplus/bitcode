@@ -11,6 +11,7 @@ Modules are the unit of deployment. Everything lives in a module.
   "label": "Sales Management",
   "depends": ["base", "crm"],
   "category": "Sales",
+  "table": { "prefix": "sale" },
   "models": ["models/*.json"],
   "apis": ["apis/*.json"],
   "processes": ["processes/*.json"],
@@ -42,6 +43,31 @@ Modules are the unit of deployment. Everything lives in a module.
   }
 }
 ```
+
+## Table Prefix
+
+The `"table"` field configures database table naming for all models in the module:
+
+```json
+"table": { "prefix": "crm" }
+```
+
+With prefix `crm`, model `contact` → table `crm_contact`. Without prefix, table name = model name.
+
+Models can override the module prefix:
+
+```json
+// model JSON — direct table name
+{ "name": "log", "table": "custom_log", ... }
+
+// model JSON — different prefix
+{ "name": "log", "table": { "prefix": "sys" }, ... }
+
+// model JSON — clear module prefix
+{ "name": "setting", "table": { "prefix": "" }, ... }
+```
+
+Resolution order: model direct name → model prefix → module prefix → model name as-is.
 
 ## Module Structure
 

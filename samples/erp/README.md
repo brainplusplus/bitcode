@@ -104,37 +104,37 @@ MODULE_DIR=modules go run ../../engine/cmd/bitcode/main.go dev
 curl http://localhost:8080/health
 
 # List contacts (no auth for demo)
-curl http://localhost:8080/api/contacts
+curl http://localhost:8080/api/contact
 
 # Create a contact
-curl -X POST http://localhost:8080/api/contacts \
+curl -X POST http://localhost:8080/api/contact \
   -H "Content-Type: application/json" \
   -d '{"name": "John Doe", "email": "john@example.com", "company": "Acme Inc"}'
 
 # List leads
-curl http://localhost:8080/api/leads
+curl http://localhost:8080/api/lead
 
 # Create a lead
-curl -X POST http://localhost:8080/api/leads \
+curl -X POST http://localhost:8080/api/lead \
   -H "Content-Type: application/json" \
   -d '{"name": "Big Deal", "company": "MegaCorp", "expected_revenue": 100000, "source": "referral"}'
 
 # Workflow action: qualify a lead
-curl -X POST http://localhost:8080/api/leads/{id}/qualify
+curl -X POST http://localhost:8080/api/lead/{id}/qualify
 
 # List employees
-curl http://localhost:8080/api/employees
+curl http://localhost:8080/api/employee
 
 # List departments
-curl http://localhost:8080/api/departments
+curl http://localhost:8080/api/department
 
 # Create leave request
-curl -X POST http://localhost:8080/api/leave_requests \
+curl -X POST http://localhost:8080/api/leave_request \
   -H "Content-Type: application/json" \
   -d '{"employee_id": "...", "leave_type": "annual", "start_date": "2026-05-01", "end_date": "2026-05-03", "days": 3}'
 
 # Approve leave
-curl -X POST http://localhost:8080/api/leave_requests/{id}/approve
+curl -X POST http://localhost:8080/api/leave_request/{id}/approve
 
 # View SSR pages
 curl http://localhost:8080/views/crm_dashboard

@@ -4,6 +4,7 @@
   "label": "CRM",
   "depends": ["base"],
   "category": "Sales",
+  "table": { "prefix": "crm" },
   "models": ["models/*.json"],
   "apis": ["apis/*.json"],
   "views": ["views/*.json"],
