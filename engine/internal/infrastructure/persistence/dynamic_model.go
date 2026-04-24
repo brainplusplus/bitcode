@@ -61,24 +61,58 @@ func MigrateModel(db *gorm.DB, model *parser.ModelDefinition) error {
 
 func buildColumns(model *parser.ModelDefinition, dialect DBDialect) string {
 	var cols string
+	pkFieldName := ""
+	isCompositeNoSurrogate := false
+
+	if model.PrimaryKey != nil {
+		switch model.PrimaryKey.Strategy {
+		case parser.PKAutoIncrement:
+			switch dialect {
+			case DialectPostgres:
+				cols = "  id BIGSERIAL PRIMARY KEY,\n"
+			case DialectMySQL:
+				cols = "  id BIGINT AUTO_INCREMENT PRIMARY KEY,\n"
+			default:
+				cols = "  id INTEGER PRIMARY KEY AUTOINCREMENT,\n"
+			}
+		case parser.PKNaturalKey:
+			pkFieldName = model.PrimaryKey.Field
+		case parser.PKNamingSeries:
+			pkFieldName = model.PrimaryKey.Field
+		case parser.PKManual:
+			pkFieldName = model.PrimaryKey.Field
+		case parser.PKComposite:
+			if !model.PrimaryKey.IsSurrogate() {
+				isCompositeNoSurrogate = true
+			}
+		}
+	}
+
+	if cols == "" && pkFieldName == "" && !isCompositeNoSurrogate {
+		switch dialect {
+		case DialectPostgres:
+			cols = "  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n"
+		case DialectMySQL:
+			cols = "  id CHAR(36) PRIMARY KEY,\n"
+		default:
+			cols = "  id TEXT PRIMARY KEY,\n"
+		}
+	}
 
 	switch dialect {
 	case DialectPostgres:
-		cols = "  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n"
 		cols += "  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),\n"
 		cols += "  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),\n"
 		cols += "  created_by UUID,\n"
 		cols += "  updated_by UUID,\n"
 		cols += "  active BOOLEAN NOT NULL DEFAULT TRUE"
 	case DialectMySQL:
-		cols = "  id CHAR(36) PRIMARY KEY,\n"
 		cols += "  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,\n"
 		cols += "  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n"
 		cols += "  created_by CHAR(36),\n"
 		cols += "  updated_by CHAR(36),\n"
 		cols += "  active BOOLEAN NOT NULL DEFAULT TRUE"
 	default:
-		cols = "  id TEXT PRIMARY KEY,\n"
 		cols += "  created_at DATETIME NOT NULL DEFAULT (datetime('now')),\n"
 		cols += "  updated_at DATETIME NOT NULL DEFAULT (datetime('now')),\n"
 		cols += "  created_by TEXT,\n"
@@ -92,16 +126,29 @@ func buildColumns(model *parser.ModelDefinition, dialect DBDialect) string {
 			continue
 		}
 		col := fmt.Sprintf(",\n  %s %s", name, sqlType)
-		if field.Required {
-			col += " NOT NULL"
-		}
-		if field.Unique {
-			col += " UNIQUE"
+
+		if name == pkFieldName {
+			col += " PRIMARY KEY"
+		} else {
+			if field.Required {
+				col += " NOT NULL"
+			}
+			if field.Unique {
+				col += " UNIQUE"
+			}
 		}
 		if field.Default != nil {
 			col += fmt.Sprintf(" DEFAULT %s", formatDefault(field.Default, dialect))
 		}
 		cols += col
+	}
+
+	if isCompositeNoSurrogate && len(model.PrimaryKey.Fields) > 0 {
+		cols += fmt.Sprintf(",\n  PRIMARY KEY (%s)", joinStrings(model.PrimaryKey.Fields, ", "))
+	}
+
+	if model.PrimaryKey != nil && model.PrimaryKey.Strategy == parser.PKComposite && model.PrimaryKey.IsSurrogate() {
+		cols += fmt.Sprintf(",\n  UNIQUE (%s)", joinStrings(model.PrimaryKey.Fields, ", "))
 	}
 
 	return cols

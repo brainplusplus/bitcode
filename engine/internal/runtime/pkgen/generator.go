@@ -1,0 +1,221 @@
+package pkgen
+
+import (
+	"encoding/base64"
+	"encoding/json"
+	"fmt"
+
+	"github.com/google/uuid"
+
+	"github.com/bitcode-engine/engine/internal/compiler/parser"
+	"github.com/bitcode-engine/engine/internal/runtime/format"
+)
+
+type Generator struct {
+	formatEngine   *format.Engine
+	settingsLookup func(key string) string
+}
+
+func NewGenerator(fe *format.Engine, sl func(string) string) *Generator {
+	return &Generator{formatEngine: fe, settingsLookup: sl}
+}
+
+func (g *Generator) GeneratePK(model *parser.ModelDefinition, record map[string]any, session map[string]any) (pkColumn string, pkValue any, err error) {
+	pk := model.PrimaryKey
+	if pk == nil {
+		return "id", uuid.New().String(), nil
+	}
+
+	switch pk.Strategy {
+	case parser.PKAutoIncrement:
+		return "", nil, nil
+
+	case parser.PKUUID:
+		version := pk.Version
+		if version == "" {
+			version = "v4"
+		}
+		switch version {
+		case "v4":
+			return "id", uuid.New().String(), nil
+		case "v7":
+			v, vErr := uuid.NewV7()
+			if vErr != nil {
+				return "id", uuid.New().String(), nil
+			}
+			return "id", v.String(), nil
+		case "format":
+			ctx := g.buildFormatContext(model, record, session)
+			resetMode := "never"
+			step := 1
+			if pk.Sequence != nil {
+				if pk.Sequence.Reset != "" {
+					resetMode = pk.Sequence.Reset
+				}
+				if pk.Sequence.Step > 0 {
+					step = pk.Sequence.Step
+				}
+			}
+			resolved, fErr := g.formatEngine.Resolve(pk.Format, ctx, model.Name, "id", resetMode, step)
+			if fErr != nil {
+				return "", nil, fmt.Errorf("failed to resolve UUID format: %w", fErr)
+			}
+			ns := pk.Namespace
+			if ns == "" {
+				ns = model.Name
+			}
+			nsUUID := uuid.NewSHA1(uuid.NameSpaceDNS, []byte(ns))
+			generated := uuid.NewSHA1(nsUUID, []byte(resolved))
+			return "id", generated.String(), nil
+		}
+
+	case parser.PKNaturalKey:
+		val, ok := record[pk.Field]
+		if !ok || val == nil || fmt.Sprintf("%v", val) == "" {
+			return "", nil, fmt.Errorf("natural key field %q is required", pk.Field)
+		}
+		return pk.Field, val, nil
+
+	case parser.PKNamingSeries:
+		ctx := g.buildFormatContext(model, record, session)
+		resetMode := "never"
+		step := 1
+		if pk.Sequence != nil {
+			if pk.Sequence.Reset != "" {
+				resetMode = pk.Sequence.Reset
+			}
+			if pk.Sequence.Step > 0 {
+				step = pk.Sequence.Step
+			}
+		}
+		resolved, fErr := g.formatEngine.Resolve(pk.Format, ctx, model.Name, pk.Field, resetMode, step)
+		if fErr != nil {
+			return "", nil, fmt.Errorf("failed to resolve naming series: %w", fErr)
+		}
+		return pk.Field, resolved, nil
+
+	case parser.PKManual:
+		val, ok := record[pk.Field]
+		if !ok || val == nil || fmt.Sprintf("%v", val) == "" {
+			return "", nil, fmt.Errorf("manual key field %q is required", pk.Field)
+		}
+		return pk.Field, val, nil
+
+	case parser.PKComposite:
+		if pk.IsSurrogate() {
+			return "id", uuid.New().String(), nil
+		}
+		for _, f := range pk.Fields {
+			if _, ok := record[f]; !ok {
+				return "", nil, fmt.Errorf("composite key field %q is required", f)
+			}
+		}
+		return "", nil, nil
+	}
+
+	return "id", uuid.New().String(), nil
+}
+
+func (g *Generator) GenerateAutoFormat(model *parser.ModelDefinition, fieldName string, field *parser.FieldDefinition, record map[string]any, session map[string]any) (string, error) {
+	if field.AutoFormat == nil {
+		return "", fmt.Errorf("field %q has no auto_format config", fieldName)
+	}
+
+	ctx := g.buildFormatContext(model, record, session)
+	resetMode := "never"
+	step := 1
+	if field.AutoFormat.Sequence != nil {
+		if field.AutoFormat.Sequence.Reset != "" {
+			resetMode = field.AutoFormat.Sequence.Reset
+		}
+		if field.AutoFormat.Sequence.Step > 0 {
+			step = field.AutoFormat.Sequence.Step
+		}
+	}
+
+	return g.formatEngine.Resolve(field.AutoFormat.Format, ctx, model.Name, fieldName, resetMode, step)
+}
+
+func (g *Generator) buildFormatContext(model *parser.ModelDefinition, record map[string]any, session map[string]any) *format.FormatContext {
+	return &format.FormatContext{
+		Data:      record,
+		Session:   session,
+		Settings:  g.getSettings(),
+		ModelName: model.Name,
+		Module:    model.Module,
+	}
+}
+
+func (g *Generator) getSettings() map[string]string {
+	return make(map[string]string)
+}
+
+type SettingsLookup func(key string) string
+
+func GetPKColumn(model *parser.ModelDefinition) string {
+	if model.PrimaryKey == nil {
+		return "id"
+	}
+	switch model.PrimaryKey.Strategy {
+	case parser.PKNaturalKey, parser.PKNamingSeries, parser.PKManual:
+		if model.PrimaryKey.Field != "" {
+			return model.PrimaryKey.Field
+		}
+	case parser.PKComposite:
+		if !model.PrimaryKey.IsSurrogate() {
+			if len(model.PrimaryKey.Fields) > 0 {
+				return model.PrimaryKey.Fields[0]
+			}
+		}
+	}
+	return "id"
+}
+
+func GetPKColumns(model *parser.ModelDefinition) []string {
+	if model.PrimaryKey == nil {
+		return []string{"id"}
+	}
+	if model.PrimaryKey.Strategy == parser.PKComposite && !model.PrimaryKey.IsSurrogate() {
+		return model.PrimaryKey.Fields
+	}
+	return []string{GetPKColumn(model)}
+}
+
+func IsAutoGeneratedPK(model *parser.ModelDefinition) bool {
+	if model.PrimaryKey == nil {
+		return true
+	}
+	switch model.PrimaryKey.Strategy {
+	case parser.PKAutoIncrement, parser.PKUUID, parser.PKNamingSeries:
+		return true
+	case parser.PKComposite:
+		return model.PrimaryKey.IsSurrogate()
+	}
+	return false
+}
+
+func IsCompositeNoSurrogate(model *parser.ModelDefinition) bool {
+	if model.PrimaryKey == nil {
+		return false
+	}
+	return model.PrimaryKey.Strategy == parser.PKComposite && !model.PrimaryKey.IsSurrogate()
+}
+
+func EncodeCompositePK(keys map[string]any) string {
+	data, _ := json.Marshal(keys)
+	return base64.URLEncoding.EncodeToString(data)
+}
+
+func DecodeCompositePK(encoded string) (map[string]any, error) {
+	data, err := base64.URLEncoding.DecodeString(encoded)
+	if err != nil {
+		return nil, fmt.Errorf("invalid composite key encoding: %w", err)
+	}
+	var keys map[string]any
+	if err := json.Unmarshal(data, &keys); err != nil {
+		return nil, fmt.Errorf("invalid composite key JSON: %w", err)
+	}
+	return keys, nil
+}
+
+

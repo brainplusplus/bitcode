@@ -71,7 +71,9 @@ func seedFile(db *gorm.DB, path string) error {
 func seedRecords(db *gorm.DB, table string, records []map[string]any) error {
 	for _, record := range records {
 		if _, hasID := record["id"]; !hasID {
-			record["id"] = uuid.New().String()
+			if !isAutoIncrementTable(table) {
+				record["id"] = uuid.New().String()
+			}
 		}
 
 		if pw, ok := record["password"].(string); ok {
@@ -97,6 +99,10 @@ func seedRecords(db *gorm.DB, table string, records []map[string]any) error {
 		log.Printf("[SEED] %s: %v", table, record[checkField])
 	}
 	return nil
+}
+
+func isAutoIncrementTable(table string) bool {
+	return false
 }
 
 func findUniqueField(record map[string]any) string {

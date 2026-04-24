@@ -275,10 +275,75 @@ func (c *ComponentCompiler) compileFormSection(item parser.LayoutItem, record ma
 	return b.String()
 }
 
+func (c *ComponentCompiler) shouldHideField(modelName string, fieldName string, isEdit bool) bool {
+	if c.modelLookup == nil {
+		return false
+	}
+	model, err := c.modelLookup.Get(modelName)
+	if err != nil || model.PrimaryKey == nil {
+		return false
+	}
+
+	pk := model.PrimaryKey
+	switch pk.Strategy {
+	case parser.PKAutoIncrement:
+		return fieldName == "id"
+	case parser.PKUUID:
+		return fieldName == "id"
+	case parser.PKNamingSeries:
+		return fieldName == pk.Field
+	}
+
+	fd, ok := model.Fields[fieldName]
+	if ok && fd.AutoFormat != nil && !isEdit {
+		return true
+	}
+
+	return false
+}
+
+func (c *ComponentCompiler) shouldReadonlyField(modelName string, fieldName string, isEdit bool) bool {
+	if !isEdit || c.modelLookup == nil {
+		return false
+	}
+	model, err := c.modelLookup.Get(modelName)
+	if err != nil || model.PrimaryKey == nil {
+		return false
+	}
+
+	pk := model.PrimaryKey
+	switch pk.Strategy {
+	case parser.PKNaturalKey:
+		return fieldName == pk.Field
+	case parser.PKManual:
+		return fieldName == pk.Field
+	case parser.PKComposite:
+		if !pk.IsSurrogate() {
+			for _, f := range pk.Fields {
+				if f == fieldName {
+					return true
+				}
+			}
+		}
+	}
+
+	fd, ok := model.Fields[fieldName]
+	if ok && fd.AutoFormat != nil {
+		return true
+	}
+
+	return false
+}
+
 func (c *ComponentCompiler) compileFormRow(fields []parser.LayoutRow, record map[string]any, model string) string {
 	var b strings.Builder
 	b.WriteString(`<div class="bc-row">`)
+	isEdit := record != nil && len(record) > 0
 	for _, f := range fields {
+		if c.shouldHideField(model, f.Field, isEdit) {
+			continue
+		}
+
 		width := f.Width
 		if width == 0 {
 			width = 6
@@ -303,6 +368,9 @@ func (c *ComponentCompiler) compileFormRow(fields []parser.LayoutRow, record map
 
 		readonly := f.Readonly
 		if fieldDef != nil && fieldDef.Computed != "" {
+			readonly = true
+		}
+		if c.shouldReadonlyField(model, f.Field, isEdit) {
 			readonly = true
 		}
 

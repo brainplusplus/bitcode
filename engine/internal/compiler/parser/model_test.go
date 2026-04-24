@@ -1,8 +1,21 @@
 package parser
 
 import (
+	"encoding/json"
+	"strings"
 	"testing"
 )
+
+func mustUnmarshalModelJSON(t *testing.T, data string) ModelDefinition {
+	t.Helper()
+
+	var model ModelDefinition
+	if err := json.Unmarshal([]byte(data), &model); err != nil {
+		t.Fatalf("unexpected unmarshal error: %v", err)
+	}
+
+	return model
+}
 
 func TestParseModel_ValidOrder(t *testing.T) {
 	data := []byte(`{
@@ -261,5 +274,244 @@ func TestParseModel_DynamicLinkWithoutModel(t *testing.T) {
 	_, err := ParseModel(data)
 	if err == nil {
 		t.Fatal("expected error for dynamic_link without model")
+	}
+}
+
+func TestParseModel_NoPrimaryKeyBackwardCompatible(t *testing.T) {
+	data := []byte(`{
+		"name": "customer",
+		"fields": {
+			"name": {"type": "string", "required": true}
+		}
+	}`)
+
+	model, err := ParseModel(data)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if model.PrimaryKey != nil {
+		t.Fatal("expected primary key to be nil for backward compatibility")
+	}
+}
+
+func TestModelDefinition_UnmarshalPrimaryKeyStrategies(t *testing.T) {
+	tests := []struct {
+		name        string
+		json        string
+		assertions  func(t *testing.T, model ModelDefinition)
+	}{
+		{
+			name: "auto_increment",
+			json: `{
+				"name": "invoice",
+				"primary_key": {"strategy": "auto_increment"},
+				"fields": {"id": {"type": "integer"}}
+			}`,
+			assertions: func(t *testing.T, model ModelDefinition) {
+				if model.PrimaryKey == nil || model.PrimaryKey.Strategy != PKAutoIncrement {
+					t.Fatalf("expected auto_increment strategy, got %+v", model.PrimaryKey)
+				}
+			},
+		},
+		{
+			name: "composite",
+			json: `{
+				"name": "invoice_line",
+				"primary_key": {"strategy": "composite", "fields": ["invoice_id", "line_no"], "surrogate": false},
+				"fields": {
+					"invoice_id": {"type": "many2one", "model": "invoice", "required": true},
+					"line_no": {"type": "integer", "required": true}
+				}
+			}`,
+			assertions: func(t *testing.T, model ModelDefinition) {
+				if model.PrimaryKey == nil || model.PrimaryKey.Strategy != PKComposite {
+					t.Fatalf("expected composite strategy, got %+v", model.PrimaryKey)
+				}
+				if len(model.PrimaryKey.Fields) != 2 {
+					t.Fatalf("expected 2 composite fields, got %d", len(model.PrimaryKey.Fields))
+				}
+				if model.PrimaryKey.IsSurrogate() {
+					t.Fatal("expected surrogate false")
+				}
+			},
+		},
+		{
+			name: "uuid",
+			json: `{
+				"name": "contact",
+				"primary_key": {"strategy": "uuid", "version": "v7", "field": "id"},
+				"fields": {"id": {"type": "string"}}
+			}`,
+			assertions: func(t *testing.T, model ModelDefinition) {
+				if model.PrimaryKey == nil || model.PrimaryKey.Strategy != PKUUID {
+					t.Fatalf("expected uuid strategy, got %+v", model.PrimaryKey)
+				}
+				if model.PrimaryKey.Version != "v7" {
+					t.Fatalf("expected uuid version v7, got %q", model.PrimaryKey.Version)
+				}
+			},
+		},
+		{
+			name: "natural_key",
+			json: `{
+				"name": "country",
+				"primary_key": {"strategy": "natural_key", "field": "code"},
+				"fields": {"code": {"type": "string", "required": true}}
+			}`,
+			assertions: func(t *testing.T, model ModelDefinition) {
+				if model.PrimaryKey == nil || model.PrimaryKey.Strategy != PKNaturalKey {
+					t.Fatalf("expected natural_key strategy, got %+v", model.PrimaryKey)
+				}
+				if model.PrimaryKey.Field != "code" {
+					t.Fatalf("expected field code, got %q", model.PrimaryKey.Field)
+				}
+			},
+		},
+		{
+			name: "naming_series",
+			json: `{
+				"name": "sales_order",
+				"primary_key": {
+					"strategy": "naming_series",
+					"field": "name",
+					"format": "SO-{YYYY}-{#####}",
+					"sequence": {"reset": "yearly", "step": 2}
+				},
+				"fields": {"name": {"type": "string", "required": true}}
+			}`,
+			assertions: func(t *testing.T, model ModelDefinition) {
+				if model.PrimaryKey == nil || model.PrimaryKey.Strategy != PKNamingSeries {
+					t.Fatalf("expected naming_series strategy, got %+v", model.PrimaryKey)
+				}
+				if model.PrimaryKey.Sequence == nil || model.PrimaryKey.Sequence.Reset != "yearly" || model.PrimaryKey.Sequence.Step != 2 {
+					t.Fatalf("expected yearly sequence with step 2, got %+v", model.PrimaryKey.Sequence)
+				}
+			},
+		},
+		{
+			name: "manual",
+			json: `{
+				"name": "legacy_import",
+				"primary_key": {"strategy": "manual", "field": "legacy_id"},
+				"fields": {"legacy_id": {"type": "string", "required": true}}
+			}`,
+			assertions: func(t *testing.T, model ModelDefinition) {
+				if model.PrimaryKey == nil || model.PrimaryKey.Strategy != PKManual {
+					t.Fatalf("expected manual strategy, got %+v", model.PrimaryKey)
+				}
+				if model.PrimaryKey.Field != "legacy_id" {
+					t.Fatalf("expected field legacy_id, got %q", model.PrimaryKey.Field)
+				}
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			model := mustUnmarshalModelJSON(t, tt.json)
+			tt.assertions(t, model)
+		})
+	}
+}
+
+func TestModelDefinition_UnmarshalFieldAutoFormat(t *testing.T) {
+	model := mustUnmarshalModelJSON(t, `{
+		"name": "sales_order",
+		"fields": {
+			"name": {
+				"type": "string",
+				"name_format": "SO-{#####}",
+				"auto_format": {
+					"format": "SO-{YYYY}-{#####}",
+					"sequence": {"reset": "monthly", "step": 5}
+				}
+			}
+		}
+	}`)
+
+	field := model.Fields["name"]
+	if field.AutoFormat == nil {
+		t.Fatal("expected auto_format to be parsed")
+	}
+	if field.AutoFormat.Format != "SO-{YYYY}-{#####}" {
+		t.Fatalf("expected auto_format format to be parsed, got %q", field.AutoFormat.Format)
+	}
+	if field.AutoFormat.Sequence == nil || field.AutoFormat.Sequence.Reset != "monthly" || field.AutoFormat.Sequence.Step != 5 {
+		t.Fatalf("expected auto_format sequence to be parsed, got %+v", field.AutoFormat.Sequence)
+	}
+}
+
+func TestParseModel_PrimaryKeyValidationErrors(t *testing.T) {
+	tests := []struct {
+		name    string
+		json    string
+		wantErr string
+	}{
+		{
+			name: "auto_increment invalid sequence reset",
+			json: `{
+				"name": "invoice",
+				"primary_key": {"strategy": "auto_increment", "sequence": {"reset": "weekly"}},
+				"fields": {"id": {"type": "integer"}}
+			}`,
+			wantErr: "primary key sequence reset must be one of",
+		},
+		{
+			name: "composite requires at least two fields",
+			json: `{
+				"name": "invoice_line",
+				"primary_key": {"strategy": "composite", "fields": ["invoice_id"]},
+				"fields": {"invoice_id": {"type": "many2one", "model": "invoice", "required": true}}
+			}`,
+			wantErr: "composite primary key must specify at least two fields",
+		},
+		{
+			name: "uuid format version requires format",
+			json: `{
+				"name": "contact",
+				"primary_key": {"strategy": "uuid", "version": "format"},
+				"fields": {"id": {"type": "string"}}
+			}`,
+			wantErr: "uuid primary key with format version must specify format",
+		},
+		{
+			name: "natural_key field must be required",
+			json: `{
+				"name": "country",
+				"primary_key": {"strategy": "natural_key", "field": "code"},
+				"fields": {"code": {"type": "string"}}
+			}`,
+			wantErr: "natural key field \"code\" must be required",
+		},
+		{
+			name: "naming_series requires format",
+			json: `{
+				"name": "sales_order",
+				"primary_key": {"strategy": "naming_series", "field": "name"},
+				"fields": {"name": {"type": "string", "required": true}}
+			}`,
+			wantErr: "naming_series primary key must specify format",
+		},
+		{
+			name: "manual field must exist",
+			json: `{
+				"name": "legacy_import",
+				"primary_key": {"strategy": "manual", "field": "legacy_id"},
+				"fields": {"name": {"type": "string"}}
+			}`,
+			wantErr: "primary key field \"legacy_id\" does not exist",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := ParseModel([]byte(tt.json))
+			if err == nil {
+				t.Fatal("expected error")
+			}
+			if !strings.Contains(err.Error(), tt.wantErr) {
+				t.Fatalf("expected error containing %q, got %q", tt.wantErr, err.Error())
+			}
+		})
 	}
 }

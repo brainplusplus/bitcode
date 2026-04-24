@@ -133,6 +133,7 @@ bitcode/
 - [x] Include menus — `include_menus` field to import menu items from other modules
 - [x] View editor — Admin view detail with tabs (info, preview, editor, revisions), JSON editor, `bc-view-editor` Stencil component
 - [x] View versioning — `view_revisions` DB table, auto-revision on save, rollback, configurable limit
+- [x] Primary key strategies — 6 strategies (auto-increment, composite, UUID v4/v7/format, natural key, naming series, manual), format template engine (30+ functions), atomic sequence engine
 
 ### Remaining (Engine)
 
@@ -153,7 +154,7 @@ go test ./pkg/ddd/        # Specific package
 go test ./... -count=1    # No cache
 ```
 
-Current: 181 tests, 0 failures. Build: OK.
+Current: 230 tests, 0 failures. Build: OK.
 
 ## Build
 

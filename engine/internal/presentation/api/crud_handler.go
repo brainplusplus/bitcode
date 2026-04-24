@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/bitcode-engine/engine/internal/compiler/parser"
 	"github.com/bitcode-engine/engine/internal/infrastructure/persistence"
+	"github.com/bitcode-engine/engine/internal/runtime/pkgen"
 	"github.com/bitcode-engine/engine/internal/runtime/workflow"
 )
 
@@ -15,10 +16,16 @@ type CRUDHandler struct {
 	repo           *persistence.GenericRepository
 	apiDef         *parser.APIDefinition
 	workflowEngine *workflow.Engine
+	modelDef       *parser.ModelDefinition
+	pkGenerator    *pkgen.Generator
 }
 
 func NewCRUDHandler(repo *persistence.GenericRepository, apiDef *parser.APIDefinition, wfEngine *workflow.Engine) *CRUDHandler {
 	return &CRUDHandler{repo: repo, apiDef: apiDef, workflowEngine: wfEngine}
+}
+
+func NewCRUDHandlerWithPK(repo *persistence.GenericRepository, apiDef *parser.APIDefinition, wfEngine *workflow.Engine, modelDef *parser.ModelDefinition, pkGen *pkgen.Generator) *CRUDHandler {
+	return &CRUDHandler{repo: repo, apiDef: apiDef, workflowEngine: wfEngine, modelDef: modelDef, pkGenerator: pkGen}
 }
 
 func (h *CRUDHandler) List(c *fiber.Ctx) error {
@@ -63,6 +70,19 @@ func (h *CRUDHandler) List(c *fiber.Ctx) error {
 
 func (h *CRUDHandler) Read(c *fiber.Ctx) error {
 	id := c.Params("id")
+
+	if h.modelDef != nil && pkgen.IsCompositeNoSurrogate(h.modelDef) {
+		keys, err := pkgen.DecodeCompositePK(id)
+		if err != nil {
+			return c.Status(400).JSON(fiber.Map{"error": "invalid composite key"})
+		}
+		result, err := h.repo.FindByCompositePK(c.Context(), keys)
+		if err != nil {
+			return c.Status(404).JSON(fiber.Map{"error": "record not found"})
+		}
+		return c.JSON(fiber.Map{"data": result})
+	}
+
 	result, err := h.repo.FindByID(c.Context(), id)
 	if err != nil {
 		return c.Status(404).JSON(fiber.Map{"error": "record not found"})
@@ -76,7 +96,30 @@ func (h *CRUDHandler) Create(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"error": "invalid request body"})
 	}
 
-	body["id"] = uuid.New().String()
+	session := h.extractSession(c)
+
+	if h.pkGenerator != nil && h.modelDef != nil {
+		pkCol, pkVal, err := h.pkGenerator.GeneratePK(h.modelDef, body, session)
+		if err != nil {
+			return c.Status(500).JSON(fiber.Map{"error": fmt.Sprintf("failed to generate primary key: %v", err)})
+		}
+		if pkCol != "" && pkVal != nil {
+			body[pkCol] = pkVal
+		}
+
+		for fieldName, fieldDef := range h.modelDef.Fields {
+			if fieldDef.AutoFormat != nil {
+				val, afErr := h.pkGenerator.GenerateAutoFormat(h.modelDef, fieldName, &fieldDef, body, session)
+				if afErr == nil {
+					body[fieldName] = val
+				}
+			}
+		}
+	} else {
+		if _, hasID := body["id"]; !hasID {
+			body["id"] = generateUUID()
+		}
+	}
 
 	if userID, ok := c.Locals("user_id").(string); ok {
 		body["created_by"] = userID
@@ -113,8 +156,28 @@ func (h *CRUDHandler) Update(c *fiber.Ctx) error {
 	delete(body, "created_at")
 	delete(body, "created_by")
 
+	if h.modelDef != nil && h.modelDef.PrimaryKey != nil {
+		if h.modelDef.PrimaryKey.Field != "" {
+			delete(body, h.modelDef.PrimaryKey.Field)
+		}
+		for _, f := range h.modelDef.PrimaryKey.Fields {
+			delete(body, f)
+		}
+	}
+
 	if userID, ok := c.Locals("user_id").(string); ok {
 		body["updated_by"] = userID
+	}
+
+	if h.modelDef != nil && pkgen.IsCompositeNoSurrogate(h.modelDef) {
+		keys, err := pkgen.DecodeCompositePK(id)
+		if err != nil {
+			return c.Status(400).JSON(fiber.Map{"error": "invalid composite key"})
+		}
+		if err := h.repo.UpdateByCompositePK(c.Context(), keys, body); err != nil {
+			return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+		}
+		return c.JSON(fiber.Map{"message": "updated"})
 	}
 
 	if err := h.repo.Update(c.Context(), id, body); err != nil {
@@ -168,9 +231,9 @@ func (h *CRUDHandler) WorkflowAction(actionName string) fiber.Handler {
 
 		updateData := map[string]any{wf.Field: newState}
 
-		var body map[string]any
-		c.BodyParser(&body)
-		for k, v := range body {
+		var updateBody map[string]any
+		c.BodyParser(&updateBody)
+		for k, v := range updateBody {
 			updateData[k] = v
 		}
 
@@ -188,4 +251,28 @@ func (h *CRUDHandler) WorkflowAction(actionName string) fiber.Handler {
 			"id":         id,
 		})
 	}
+}
+
+func (h *CRUDHandler) extractSession(c *fiber.Ctx) map[string]any {
+	session := make(map[string]any)
+	if userID, ok := c.Locals("user_id").(string); ok {
+		session["user_id"] = userID
+	}
+	if username, ok := c.Locals("username").(string); ok {
+		session["username"] = username
+	}
+	if tenantID, ok := c.Locals("tenant_id").(string); ok {
+		session["tenant_id"] = tenantID
+	}
+	if groupID, ok := c.Locals("group_id").(string); ok {
+		session["group_id"] = groupID
+	}
+	if groupCode, ok := c.Locals("group_code").(string); ok {
+		session["group_code"] = groupCode
+	}
+	return session
+}
+
+func generateUUID() string {
+	return uuid.New().String()
 }

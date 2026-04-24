@@ -29,6 +29,8 @@ import (
 	ws "github.com/bitcode-engine/engine/internal/presentation/websocket"
 	"github.com/bitcode-engine/engine/internal/runtime/executor"
 	"github.com/bitcode-engine/engine/internal/runtime/executor/steps"
+	"github.com/bitcode-engine/engine/internal/runtime/format"
+	"github.com/bitcode-engine/engine/internal/runtime/pkgen"
 	"github.com/bitcode-engine/engine/internal/runtime/plugin"
 	wfEngine "github.com/bitcode-engine/engine/internal/runtime/workflow"
 	"github.com/bitcode-engine/engine/pkg/security"
@@ -69,6 +71,9 @@ type App struct {
 	JWTConfig       security.JWTConfig
 	WSHub           *ws.Hub
 	Translator      *i18n.Translator
+	SequenceEngine  *persistence.SequenceEngine
+	FormatEngine    *format.Engine
+	PKGenerator     *pkgen.Generator
 	viewDefs        map[string]*viewEntry
 	moduleMenus     map[string][]parser.MenuItemDefinition
 	moduleOrder     []string
@@ -105,6 +110,13 @@ func NewApp(cfg AppConfig) (*App, error) {
 	go wsHub.Run()
 	translator := i18n.NewTranslator("en")
 
+	seqEngine := persistence.NewSequenceEngine(db)
+	if err := seqEngine.MigrateSequenceTable(); err != nil {
+		log.Printf("[WARN] failed to migrate sequences table: %v", err)
+	}
+	fmtEngine := format.NewEngine(seqEngine)
+	pkGen := pkgen.NewGenerator(fmtEngine, nil)
+
 	app := &App{
 		Config:          cfg,
 		DB:              db,
@@ -122,6 +134,9 @@ func NewApp(cfg AppConfig) (*App, error) {
 		JWTConfig:       jwtCfg,
 		WSHub:           wsHub,
 		Translator:      translator,
+		SequenceEngine:  seqEngine,
+		FormatEngine:    fmtEngine,
+		PKGenerator:     pkGen,
 		viewDefs:        make(map[string]*viewEntry),
 		moduleMenus:     make(map[string][]parser.MenuItemDefinition),
 	}
@@ -550,7 +565,13 @@ func (a *App) handleViewPost(c *fiber.Ctx) error {
 		body[k] = string(value)
 	})
 
-	repo := persistence.NewGenericRepository(a.DB, entry.Def.Model+"s")
+	modelDef, _ := a.ModelRegistry.Get(entry.Def.Model)
+	var repo *persistence.GenericRepository
+	if modelDef != nil {
+		repo = persistence.NewGenericRepositoryWithModel(a.DB, entry.Def.Model+"s", modelDef)
+	} else {
+		repo = persistence.NewGenericRepository(a.DB, entry.Def.Model+"s")
+	}
 
 	recordID := c.Query("id")
 	if recordID == "" {
@@ -565,11 +586,37 @@ func (a *App) handleViewPost(c *fiber.Ctx) error {
 		return c.Redirect(fmt.Sprintf("/app/%s/%s?id=%s", moduleName, viewPath, recordID))
 	}
 
+	if a.PKGenerator != nil && modelDef != nil {
+		session := map[string]any{}
+		token := c.Cookies("token")
+		if token != "" {
+			if claims, err := security.ValidateToken(a.JWTConfig, token); err == nil {
+				session["user_id"] = claims.UserID
+				session["username"] = claims.Username
+			}
+		}
+		pkCol, pkVal, pkErr := a.PKGenerator.GeneratePK(modelDef, body, session)
+		if pkErr == nil && pkCol != "" && pkVal != nil {
+			body[pkCol] = pkVal
+		}
+		for fieldName, fieldDef := range modelDef.Fields {
+			if fieldDef.AutoFormat != nil {
+				if val, afErr := a.PKGenerator.GenerateAutoFormat(modelDef, fieldName, &fieldDef, body, session); afErr == nil {
+					body[fieldName] = val
+				}
+			}
+		}
+	}
+
 	created, err := repo.Create(c.Context(), body)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
 	}
 
+	pkCol := pkgen.GetPKColumn(modelDef)
+	if id, ok := created[pkCol]; ok {
+		return c.Redirect(fmt.Sprintf("/app/%s/%s?id=%v", moduleName, viewPath, id))
+	}
 	if id, ok := created["id"].(string); ok {
 		return c.Redirect(fmt.Sprintf("/app/%s/%s?id=%s", moduleName, viewPath, id))
 	}

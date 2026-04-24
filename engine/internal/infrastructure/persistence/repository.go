@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/bitcode-engine/engine/internal/compiler/parser"
+	"github.com/bitcode-engine/engine/internal/runtime/pkgen"
 	"gorm.io/gorm"
 )
 
@@ -11,14 +13,32 @@ type GenericRepository struct {
 	db        *gorm.DB
 	tableName string
 	tenantID  string
+	modelDef  *parser.ModelDefinition
+	pkCol     string
 }
 
 func NewGenericRepository(db *gorm.DB, tableName string) *GenericRepository {
-	return &GenericRepository{db: db, tableName: tableName}
+	return &GenericRepository{db: db, tableName: tableName, pkCol: "id"}
+}
+
+func NewGenericRepositoryWithModel(db *gorm.DB, tableName string, model *parser.ModelDefinition) *GenericRepository {
+	col := "id"
+	if model != nil {
+		col = pkgen.GetPKColumn(model)
+	}
+	return &GenericRepository{db: db, tableName: tableName, modelDef: model, pkCol: col}
 }
 
 func NewGenericRepositoryWithTenant(db *gorm.DB, tableName string, tenantID string) *GenericRepository {
-	return &GenericRepository{db: db, tableName: tableName, tenantID: tenantID}
+	return &GenericRepository{db: db, tableName: tableName, tenantID: tenantID, pkCol: "id"}
+}
+
+func NewGenericRepositoryWithModelAndTenant(db *gorm.DB, tableName string, model *parser.ModelDefinition, tenantID string) *GenericRepository {
+	col := "id"
+	if model != nil {
+		col = pkgen.GetPKColumn(model)
+	}
+	return &GenericRepository{db: db, tableName: tableName, modelDef: model, tenantID: tenantID, pkCol: col}
 }
 
 func (r *GenericRepository) applyTenant(query *gorm.DB) *gorm.DB {
@@ -41,7 +61,20 @@ func (r *GenericRepository) Create(ctx context.Context, record map[string]any) (
 func (r *GenericRepository) FindByID(ctx context.Context, id string) (map[string]any, error) {
 	var result map[string]any
 	query := r.applyTenant(r.db.WithContext(ctx).Table(r.tableName))
-	err := query.Where("id = ?", id).Take(&result).Error
+	err := query.Where(fmt.Sprintf("%s = ?", r.pkCol), id).Take(&result).Error
+	if err != nil {
+		return nil, fmt.Errorf("record not found in %s: %w", r.tableName, err)
+	}
+	return result, nil
+}
+
+func (r *GenericRepository) FindByCompositePK(ctx context.Context, keys map[string]any) (map[string]any, error) {
+	var result map[string]any
+	query := r.applyTenant(r.db.WithContext(ctx).Table(r.tableName))
+	for col, val := range keys {
+		query = query.Where(fmt.Sprintf("%s = ?", col), val)
+	}
+	err := query.Take(&result).Error
 	if err != nil {
 		return nil, fmt.Errorf("record not found in %s: %w", r.tableName, err)
 	}
@@ -87,7 +120,7 @@ func (r *GenericRepository) FindAll(ctx context.Context, filters [][]any, page i
 }
 
 func (r *GenericRepository) Update(ctx context.Context, id string, data map[string]any) error {
-	result := r.db.WithContext(ctx).Table(r.tableName).Where("id = ?", id).Updates(data)
+	result := r.db.WithContext(ctx).Table(r.tableName).Where(fmt.Sprintf("%s = ?", r.pkCol), id).Updates(data)
 	if result.Error != nil {
 		return fmt.Errorf("failed to update record in %s: %w", r.tableName, result.Error)
 	}
@@ -97,8 +130,23 @@ func (r *GenericRepository) Update(ctx context.Context, id string, data map[stri
 	return nil
 }
 
+func (r *GenericRepository) UpdateByCompositePK(ctx context.Context, keys map[string]any, data map[string]any) error {
+	query := r.db.WithContext(ctx).Table(r.tableName)
+	for col, val := range keys {
+		query = query.Where(fmt.Sprintf("%s = ?", col), val)
+	}
+	result := query.Updates(data)
+	if result.Error != nil {
+		return fmt.Errorf("failed to update record in %s: %w", r.tableName, result.Error)
+	}
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("record not found in %s", r.tableName)
+	}
+	return nil
+}
+
 func (r *GenericRepository) Delete(ctx context.Context, id string) error {
-	result := r.db.WithContext(ctx).Table(r.tableName).Where("id = ?", id).Update("active", false)
+	result := r.db.WithContext(ctx).Table(r.tableName).Where(fmt.Sprintf("%s = ?", r.pkCol), id).Update("active", false)
 	if result.Error != nil {
 		return fmt.Errorf("failed to soft-delete record in %s: %w", r.tableName, result.Error)
 	}
@@ -109,7 +157,7 @@ func (r *GenericRepository) Delete(ctx context.Context, id string) error {
 }
 
 func (r *GenericRepository) HardDelete(ctx context.Context, id string) error {
-	result := r.db.WithContext(ctx).Table(r.tableName).Where("id = ?", id).Delete(nil)
+	result := r.db.WithContext(ctx).Table(r.tableName).Where(fmt.Sprintf("%s = ?", r.pkCol), id).Delete(nil)
 	if result.Error != nil {
 		return fmt.Errorf("failed to delete record in %s: %w", r.tableName, result.Error)
 	}

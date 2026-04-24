@@ -2,7 +2,14 @@
   "name": "order",
   "module": "sales",
   "label": "Sales Order",
+  "primary_key": {
+    "strategy": "naming_series",
+    "field": "order_code",
+    "format": "SO/{time.year}/{sequence(5)}",
+    "sequence": { "reset": "yearly", "step": 1 }
+  },
   "fields": {
+    "order_code":  { "type": "string", "max": 30, "label": "Order Code" },
     "customer_id": { "type": "many2one", "model": "contact", "required": true, "label": "Customer" },
     "order_date":  { "type": "date", "default": "now", "label": "Order Date" },
     "status":      { "type": "selection", "options": ["draft", "confirmed", "done", "cancelled"], "default": "draft" },
