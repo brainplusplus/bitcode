@@ -154,6 +154,8 @@ type ModelDefinition struct {
 	RecordRules []RecordRuleDefinition     `json:"record_rules,omitempty"`
 	Indexes     [][]string                 `json:"indexes,omitempty"`
 	FileConfig  *FileConfig                `json:"file_config,omitempty"`
+	TitleField  string                     `json:"title_field,omitempty"`
+	SearchField []string                   `json:"search_field,omitempty"`
 	TableRaw    json.RawMessage            `json:"table,omitempty"`
 	TableName   string                     `json:"-"`
 	TablePrefix *string                    `json:"-"`
@@ -195,6 +197,12 @@ func ParseModel(data []byte) (*ModelDefinition, error) {
 	}
 	if err := validatePrimaryKey(&model); err != nil {
 		return nil, err
+	}
+	if model.TitleField == "" {
+		model.TitleField = resolveTitleField(&model)
+	}
+	if len(model.SearchField) == 0 {
+		model.SearchField = []string{model.TitleField}
 	}
 	if len(model.TableRaw) > 0 {
 		var tableName string
@@ -286,6 +294,25 @@ func primaryKeyField(model *ModelDefinition, fieldName string) (FieldDefinition,
 	}
 
 	return field, nil
+}
+
+func resolveTitleField(model *ModelDefinition) string {
+	candidates := []string{"name", "label", "title", "code", "username", "description"}
+	for _, c := range candidates {
+		if _, ok := model.Fields[c]; ok {
+			return c
+		}
+	}
+	for fieldName, field := range model.Fields {
+		if fieldName == "id" {
+			continue
+		}
+		switch field.Type {
+		case FieldString, FieldText, FieldSmallText, FieldEmail:
+			return fieldName
+		}
+	}
+	return "id"
 }
 
 func ParseModelFile(path string) (*ModelDefinition, error) {

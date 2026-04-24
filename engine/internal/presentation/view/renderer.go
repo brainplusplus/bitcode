@@ -353,7 +353,7 @@ func (r *Renderer) renderChart(ctx context.Context, viewDef *parser.ViewDefiniti
 	for name, ds := range viewDef.DataSources {
 		if ds.Model != "" {
 			repo := persistence.NewGenericRepository(r.db, r.resolveTable(ds.Model))
-			records, _, err := repo.FindAll(ctx, ds.Domain, 1, 1000)
+			records, _, err := repo.FindAll(ctx, persistence.QueryFromDomain(ds.Domain), 1, 1000)
 			if err != nil || records == nil {
 				data[name] = []map[string]any{}
 				continue
@@ -379,7 +379,7 @@ func (r *Renderer) renderCustom(ctx context.Context, viewDef *parser.ViewDefinit
 	for name, ds := range viewDef.DataSources {
 		if ds.Model != "" {
 			repo := persistence.NewGenericRepository(r.db, r.resolveTable(ds.Model))
-			records, _, err := repo.FindAll(ctx, ds.Domain, 1, 100)
+			records, _, err := repo.FindAll(ctx, persistence.QueryFromDomain(ds.Domain), 1, 100)
 			if err != nil {
 				data[name] = []map[string]any{}
 				continue

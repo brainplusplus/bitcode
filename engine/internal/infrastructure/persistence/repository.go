@@ -176,21 +176,12 @@ func (r *GenericRepository) FindByCompositePK(ctx context.Context, keys map[stri
 	return result, nil
 }
 
-func (r *GenericRepository) FindAll(ctx context.Context, filters [][]any, page int, pageSize int) ([]map[string]any, int64, error) {
-	query := r.applyTenant(r.db.WithContext(ctx).Table(r.tableName)).Where("active = ?", true)
-
-	for _, filter := range filters {
-		if len(filter) == 3 {
-			field, ok1 := filter[0].(string)
-			operator, ok2 := filter[1].(string)
-			if ok1 && ok2 {
-				query = query.Where(fmt.Sprintf("%s %s ?", field, operator), filter[2])
-			}
-		}
-	}
+func (r *GenericRepository) FindAll(ctx context.Context, query *Query, page int, pageSize int) ([]map[string]any, int64, error) {
+	q := r.applyTenant(r.db.WithContext(ctx).Table(r.tableName)).Where("active = ?", true)
+	q = r.applyQuery(q, query)
 
 	var total int64
-	if err := query.Count(&total).Error; err != nil {
+	if err := q.Count(&total).Error; err != nil {
 		return nil, 0, fmt.Errorf("failed to count records in %s: %w", r.tableName, err)
 	}
 
@@ -203,7 +194,7 @@ func (r *GenericRepository) FindAll(ctx context.Context, filters [][]any, page i
 	offset := (page - 1) * pageSize
 
 	var results []map[string]any
-	if err := query.Offset(offset).Limit(pageSize).Find(&results).Error; err != nil {
+	if err := q.Offset(offset).Limit(pageSize).Find(&results).Error; err != nil {
 		return []map[string]any{}, 0, fmt.Errorf("failed to query records in %s: %w", r.tableName, err)
 	}
 
@@ -220,6 +211,48 @@ func (r *GenericRepository) FindAll(ctx context.Context, filters [][]any, page i
 	}
 
 	return results, total, nil
+}
+
+func (r *GenericRepository) applyQuery(q *gorm.DB, query *Query) *gorm.DB {
+	if query == nil {
+		return q
+	}
+	for _, cond := range query.Conditions {
+		switch cond.Operator {
+		case "=", "!=", ">", "<", ">=", "<=":
+			q = q.Where(fmt.Sprintf("%s %s ?", cond.Field, cond.Operator), cond.Value)
+		case "like":
+			q = q.Where(fmt.Sprintf("%s LIKE ?", cond.Field), cond.Value)
+		case "in":
+			q = q.Where(fmt.Sprintf("%s IN ?", cond.Field), cond.Value)
+		case "not_in":
+			q = q.Where(fmt.Sprintf("%s NOT IN ?", cond.Field), cond.Value)
+		case "is_null":
+			q = q.Where(fmt.Sprintf("%s IS NULL", cond.Field))
+		case "is_not_null":
+			q = q.Where(fmt.Sprintf("%s IS NOT NULL", cond.Field))
+		case "between":
+			if vals, ok := cond.Value.([]any); ok && len(vals) == 2 {
+				q = q.Where(fmt.Sprintf("%s BETWEEN ? AND ?", cond.Field), vals[0], vals[1])
+			}
+		}
+	}
+	for _, order := range query.OrderBy {
+		dir := "ASC"
+		if order.Direction == "desc" {
+			dir = "DESC"
+		}
+		q = q.Order(fmt.Sprintf("%s %s", order.Field, dir))
+	}
+	if len(query.Select) > 0 {
+		q = q.Select(query.Select)
+	}
+	if len(query.GroupBy) > 0 {
+		for _, g := range query.GroupBy {
+			q = q.Group(g)
+		}
+	}
+	return q
 }
 
 func (r *GenericRepository) Update(ctx context.Context, id string, data map[string]any) error {
@@ -311,6 +344,127 @@ func (r *GenericRepository) HardDelete(ctx context.Context, id string) error {
 
 	r.saveRevision("delete", id, before, nil)
 	return nil
+}
+
+func (r *GenericRepository) SetModelDef(def *parser.ModelDefinition) {
+	r.modelDef = def
+}
+
+func (r *GenericRepository) GetTableName() string {
+	return r.tableName
+}
+
+func (r *GenericRepository) Upsert(ctx context.Context, data map[string]any, uniqueFields []string) (map[string]any, error) {
+	if len(uniqueFields) == 0 {
+		return r.Create(ctx, data)
+	}
+	q := r.db.WithContext(ctx).Table(r.tableName)
+	for _, f := range uniqueFields {
+		if v, ok := data[f]; ok {
+			q = q.Where(fmt.Sprintf("%s = ?", f), v)
+		}
+	}
+	var existing map[string]any
+	if err := q.Take(&existing).Error; err == nil {
+		id := fmt.Sprintf("%v", existing[r.pkCol])
+		if err := r.Update(ctx, id, data); err != nil {
+			return nil, err
+		}
+		var updated map[string]any
+		r.db.WithContext(ctx).Table(r.tableName).Where(fmt.Sprintf("%s = ?", r.pkCol), id).Take(&updated)
+		return updated, nil
+	}
+	return r.Create(ctx, data)
+}
+
+func (r *GenericRepository) Count(ctx context.Context, query *Query) (int64, error) {
+	q := r.applyTenant(r.db.WithContext(ctx).Table(r.tableName)).Where("active = ?", true)
+	q = r.applyQuery(q, query)
+	var count int64
+	if err := q.Count(&count).Error; err != nil {
+		return 0, fmt.Errorf("failed to count in %s: %w", r.tableName, err)
+	}
+	return count, nil
+}
+
+func (r *GenericRepository) Sum(ctx context.Context, field string, query *Query) (float64, error) {
+	q := r.applyTenant(r.db.WithContext(ctx).Table(r.tableName)).Where("active = ?", true)
+	q = r.applyQuery(q, query)
+	var result float64
+	if err := q.Select(fmt.Sprintf("COALESCE(SUM(%s), 0)", field)).Scan(&result).Error; err != nil {
+		return 0, fmt.Errorf("failed to sum %s in %s: %w", field, r.tableName, err)
+	}
+	return result, nil
+}
+
+func (r *GenericRepository) BulkCreate(ctx context.Context, records []map[string]any) ([]map[string]any, error) {
+	for i := range records {
+		if r.tenantID != "" {
+			records[i]["tenant_id"] = r.tenantID
+		}
+		r.encryptFields(records[i])
+	}
+	if err := r.db.WithContext(ctx).Table(r.tableName).Create(&records).Error; err != nil {
+		return nil, fmt.Errorf("failed to bulk create in %s: %w", r.tableName, err)
+	}
+	return records, nil
+}
+
+func (r *GenericRepository) AddMany2Many(ctx context.Context, id string, field string, relatedIDs []string) error {
+	junctionTable := r.tableName + "_" + field
+	for _, relID := range relatedIDs {
+		record := map[string]any{
+			r.modelName + "_id": id,
+			field + "_id":       relID,
+		}
+		var count int64
+		r.db.WithContext(ctx).Table(junctionTable).
+			Where(fmt.Sprintf("%s_id = ? AND %s_id = ?", r.modelName, field), id, relID).
+			Count(&count)
+		if count == 0 {
+			r.db.WithContext(ctx).Table(junctionTable).Create(&record)
+		}
+	}
+	return nil
+}
+
+func (r *GenericRepository) RemoveMany2Many(ctx context.Context, id string, field string, relatedIDs []string) error {
+	junctionTable := r.tableName + "_" + field
+	for _, relID := range relatedIDs {
+		r.db.WithContext(ctx).Table(junctionTable).
+			Where(fmt.Sprintf("%s_id = ? AND %s_id = ?", r.modelName, field), id, relID).
+			Delete(nil)
+	}
+	return nil
+}
+
+func (r *GenericRepository) LoadMany2Many(ctx context.Context, id string, field string) ([]map[string]any, error) {
+	junctionTable := r.tableName + "_" + field
+	var junctionRecords []map[string]any
+	if err := r.db.WithContext(ctx).Table(junctionTable).
+		Where(fmt.Sprintf("%s_id = ?", r.modelName), id).
+		Find(&junctionRecords).Error; err != nil {
+		return nil, err
+	}
+	var relatedIDs []string
+	for _, jr := range junctionRecords {
+		if rid, ok := jr[field+"_id"]; ok {
+			relatedIDs = append(relatedIDs, fmt.Sprintf("%v", rid))
+		}
+	}
+	if len(relatedIDs) == 0 {
+		return []map[string]any{}, nil
+	}
+	var results []map[string]any
+	if err := r.db.WithContext(ctx).Table(field+"s").
+		Where("id IN ?", relatedIDs).
+		Find(&results).Error; err != nil {
+		return nil, err
+	}
+	if results == nil {
+		results = []map[string]any{}
+	}
+	return results, nil
 }
 
 func (r *GenericRepository) saveRevision(action string, recordID string, before, after map[string]any) {

@@ -37,13 +37,19 @@ func (h *DataHandler) Execute(ctx context.Context, execCtx *executor.Context, st
 		return h.executeUpdate(ctx, execCtx, step, repo)
 	case parser.StepDelete:
 		return h.executeDelete(ctx, execCtx, step, repo)
+	case parser.StepUpsert:
+		return h.executeUpsert(ctx, execCtx, step, repo)
+	case parser.StepCount:
+		return h.executeCount(ctx, execCtx, step, repo)
+	case parser.StepSum:
+		return h.executeSum(ctx, execCtx, step, repo)
 	default:
 		return fmt.Errorf("unknown data step type: %s", step.Type)
 	}
 }
 
 func (h *DataHandler) executeQuery(ctx context.Context, execCtx *executor.Context, step parser.StepDefinition, repo *persistence.GenericRepository) error {
-	results, _, err := repo.FindAll(ctx, step.Domain, 1, 100)
+	results, _, err := repo.FindAll(ctx, persistence.QueryFromDomain(step.Domain), 1, 100)
 	if err != nil {
 		return err
 	}
@@ -84,4 +90,50 @@ func (h *DataHandler) executeDelete(ctx context.Context, execCtx *executor.Conte
 		return fmt.Errorf("delete requires an id in input")
 	}
 	return repo.Delete(ctx, id)
+}
+
+func (h *DataHandler) executeUpsert(ctx context.Context, execCtx *executor.Context, step parser.StepDefinition, repo *persistence.GenericRepository) error {
+	data := make(map[string]any)
+	for k, v := range step.Set {
+		data[k] = v
+	}
+	result, err := repo.Upsert(ctx, data, step.Unique)
+	if err != nil {
+		return err
+	}
+	execCtx.Result = result
+	return nil
+}
+
+func (h *DataHandler) executeCount(ctx context.Context, execCtx *executor.Context, step parser.StepDefinition, repo *persistence.GenericRepository) error {
+	query := persistence.QueryFromDomain(step.Domain)
+	count, err := repo.Count(ctx, query)
+	if err != nil {
+		return err
+	}
+	varName := step.Into
+	if varName == "" {
+		varName = "result"
+	}
+	execCtx.Variables[varName] = count
+	execCtx.Result = count
+	return nil
+}
+
+func (h *DataHandler) executeSum(ctx context.Context, execCtx *executor.Context, step parser.StepDefinition, repo *persistence.GenericRepository) error {
+	if step.SumField == "" {
+		return fmt.Errorf("sum step requires a sum_field")
+	}
+	query := persistence.QueryFromDomain(step.Domain)
+	sum, err := repo.Sum(ctx, step.SumField, query)
+	if err != nil {
+		return err
+	}
+	varName := step.Into
+	if varName == "" {
+		varName = "result"
+	}
+	execCtx.Variables[varName] = sum
+	execCtx.Result = sum
+	return nil
 }

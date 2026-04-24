@@ -52,7 +52,7 @@ func (h *CRUDHandler) List(c *fiber.Ctx) error {
 		}
 	}
 
-	results, total, err := h.repo.FindAll(c.Context(), filters, page, pageSize)
+	results, total, err := h.repo.FindAll(c.Context(), persistence.QueryFromDomain(filters), page, pageSize)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
 	}

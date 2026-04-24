@@ -95,11 +95,13 @@ type App struct {
 	JWTConfig       security.JWTConfig
 	WSHub           *ws.Hub
 	Translator      *i18n.Translator
-	SequenceEngine  *persistence.SequenceEngine
+	SequenceEngine  persistence.SequenceEngine
 	FormatEngine    *format.Engine
 	PKGenerator     *pkgen.Generator
 	Hydrator        *expression.Hydrator
 	AuditLogRepo    *persistence.AuditLogRepository
+	MongoConn       *persistence.MongoConnection
+	DBDriver        string
 	FieldEncryptor  *security.FieldEncryptor
 	SettingStore    *setting.Store
 	viewDefs        map[string]*viewEntry
@@ -108,27 +110,9 @@ type App struct {
 }
 
 func NewApp(cfg AppConfig) (*App, error) {
-	db, err := persistence.NewDatabase(cfg.DB)
-	if err != nil {
-		return nil, fmt.Errorf("database connection failed: %w", err)
-	}
-
-	log.Printf("[DB] connected using %s driver", cfg.DB.Driver)
-
-	if err := persistence.AutoMigrateViewRevisions(db); err != nil {
-		log.Printf("[WARN] failed to migrate view_revisions: %v", err)
-	}
-
-	if err := persistence.AutoMigrateDataRevisions(db); err != nil {
-		log.Printf("[WARN] failed to migrate data_revisions: %v", err)
-	}
-
-	if err := infrastorage.AutoMigrateAttachments(db); err != nil {
-		log.Printf("[WARN] failed to migrate attachments: %v", err)
-	}
-
-	if err := persistence.AutoMigrateAuditLog(db); err != nil {
-		log.Printf("[WARN] failed to migrate audit_logs: %v", err)
+	driver := cfg.DB.Driver
+	if driver == "" {
+		driver = "sqlite"
 	}
 
 	fiberApp := fiber.New(fiber.Config{
@@ -151,14 +135,61 @@ func NewApp(cfg AppConfig) (*App, error) {
 		return translator.Translate(locale, key)
 	})
 
-	seqEngine := persistence.NewSequenceEngine(db)
-	if err := seqEngine.MigrateSequenceTable(); err != nil {
-		log.Printf("[WARN] failed to migrate sequences table: %v", err)
+	modelReg := domainModel.NewRegistry()
+
+	var db *gorm.DB
+	var mongoConn *persistence.MongoConnection
+	var seqEngine persistence.SequenceEngine
+	var hydrator *expression.Hydrator
+	var auditLogRepo *persistence.AuditLogRepository
+
+	if driver == "mongodb" {
+		conn, err := persistence.OpenMongoDB(cfg.DB)
+		if err != nil {
+			return nil, fmt.Errorf("mongodb connection failed: %w", err)
+		}
+		mongoConn = conn
+		log.Printf("[DB] connected using mongodb driver")
+
+		if err := persistence.MigrateMongoSystemTables(conn); err != nil {
+			log.Printf("[WARN] failed to migrate mongo system tables: %v", err)
+		}
+
+		mongoSeq := persistence.NewMongoSequenceEngine(conn)
+		seqEngine = mongoSeq
+		hydrator = expression.NewHydrator(nil, modelReg)
+	} else {
+		var err error
+		db, err = persistence.NewDatabase(cfg.DB)
+		if err != nil {
+			return nil, fmt.Errorf("database connection failed: %w", err)
+		}
+		log.Printf("[DB] connected using %s driver", driver)
+
+		if err := persistence.AutoMigrateViewRevisions(db); err != nil {
+			log.Printf("[WARN] failed to migrate view_revisions: %v", err)
+		}
+		if err := persistence.AutoMigrateDataRevisions(db); err != nil {
+			log.Printf("[WARN] failed to migrate data_revisions: %v", err)
+		}
+		if err := infrastorage.AutoMigrateAttachments(db); err != nil {
+			log.Printf("[WARN] failed to migrate attachments: %v", err)
+		}
+		if err := persistence.AutoMigrateAuditLog(db); err != nil {
+			log.Printf("[WARN] failed to migrate audit_logs: %v", err)
+		}
+
+		gormSeq := persistence.NewGormSequenceEngine(db)
+		if err := gormSeq.MigrateSequenceTable(); err != nil {
+			log.Printf("[WARN] failed to migrate sequences table: %v", err)
+		}
+		seqEngine = gormSeq
+		hydrator = expression.NewHydrator(db, modelReg)
+		auditLogRepo = persistence.NewAuditLogRepository(db)
 	}
+
 	fmtEngine := format.NewEngine(seqEngine)
 	pkGen := pkgen.NewGenerator(fmtEngine, nil)
-	modelReg := domainModel.NewRegistry()
-	hydrator := expression.NewHydrator(db, modelReg)
 
 	app := &App{
 		Config:          cfg,
@@ -182,6 +213,9 @@ func NewApp(cfg AppConfig) (*App, error) {
 		FormatEngine:    fmtEngine,
 		PKGenerator:     pkGen,
 		Hydrator:        hydrator,
+		AuditLogRepo:    auditLogRepo,
+		MongoConn:       mongoConn,
+		DBDriver:        driver,
 		viewDefs:        make(map[string]*viewEntry),
 		moduleMenus:     make(map[string][]parser.MenuItemDefinition),
 	}
@@ -244,10 +278,14 @@ func (a *App) createEmailSender() email.Sender {
 
 func (a *App) registerStepHandlers() {
 	a.Executor.RegisterHandler(parser.StepValidate, &steps.ValidateHandler{})
-	a.Executor.RegisterHandler(parser.StepQuery, &steps.DataHandler{DB: a.DB, Resolver: a.ModelRegistry})
-	a.Executor.RegisterHandler(parser.StepCreate, &steps.DataHandler{DB: a.DB, Resolver: a.ModelRegistry})
-	a.Executor.RegisterHandler(parser.StepUpdate, &steps.DataHandler{DB: a.DB, Resolver: a.ModelRegistry})
-	a.Executor.RegisterHandler(parser.StepDelete, &steps.DataHandler{DB: a.DB, Resolver: a.ModelRegistry})
+	dataHandler := &steps.DataHandler{DB: a.DB, Resolver: a.ModelRegistry}
+	a.Executor.RegisterHandler(parser.StepQuery, dataHandler)
+	a.Executor.RegisterHandler(parser.StepCreate, dataHandler)
+	a.Executor.RegisterHandler(parser.StepUpdate, dataHandler)
+	a.Executor.RegisterHandler(parser.StepDelete, dataHandler)
+	a.Executor.RegisterHandler(parser.StepUpsert, dataHandler)
+	a.Executor.RegisterHandler(parser.StepCount, dataHandler)
+	a.Executor.RegisterHandler(parser.StepSum, dataHandler)
 	a.Executor.RegisterHandler(parser.StepIf, &steps.IfHandler{Executor: a.Executor})
 	a.Executor.RegisterHandler(parser.StepSwitch, &steps.SwitchHandler{Executor: a.Executor})
 	a.Executor.RegisterHandler(parser.StepLoop, &steps.LoopHandler{Executor: a.Executor})
@@ -540,7 +578,12 @@ func (a *App) handleAuthLoginPost(c *fiber.Ctx) error {
 	}
 
 	repo := persistence.NewGenericRepository(a.DB, a.ModelRegistry.TableName("user"))
-	users, _, err := repo.FindAll(c.Context(), [][]any{{"username", "=", username}}, 1, 1)
+	loginQuery := persistence.NewQuery().Where("username", "=", username)
+	users, _, err := repo.FindAll(c.Context(), loginQuery, 1, 1)
+	if (err != nil || len(users) == 0) && strings.Contains(username, "@") {
+		emailQuery := persistence.NewQuery().Where("email", "=", username)
+		users, _, err = repo.FindAll(c.Context(), emailQuery, 1, 1)
+	}
 	if err != nil || len(users) == 0 {
 		return c.Redirect("/app/auth/login?error=Invalid+credentials" + nextParam(next))
 	}
@@ -618,12 +661,12 @@ func (a *App) handleAuthRegisterPost(c *fiber.Ctx) error {
 
 	repo := persistence.NewGenericRepository(a.DB, a.ModelRegistry.TableName("user"))
 
-	existing, _, _ := repo.FindAll(c.Context(), [][]any{{"username", "=", username}}, 1, 1)
+	existing, _, _ := repo.FindAll(c.Context(), persistence.QueryFromDomain([][]any{{"username", "=", username}}), 1, 1)
 	if len(existing) > 0 {
 		return c.Redirect("/app/auth/register?error=Username+already+exists")
 	}
 
-	existingEmail, _, _ := repo.FindAll(c.Context(), [][]any{{"email", "=", email}}, 1, 1)
+	existingEmail, _, _ := repo.FindAll(c.Context(), persistence.QueryFromDomain([][]any{{"email", "=", email}}), 1, 1)
 	if len(existingEmail) > 0 {
 		return c.Redirect("/app/auth/register?error=Email+already+exists")
 	}
@@ -657,7 +700,7 @@ func (a *App) handleAuthForgotPost(c *fiber.Ctx) error {
 	}
 
 	repo := persistence.NewGenericRepository(a.DB, a.ModelRegistry.TableName("user"))
-	users, _, _ := repo.FindAll(c.Context(), [][]any{{"email", "=", emailAddr}}, 1, 1)
+	users, _, _ := repo.FindAll(c.Context(), persistence.QueryFromDomain([][]any{{"email", "=", emailAddr}}), 1, 1)
 	// Always show success to prevent email enumeration
 	if len(users) == 0 {
 		return c.Redirect("/app/auth/forgot?success=If+an+account+exists+with+that+email,+a+code+has+been+sent.")
@@ -721,7 +764,7 @@ func (a *App) handleAuthResetPost(c *fiber.Ctx) error {
 	}
 
 	repo := persistence.NewGenericRepository(a.DB, a.ModelRegistry.TableName("user"))
-	users, _, _ := repo.FindAll(c.Context(), [][]any{{"email", "=", emailAddr}}, 1, 1)
+	users, _, _ := repo.FindAll(c.Context(), persistence.QueryFromDomain([][]any{{"email", "=", emailAddr}}), 1, 1)
 	if len(users) == 0 {
 		return c.Redirect("/app/auth/login?error=User+not+found")
 	}
@@ -1297,8 +1340,15 @@ func (a *App) installModule(modPath string) error {
 		if err := a.ModelRegistry.RegisterWithModule(m, loaded.Definition); err != nil {
 			return fmt.Errorf("failed to register model %s: %w", m.Name, err)
 		}
-		if err := persistence.MigrateModel(a.DB, m, a.ModelRegistry); err != nil {
-			return fmt.Errorf("failed to migrate model %s: %w", m.Name, err)
+		if a.DBDriver == "mongodb" {
+			mongoMigration := persistence.NewMongoMigrationEngine(a.MongoConn)
+			if err := mongoMigration.MigrateModel(m, a.ModelRegistry); err != nil {
+				return fmt.Errorf("failed to migrate model %s: %w", m.Name, err)
+			}
+		} else {
+			if err := persistence.MigrateModel(a.DB, m, a.ModelRegistry); err != nil {
+				return fmt.Errorf("failed to migrate model %s: %w", m.Name, err)
+			}
 		}
 	}
 

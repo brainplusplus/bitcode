@@ -25,7 +25,7 @@ func newSequenceTestDB(t *testing.T) *gorm.DB {
 	}
 	sqlDB.SetMaxOpenConns(1)
 
-	engine := NewSequenceEngine(db)
+	engine := NewGormSequenceEngine(db)
 	if err := engine.MigrateSequenceTable(); err != nil {
 		t.Fatalf("failed to migrate sequences table: %v", err)
 	}
@@ -41,7 +41,7 @@ func TestSequenceMigrateTable(t *testing.T) {
 }
 
 func TestSequenceNextValueFirstCallReturnsOne(t *testing.T) {
-	engine := NewSequenceEngine(newSequenceTestDB(t))
+	engine := NewGormSequenceEngine(newSequenceTestDB(t))
 
 	value, err := engine.NextValue("order", "number", "order:number", 1)
 	if err != nil {
@@ -53,7 +53,7 @@ func TestSequenceNextValueFirstCallReturnsOne(t *testing.T) {
 }
 
 func TestSequenceNextValueSecondCallReturnsTwo(t *testing.T) {
-	engine := NewSequenceEngine(newSequenceTestDB(t))
+	engine := NewGormSequenceEngine(newSequenceTestDB(t))
 
 	if _, err := engine.NextValue("order", "number", "order:number", 1); err != nil {
 		t.Fatalf("first NextValue error: %v", err)
@@ -69,7 +69,7 @@ func TestSequenceNextValueSecondCallReturnsTwo(t *testing.T) {
 }
 
 func TestSequenceNextValueDifferentKeysAreIndependent(t *testing.T) {
-	engine := NewSequenceEngine(newSequenceTestDB(t))
+	engine := NewGormSequenceEngine(newSequenceTestDB(t))
 
 	firstA, err := engine.NextValue("order", "number", "order:number:a", 1)
 	if err != nil {
@@ -90,7 +90,7 @@ func TestSequenceNextValueDifferentKeysAreIndependent(t *testing.T) {
 }
 
 func TestSequenceNextValueWithStepTwo(t *testing.T) {
-	engine := NewSequenceEngine(newSequenceTestDB(t))
+	engine := NewGormSequenceEngine(newSequenceTestDB(t))
 
 	first, err := engine.NextValue("invoice", "number", "invoice:number", 2)
 	if err != nil {
@@ -107,7 +107,7 @@ func TestSequenceNextValueWithStepTwo(t *testing.T) {
 }
 
 func TestSequenceNextValueConcurrentReturnsUniqueValues(t *testing.T) {
-	engine := NewSequenceEngine(newSequenceTestDB(t))
+	engine := NewGormSequenceEngine(newSequenceTestDB(t))
 
 	const count = 10
 	results := make([]int64, count)

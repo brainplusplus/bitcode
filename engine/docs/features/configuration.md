@@ -23,7 +23,7 @@ Each layer overrides the previous. OS environment variables always win.
 | Server port | `port` | `port` | `PORT` | `8080` | HTTP server port |
 | Module directory | `module_dir` | `module_dir` | `MODULE_DIR` | `modules` | Path to modules |
 | JWT secret | `jwt_secret` | `jwt_secret` | `JWT_SECRET` | `change-me...` | Token signing key |
-| DB driver | `[database] driver` | `database.driver` | `DB_DRIVER` | `sqlite` | `sqlite`, `postgres`, `mysql` |
+| DB driver | `[database] driver` | `database.driver` | `DB_DRIVER` | `sqlite` | `sqlite`, `postgres`, `mysql`, `mongodb` |
 | DB host | `[database] host` | `database.host` | `DB_HOST` | `localhost` | Database host |
 | DB port | `[database] port` | `database.port` | `DB_PORT` | `5432` | Database port |
 | DB user | `[database] user` | `database.user` | `DB_USER` | `bitcode` | Database user |

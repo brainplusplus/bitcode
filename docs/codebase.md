@@ -111,10 +111,17 @@ engine/
 │   ├── infrastructure/                         # External concerns
 │   │   ├── persistence/
 │   │   │   ├── database.go                     # NewDatabase() — SQLite/Postgres/MySQL connection via GORM
+│   │   │   ├── repository_interface.go         # Repository interface, SystemRepository, SequenceEngine, MigrationEngine interfaces
+│   │   │   ├── query.go                        # Unified Query builder + JSON DSL parser + QueryFromDomain converter
+│   │   │   ├── mongo_connection.go             # OpenMongoDB() — MongoDB connection via official driver
+│   │   │   ├── mongo_repository.go             # MongoRepository — MongoDB implementation of Repository interface
+│   │   │   ├── mongo_migration.go              # MongoMigrationEngine — index creation, system collection setup
+│   │   │   ├── mongo_sequence.go               # MongoSequenceEngine — counter collection pattern for sequences
+│   │   │   ├── mongo_system.go                 # MongoSystemRepository + MongoAuditLogRepository
 │   │   │   ├── dynamic_model.go                # MigrateModel() — CREATE TABLE from ModelDefinition, dialect-aware DDL
 │   │   │   │                                   #   MergeInheritedFields() — model inheritance field merging
 │   │   │   │                                   #   Auto-creates junction tables for many2many
-│   │   │   ├── repository.go                   # GenericRepository — Create/FindByID/FindAll/Update/Delete/HardDelete
+│   │   │   ├── repository.go                   # GenericRepository (SQL) — implements Repository interface with GORM
 │   │   │   │                                   #   Supports pagination, filtering, search, soft delete
 │   │   │   │                                   #   Computed field hydration via expression.Hydrator
 │   │   │   │                                   #   Data revision snapshots on write operations

@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -59,11 +60,16 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 	}
 
 	if body.Username == "" || body.Password == "" {
-		return c.Status(400).JSON(fiber.Map{"error": "username and password required"})
+		return c.Status(400).JSON(fiber.Map{"error": "username or email and password required"})
 	}
 
 	repo := persistence.NewGenericRepository(h.db, "users")
-	users, _, err := repo.FindAll(c.Context(), [][]any{{"username", "=", body.Username}}, 1, 1)
+	loginQuery := persistence.NewQuery().Where("username", "=", body.Username)
+	users, _, err := repo.FindAll(c.Context(), loginQuery, 1, 1)
+	if (err != nil || len(users) == 0) && strings.Contains(body.Username, "@") {
+		emailQuery := persistence.NewQuery().Where("email", "=", body.Username)
+		users, _, err = repo.FindAll(c.Context(), emailQuery, 1, 1)
+	}
 	if err != nil || len(users) == 0 {
 		return c.Status(401).JSON(fiber.Map{"error": "invalid credentials"})
 	}
@@ -280,12 +286,12 @@ func (h *AuthHandler) RegisterUser(c *fiber.Ctx) error {
 
 	repo := persistence.NewGenericRepository(h.db, "users")
 
-	existing, _, _ := repo.FindAll(c.Context(), [][]any{{"username", "=", body.Username}}, 1, 1)
+	existing, _, _ := repo.FindAll(c.Context(), persistence.QueryFromDomain([][]any{{"username", "=", body.Username}}), 1, 1)
 	if len(existing) > 0 {
 		return c.Status(409).JSON(fiber.Map{"error": "username already exists"})
 	}
 
-	existingEmail, _, _ := repo.FindAll(c.Context(), [][]any{{"email", "=", body.Email}}, 1, 1)
+	existingEmail, _, _ := repo.FindAll(c.Context(), persistence.QueryFromDomain([][]any{{"email", "=", body.Email}}), 1, 1)
 	if len(existingEmail) > 0 {
 		return c.Status(409).JSON(fiber.Map{"error": "email already exists"})
 	}

@@ -23,6 +23,9 @@ const (
 	StepHTTP     StepType = "http"
 	StepAssign   StepType = "assign"
 	StepLog      StepType = "log"
+	StepUpsert   StepType = "upsert"
+	StepCount    StepType = "count"
+	StepSum      StepType = "sum"
 )
 
 type StepDefinition struct {
@@ -81,6 +84,12 @@ type StepDefinition struct {
 
 	// log
 	Message string `json:"message,omitempty"`
+
+	// upsert
+	Unique []string `json:"unique,omitempty"`
+
+	// sum
+	SumField string `json:"sum_field,omitempty"`
 }
 
 type EdgeDefinition struct {

@@ -152,6 +152,12 @@ All 11 locale files must be provided for every module that has user-facing text.
 - [x] Primary key strategies — 6 strategies (auto-increment, composite, UUID v4/v7/format, natural key, naming series, manual), format template engine (30+ functions), atomic sequence engine
 - [x] Table prefix — Per-module `"table": {"prefix": "crm"}` config, per-model override, centralized `ResolveTableName()` resolver, no pluralization
 - [x] Postgres schema — `DB_SCHEMA` config, `search_path` set at connection, `CREATE SCHEMA IF NOT EXISTS`
+- [x] MongoDB support — Full parity MongoDB driver with extended reference pattern, unified query builder, MongoDB sequence engine, system collection migration
+- [x] Query builder — Unified `Query` type with JSON DSL, translates to GORM chain (SQL) or bson.M filter (MongoDB), operators: =, !=, >, <, >=, <=, like, in, not_in, between, is_null, is_not_null
+- [x] Repository interface — `Repository` interface abstraction, `GenericRepository` (SQL) and `MongoRepository` (MongoDB) implementations, factory-based creation
+- [x] Model process registry — `models.{name}.{op}` built-in functions: Get/Find, GetAll/FindAll, Paginate, Create, Update, Delete, Upsert, Count, Sum
+- [x] Extended model fields — `title_field` (display name resolution chain), `search_field` (searchable fields config)
+- [x] Login with username or email — Auth handler accepts username or email in login field
 
 - [x] Two-Factor Auth (2FA) — Email OTP with temp token flow, enable/disable/validate endpoints
 - [x] Field-Level Encryption — AES-256-GCM with `"encrypted": true` in model JSON, key versioning

@@ -8,15 +8,15 @@ import (
 	"gorm.io/gorm"
 )
 
-type SequenceEngine struct {
+type GormSequenceEngine struct {
 	db *gorm.DB
 }
 
-func NewSequenceEngine(db *gorm.DB) *SequenceEngine {
-	return &SequenceEngine{db: db}
+func NewGormSequenceEngine(db *gorm.DB) *GormSequenceEngine {
+	return &GormSequenceEngine{db: db}
 }
 
-func (e *SequenceEngine) MigrateSequenceTable() error {
+func (e *GormSequenceEngine) MigrateSequenceTable() error {
 	var sql string
 
 	switch DetectDialect(e.db) {
@@ -65,7 +65,7 @@ func (e *SequenceEngine) MigrateSequenceTable() error {
 	return nil
 }
 
-func (e *SequenceEngine) NextValue(modelName, fieldName, sequenceKey string, step int) (int64, error) {
+func (e *GormSequenceEngine) NextValue(modelName, fieldName, sequenceKey string, step int) (int64, error) {
 	if step <= 0 {
 		step = 1
 	}

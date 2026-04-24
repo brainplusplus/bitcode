@@ -159,9 +159,11 @@ docker-compose up -d
 - **Web Components** — 94 Stencil.js components (fields, layout, views, charts, dialogs, widgets)
 - **Event bus** — Domain events with agent handlers
 - **Cron scheduler** — Scheduled background jobs
-- **Multi-database** — SQLite (default), PostgreSQL, MySQL
+- **Multi-database** — SQLite (default), PostgreSQL, MySQL, MongoDB
 - **Table prefix** — Per-module table name prefix (`"table": {"prefix": "crm"}` → `crm_contact`)
 - **Postgres schema** — Configurable schema via `DB_SCHEMA` (default: `public`)
+- **Query builder** — Unified query builder for SQL and MongoDB with JSON DSL support
+- **Model process registry** — Built-in `models.{name}.{op}` functions (Get, FindAll, Create, Update, Delete, Upsert, Count, Sum)
 - **Cache** — Memory (default), Redis (optional)
 - **Real-time** — WebSocket domain event broadcasting
 - **Multi-tenancy** — Tenant isolation via header/subdomain/path
