@@ -126,8 +126,7 @@ func buildSequenceKeyFromReset(modelName, fieldName, reset string, now time.Time
 }
 
 func (e *Engine) resolveToken(token string, ctx *FormatContext) (string, error) {
-	if strings.HasPrefix(token, "data.") {
-		field := strings.TrimPrefix(token, "data.")
+	if field, ok := strings.CutPrefix(token, "data."); ok {
 		if ctx.Data == nil {
 			return "", fmt.Errorf("data context is nil, cannot resolve %q", token)
 		}
@@ -138,8 +137,7 @@ func (e *Engine) resolveToken(token string, ctx *FormatContext) (string, error) 
 		return fmt.Sprintf("%v", v), nil
 	}
 
-	if strings.HasPrefix(token, "session.") {
-		key := strings.TrimPrefix(token, "session.")
+	if key, ok := strings.CutPrefix(token, "session."); ok {
 		if ctx.Session == nil {
 			return "", nil
 		}
@@ -150,8 +148,7 @@ func (e *Engine) resolveToken(token string, ctx *FormatContext) (string, error) 
 		return fmt.Sprintf("%v", v), nil
 	}
 
-	if strings.HasPrefix(token, "setting.") {
-		key := strings.TrimPrefix(token, "setting.")
+	if key, ok := strings.CutPrefix(token, "setting."); ok {
 		if ctx.Settings == nil {
 			return "", nil
 		}
@@ -200,9 +197,7 @@ func (e *Engine) resolveToken(token string, ctx *FormatContext) (string, error) 
 			return "", nil
 		}
 		end := start + length
-		if end > len(src) {
-			end = len(src)
-		}
+		end = min(end, len(src))
 		return src[start:end], nil
 	}
 
