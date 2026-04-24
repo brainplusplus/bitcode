@@ -45,12 +45,20 @@ type AppConfig struct {
 	Tenant          middleware.TenantConfig
 	Storage         infrastorage.StorageConfig
 	RateLimit       middleware.RateLimitConfig
+	IPWhitelist     middleware.IPWhitelistConfig
+	Security        SecurityConfig
 	SMTP            SMTPConfig
 	JWTSecret       string
 	EncryptionKey   string
 	Port            string
 	ModuleDir       string
 	GlobalModuleDir string
+}
+
+type SecurityConfig struct {
+	SessionDuration time.Duration
+	CookieSecure    bool
+	CookieSameSite  string
 }
 
 type SMTPConfig struct {
@@ -126,7 +134,7 @@ func NewApp(cfg AppConfig) (*App, error) {
 		BodyLimit:    50 * 1024 * 1024,
 	})
 
-	jwtCfg := security.JWTConfig{Secret: cfg.JWTSecret}
+	jwtCfg := security.JWTConfig{Secret: cfg.JWTSecret, Expiration: cfg.Security.SessionDuration}
 	templateEngine := tmpl.NewEngine()
 	appCache := cache.NewCache(cfg.Cache)
 	pluginMgr := plugin.NewManager()
@@ -241,6 +249,9 @@ func (a *App) registerStepHandlers() {
 }
 
 func (a *App) setupMiddleware() {
+	if a.Config.IPWhitelist.Enabled {
+		a.Fiber.Use(middleware.IPWhitelistMiddleware(a.Config.IPWhitelist))
+	}
 	if a.Config.RateLimit.Enabled {
 		a.Fiber.Use(middleware.RateLimitMiddleware(a.Config.RateLimit))
 	}
@@ -392,12 +403,18 @@ func (a *App) handleLoginSubmit(c *fiber.Ctx) error {
 		return c.Redirect("/app/login?error=Server+error")
 	}
 
+	sameSite := "Lax"
+	if a.Config.Security.CookieSameSite != "" {
+		sameSite = a.Config.Security.CookieSameSite
+	}
 	c.Cookie(&fiber.Cookie{
 		Name:     "token",
 		Value:    token,
 		Path:     "/",
 		HTTPOnly: true,
-		MaxAge:   86400,
+		Secure:   a.Config.Security.CookieSecure,
+		SameSite: sameSite,
+		MaxAge:   int(a.Config.Security.SessionDuration.Seconds()),
 	})
 
 	if a.AuditLogRepo != nil {

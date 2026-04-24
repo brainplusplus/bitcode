@@ -142,6 +142,7 @@ bitcode/
 - [x] Admin Impersonation — Token-based, JWT `impersonated_by` claim, audit trail, safety guards
 - [x] Email Infrastructure — SMTP sender (`pkg/email`), HTML templates, configurable via `smtp.*`
 - [x] Audit Log Impersonation — `impersonated_by` column in audit_logs, auto-populated from JWT claims
+- [x] IP Whitelist / Session Policy — IP whitelist middleware (exact IP + CIDR), configurable session duration, cookie Secure/SameSite flags
 
 ### Remaining (Engine)
 

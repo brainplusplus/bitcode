@@ -11,17 +11,17 @@
 | Metric | Count |
 |--------|-------|
 | Total Features Tracked | 69 |
-| ✅ Implemented | 41 |
+| ✅ Implemented | 42 |
 | ⚠️ Partial | 2 |
-| ❌ Not Yet | 26 |
-| **Completion** | **59.4%** (effective ~61% counting partials as 0.5) |
+| ❌ Not Yet | 25 |
+| **Completion** | **60.9%** (effective ~62% counting partials as 0.5) |
 
 ### Per-Category Summary
 
 | # | Category | ✅ | ⚠️ | ❌ | Total | Score |
 |---|----------|-----|------|------|-------|-------|
 | 1 | Core Framework & Data Modeling | 5 | 2 | 0 | 7 | 86% |
-| 2 | Permission & Access Control | 5 | 1 | 2 | 8 | 69% |
+| 2 | Permission & Access Control | 6 | 1 | 1 | 8 | 81% |
 | 3 | Audit Log & Monitoring | 5 | 0 | 1 | 6 | 83% |
 | 4 | Workflow & Automation | 4 | 1 | 3 | 8 | 56% |
 | 5 | Form & UI Builder | 4 | 1 | 3 | 8 | 56% |
@@ -93,7 +93,7 @@ Before the gap list — what's already **production-solid**:
 | 11 | Field-Level Permission | ❌ | M | — | Can't hide/readonly specific fields per role. Need field-level permission config in model JSON + filter in API response and form renderer. |
 | 12 | Menu Access Control | ✅ | — | Menu defined per module in `module.json`. Only visible if module installed. | — |
 | 13 | UI Visibility Rules | ✅ | — | View actions have `"visible": "status == 'draft'"`. Form fields have `"readonly": true`. Component compiler evaluates conditions. | — |
-| 14 | IP Whitelist / Session Policy | ❌ | S | — | No IP restriction or session duration policy. Simple middleware needed. |
+| 14 | IP Whitelist / Session Policy | ✅ | — | IP whitelist middleware (exact IP + CIDR support, admin-only or global). Session policy: configurable JWT duration (`security.session_duration`), cookie `Secure`/`SameSite` flags. All via `security.*` config. | — |
 | 15 | Plugin Permission | ⚠️ | S | Permission per module exists. Plugin scripts run in module context. | No granular per-plugin/script permission. Extend pattern to `module.plugin.script_name`. |
 
 ---

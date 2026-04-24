@@ -171,6 +171,7 @@ engine/
 │       │   ├── record_rule.go                  # RLS filter injection
 │       │   ├── audit.go                        # Audit logging for write operations (includes impersonated_by)
 │       │   ├── ratelimit.go                    # Rate limiting middleware (Fiber limiter, tiered: global + auth)
+│       │   ├── ipwhitelist.go                  # IP whitelist middleware (exact IP + CIDR, admin-only or global)
 │       │   └── tenant.go                       # Multi-tenancy middleware (header/subdomain/path)
 │       ├── template/
 │       │   ├── engine.go                       # Go html/template engine — LoadDirectory, Render, RenderWithLayout

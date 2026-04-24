@@ -48,6 +48,13 @@ func LoadConfig(explicitPath string) (AppConfig, error) {
 
 	v.SetDefault("encryption_key", "")
 
+	v.SetDefault("security.ip_whitelist_enabled", false)
+	v.SetDefault("security.ip_whitelist", []string{})
+	v.SetDefault("security.ip_whitelist_admin_only", true)
+	v.SetDefault("security.session_duration", "24h")
+	v.SetDefault("security.cookie_secure", false)
+	v.SetDefault("security.cookie_samesite", "Lax")
+
 	v.SetDefault("storage.driver", "local")
 	v.SetDefault("storage.max_size", 10*1024*1024)
 	v.SetDefault("storage.allowed_extensions", []string{".jpg", ".jpeg", ".png", ".gif", ".webp", ".pdf", ".doc", ".docx", ".xls", ".xlsx", ".csv", ".txt", ".zip"})
@@ -104,6 +111,13 @@ func LoadConfig(explicitPath string) (AppConfig, error) {
 
 	v.BindEnv("encryption_key", "ENCRYPTION_KEY")
 
+	v.BindEnv("security.ip_whitelist_enabled", "SECURITY_IP_WHITELIST_ENABLED")
+	v.BindEnv("security.ip_whitelist", "SECURITY_IP_WHITELIST")
+	v.BindEnv("security.ip_whitelist_admin_only", "SECURITY_IP_WHITELIST_ADMIN_ONLY")
+	v.BindEnv("security.session_duration", "SECURITY_SESSION_DURATION")
+	v.BindEnv("security.cookie_secure", "SECURITY_COOKIE_SECURE")
+	v.BindEnv("security.cookie_samesite", "SECURITY_COOKIE_SAMESITE")
+
 	v.BindEnv("storage.driver", "STORAGE_DRIVER")
 	v.BindEnv("storage.max_size", "STORAGE_MAX_SIZE")
 	v.BindEnv("storage.path_format", "STORAGE_PATH_FORMAT")
@@ -138,6 +152,11 @@ func LoadConfig(explicitPath string) (AppConfig, error) {
 		}
 	} else {
 		log.Printf("[CONFIG] loaded from %s", v.ConfigFileUsed())
+	}
+
+	sessionDuration, _ := time.ParseDuration(v.GetString("security.session_duration"))
+	if sessionDuration == 0 {
+		sessionDuration = 24 * time.Hour
 	}
 
 	rateLimitWindow, _ := time.ParseDuration(v.GetString("rate_limit.window"))
@@ -180,6 +199,16 @@ func LoadConfig(explicitPath string) (AppConfig, error) {
 			Window:     rateLimitWindow,
 			AuthMax:    v.GetInt("rate_limit.auth_max"),
 			AuthWindow: rateLimitAuthWindow,
+		},
+		IPWhitelist: middleware.IPWhitelistConfig{
+			Enabled:    v.GetBool("security.ip_whitelist_enabled"),
+			AllowedIPs: v.GetStringSlice("security.ip_whitelist"),
+			AdminOnly:  v.GetBool("security.ip_whitelist_admin_only"),
+		},
+		Security: SecurityConfig{
+			SessionDuration: sessionDuration,
+			CookieSecure:    v.GetBool("security.cookie_secure"),
+			CookieSameSite:  v.GetString("security.cookie_samesite"),
 		},
 		SMTP: SMTPConfig{
 			Host:     v.GetString("smtp.host"),

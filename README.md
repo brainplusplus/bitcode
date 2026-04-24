@@ -116,6 +116,12 @@ All config via environment variables or `bitcode.toml`/`bitcode.yaml`. Defaults 
 | `SMTP_FROM` | - | From address |
 | `SMTP_TLS` | `true` | Use TLS |
 | `ENCRYPTION_KEY` | - | AES-256 key (base64, 32 bytes) |
+| `SECURITY_IP_WHITELIST_ENABLED` | `false` | Enable IP whitelist |
+| `SECURITY_IP_WHITELIST` | - | Allowed IPs (comma-separated, supports CIDR) |
+| `SECURITY_IP_WHITELIST_ADMIN_ONLY` | `true` | Restrict only admin routes |
+| `SECURITY_SESSION_DURATION` | `24h` | JWT token / cookie lifetime |
+| `SECURITY_COOKIE_SECURE` | `false` | HTTPS-only cookies |
+| `SECURITY_COOKIE_SAMESITE` | `Lax` | Cookie SameSite policy |
 
 ### PostgreSQL
 

@@ -88,10 +88,11 @@ Variables: `{{user.id}}`, `{{user.tenant_id}}`
 ## Middleware Chain
 
 ```
-Request → RateLimit → Tenant → Auth → Permission → RecordRule → Audit → Handler
+Request → IPWhitelist → RateLimit → Tenant → Auth → Permission → RecordRule → Audit → Handler
 ```
 
 Each middleware can reject the request:
+- IPWhitelist: 403 Access Denied (IP not in whitelist)
 - RateLimit: 429 Too Many Requests (with `Retry-After` header)
 - Auth: 401 Unauthorized
 - Permission: 403 Forbidden
@@ -200,3 +201,33 @@ smtp.tls=true
 ```
 
 HTML email templates with Go `html/template`. NoopSender fallback when SMTP not configured.
+
+## IP Whitelist
+
+Restrict access by IP address. Supports exact IPs and CIDR ranges. Can be applied globally or admin-only.
+
+```
+security.ip_whitelist_enabled=true
+security.ip_whitelist=["192.168.1.0/24", "10.0.0.1", "203.0.113.50"]
+security.ip_whitelist_admin_only=true
+```
+
+- `ip_whitelist_admin_only=true` (default): only `/admin/*` routes are restricted
+- `ip_whitelist_admin_only=false`: all routes are restricted
+- Supports both exact IP matching and CIDR notation
+- Returns 403 with `"access denied: IP not allowed"` for blocked IPs
+
+## Session Policy
+
+Configurable JWT token duration and cookie security settings:
+
+```
+security.session_duration=24h       # JWT token lifetime (default: 24h)
+security.cookie_secure=false        # Set true in production (HTTPS only)
+security.cookie_samesite=Lax        # Lax, Strict, or None
+```
+
+- `session_duration` controls both JWT `exp` claim and cookie `MaxAge`
+- `cookie_secure=true` ensures cookies are only sent over HTTPS
+- `cookie_samesite` controls cross-site cookie behavior
+- Impersonation tokens always use 1h duration regardless of this setting
