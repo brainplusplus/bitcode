@@ -45,18 +45,20 @@ func PersistentAuditMiddleware(auditRepo *persistence.AuditLogRepository, logRea
 		}
 
 		userID, _ := c.Locals("user_id").(string)
+		impersonatedBy, _ := c.Locals("impersonated_by").(string)
 		durationMs := int(time.Since(start).Milliseconds())
 		statusCode := c.Response().StatusCode()
 
 		entry := persistence.AuditLogEntry{
-			UserID:        userID,
-			Action:        "request",
-			IPAddress:     c.IP(),
-			UserAgent:     truncate(c.Get("User-Agent"), 500),
-			RequestMethod: method,
-			RequestPath:   truncate(path, 500),
-			StatusCode:    statusCode,
-			DurationMs:    durationMs,
+			UserID:         userID,
+			Action:         "request",
+			IPAddress:      c.IP(),
+			UserAgent:      truncate(c.Get("User-Agent"), 500),
+			RequestMethod:  method,
+			RequestPath:    truncate(path, 500),
+			StatusCode:     statusCode,
+			DurationMs:     durationMs,
+			ImpersonatedBy: impersonatedBy,
 		}
 
 		modelName, recordID := extractModelRecord(path)

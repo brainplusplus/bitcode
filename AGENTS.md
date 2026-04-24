@@ -135,6 +135,14 @@ bitcode/
 - [x] View versioning — `view_revisions` DB table, auto-revision on save, rollback, configurable limit
 - [x] Primary key strategies — 6 strategies (auto-increment, composite, UUID v4/v7/format, natural key, naming series, manual), format template engine (30+ functions), atomic sequence engine
 
+- [x] Two-Factor Auth (2FA) — Email OTP with temp token flow, enable/disable/validate endpoints
+- [x] Field-Level Encryption — AES-256-GCM with `"encrypted": true` in model JSON, key versioning
+- [x] Backup & Restore — `bitcode db backup/restore`, driver-aware (SQLite/Postgres/MySQL), gzip support
+- [x] Rate Limiting — Fiber limiter middleware, tiered (global 100/min, auth 5/min), configurable
+- [x] Admin Impersonation — Token-based, JWT `impersonated_by` claim, audit trail, safety guards
+- [x] Email Infrastructure — SMTP sender (`pkg/email`), HTML templates, configurable via `smtp.*`
+- [x] Audit Log Impersonation — `impersonated_by` column in audit_logs, auto-populated from JWT claims
+
 ### Remaining (Engine)
 
 - [x] Computed field evaluation — Expression evaluator for `sum(lines.subtotal)` at query time
@@ -143,7 +151,7 @@ bitcode/
 - [ ] Marketplace — Community module sharing
 - [ ] NATS event bus — Replace in-process bus for distributed deployments
 
-> **Full roadmap with 67 features**: see [`docs/features.md`](docs/features.md)
+> **Full roadmap with 69 features**: see [`docs/features.md`](docs/features.md)
 
 ## Testing
 

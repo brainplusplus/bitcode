@@ -88,11 +88,115 @@ Variables: `{{user.id}}`, `{{user.tenant_id}}`
 ## Middleware Chain
 
 ```
-Request → Auth → Permission → RecordRule → Audit → Handler
+Request → RateLimit → Tenant → Auth → Permission → RecordRule → Audit → Handler
 ```
 
 Each middleware can reject the request:
+- RateLimit: 429 Too Many Requests (with `Retry-After` header)
 - Auth: 401 Unauthorized
 - Permission: 403 Forbidden
 - RecordRule: silently filters data (no error, just fewer results)
-- Audit: logs write operations (never rejects)
+- Audit: logs write operations (never rejects), includes `impersonated_by` if applicable
+
+## Two-Factor Authentication (2FA)
+
+Email OTP-based 2FA. When enabled for a user, login requires a 6-digit verification code sent to their email.
+
+### Endpoints
+
+```
+POST /auth/2fa/enable     — Enable 2FA (requires auth)
+POST /auth/2fa/disable    — Disable 2FA (requires auth)
+POST /auth/2fa/validate   — Validate OTP code with temp token
+```
+
+### Login Flow with 2FA
+
+```
+POST /auth/login { "username": "admin", "password": "secret" }
+→ If 2FA enabled: { "requires_2fa": true, "temp_token": "..." }
+→ OTP sent to user's email
+
+POST /auth/2fa/validate { "temp_token": "...", "code": "123456" }
+→ Returns { "token": "eyJ..." }
+```
+
+### Configuration
+
+Requires SMTP configuration (`smtp.*` in config). OTP stored in cache with 5-minute TTL, max 3 attempts.
+
+## Rate Limiting
+
+Fiber limiter middleware with tiered limits:
+
+| Route | Max | Window |
+|-------|-----|--------|
+| `/auth/*` | 5 | 1 min |
+| All other | 100 | 1 min |
+
+Configurable via `rate_limit.*` config keys. Returns HTTP 429 with `Retry-After` header.
+
+## Field-Level Encryption
+
+AES-256-GCM encryption for sensitive fields. Mark fields with `"encrypted": true` in model JSON:
+
+```json
+{
+  "fields": {
+    "ssn": { "type": "string", "encrypted": true },
+    "bank_account": { "type": "string", "encrypted": true }
+  }
+}
+```
+
+- Transparent encrypt-on-write / decrypt-on-read in GenericRepository
+- Key versioning (`v1:` prefix) for future key rotation
+- Requires `ENCRYPTION_KEY` env var (base64-encoded 32-byte key)
+- Encrypted fields cannot be searched/filtered/sorted via SQL
+
+## Admin Impersonation
+
+Admins can impersonate other users for debugging/support:
+
+```
+POST /admin/api/impersonate/:user_id
+→ Returns impersonation token (1h TTL)
+→ Token has impersonated_by claim
+
+POST /admin/api/stop-impersonate
+→ Returns original admin token
+```
+
+Safety guards:
+- Only users with `admin` role can impersonate
+- Cannot impersonate other admin users
+- Impersonation token expires in 1 hour
+- All audit logs include `impersonated_by` field during impersonation
+
+## Backup & Restore
+
+CLI commands for database backup and restore:
+
+```bash
+bitcode db backup [output-path]     # Create backup
+bitcode db backup --gzip            # Compressed backup
+bitcode db restore [backup-path]    # Restore from backup
+bitcode db restore --force          # Skip confirmation
+```
+
+Driver-aware: SQLite (file copy), PostgreSQL (pg_dump/psql), MySQL (mysqldump/mysql).
+
+## Email Infrastructure
+
+SMTP email sender for transactional emails (2FA codes, future notifications):
+
+```
+smtp.host=smtp.gmail.com
+smtp.port=587
+smtp.user=noreply@example.com
+smtp.password=app-password
+smtp.from=BitCode <noreply@example.com>
+smtp.tls=true
+```
+
+HTML email templates with Go `html/template`. NoopSender fallback when SMTP not configured.

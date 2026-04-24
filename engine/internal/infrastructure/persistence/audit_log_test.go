@@ -19,6 +19,7 @@ func setupAuditTestDB(t *testing.T) (*AuditLogRepository, func()) {
 		request_path TEXT,
 		status_code INTEGER,
 		duration_ms INTEGER,
+		impersonated_by TEXT,
 		created_at DATETIME,
 		updated_at DATETIME,
 		active INTEGER DEFAULT 1

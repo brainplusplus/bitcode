@@ -27,6 +27,7 @@ import (
 	tmpl "github.com/bitcode-engine/engine/internal/presentation/template"
 	"github.com/bitcode-engine/engine/internal/presentation/view"
 	ws "github.com/bitcode-engine/engine/internal/presentation/websocket"
+	"github.com/bitcode-engine/engine/pkg/email"
 	"github.com/bitcode-engine/engine/internal/runtime/executor"
 	"github.com/bitcode-engine/engine/internal/runtime/executor/steps"
 	"github.com/bitcode-engine/engine/internal/runtime/expression"
@@ -43,10 +44,22 @@ type AppConfig struct {
 	Cache           cache.CacheConfig
 	Tenant          middleware.TenantConfig
 	Storage         infrastorage.StorageConfig
+	RateLimit       middleware.RateLimitConfig
+	SMTP            SMTPConfig
 	JWTSecret       string
+	EncryptionKey   string
 	Port            string
 	ModuleDir       string
 	GlobalModuleDir string
+}
+
+type SMTPConfig struct {
+	Host     string
+	Port     int
+	User     string
+	Password string
+	From     string
+	TLS      bool
 }
 
 type viewEntry struct {
@@ -77,6 +90,7 @@ type App struct {
 	PKGenerator     *pkgen.Generator
 	Hydrator        *expression.Hydrator
 	AuditLogRepo    *persistence.AuditLogRepository
+	FieldEncryptor  *security.FieldEncryptor
 	viewDefs        map[string]*viewEntry
 	moduleMenus     map[string][]parser.MenuItemDefinition
 	moduleOrder     []string
@@ -100,6 +114,10 @@ func NewApp(cfg AppConfig) (*App, error) {
 
 	if err := infrastorage.AutoMigrateAttachments(db); err != nil {
 		log.Printf("[WARN] failed to migrate attachments: %v", err)
+	}
+
+	if err := persistence.AutoMigrateAuditLog(db); err != nil {
+		log.Printf("[WARN] failed to migrate audit_logs: %v", err)
 	}
 
 	fiberApp := fiber.New(fiber.Config{
@@ -151,6 +169,18 @@ func NewApp(cfg AppConfig) (*App, error) {
 		moduleMenus:     make(map[string][]parser.MenuItemDefinition),
 	}
 
+	if cfg.EncryptionKey != "" {
+		enc, err := security.NewFieldEncryptor(cfg.EncryptionKey)
+		if err != nil {
+			log.Printf("[WARN] invalid encryption key: %v — field encryption disabled", err)
+		} else {
+			app.FieldEncryptor = enc
+			log.Println("[SECURITY] field-level encryption enabled")
+		}
+	} else {
+		log.Println("[SECURITY] no encryption key configured, field encryption disabled")
+	}
+
 	app.ViewRenderer.SetModelRegistry(app.ModelRegistry)
 	app.ViewRenderer.SetHydrator(app.Hydrator)
 	app.registerStepHandlers()
@@ -175,6 +205,24 @@ func (a *App) startPluginRuntimes() {
 	}
 }
 
+func (a *App) createEmailSender() email.Sender {
+	cfg := a.Config.SMTP
+	if cfg.Host == "" {
+		log.Println("[EMAIL] SMTP not configured, email features disabled")
+		return email.NewNoopSender()
+	}
+	sender := email.NewSMTPSender(email.Config{
+		Host:     cfg.Host,
+		Port:     cfg.Port,
+		User:     cfg.User,
+		Password: cfg.Password,
+		From:     cfg.From,
+		TLS:      cfg.TLS,
+	})
+	log.Printf("[EMAIL] SMTP configured: %s:%d", cfg.Host, cfg.Port)
+	return sender
+}
+
 func (a *App) registerStepHandlers() {
 	a.Executor.RegisterHandler(parser.StepValidate, &steps.ValidateHandler{})
 	a.Executor.RegisterHandler(parser.StepQuery, &steps.DataHandler{DB: a.DB})
@@ -193,6 +241,9 @@ func (a *App) registerStepHandlers() {
 }
 
 func (a *App) setupMiddleware() {
+	if a.Config.RateLimit.Enabled {
+		a.Fiber.Use(middleware.RateLimitMiddleware(a.Config.RateLimit))
+	}
 	if a.Config.Tenant.Enabled {
 		a.Fiber.Use(middleware.TenantMiddleware(a.Config.Tenant))
 	}
@@ -214,7 +265,11 @@ func (a *App) setupRoutes() {
 		})
 	})
 
-	authHandler := api.NewAuthHandlerWithAudit(a.DB, a.JWTConfig, a.AuditLogRepo)
+	if a.Config.RateLimit.Enabled {
+		a.Fiber.Use("/auth", middleware.AuthRateLimitMiddleware(a.Config.RateLimit))
+	}
+	emailSender := a.createEmailSender()
+	authHandler := api.NewAuthHandlerFull(a.DB, a.JWTConfig, a.AuditLogRepo, a.Cache, emailSender)
 	authHandler.Register(a.Fiber)
 
 	storageCfg := a.Config.Storage
@@ -239,7 +294,7 @@ func (a *App) setupRoutes() {
 		DBDriver:    a.Config.DB.Driver,
 		CacheDriver: a.Config.Cache.Driver,
 		Processes:   a.ProcessRegistry.List(),
-	}, a.Config.ModuleDir)
+	}, a.Config.ModuleDir, a.JWTConfig)
 	adminPanel.RegisterRoutes(a.Fiber)
 
 	a.setupComponentAssets()
@@ -923,6 +978,10 @@ func (a *App) installModule(modPath string) error {
 
 	revisionRepo := persistence.NewDataRevisionRepository(a.DB)
 	router := api.NewRouterFull(a.Fiber, a.DB, a.WorkflowEngine, a.Hydrator, revisionRepo)
+	if a.FieldEncryptor != nil {
+		router.SetEncryptor(a.FieldEncryptor)
+	}
+	router.SetModelRegistry(a.ModelRegistry)
 	for _, apiDef := range loaded.APIs {
 		if apiDef.Auth {
 			basePath := apiDef.GetBasePath()

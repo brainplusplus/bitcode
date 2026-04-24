@@ -29,6 +29,9 @@ func AuthMiddleware(jwtCfg security.JWTConfig) fiber.Handler {
 		c.Locals("roles", claims.Roles)
 		c.Locals("groups", claims.Groups)
 		c.Locals("claims", claims)
+		if claims.ImpersonatedBy != "" {
+			c.Locals("impersonated_by", claims.ImpersonatedBy)
+		}
 
 		return c.Next()
 	}

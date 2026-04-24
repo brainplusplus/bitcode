@@ -368,6 +368,9 @@ func dbCmd() *cobra.Command {
 		},
 	})
 
+	cmd.AddCommand(backupCmd())
+	cmd.AddCommand(restoreCmd())
+
 	return cmd
 }
 

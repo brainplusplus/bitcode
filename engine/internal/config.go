@@ -3,6 +3,7 @@ package internal
 import (
 	"log"
 	"strings"
+	"time"
 
 	"github.com/bitcode-engine/engine/internal/infrastructure/cache"
 	"github.com/bitcode-engine/engine/internal/infrastructure/persistence"
@@ -31,6 +32,21 @@ func LoadConfig(explicitPath string) (AppConfig, error) {
 	v.SetDefault("tenant.strategy", "header")
 	v.SetDefault("tenant.header", "X-Tenant-ID")
 	v.SetDefault("global_module_dir", "")
+
+	v.SetDefault("rate_limit.enabled", true)
+	v.SetDefault("rate_limit.max", 100)
+	v.SetDefault("rate_limit.window", "1m")
+	v.SetDefault("rate_limit.auth_max", 5)
+	v.SetDefault("rate_limit.auth_window", "1m")
+
+	v.SetDefault("smtp.host", "")
+	v.SetDefault("smtp.port", 587)
+	v.SetDefault("smtp.user", "")
+	v.SetDefault("smtp.password", "")
+	v.SetDefault("smtp.from", "")
+	v.SetDefault("smtp.tls", true)
+
+	v.SetDefault("encryption_key", "")
 
 	v.SetDefault("storage.driver", "local")
 	v.SetDefault("storage.max_size", 10*1024*1024)
@@ -73,6 +89,21 @@ func LoadConfig(explicitPath string) (AppConfig, error) {
 	v.BindEnv("tenant.header", "TENANT_HEADER")
 	v.BindEnv("global_module_dir", "GLOBAL_MODULE_DIR")
 
+	v.BindEnv("rate_limit.enabled", "RATE_LIMIT_ENABLED")
+	v.BindEnv("rate_limit.max", "RATE_LIMIT_MAX")
+	v.BindEnv("rate_limit.window", "RATE_LIMIT_WINDOW")
+	v.BindEnv("rate_limit.auth_max", "RATE_LIMIT_AUTH_MAX")
+	v.BindEnv("rate_limit.auth_window", "RATE_LIMIT_AUTH_WINDOW")
+
+	v.BindEnv("smtp.host", "SMTP_HOST")
+	v.BindEnv("smtp.port", "SMTP_PORT")
+	v.BindEnv("smtp.user", "SMTP_USER")
+	v.BindEnv("smtp.password", "SMTP_PASSWORD")
+	v.BindEnv("smtp.from", "SMTP_FROM")
+	v.BindEnv("smtp.tls", "SMTP_TLS")
+
+	v.BindEnv("encryption_key", "ENCRYPTION_KEY")
+
 	v.BindEnv("storage.driver", "STORAGE_DRIVER")
 	v.BindEnv("storage.max_size", "STORAGE_MAX_SIZE")
 	v.BindEnv("storage.path_format", "STORAGE_PATH_FORMAT")
@@ -109,11 +140,21 @@ func LoadConfig(explicitPath string) (AppConfig, error) {
 		log.Printf("[CONFIG] loaded from %s", v.ConfigFileUsed())
 	}
 
+	rateLimitWindow, _ := time.ParseDuration(v.GetString("rate_limit.window"))
+	if rateLimitWindow == 0 {
+		rateLimitWindow = 1 * time.Minute
+	}
+	rateLimitAuthWindow, _ := time.ParseDuration(v.GetString("rate_limit.auth_window"))
+	if rateLimitAuthWindow == 0 {
+		rateLimitAuthWindow = 1 * time.Minute
+	}
+
 	cfg := AppConfig{
 		Port:            v.GetString("port"),
 		ModuleDir:       v.GetString("module_dir"),
 		GlobalModuleDir: v.GetString("global_module_dir"),
 		JWTSecret:       v.GetString("jwt_secret"),
+		EncryptionKey:   v.GetString("encryption_key"),
 		DB: persistence.DatabaseConfig{
 			Driver:     v.GetString("database.driver"),
 			Host:       v.GetString("database.host"),
@@ -132,6 +173,21 @@ func LoadConfig(explicitPath string) (AppConfig, error) {
 			Enabled:  v.GetBool("tenant.enabled"),
 			Strategy: v.GetString("tenant.strategy"),
 			Header:   v.GetString("tenant.header"),
+		},
+		RateLimit: middleware.RateLimitConfig{
+			Enabled:    v.GetBool("rate_limit.enabled"),
+			Max:        v.GetInt("rate_limit.max"),
+			Window:     rateLimitWindow,
+			AuthMax:    v.GetInt("rate_limit.auth_max"),
+			AuthWindow: rateLimitAuthWindow,
+		},
+		SMTP: SMTPConfig{
+			Host:     v.GetString("smtp.host"),
+			Port:     v.GetInt("smtp.port"),
+			User:     v.GetString("smtp.user"),
+			Password: v.GetString("smtp.password"),
+			From:     v.GetString("smtp.from"),
+			TLS:      v.GetBool("smtp.tls"),
 		},
 		Storage: infrastorage.StorageConfig{
 			Driver:            v.GetString("storage.driver"),

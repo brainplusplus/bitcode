@@ -127,6 +127,7 @@ type FieldDefinition struct {
 	PathFormat   string `json:"path_format,omitempty"`
 	NameFormat   string `json:"name_format,omitempty"`
 	AutoFormat   *AutoFormatConfig `json:"auto_format,omitempty"`
+	Encrypted    bool              `json:"encrypted,omitempty"`
 }
 
 type FileConfig struct {

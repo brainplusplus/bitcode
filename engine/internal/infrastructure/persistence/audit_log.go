@@ -15,37 +15,59 @@ func NewAuditLogRepository(db *gorm.DB) *AuditLogRepository {
 	return &AuditLogRepository{db: db}
 }
 
+func AutoMigrateAuditLog(db *gorm.DB) error {
+	if !db.Migrator().HasTable("audit_logs") {
+		return nil
+	}
+	dialect := DetectDialect(db)
+	switch dialect {
+	case DialectPostgres:
+		db.Exec("ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS impersonated_by TEXT")
+	case DialectMySQL:
+		var count int64
+		db.Raw("SELECT COUNT(*) FROM information_schema.columns WHERE table_name='audit_logs' AND column_name='impersonated_by'").Scan(&count)
+		if count == 0 {
+			db.Exec("ALTER TABLE audit_logs ADD COLUMN impersonated_by TEXT")
+		}
+	default:
+		db.Exec("ALTER TABLE audit_logs ADD COLUMN impersonated_by TEXT")
+	}
+	return nil
+}
+
 type AuditLogEntry struct {
-	UserID        string
-	Action        string
-	ModelName     string
-	RecordID      string
-	Changes       string
-	IPAddress     string
-	UserAgent     string
-	RequestMethod string
-	RequestPath   string
-	StatusCode    int
-	DurationMs    int
+	UserID         string
+	Action         string
+	ModelName      string
+	RecordID       string
+	Changes        string
+	IPAddress      string
+	UserAgent      string
+	RequestMethod  string
+	RequestPath    string
+	StatusCode     int
+	DurationMs     int
+	ImpersonatedBy string
 }
 
 func (r *AuditLogRepository) Write(entry AuditLogEntry) error {
 	record := map[string]any{
-		"id":             uuid.New().String(),
-		"user_id":        nilIfEmpty(entry.UserID),
-		"action":         entry.Action,
-		"model_name":     nilIfEmpty(entry.ModelName),
-		"record_id":      nilIfEmpty(entry.RecordID),
-		"changes":        nilIfEmpty(entry.Changes),
-		"ip_address":     nilIfEmpty(entry.IPAddress),
-		"user_agent":     nilIfEmpty(entry.UserAgent),
-		"request_method": nilIfEmpty(entry.RequestMethod),
-		"request_path":   nilIfEmpty(entry.RequestPath),
-		"status_code":    nilIfZero(entry.StatusCode),
-		"duration_ms":    nilIfZero(entry.DurationMs),
-		"created_at":     time.Now(),
-		"updated_at":     time.Now(),
-		"active":         true,
+		"id":              uuid.New().String(),
+		"user_id":         nilIfEmpty(entry.UserID),
+		"action":          entry.Action,
+		"model_name":      nilIfEmpty(entry.ModelName),
+		"record_id":       nilIfEmpty(entry.RecordID),
+		"changes":         nilIfEmpty(entry.Changes),
+		"ip_address":      nilIfEmpty(entry.IPAddress),
+		"user_agent":      nilIfEmpty(entry.UserAgent),
+		"request_method":  nilIfEmpty(entry.RequestMethod),
+		"request_path":    nilIfEmpty(entry.RequestPath),
+		"status_code":     nilIfZero(entry.StatusCode),
+		"duration_ms":     nilIfZero(entry.DurationMs),
+		"impersonated_by": nilIfEmpty(entry.ImpersonatedBy),
+		"created_at":      time.Now(),
+		"updated_at":      time.Now(),
+		"active":          true,
 	}
 
 	return r.db.Table("audit_logs").Create(&record).Error

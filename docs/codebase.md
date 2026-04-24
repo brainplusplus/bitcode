@@ -36,7 +36,8 @@ engine/
 │   ├── engine/main.go                          # Server — load config, init app, load modules, start Fiber
 │   └── bitcode/
 │       ├── main.go                             # CLI — init, dev, validate, module, user, db, version, publish
-│       └── publish.go                          # Module publish command
+│       ├── publish.go                          # Module publish command
+│       └── backup.go                           # db backup/restore commands (SQLite/Postgres/MySQL)
 │
 ├── internal/                                   # Private application code
 │   ├── app.go                                  # Central wiring — NewApp(), LoadModules(), Start(), Shutdown()
@@ -124,7 +125,9 @@ engine/
 │   │   │   ├── view_revision_test.go           # 6 tests
 │   │   │   ├── audit_log.go                    # AuditLogRepository — persistent audit log writer with async support
 │   │   │   │                                   #   FindByRecord, FindByUser, FindLoginHistory, FindRequests
-│   │   │   └── audit_log_test.go               # 5 tests (write, find by record, requests, user, login history)
+│   │   │   │                                   #   ImpersonatedBy field, AutoMigrateAuditLog()
+│   │   │   ├── audit_log_test.go               # 5 tests (write, find by record, requests, user, login history)
+│   │   │   └── backup.go                       # Backup/Restore — driver-aware (SQLite copy, pg_dump, mysqldump)
 │   │   ├── cache/
 │   │   │   ├── cache.go                        # Cache interface + NewCache() factory
 │   │   │   ├── memory.go                       # MemoryCache — in-process with TTL
@@ -158,15 +161,16 @@ engine/
 │       ├── api/
 │       │   ├── router.go                       # Dynamic route registration from API definitions
 │       │   ├── crud_handler.go                 # Auto-CRUD handler — List/Read/Create/Update/Delete with pagination
-│       │   ├── auth_handler.go                 # POST /auth/login, POST /auth/register
+│       │   ├── auth_handler.go                 # POST /auth/login, /register, /logout, /2fa/enable, /2fa/disable, /2fa/validate
 │       │   ├── upload_handler.go               # Legacy upload handler (replaced by file_handler)
 │       │   └── file_handler.go                 # FileHandler — upload, download, list, delete, versions, resize, thumbnail
 │       │                                       #   Single + multiple upload, duplicate detection, versioning
 │       ├── middleware/
-│       │   ├── auth.go                         # JWT validation, user context injection
+│       │   ├── auth.go                         # JWT validation, user context injection, impersonated_by extraction
 │       │   ├── permission.go                   # RBAC permission checking
 │       │   ├── record_rule.go                  # RLS filter injection
-│       │   ├── audit.go                        # Audit logging for write operations
+│       │   ├── audit.go                        # Audit logging for write operations (includes impersonated_by)
+│       │   ├── ratelimit.go                    # Rate limiting middleware (Fiber limiter, tiered: global + auth)
 │       │   └── tenant.go                       # Multi-tenancy middleware (header/subdomain/path)
 │       ├── template/
 │       │   ├── engine.go                       # Go html/template engine — LoadDirectory, Render, RenderWithLayout
@@ -180,6 +184,7 @@ engine/
 │       │   └── component_compiler_test.go      # Component compiler tests
 │       ├── admin/
 │       │   └── admin.go                        # Built-in admin panel at /admin (dashboard, models, modules, views)
+│       │                                       #   Impersonation: POST /admin/api/impersonate/:user_id, /stop-impersonate
 │       ├── assets/
 │       │   └── handler.go                      # Static asset serving
 │       └── websocket/
@@ -193,10 +198,15 @@ engine/
 │   │   ├── repository.go                       # Repository[T] generic interface
 │   │   ├── value_object.go                     # ValueObject interface
 │   │   └── ddd_test.go                         # 3 tests
-│   ├── security/                               # Auth utilities
+│   ├── security/                               # Auth & crypto utilities
 │   │   ├── password.go                         # HashPassword (bcrypt), CheckPassword
-│   │   ├── jwt.go                              # GenerateToken, ValidateToken, Claims struct
+│   │   ├── jwt.go                              # GenerateToken (with options), ValidateToken, Claims (ImpersonatedBy, Purpose)
+│   │   ├── otp.go                              # GenerateOTP — crypto-secure 6-digit code
+│   │   ├── encryption.go                       # FieldEncryptor — AES-256-GCM encrypt/decrypt with key versioning
 │   │   └── security_test.go                    # 5 tests
+│   ├── email/                                  # Email sending
+│   │   ├── sender.go                           # SMTPSender — SMTP with TLS, NoopSender fallback
+│   │   └── templates.go                        # HTML email templates (OTP code)
 │   └── plugin/                                 # Plugin SDK
 │       └── proto/
 │           └── plugin.proto                    # gRPC service definition for plugins

@@ -3,10 +3,12 @@ package persistence
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/bitcode-engine/engine/internal/compiler/parser"
 	"github.com/bitcode-engine/engine/internal/runtime/expression"
 	"github.com/bitcode-engine/engine/internal/runtime/pkgen"
+	"github.com/bitcode-engine/engine/pkg/security"
 	"gorm.io/gorm"
 )
 
@@ -20,6 +22,7 @@ type GenericRepository struct {
 	revisionRepo *DataRevisionRepository
 	modelName    string
 	currentUser  string
+	encryptor    *security.FieldEncryptor
 }
 
 func NewGenericRepository(db *gorm.DB, tableName string) *GenericRepository {
@@ -62,6 +65,66 @@ func (r *GenericRepository) SetCurrentUser(userID string) {
 	r.currentUser = userID
 }
 
+func (r *GenericRepository) SetEncryptor(enc *security.FieldEncryptor) {
+	r.encryptor = enc
+}
+
+func (r *GenericRepository) encryptFields(record map[string]any) {
+	if r.encryptor == nil || r.modelDef == nil {
+		return
+	}
+	for fieldName, fieldDef := range r.modelDef.Fields {
+		if !fieldDef.Encrypted {
+			continue
+		}
+		val, ok := record[fieldName]
+		if !ok {
+			continue
+		}
+		strVal, ok := val.(string)
+		if !ok || strVal == "" {
+			continue
+		}
+		if security.IsEncrypted(strVal) {
+			continue
+		}
+		encrypted, err := r.encryptor.Encrypt(strVal)
+		if err != nil {
+			log.Printf("[ENCRYPT] failed to encrypt field %s: %v", fieldName, err)
+			continue
+		}
+		record[fieldName] = encrypted
+	}
+}
+
+func (r *GenericRepository) decryptFields(record map[string]any) {
+	if r.encryptor == nil || r.modelDef == nil {
+		return
+	}
+	for fieldName, fieldDef := range r.modelDef.Fields {
+		if !fieldDef.Encrypted {
+			continue
+		}
+		val, ok := record[fieldName]
+		if !ok {
+			continue
+		}
+		strVal, ok := val.(string)
+		if !ok || strVal == "" {
+			continue
+		}
+		if !security.IsEncrypted(strVal) {
+			continue
+		}
+		decrypted, err := r.encryptor.Decrypt(strVal)
+		if err != nil {
+			log.Printf("[DECRYPT] failed to decrypt field %s: %v", fieldName, err)
+			continue
+		}
+		record[fieldName] = decrypted
+	}
+}
+
 func (r *GenericRepository) applyTenant(query *gorm.DB) *gorm.DB {
 	if r.tenantID != "" {
 		return query.Where("tenant_id = ?", r.tenantID)
@@ -73,10 +136,12 @@ func (r *GenericRepository) Create(ctx context.Context, record map[string]any) (
 	if r.tenantID != "" {
 		record["tenant_id"] = r.tenantID
 	}
+	r.encryptFields(record)
 	if err := r.db.WithContext(ctx).Table(r.tableName).Create(&record).Error; err != nil {
 		return nil, fmt.Errorf("failed to create record in %s: %w", r.tableName, err)
 	}
 	r.saveRevision("create", r.resolveRecordID(record), nil, record)
+	r.decryptFields(record)
 	return record, nil
 }
 
@@ -87,6 +152,7 @@ func (r *GenericRepository) FindByID(ctx context.Context, id string) (map[string
 	if err != nil {
 		return nil, fmt.Errorf("record not found in %s: %w", r.tableName, err)
 	}
+	r.decryptFields(result)
 	if r.hydrator != nil && r.modelDef != nil {
 		r.hydrator.HydrateRecord(ctx, r.modelDef, result)
 	}
@@ -103,6 +169,7 @@ func (r *GenericRepository) FindByCompositePK(ctx context.Context, keys map[stri
 	if err != nil {
 		return nil, fmt.Errorf("record not found in %s: %w", r.tableName, err)
 	}
+	r.decryptFields(result)
 	if r.hydrator != nil && r.modelDef != nil {
 		r.hydrator.HydrateRecord(ctx, r.modelDef, result)
 	}
@@ -144,6 +211,10 @@ func (r *GenericRepository) FindAll(ctx context.Context, filters [][]any, page i
 		results = []map[string]any{}
 	}
 
+	for _, record := range results {
+		r.decryptFields(record)
+	}
+
 	if r.hydrator != nil && r.modelDef != nil {
 		r.hydrator.HydrateRecords(ctx, r.modelDef, results)
 	}
@@ -157,6 +228,7 @@ func (r *GenericRepository) Update(ctx context.Context, id string, data map[stri
 		r.db.WithContext(ctx).Table(r.tableName).Where(fmt.Sprintf("%s = ?", r.pkCol), id).Take(&before)
 	}
 
+	r.encryptFields(data)
 	result := r.db.WithContext(ctx).Table(r.tableName).Where(fmt.Sprintf("%s = ?", r.pkCol), id).Updates(data)
 	if result.Error != nil {
 		return fmt.Errorf("failed to update record in %s: %w", r.tableName, result.Error)

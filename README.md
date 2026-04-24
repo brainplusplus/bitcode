@@ -72,6 +72,10 @@ bitcode publish --list       # List publishable modules
 bitcode user create admin admin@example.com
 bitcode user list
 bitcode db migrate           # Run database migrations
+bitcode db backup            # Backup database (driver-aware)
+bitcode db backup --gzip     # Compressed backup
+bitcode db restore backup.db # Restore from backup
+bitcode db restore --force   # Skip confirmation
 bitcode version
 ```
 
@@ -100,6 +104,18 @@ All config via environment variables or `bitcode.toml`/`bitcode.yaml`. Defaults 
 | `STORAGE_LOCAL_PATH` | `uploads` | Local upload directory |
 | `STORAGE_S3_BUCKET` | - | S3 bucket name |
 | `STORAGE_S3_REGION` | - | S3 region |
+| `RATE_LIMIT_ENABLED` | `true` | Enable rate limiting |
+| `RATE_LIMIT_MAX` | `100` | Max requests per window |
+| `RATE_LIMIT_WINDOW` | `1m` | Rate limit window |
+| `RATE_LIMIT_AUTH_MAX` | `5` | Auth endpoint limit |
+| `RATE_LIMIT_AUTH_WINDOW` | `1m` | Auth endpoint window |
+| `SMTP_HOST` | - | SMTP server host |
+| `SMTP_PORT` | `587` | SMTP server port |
+| `SMTP_USER` | - | SMTP username |
+| `SMTP_PASSWORD` | - | SMTP password |
+| `SMTP_FROM` | - | From address |
+| `SMTP_TLS` | `true` | Use TLS |
+| `ENCRYPTION_KEY` | - | AES-256 key (base64, 32 bytes) |
 
 ### PostgreSQL
 
@@ -125,7 +141,7 @@ docker-compose up -d
 - **JSON-driven development** — Models, APIs, processes, views, workflows — all defined in JSON
 - **Module system** — Dependency resolution, data seeding, cross-module views (Odoo-style)
 - **Auto-CRUD** — One JSON file = full REST API with pagination, search, filtering
-- **Security** — JWT auth, RBAC permissions, record rules (row-level security), audit logging
+- **Security** — JWT auth, RBAC permissions, record rules (row-level security), audit logging, 2FA (email OTP), field-level encryption (AES-256-GCM), rate limiting, admin impersonation
 - **Workflow engine** — State machines with permission-gated transitions
 - **Process engine** — 14 step types (validate, query, create, update, delete, if, switch, loop, emit, call, script, http, assign, log)
 - **Plugin system** — TypeScript + Python via JSON-RPC, gRPC proto defined

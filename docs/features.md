@@ -10,11 +10,11 @@
 
 | Metric | Count |
 |--------|-------|
-| Total Features Tracked | 67 |
-| ✅ Implemented | 36 |
-| ⚠️ Partial | 3 |
-| ❌ Not Yet | 28 |
-| **Completion** | **53.7%** (effective ~56% counting partials as 0.5) |
+| Total Features Tracked | 69 |
+| ✅ Implemented | 41 |
+| ⚠️ Partial | 2 |
+| ❌ Not Yet | 26 |
+| **Completion** | **59.4%** (effective ~61% counting partials as 0.5) |
 
 ### Per-Category Summary
 
@@ -28,7 +28,7 @@
 | 6 | Reporting & Analytics | 1 | 2 | 3 | 6 | 33% |
 | 7 | Integration & API | 1 | 1 | 4 | 6 | 25% |
 | 8 | Configuration & Customization | 4 | 1 | 2 | 7 | 64% |
-| 9 | Security & Infrastructure | 1 | 2 | 3 | 6 | 33% |
+| 9 | Security & Infrastructure | 7 | 1 | 0 | 8 | 94% |
 | 10 | Collaboration & Communication | 0 | 1 | 4 | 5 | 10% |
 
 > Score = (✅ + ⚠️×0.5) / Total × 100%
@@ -185,12 +185,14 @@ Before the gap list — what's already **production-solid**:
 
 | # | Feature | Status | Effort | What Exists | What's Missing |
 |---|---------|--------|--------|-------------|----------------|
-| 57 | Two-Factor Auth (2FA) | ❌ | M | — | Only username/password. Need TOTP library + 2FA setup flow + verification middleware. |
-| 58 | Data Encryption | ⚠️ | M | Password hashing (bcrypt) + JWT signing. HTTPS via reverse proxy. | No field-level encryption for sensitive data in database. |
-| 59 | Backup & Restore | ❌ | M | — | No backup/restore. Need db dump command (sqlite: copy, pg: pg_dump, mysql: mysqldump) + restore + scheduling. |
-| 60 | Rate Limiting | ❌ | S | — | No API rate limiting. Need rate limiter middleware (gofiber/limiter or token bucket). |
-| 61 | CSRF & XSS Protection | ⚠️ | S | XSS: Go html/template auto-escapes. API uses JWT (stateless, no CSRF needed). | CSRF token needed for SSR form submissions. |
+| 57 | Two-Factor Auth (2FA) | ✅ | — | Email OTP 2FA: `POST /auth/2fa/enable`, `/auth/2fa/disable`, `/auth/2fa/validate`. Login returns `requires_2fa` + temp token when 2FA enabled. OTP via SMTP email, cached with TTL, max 3 attempts. | — |
+| 58 | Data Encryption | ✅ | — | Password hashing (bcrypt) + JWT signing + AES-256-GCM field-level encryption. Fields marked `"encrypted": true` in model JSON get transparent encrypt-on-write / decrypt-on-read. Key versioning (`v1:` prefix) for future rotation. | — |
+| 59 | Backup & Restore | ✅ | — | `bitcode db backup [path]` and `bitcode db restore [path]`. Driver-aware: SQLite file copy, PostgreSQL pg_dump/psql, MySQL mysqldump/mysql. Supports `--gzip` compression and `--force` restore. Metadata JSON per backup. | Scheduled backups (depends on cron + storage). |
+| 60 | Rate Limiting | ✅ | — | Fiber limiter middleware. Global rate limit (default 100/min) + stricter auth endpoint limit (5/min). Configurable via `rate_limit.*` config. Returns 429 with `Retry-After` header. | — |
+| 61 | CSRF & XSS Protection | ⚠️ | S | XSS: Go html/template auto-escapes. API uses JWT (stateless, no CSRF needed). Current SSR forms use HTTPOnly JWT cookie (low risk). | CSRF token needed for future public web forms (job portal, contact forms, website module). Will implement when public web forms feature is built. |
 | 62 | Soft Delete / Recycle Bin | ✅ | — | Every model has `active` boolean. DELETE = set `active = false`. `soft_delete: true` default. | Recycle bin UI to view and restore deleted records (effort S). |
+| 63 | Admin Impersonation | ✅ | — | Token-based impersonation: `POST /admin/api/impersonate/:user_id` (admin-only, cannot impersonate other admins, 1h TTL). `POST /admin/api/stop-impersonate` returns admin token. JWT `impersonated_by` claim. All audit logs include `impersonated_by` field. | — |
+| 64 | Email Infrastructure | ✅ | — | SMTP email sender (`pkg/email`). Configurable via `smtp.*` config (host, port, user, password, from, TLS). HTML email templates. Used by 2FA, reusable for notifications, password reset, scheduled reports. | — |
 
 ---
 

@@ -6,6 +6,7 @@ import (
 	"github.com/bitcode-engine/engine/internal/infrastructure/persistence"
 	"github.com/bitcode-engine/engine/internal/runtime/expression"
 	"github.com/bitcode-engine/engine/internal/runtime/workflow"
+	"github.com/bitcode-engine/engine/pkg/security"
 	"gorm.io/gorm"
 )
 
@@ -15,6 +16,8 @@ type Router struct {
 	workflowEngine *workflow.Engine
 	hydrator       *expression.Hydrator
 	revisionRepo   *persistence.DataRevisionRepository
+	encryptor      *security.FieldEncryptor
+	modelRegistry  interface{ Get(string) (*parser.ModelDefinition, error) }
 }
 
 func NewRouter(app *fiber.App, db *gorm.DB, wfEngine *workflow.Engine) *Router {
@@ -29,6 +32,14 @@ func NewRouterFull(app *fiber.App, db *gorm.DB, wfEngine *workflow.Engine, hydra
 	return &Router{app: app, db: db, workflowEngine: wfEngine, hydrator: hydrator, revisionRepo: revRepo}
 }
 
+func (r *Router) SetEncryptor(enc *security.FieldEncryptor) {
+	r.encryptor = enc
+}
+
+func (r *Router) SetModelRegistry(reg interface{ Get(string) (*parser.ModelDefinition, error) }) {
+	r.modelRegistry = reg
+}
+
 func (r *Router) RegisterAPI(apiDef *parser.APIDefinition) {
 	basePath := apiDef.GetBasePath()
 	endpoints := apiDef.ExpandAutoCRUD()
@@ -36,13 +47,25 @@ func (r *Router) RegisterAPI(apiDef *parser.APIDefinition) {
 	group := r.app.Group(basePath)
 
 	if apiDef.Model != "" {
-		repo := persistence.NewGenericRepository(r.db, apiDef.Model+"s")
+		var modelDef *parser.ModelDefinition
+		if r.modelRegistry != nil {
+			modelDef, _ = r.modelRegistry.Get(apiDef.Model)
+		}
+		var repo *persistence.GenericRepository
+		if modelDef != nil {
+			repo = persistence.NewGenericRepositoryWithModel(r.db, apiDef.Model+"s", modelDef)
+		} else {
+			repo = persistence.NewGenericRepository(r.db, apiDef.Model+"s")
+		}
 		if r.hydrator != nil {
 			repo.SetHydrator(r.hydrator)
 		}
 		if r.revisionRepo != nil {
 			repo.SetRevisionRepo(r.revisionRepo)
 			repo.SetModelName(apiDef.Model)
+		}
+		if r.encryptor != nil {
+			repo.SetEncryptor(r.encryptor)
 		}
 		crud := NewCRUDHandler(repo, apiDef, r.workflowEngine)
 

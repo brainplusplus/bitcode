@@ -9,11 +9,14 @@ import (
 	"sort"
 	"strings"
 
+	"time"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/bitcode-engine/engine/internal/compiler/parser"
 	domainModel "github.com/bitcode-engine/engine/internal/domain/model"
 	"github.com/bitcode-engine/engine/internal/infrastructure/module"
 	"github.com/bitcode-engine/engine/internal/infrastructure/persistence"
+	"github.com/bitcode-engine/engine/pkg/security"
 	"gorm.io/gorm"
 )
 
@@ -43,9 +46,10 @@ type AdminPanel struct {
 	dataRevisionRepo *persistence.DataRevisionRepository
 	auditLogRepo     *persistence.AuditLogRepository
 	moduleDir        string
+	jwtConfig        security.JWTConfig
 }
 
-func NewAdminPanel(db *gorm.DB, modelReg *domainModel.Registry, moduleReg *module.Registry, viewResolver ViewResolver, health HealthInfo, moduleDir string) *AdminPanel {
+func NewAdminPanel(db *gorm.DB, modelReg *domainModel.Registry, moduleReg *module.Registry, viewResolver ViewResolver, health HealthInfo, moduleDir string, jwtCfg security.JWTConfig) *AdminPanel {
 	return &AdminPanel{
 		db:               db,
 		modelRegistry:    modelReg,
@@ -56,6 +60,7 @@ func NewAdminPanel(db *gorm.DB, modelReg *domainModel.Registry, moduleReg *modul
 		dataRevisionRepo: persistence.NewDataRevisionRepository(db),
 		auditLogRepo:     persistence.NewAuditLogRepository(db),
 		moduleDir:        moduleDir,
+		jwtConfig:        jwtCfg,
 	}
 }
 
@@ -94,6 +99,9 @@ func (a *AdminPanel) RegisterRoutes(app *fiber.App) {
 	api.Get("/data/:model/:id/timeline", a.apiRecordTimeline)
 	api.Get("/audit/login-history", a.apiLoginHistory)
 	api.Get("/audit/request-log", a.apiRequestLog)
+
+	api.Post("/impersonate/:user_id", a.apiImpersonate)
+	api.Post("/stop-impersonate", a.apiStopImpersonate)
 }
 
 func (a *AdminPanel) dashboard(c *fiber.Ctx) error {
@@ -1492,4 +1500,173 @@ code{background:#f4f5f6;padding:1px 5px;border-radius:3px;font-size:12px;color:#
 .menu-group-title{font-weight:600;font-size:13px;margin-bottom:4px;padding:4px 0;border-bottom:1px solid var(--border)}
 .menu-child{padding:4px 0 4px 16px;font-size:13px}
 </style>`
+}
+
+func (a *AdminPanel) apiImpersonate(c *fiber.Ctx) error {
+	adminToken := c.Get("Authorization")
+	if adminToken == "" {
+		adminToken = c.Cookies("token")
+	} else if len(adminToken) > 7 && adminToken[:7] == "Bearer " {
+		adminToken = adminToken[7:]
+	}
+	if adminToken == "" {
+		return c.Status(401).JSON(fiber.Map{"error": "authentication required"})
+	}
+
+	adminClaims, err := security.ValidateToken(a.jwtConfig, adminToken)
+	if err != nil {
+		return c.Status(401).JSON(fiber.Map{"error": "invalid token"})
+	}
+
+	if !containsRole(adminClaims.Roles, "admin") {
+		return c.Status(403).JSON(fiber.Map{"error": "only admin users can impersonate"})
+	}
+
+	if adminClaims.ImpersonatedBy != "" {
+		return c.Status(400).JSON(fiber.Map{"error": "cannot impersonate while already impersonating"})
+	}
+
+	targetUserID := c.Params("user_id")
+	if targetUserID == "" {
+		return c.Status(400).JSON(fiber.Map{"error": "user_id required"})
+	}
+
+	repo := persistence.NewGenericRepository(a.db, "users")
+	targetUser, err := repo.FindByID(c.Context(), targetUserID)
+	if err != nil || targetUser == nil {
+		return c.Status(404).JSON(fiber.Map{"error": "user not found"})
+	}
+
+	targetUsername, _ := targetUser["username"].(string)
+
+	targetRoles := loadUserRoles(a.db, targetUserID)
+	if containsRole(targetRoles, "admin") {
+		return c.Status(403).JSON(fiber.Map{"error": "cannot impersonate another admin user"})
+	}
+
+	targetGroups := loadUserGroups(a.db, targetUserID)
+
+	token, err := security.GenerateToken(
+		a.jwtConfig,
+		targetUserID,
+		targetUsername,
+		targetRoles,
+		targetGroups,
+		security.WithImpersonatedBy(adminClaims.UserID),
+		security.WithExpiration(1*time.Hour),
+	)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "failed to generate impersonation token"})
+	}
+
+	a.auditLogRepo.WriteAsync(persistence.AuditLogEntry{
+		UserID:         adminClaims.UserID,
+		Action:         "impersonate_start",
+		ModelName:      "user",
+		RecordID:       targetUserID,
+		ImpersonatedBy: adminClaims.UserID,
+		IPAddress:      c.IP(),
+		UserAgent:      c.Get("User-Agent"),
+		RequestMethod:  c.Method(),
+		RequestPath:    c.Path(),
+	})
+
+	return c.JSON(fiber.Map{
+		"token": token,
+		"impersonating": fiber.Map{
+			"user_id":  targetUserID,
+			"username": targetUsername,
+		},
+		"admin": fiber.Map{
+			"user_id":  adminClaims.UserID,
+			"username": adminClaims.Username,
+		},
+		"expires_in": 3600,
+	})
+}
+
+func (a *AdminPanel) apiStopImpersonate(c *fiber.Ctx) error {
+	tokenStr := c.Get("Authorization")
+	if tokenStr == "" {
+		tokenStr = c.Cookies("token")
+	} else if len(tokenStr) > 7 && tokenStr[:7] == "Bearer " {
+		tokenStr = tokenStr[7:]
+	}
+	if tokenStr == "" {
+		return c.Status(401).JSON(fiber.Map{"error": "authentication required"})
+	}
+
+	claims, err := security.ValidateToken(a.jwtConfig, tokenStr)
+	if err != nil {
+		return c.Status(401).JSON(fiber.Map{"error": "invalid token"})
+	}
+
+	if claims.ImpersonatedBy == "" {
+		return c.Status(400).JSON(fiber.Map{"error": "not currently impersonating"})
+	}
+
+	adminID := claims.ImpersonatedBy
+	repo := persistence.NewGenericRepository(a.db, "users")
+	adminUser, err := repo.FindByID(c.Context(), adminID)
+	if err != nil || adminUser == nil {
+		return c.Status(500).JSON(fiber.Map{"error": "failed to load admin user"})
+	}
+
+	adminUsername, _ := adminUser["username"].(string)
+	adminRoles := loadUserRoles(a.db, adminID)
+	adminGroups := loadUserGroups(a.db, adminID)
+
+	newToken, err := security.GenerateToken(
+		a.jwtConfig,
+		adminID,
+		adminUsername,
+		adminRoles,
+		adminGroups,
+	)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "failed to generate admin token"})
+	}
+
+	a.auditLogRepo.WriteAsync(persistence.AuditLogEntry{
+		UserID:         adminID,
+		Action:         "impersonate_stop",
+		ModelName:      "user",
+		RecordID:       claims.UserID,
+		ImpersonatedBy: adminID,
+		IPAddress:      c.IP(),
+		UserAgent:      c.Get("User-Agent"),
+		RequestMethod:  c.Method(),
+		RequestPath:    c.Path(),
+	})
+
+	return c.JSON(fiber.Map{
+		"token":    newToken,
+		"user_id":  adminID,
+		"username": adminUsername,
+	})
+}
+
+func containsRole(roles []string, target string) bool {
+	for _, r := range roles {
+		if r == target {
+			return true
+		}
+	}
+	return false
+}
+
+func loadUserRoles(db *gorm.DB, userID string) []string {
+	var roles []string
+	db.Raw(`SELECT r.name FROM roles r
+		INNER JOIN user_roles ur ON ur.role_id = r.id
+		WHERE ur.user_id = ?`, userID).Scan(&roles)
+	return roles
+}
+
+func loadUserGroups(db *gorm.DB, userID string) []string {
+	var groups []string
+	db.Raw(`SELECT g.name FROM groups g
+		INNER JOIN user_groups ug ON ug.group_id = g.id
+		WHERE ug.user_id = ?`, userID).Scan(&groups)
+	return groups
 }

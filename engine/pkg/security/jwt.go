@@ -13,14 +13,36 @@ type JWTConfig struct {
 }
 
 type Claims struct {
-	UserID   string   `json:"user_id"`
-	Username string   `json:"username"`
-	Roles    []string `json:"roles"`
-	Groups   []string `json:"groups"`
+	UserID         string   `json:"user_id"`
+	Username       string   `json:"username"`
+	Roles          []string `json:"roles"`
+	Groups         []string `json:"groups"`
+	ImpersonatedBy string   `json:"impersonated_by,omitempty"`
+	Purpose        string   `json:"purpose,omitempty"`
 	jwt.RegisteredClaims
 }
 
-func GenerateToken(cfg JWTConfig, userID string, username string, roles []string, groups []string) (string, error) {
+type TokenOption func(*Claims)
+
+func WithImpersonatedBy(adminID string) TokenOption {
+	return func(c *Claims) {
+		c.ImpersonatedBy = adminID
+	}
+}
+
+func WithPurpose(purpose string) TokenOption {
+	return func(c *Claims) {
+		c.Purpose = purpose
+	}
+}
+
+func WithExpiration(d time.Duration) TokenOption {
+	return func(c *Claims) {
+		c.RegisteredClaims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(d))
+	}
+}
+
+func GenerateToken(cfg JWTConfig, userID string, username string, roles []string, groups []string, opts ...TokenOption) (string, error) {
 	if cfg.Expiration == 0 {
 		cfg.Expiration = 24 * time.Hour
 	}
@@ -35,6 +57,10 @@ func GenerateToken(cfg JWTConfig, userID string, username string, roles []string
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			Issuer:    "bitcode-engine",
 		},
+	}
+
+	for _, opt := range opts {
+		opt(&claims)
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
