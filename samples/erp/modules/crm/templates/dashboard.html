@@ -1,25 +1,25 @@
-<div class="lc-stats">
-  <div class="lc-stat-card">
-    <div class="lc-stat-value" style="color:#3B82F6;">{{if .new_leads}}{{len .new_leads}}{{else}}0{{end}}</div>
-    <div class="lc-stat-label">New Leads</div>
+<div class="bc-stats">
+  <div class="bc-stat-card">
+    <div class="bc-stat-value" style="color:#3B82F6;">{{if .new_leads}}{{len .new_leads}}{{else}}0{{end}}</div>
+    <div class="bc-stat-label">New Leads</div>
   </div>
-  <div class="lc-stat-card">
-    <div class="lc-stat-value" style="color:#F59E0B;">{{if .qualified_leads}}{{len .qualified_leads}}{{else}}0{{end}}</div>
-    <div class="lc-stat-label">Qualified</div>
+  <div class="bc-stat-card">
+    <div class="bc-stat-value" style="color:#F59E0B;">{{if .qualified_leads}}{{len .qualified_leads}}{{else}}0{{end}}</div>
+    <div class="bc-stat-label">Qualified</div>
   </div>
-  <div class="lc-stat-card">
-    <div class="lc-stat-value" style="color:#10B981;">{{if .won_leads}}{{len .won_leads}}{{else}}0{{end}}</div>
-    <div class="lc-stat-label">Won Deals</div>
+  <div class="bc-stat-card">
+    <div class="bc-stat-value" style="color:#10B981;">{{if .won_leads}}{{len .won_leads}}{{else}}0{{end}}</div>
+    <div class="bc-stat-label">Won Deals</div>
   </div>
 </div>
 
-<div class="lc-card">
-  <div class="lc-card-header">
+<div class="bc-card">
+  <div class="bc-card-header">
     <h2>Recent Contacts</h2>
   </div>
   {{if .recent_contacts}}
   <div style="overflow-x:auto;">
-    <table class="lc-table">
+    <table class="bc-table">
       <thead>
         <tr>
           <th>Name</th>
@@ -39,7 +39,7 @@
     </table>
   </div>
   {{else}}
-  <div class="lc-empty">
+  <div class="bc-empty">
     <p>No contacts yet</p>
   </div>
   {{end}}
