@@ -76,6 +76,7 @@ type App struct {
 	FormatEngine    *format.Engine
 	PKGenerator     *pkgen.Generator
 	Hydrator        *expression.Hydrator
+	AuditLogRepo    *persistence.AuditLogRepository
 	viewDefs        map[string]*viewEntry
 	moduleMenus     map[string][]parser.MenuItemDefinition
 	moduleOrder     []string
@@ -195,7 +196,9 @@ func (a *App) setupMiddleware() {
 	if a.Config.Tenant.Enabled {
 		a.Fiber.Use(middleware.TenantMiddleware(a.Config.Tenant))
 	}
-	a.Fiber.Use(middleware.AuditMiddleware())
+	auditRepo := persistence.NewAuditLogRepository(a.DB)
+	a.AuditLogRepo = auditRepo
+	a.Fiber.Use(middleware.PersistentAuditMiddleware(auditRepo, false))
 }
 
 func (a *App) setupRoutes() {
@@ -211,7 +214,7 @@ func (a *App) setupRoutes() {
 		})
 	})
 
-	authHandler := api.NewAuthHandler(a.DB, a.JWTConfig)
+	authHandler := api.NewAuthHandlerWithAudit(a.DB, a.JWTConfig, a.AuditLogRepo)
 	authHandler.Register(a.Fiber)
 
 	storageCfg := a.Config.Storage
@@ -341,6 +344,19 @@ func (a *App) handleLoginSubmit(c *fiber.Ctx) error {
 		HTTPOnly: true,
 		MaxAge:   86400,
 	})
+
+	if a.AuditLogRepo != nil {
+		a.AuditLogRepo.WriteAsync(persistence.AuditLogEntry{
+			UserID:        userID,
+			Action:        "login",
+			ModelName:     "user",
+			RecordID:      userID,
+			IPAddress:     c.IP(),
+			UserAgent:     c.Get("User-Agent"),
+			RequestMethod: c.Method(),
+			RequestPath:   c.Path(),
+		})
+	}
 
 	return c.Redirect("/app/home")
 }
@@ -581,6 +597,16 @@ func (a *App) handleViewPost(c *fiber.Ctx) error {
 		repo = persistence.NewGenericRepositoryWithModel(a.DB, entry.Def.Model+"s", modelDef)
 	} else {
 		repo = persistence.NewGenericRepository(a.DB, entry.Def.Model+"s")
+	}
+
+	revisionRepo := persistence.NewDataRevisionRepository(a.DB)
+	repo.SetRevisionRepo(revisionRepo)
+	repo.SetModelName(entry.Def.Model)
+	token := c.Cookies("token")
+	if token != "" {
+		if claims, clErr := security.ValidateToken(a.JWTConfig, token); clErr == nil {
+			repo.SetCurrentUser(claims.UserID)
+		}
 	}
 
 	recordID := c.Query("id")

@@ -20,6 +20,8 @@ func (h *DataHandler) Execute(ctx context.Context, execCtx *executor.Context, st
 	}
 
 	repo := persistence.NewGenericRepository(h.DB, step.Model+"s")
+	repo.SetRevisionRepo(persistence.NewDataRevisionRepository(h.DB))
+	repo.SetModelName(step.Model)
 
 	switch step.Type {
 	case parser.StepQuery:

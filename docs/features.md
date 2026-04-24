@@ -11,10 +11,10 @@
 | Metric | Count |
 |--------|-------|
 | Total Features Tracked | 67 |
-| ✅ Implemented | 32 |
-| ⚠️ Partial | 7 |
+| ✅ Implemented | 36 |
+| ⚠️ Partial | 3 |
 | ❌ Not Yet | 28 |
-| **Completion** | **47.8%** (effective ~53% counting partials as 0.5) |
+| **Completion** | **53.7%** (effective ~56% counting partials as 0.5) |
 
 ### Per-Category Summary
 
@@ -22,7 +22,7 @@
 |---|----------|-----|------|------|-------|-------|
 | 1 | Core Framework & Data Modeling | 5 | 2 | 0 | 7 | 86% |
 | 2 | Permission & Access Control | 5 | 1 | 2 | 8 | 69% |
-| 3 | Audit Log & Monitoring | 1 | 4 | 1 | 6 | 50% |
+| 3 | Audit Log & Monitoring | 5 | 0 | 1 | 6 | 83% |
 | 4 | Workflow & Automation | 4 | 1 | 3 | 8 | 56% |
 | 5 | Form & UI Builder | 4 | 1 | 3 | 8 | 56% |
 | 6 | Reporting & Analytics | 1 | 2 | 3 | 6 | 33% |
@@ -102,11 +102,11 @@ Before the gap list — what's already **production-solid**:
 
 | # | Feature | Status | Effort | What Exists | What's Missing |
 |---|---------|--------|--------|-------------|----------------|
-| 16 | Audit Log | ✅ | — | `audit_log` model with user_id, action, model_name, record_id, changes (JSON), ip_address. Middleware logs all writes + login/logout. | — |
-| 17 | Record Activity Timeline | ⚠️ | M | Data stored in audit_log per record. | UI timeline view per record showing change history visually. Need API endpoint + timeline component. |
-| 18 | Login History | ⚠️ | S | Login/logout recorded in audit_log with ip_address. | Dedicated view with User-Agent, device info. Extend audit_log fields + dedicated view. |
-| 19 | API Request Log | ⚠️ | M | Audit middleware logs writes to stdout. | Persistent log for ALL requests (including GET), stored in DB, queryable. |
-| 20 | Data Change Diff | ⚠️ | S | `changes` field stores JSON. | Structured before/after diff display. Need old_value/new_value per field + diff UI. |
+| 16 | Audit Log | ✅ | — | `audit_log` model with user_id, action, model_name, record_id, changes, ip_address, user_agent, request_method, request_path, status_code, duration_ms. `PersistentAuditMiddleware` writes ALL write requests to DB. `AuditLogRepository` with async writes. | — |
+| 17 | Record Activity Timeline | ✅ | — | `GET /admin/api/data/:model/:id/timeline` combines `data_revisions` + `audit_log` entries. Admin model data page has "History" button per record with modal timeline showing changes with field-level diffs. | — |
+| 18 | Login History | ✅ | — | Login/logout/register persisted to `audit_log` from both API auth handler and app HTML login. `POST /auth/logout` endpoint added. Admin page at `/admin/audit/login-history` with User-Agent, IP. | — |
+| 19 | API Request Log | ✅ | — | `PersistentAuditMiddleware` persists all write requests to `audit_logs` table with method, path, status, duration, user, IP. Admin page at `/admin/audit/request-log` with method filtering. | — |
+| 20 | Data Change Diff | ✅ | — | `data_revisions` stores structured `{field: {old, new}}` changes. Timeline modal renders field-level before/after diff with color-coded old (red strikethrough) → new (green). | — |
 | 21 | Export/Import Log | ❌ | S* | — | No export/import feature exists yet (see #41, #47), so no log either. *Trivial once export/import is built. |
 
 ---

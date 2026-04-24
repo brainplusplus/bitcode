@@ -154,7 +154,7 @@ go test ./pkg/ddd/        # Specific package
 go test ./... -count=1    # No cache
 ```
 
-Current: 247 tests, 0 failures. Build: OK.
+Current: 252 tests, 0 failures. Build: OK.
 
 ## Build
 

@@ -337,4 +337,85 @@ func (a *AdminPanel) apiModelSave(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"ok": true, "message": "model saved"})
 }
 
+func (a *AdminPanel) apiRecordTimeline(c *fiber.Ctx) error {
+	modelName := c.Params("model")
+	recordID := c.Params("id")
+
+	revisions, _ := a.dataRevisionRepo.ListByRecord(modelName, recordID, 50)
+	auditLogs, _ := a.auditLogRepo.FindByRecord(modelName, recordID, 50)
+
+	var timeline []fiber.Map
+
+	for _, r := range revisions {
+		var changes any
+		if r.Changes != "" && r.Changes != "null" {
+			json.Unmarshal([]byte(r.Changes), &changes)
+		}
+		timeline = append(timeline, fiber.Map{
+			"type":       "revision",
+			"version":    r.Version,
+			"action":     r.Action,
+			"user_id":    r.UserID,
+			"changes":    changes,
+			"created_at": r.CreatedAt,
+		})
+	}
+
+	for _, log := range auditLogs {
+		timeline = append(timeline, fiber.Map{
+			"type":           "audit",
+			"action":         log["action"],
+			"user_id":        log["user_id"],
+			"request_method": log["request_method"],
+			"request_path":   log["request_path"],
+			"status_code":    log["status_code"],
+			"ip_address":     log["ip_address"],
+			"created_at":     log["created_at"],
+		})
+	}
+
+	return c.JSON(fiber.Map{
+		"model":     modelName,
+		"record_id": recordID,
+		"timeline":  timeline,
+		"total":     len(timeline),
+	})
+}
+
+func (a *AdminPanel) apiLoginHistory(c *fiber.Ctx) error {
+	limitStr := c.Query("limit", "100")
+	limit, _ := strconv.Atoi(limitStr)
+	if limit <= 0 || limit > 500 {
+		limit = 100
+	}
+
+	results, err := a.auditLogRepo.FindLoginHistory(limit)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.JSON(fiber.Map{
+		"data":  results,
+		"total": len(results),
+	})
+}
+
+func (a *AdminPanel) apiRequestLog(c *fiber.Ctx) error {
+	limitStr := c.Query("limit", "100")
+	limit, _ := strconv.Atoi(limitStr)
+	if limit <= 0 || limit > 500 {
+		limit = 100
+	}
+	methodFilter := c.Query("method", "")
+
+	results, err := a.auditLogRepo.FindRequests(limit, methodFilter)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.JSON(fiber.Map{
+		"data":  results,
+		"total": len(results),
+	})
+}
 

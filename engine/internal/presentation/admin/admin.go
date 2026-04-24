@@ -41,6 +41,7 @@ type AdminPanel struct {
 	health           HealthInfo
 	revisionRepo     *persistence.ViewRevisionRepository
 	dataRevisionRepo *persistence.DataRevisionRepository
+	auditLogRepo     *persistence.AuditLogRepository
 	moduleDir        string
 }
 
@@ -53,6 +54,7 @@ func NewAdminPanel(db *gorm.DB, modelReg *domainModel.Registry, moduleReg *modul
 		health:           health,
 		revisionRepo:     persistence.NewViewRevisionRepository(db),
 		dataRevisionRepo: persistence.NewDataRevisionRepository(db),
+		auditLogRepo:     persistence.NewAuditLogRepository(db),
 		moduleDir:        moduleDir,
 	}
 }
@@ -73,6 +75,8 @@ func (a *AdminPanel) RegisterRoutes(app *fiber.App) {
 	admin.Get("/views", a.listViews)
 	admin.Get("/views/:module/:name", a.viewDetail)
 	admin.Get("/health", a.healthPage)
+	admin.Get("/audit/login-history", a.loginHistoryPage)
+	admin.Get("/audit/request-log", a.requestLogPage)
 
 	api := app.Group("/admin/api")
 	api.Get("/views/:module/:name", a.apiViewDetail)
@@ -87,6 +91,9 @@ func (a *AdminPanel) RegisterRoutes(app *fiber.App) {
 	api.Get("/data/:model/:id/revisions", a.apiDataRevisions)
 	api.Get("/data/:model/:id/revisions/:version", a.apiDataRevisionDetail)
 	api.Post("/data/:model/:id/restore/:version", a.apiDataRestore)
+	api.Get("/data/:model/:id/timeline", a.apiRecordTimeline)
+	api.Get("/audit/login-history", a.apiLoginHistory)
+	api.Get("/audit/request-log", a.apiRequestLog)
 }
 
 func (a *AdminPanel) dashboard(c *fiber.Ctx) error {
@@ -534,10 +541,11 @@ func (a *AdminPanel) listModelData(c *fiber.Ctx) error {
 	for _, f := range fields {
 		html.WriteString(fmt.Sprintf(`<th>%s</th>`, f))
 	}
+	html.WriteString(`<th>Actions</th>`)
 	html.WriteString(`</tr></thead><tbody>`)
 
 	if len(records) == 0 {
-		html.WriteString(fmt.Sprintf(`<tr><td colspan="%d" class="empty-state">No records found</td></tr>`, len(fields)))
+		html.WriteString(fmt.Sprintf(`<tr><td colspan="%d" class="empty-state">No records found</td></tr>`, len(fields)+1))
 	}
 
 	for _, rec := range records {
@@ -549,9 +557,64 @@ func (a *AdminPanel) listModelData(c *fiber.Ctx) error {
 			}
 			html.WriteString(fmt.Sprintf(`<td>%v</td>`, val))
 		}
+		recordID := ""
+		if v, ok := rec["id"]; ok {
+			recordID = fmt.Sprintf("%v", v)
+		}
+		html.WriteString(fmt.Sprintf(`<td><a href="#" onclick="showTimeline('%s','%s');return false" class="btn-link" style="font-size:11px">History</a></td>`, name, recordID))
 		html.WriteString(`</tr>`)
 	}
 	html.WriteString(`</tbody></table></div>`)
+
+	html.WriteString(fmt.Sprintf(`
+<div id="timeline-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:1000;overflow-y:auto">
+<div style="max-width:700px;margin:40px auto;background:var(--card-bg);border-radius:var(--radius);box-shadow:0 8px 32px rgba(0,0,0,0.2);padding:24px">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+<h3 style="margin:0" id="timeline-title">Record History</h3>
+<button onclick="document.getElementById('timeline-modal').style.display='none'" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-muted)">&times;</button>
+</div>
+<div id="timeline-content">Loading...</div>
+</div>
+</div>
+<script>
+function showTimeline(model,id){
+document.getElementById('timeline-modal').style.display='block';
+document.getElementById('timeline-title').textContent='History: '+model+'/'+id;
+document.getElementById('timeline-content').innerHTML='Loading...';
+fetch('/admin/api/data/'+model+'/'+id+'/timeline')
+.then(function(r){return r.json()}).then(function(d){
+var h='';
+if(!d.timeline||d.timeline.length===0){h='<div class="empty-state">No history</div>';}
+else{
+d.timeline.forEach(function(e){
+var badge='blue';
+if(e.action==='delete')badge='red';
+else if(e.action==='create')badge='green';
+else if(e.action==='restore')badge='yellow';
+h+='<div style="border-left:2px solid var(--border);padding:8px 0 8px 16px;margin-left:8px;margin-bottom:4px">';
+h+='<div style="display:flex;gap:8px;align-items:center"><span class="badge '+badge+'">'+e.action+'</span>';
+h+='<span class="text-muted" style="font-size:11px">'+e.created_at+'</span>';
+if(e.user_id)h+='<span style="font-size:11px">by '+e.user_id+'</span>';
+if(e.version)h+='<span class="badge muted">v'+e.version+'</span>';
+h+='</div>';
+if(e.changes&&typeof e.changes==='object'){
+h+='<div style="margin-top:6px;font-size:12px">';
+Object.keys(e.changes).forEach(function(k){
+var c=e.changes[k];
+h+='<div style="padding:2px 0"><code style="color:var(--primary)">'+k+'</code>: ';
+if(c&&c.old!==undefined){h+='<span style="text-decoration:line-through;color:var(--red)">'+JSON.stringify(c.old)+'</span> &rarr; <span style="color:var(--green)">'+JSON.stringify(c.new)+'</span>';}
+else{h+=JSON.stringify(c);}
+h+='</div>';
+});
+h+='</div>';
+}
+h+='</div>';
+});
+}
+document.getElementById('timeline-content').innerHTML=h;
+}).catch(function(e){document.getElementById('timeline-content').innerHTML='Error: '+e;});
+}
+</script>`))
 	html.WriteString(pageFooter())
 
 	c.Set("Content-Type", "text/html; charset=utf-8")
@@ -1133,6 +1196,101 @@ func (a *AdminPanel) modelsByModule() groupedModels {
 	return groupedModels{order: order, models: grouped}
 }
 
+func (a *AdminPanel) loginHistoryPage(c *fiber.Ctx) error {
+	var html strings.Builder
+	html.WriteString(a.pageHeader("Login History", "login-history"))
+
+	results, _ := a.auditLogRepo.FindLoginHistory(200)
+
+	html.WriteString(`<div class="card"><div class="card-title">Login / Logout / Register Activity</div>`)
+	html.WriteString(`<table class="list-table"><thead><tr><th>Time</th><th>Action</th><th>User</th><th>IP Address</th><th>User Agent</th></tr></thead><tbody>`)
+
+	for _, r := range results {
+		action, _ := r["action"].(string)
+		badgeClass := "blue"
+		if action == "logout" {
+			badgeClass = "muted"
+		} else if action == "register" {
+			badgeClass = "green"
+		}
+		userID := fmt.Sprintf("%v", r["user_id"])
+		ip := fmt.Sprintf("%v", r["ip_address"])
+		ua := fmt.Sprintf("%v", r["user_agent"])
+		if len(ua) > 80 {
+			ua = ua[:80] + "..."
+		}
+		createdAt := fmt.Sprintf("%v", r["created_at"])
+
+		html.WriteString(fmt.Sprintf(`<tr><td class="text-muted" style="white-space:nowrap">%s</td><td><span class="badge %s">%s</span></td><td>%s</td><td><code>%s</code></td><td style="font-size:11px;color:var(--text-muted);max-width:300px;overflow:hidden;text-overflow:ellipsis">%s</td></tr>`,
+			createdAt, badgeClass, action, userID, ip, template.HTMLEscapeString(ua)))
+	}
+
+	html.WriteString(`</tbody></table></div>`)
+
+	return c.Type("html").SendString(html.String())
+}
+
+func (a *AdminPanel) requestLogPage(c *fiber.Ctx) error {
+	methodFilter := c.Query("method", "")
+
+	var html strings.Builder
+	html.WriteString(a.pageHeader("API Request Log", "request-log"))
+
+	html.WriteString(`<div style="margin-bottom:12px;display:flex;gap:4px">`)
+	methods := []string{"", "GET", "POST", "PUT", "DELETE", "PATCH"}
+	labels := []string{"All", "GET", "POST", "PUT", "DELETE", "PATCH"}
+	for i, m := range methods {
+		active := ""
+		if m == methodFilter {
+			active = " active"
+		}
+		href := "/admin/audit/request-log"
+		if m != "" {
+			href += "?method=" + m
+		}
+		html.WriteString(fmt.Sprintf(`<a href="%s" class="filter-pill%s">%s</a>`, href, active, labels[i]))
+	}
+	html.WriteString(`</div>`)
+
+	results, _ := a.auditLogRepo.FindRequests(200, methodFilter)
+
+	html.WriteString(`<div class="card"><div class="card-title">Request Log</div>`)
+	html.WriteString(`<table class="list-table"><thead><tr><th>Time</th><th>Method</th><th>Path</th><th>Status</th><th>Duration</th><th>User</th><th>IP</th></tr></thead><tbody>`)
+
+	for _, r := range results {
+		method := fmt.Sprintf("%v", r["request_method"])
+		path := fmt.Sprintf("%v", r["request_path"])
+		status := fmt.Sprintf("%v", r["status_code"])
+		duration := fmt.Sprintf("%v", r["duration_ms"])
+		userID := fmt.Sprintf("%v", r["user_id"])
+		ip := fmt.Sprintf("%v", r["ip_address"])
+		createdAt := fmt.Sprintf("%v", r["created_at"])
+
+		methodBadge := "blue"
+		if method == "POST" {
+			methodBadge = "green"
+		} else if method == "PUT" || method == "PATCH" {
+			methodBadge = "yellow"
+		} else if method == "DELETE" {
+			methodBadge = "red"
+		}
+
+		statusColor := "var(--green)"
+		if status >= "400" {
+			statusColor = "var(--red)"
+		} else if status >= "300" {
+			statusColor = "var(--yellow)"
+		}
+
+		html.WriteString(fmt.Sprintf(`<tr><td class="text-muted" style="white-space:nowrap;font-size:11px">%s</td><td><span class="badge %s">%s</span></td><td style="font-family:monospace;font-size:12px">%s</td><td style="color:%s;font-weight:500">%s</td><td>%sms</td><td>%s</td><td><code style="font-size:11px">%s</code></td></tr>`,
+			createdAt, methodBadge, method, template.HTMLEscapeString(path), statusColor, status, duration, userID, ip))
+	}
+
+	html.WriteString(`</tbody></table></div>`)
+
+	return c.Type("html").SendString(html.String())
+}
+
 func (a *AdminPanel) sidebarHTML(activePage string) string {
 	var sb strings.Builder
 	sb.WriteString(`<div class="sidebar">`)
@@ -1153,6 +1311,10 @@ func (a *AdminPanel) sidebarHTML(activePage string) string {
 	sb.WriteString(fmt.Sprintf(`<a href="/admin/models" class="sidebar-item%s"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Models</a>`, active("models")))
 	sb.WriteString(fmt.Sprintf(`<a href="/admin/views" class="sidebar-item%s"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Views</a>`, active("views")))
 	sb.WriteString(fmt.Sprintf(`<a href="/admin/health" class="sidebar-item%s"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Health</a>`, active("health")))
+
+	sb.WriteString(`<div class="sidebar-section">Audit</div>`)
+	sb.WriteString(fmt.Sprintf(`<a href="/admin/audit/login-history" class="sidebar-item%s"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>Login History</a>`, active("login-history")))
+	sb.WriteString(fmt.Sprintf(`<a href="/admin/audit/request-log" class="sidebar-item%s"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Request Log</a>`, active("request-log")))
 
 	sb.WriteString(`</div>`)
 	return sb.String()

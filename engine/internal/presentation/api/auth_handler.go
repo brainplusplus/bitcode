@@ -11,18 +11,24 @@ import (
 )
 
 type AuthHandler struct {
-	db     *gorm.DB
-	jwtCfg security.JWTConfig
+	db        *gorm.DB
+	jwtCfg    security.JWTConfig
+	auditRepo *persistence.AuditLogRepository
 }
 
 func NewAuthHandler(db *gorm.DB, jwtCfg security.JWTConfig) *AuthHandler {
 	return &AuthHandler{db: db, jwtCfg: jwtCfg}
 }
 
+func NewAuthHandlerWithAudit(db *gorm.DB, jwtCfg security.JWTConfig, auditRepo *persistence.AuditLogRepository) *AuthHandler {
+	return &AuthHandler{db: db, jwtCfg: jwtCfg, auditRepo: auditRepo}
+}
+
 func (h *AuthHandler) Register(app *fiber.App) {
 	auth := app.Group("/auth")
 	auth.Post("/login", h.Login)
 	auth.Post("/register", h.RegisterUser)
+	auth.Post("/logout", h.Logout)
 }
 
 func (h *AuthHandler) Login(c *fiber.Ctx) error {
@@ -59,6 +65,8 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 	}
 
 	repo.Update(c.Context(), userID, map[string]any{"last_login": time.Now()})
+
+	h.writeAuditLog(c, userID, "login", "user", userID)
 
 	return c.JSON(fiber.Map{
 		"token":    token,
@@ -113,10 +121,40 @@ func (h *AuthHandler) RegisterUser(c *fiber.Ctx) error {
 
 	token, _ := security.GenerateToken(h.jwtCfg, record["id"].(string), body.Username, nil, nil)
 
+	h.writeAuditLog(c, record["id"].(string), "register", "user", record["id"].(string))
+
 	return c.Status(201).JSON(fiber.Map{
 		"user_id":  result["id"],
 		"username": body.Username,
 		"email":    body.Email,
 		"token":    token,
+	})
+}
+
+func (h *AuthHandler) Logout(c *fiber.Ctx) error {
+	userID, _ := c.Locals("user_id").(string)
+
+	h.writeAuditLog(c, userID, "logout", "user", userID)
+
+	return c.JSON(fiber.Map{
+		"ok":      true,
+		"message": "logged out",
+	})
+}
+
+func (h *AuthHandler) writeAuditLog(c *fiber.Ctx, userID, action, modelName, recordID string) {
+	if h.auditRepo == nil {
+		return
+	}
+	h.auditRepo.WriteAsync(persistence.AuditLogEntry{
+		UserID:        userID,
+		Action:        action,
+		ModelName:     modelName,
+		RecordID:      recordID,
+		IPAddress:     c.IP(),
+		UserAgent:     c.Get("User-Agent"),
+		RequestMethod: c.Method(),
+		RequestPath:   c.Path(),
+		StatusCode:    c.Response().StatusCode(),
 	})
 }

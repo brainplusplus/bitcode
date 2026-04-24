@@ -3,11 +3,16 @@
   "module": "base",
   "label": "Audit Log",
   "fields": {
-    "user_id":    { "type": "many2one", "model": "user" },
-    "action":     { "type": "selection", "options": ["create", "update", "delete", "login", "logout"] },
-    "model_name": { "type": "string", "max": 100 },
-    "record_id":  { "type": "string", "max": 36 },
-    "changes":    { "type": "json" },
-    "ip_address": { "type": "string", "max": 45 }
+    "user_id":        { "type": "many2one", "model": "user" },
+    "action":         { "type": "selection", "options": ["create", "update", "delete", "login", "logout", "register", "request"] },
+    "model_name":     { "type": "string", "max": 100 },
+    "record_id":      { "type": "string", "max": 36 },
+    "changes":        { "type": "json" },
+    "ip_address":     { "type": "string", "max": 45 },
+    "user_agent":     { "type": "string", "max": 500 },
+    "request_method": { "type": "string", "max": 10 },
+    "request_path":   { "type": "string", "max": 500 },
+    "status_code":    { "type": "integer" },
+    "duration_ms":    { "type": "integer" }
   }
 }

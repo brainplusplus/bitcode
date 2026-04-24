@@ -174,6 +174,15 @@ func (r *GenericRepository) Update(ctx context.Context, id string, data map[stri
 }
 
 func (r *GenericRepository) UpdateByCompositePK(ctx context.Context, keys map[string]any, data map[string]any) error {
+	var before map[string]any
+	if r.revisionRepo != nil {
+		q := r.db.WithContext(ctx).Table(r.tableName)
+		for col, val := range keys {
+			q = q.Where(fmt.Sprintf("%s = ?", col), val)
+		}
+		q.Take(&before)
+	}
+
 	query := r.db.WithContext(ctx).Table(r.tableName)
 	for col, val := range keys {
 		query = query.Where(fmt.Sprintf("%s = ?", col), val)
@@ -184,6 +193,17 @@ func (r *GenericRepository) UpdateByCompositePK(ctx context.Context, keys map[st
 	}
 	if result.RowsAffected == 0 {
 		return fmt.Errorf("record not found in %s", r.tableName)
+	}
+
+	if before != nil {
+		var after map[string]any
+		q := r.db.WithContext(ctx).Table(r.tableName)
+		for col, val := range keys {
+			q = q.Where(fmt.Sprintf("%s = ?", col), val)
+		}
+		q.Take(&after)
+		recordID := fmt.Sprintf("%v", keys)
+		r.saveRevision("update", recordID, before, after)
 	}
 	return nil
 }

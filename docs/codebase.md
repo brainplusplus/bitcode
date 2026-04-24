@@ -121,7 +121,10 @@ engine/
 │   │   │   │                                   #   Monotonic versioning per (model, record_id), change diff
 │   │   │   ├── data_revision_test.go           # 7 tests (create, version increment, list, get, cleanup, changes, latest)
 │   │   │   ├── view_revision.go                # ViewRevision — view JSON snapshots for editor versioning
-│   │   │   └── view_revision_test.go           # 6 tests
+│   │   │   ├── view_revision_test.go           # 6 tests
+│   │   │   ├── audit_log.go                    # AuditLogRepository — persistent audit log writer with async support
+│   │   │   │                                   #   FindByRecord, FindByUser, FindLoginHistory, FindRequests
+│   │   │   └── audit_log_test.go               # 5 tests (write, find by record, requests, user, login history)
 │   │   ├── cache/
 │   │   │   ├── cache.go                        # Cache interface + NewCache() factory
 │   │   │   ├── memory.go                       # MemoryCache — in-process with TTL

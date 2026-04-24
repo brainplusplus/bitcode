@@ -3,7 +3,7 @@
   "type": "list",
   "model": "audit_log",
   "title": "Audit Logs",
-  "fields": ["user_id", "action", "model_name", "record_id", "ip_address", "created_at"],
-  "filters": ["action", "model_name", "user_id"],
+  "fields": ["user_id", "action", "model_name", "record_id", "request_method", "request_path", "status_code", "duration_ms", "ip_address", "created_at"],
+  "filters": ["action", "model_name", "user_id", "request_method"],
   "sort": { "field": "created_at", "order": "desc" }
 }
