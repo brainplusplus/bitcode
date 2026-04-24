@@ -9,6 +9,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/bitcode-engine/engine/internal/compiler/parser"
+	"github.com/bitcode-engine/engine/internal/infrastructure/persistence"
 )
 
 func (a *AdminPanel) apiViewDetail(c *fiber.Ctx) error {
@@ -191,3 +192,149 @@ func (a *AdminPanel) apiViewPublish(c *fiber.Ctx) error {
 
 	return c.JSON(fiber.Map{"ok": true, "message": "view published to " + targetPath})
 }
+
+func (a *AdminPanel) apiDataRevisions(c *fiber.Ctx) error {
+	modelName := c.Params("model")
+	recordID := c.Params("id")
+
+	revisions, err := a.dataRevisionRepo.ListByRecord(modelName, recordID, 50)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	revList := make([]fiber.Map, len(revisions))
+	for i, r := range revisions {
+		revList[i] = fiber.Map{
+			"version":    r.Version,
+			"action":     r.Action,
+			"user_id":    r.UserID,
+			"created_at": r.CreatedAt,
+			"changes":    r.Changes,
+		}
+	}
+
+	return c.JSON(fiber.Map{
+		"model":     modelName,
+		"record_id": recordID,
+		"revisions": revList,
+		"total":     len(revList),
+	})
+}
+
+func (a *AdminPanel) apiDataRevisionDetail(c *fiber.Ctx) error {
+	modelName := c.Params("model")
+	recordID := c.Params("id")
+	versionStr := c.Params("version")
+	version, err := strconv.Atoi(versionStr)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "invalid version number"})
+	}
+
+	rev, err := a.dataRevisionRepo.GetByVersion(modelName, recordID, version)
+	if err != nil {
+		return c.Status(404).JSON(fiber.Map{"error": fmt.Sprintf("revision %d not found", version)})
+	}
+
+	snapshot, _ := a.dataRevisionRepo.GetSnapshotMap(rev)
+
+	return c.JSON(fiber.Map{
+		"version":    rev.Version,
+		"action":     rev.Action,
+		"snapshot":   snapshot,
+		"changes":    rev.Changes,
+		"user_id":    rev.UserID,
+		"created_at": rev.CreatedAt,
+	})
+}
+
+func (a *AdminPanel) apiDataRestore(c *fiber.Ctx) error {
+	modelName := c.Params("model")
+	recordID := c.Params("id")
+	versionStr := c.Params("version")
+	version, err := strconv.Atoi(versionStr)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "invalid version number"})
+	}
+
+	rev, err := a.dataRevisionRepo.GetByVersion(modelName, recordID, version)
+	if err != nil {
+		return c.Status(404).JSON(fiber.Map{"error": fmt.Sprintf("revision %d not found", version)})
+	}
+
+	snapshot, err := a.dataRevisionRepo.GetSnapshotMap(rev)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "failed to parse snapshot"})
+	}
+
+	delete(snapshot, "created_at")
+	delete(snapshot, "updated_at")
+
+	tableName := modelName + "s"
+	repo := persistence.NewGenericRepository(a.db, tableName)
+	if err := repo.Update(c.Context(), recordID, snapshot); err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": fmt.Sprintf("failed to restore: %v", err)})
+	}
+
+	var after map[string]any
+	a.db.Table(tableName).Where("id = ?", recordID).Take(&after)
+
+	a.dataRevisionRepo.Create(modelName, recordID, "restore", after, nil, "admin")
+
+	return c.JSON(fiber.Map{
+		"ok":             true,
+		"restored_from":  version,
+		"message":        fmt.Sprintf("record %s restored from version %d", recordID, version),
+	})
+}
+
+func (a *AdminPanel) apiModelJSON(c *fiber.Ctx) error {
+	name := c.Params("name")
+	model, err := a.modelRegistry.Get(name)
+	if err != nil {
+		return c.Status(404).JSON(fiber.Map{"error": "model not found"})
+	}
+
+	data, err := json.MarshalIndent(model, "", "  ")
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "failed to serialize model"})
+	}
+
+	c.Set("Content-Type", "application/json")
+	return c.Send(data)
+}
+
+func (a *AdminPanel) apiModelSave(c *fiber.Ctx) error {
+	name := c.Params("name")
+
+	var body struct {
+		Content string `json:"content"`
+	}
+	if err := c.BodyParser(&body); err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "invalid request body"})
+	}
+
+	if _, err := parser.ParseModel([]byte(body.Content)); err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": fmt.Sprintf("invalid model JSON: %v", err)})
+	}
+
+	var prettyJSON []byte
+	var raw json.RawMessage
+	if err := json.Unmarshal([]byte(body.Content), &raw); err == nil {
+		prettyJSON, _ = json.MarshalIndent(raw, "", "  ")
+	} else {
+		prettyJSON = []byte(body.Content)
+	}
+
+	modelPath := a.findModelFile(name)
+	if modelPath == "" {
+		return c.Status(404).JSON(fiber.Map{"error": "model file not found on disk"})
+	}
+
+	if err := os.WriteFile(modelPath, prettyJSON, 0644); err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": fmt.Sprintf("failed to write file: %v", err)})
+	}
+
+	return c.JSON(fiber.Map{"ok": true, "message": "model saved"})
+}
+
+

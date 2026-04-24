@@ -29,6 +29,7 @@ import (
 	ws "github.com/bitcode-engine/engine/internal/presentation/websocket"
 	"github.com/bitcode-engine/engine/internal/runtime/executor"
 	"github.com/bitcode-engine/engine/internal/runtime/executor/steps"
+	"github.com/bitcode-engine/engine/internal/runtime/expression"
 	"github.com/bitcode-engine/engine/internal/runtime/format"
 	"github.com/bitcode-engine/engine/internal/runtime/pkgen"
 	"github.com/bitcode-engine/engine/internal/runtime/plugin"
@@ -74,6 +75,7 @@ type App struct {
 	SequenceEngine  *persistence.SequenceEngine
 	FormatEngine    *format.Engine
 	PKGenerator     *pkgen.Generator
+	Hydrator        *expression.Hydrator
 	viewDefs        map[string]*viewEntry
 	moduleMenus     map[string][]parser.MenuItemDefinition
 	moduleOrder     []string
@@ -89,6 +91,10 @@ func NewApp(cfg AppConfig) (*App, error) {
 
 	if err := persistence.AutoMigrateViewRevisions(db); err != nil {
 		log.Printf("[WARN] failed to migrate view_revisions: %v", err)
+	}
+
+	if err := persistence.AutoMigrateDataRevisions(db); err != nil {
+		log.Printf("[WARN] failed to migrate data_revisions: %v", err)
 	}
 
 	if err := infrastorage.AutoMigrateAttachments(db); err != nil {
@@ -116,12 +122,14 @@ func NewApp(cfg AppConfig) (*App, error) {
 	}
 	fmtEngine := format.NewEngine(seqEngine)
 	pkGen := pkgen.NewGenerator(fmtEngine, nil)
+	modelReg := domainModel.NewRegistry()
+	hydrator := expression.NewHydrator(db, modelReg)
 
 	app := &App{
 		Config:          cfg,
 		DB:              db,
 		Fiber:           fiberApp,
-		ModelRegistry:   domainModel.NewRegistry(),
+		ModelRegistry:   modelReg,
 		ModuleRegistry:  module.NewRegistry(),
 		ProcessRegistry: processReg,
 		EventBus:        event.NewBus(),
@@ -137,11 +145,13 @@ func NewApp(cfg AppConfig) (*App, error) {
 		SequenceEngine:  seqEngine,
 		FormatEngine:    fmtEngine,
 		PKGenerator:     pkGen,
+		Hydrator:        hydrator,
 		viewDefs:        make(map[string]*viewEntry),
 		moduleMenus:     make(map[string][]parser.MenuItemDefinition),
 	}
 
 	app.ViewRenderer.SetModelRegistry(app.ModelRegistry)
+	app.ViewRenderer.SetHydrator(app.Hydrator)
 	app.registerStepHandlers()
 	app.setupMiddleware()
 	app.setupRoutes()
@@ -885,7 +895,8 @@ func (a *App) installModule(modPath string) error {
 		}
 	}
 
-	router := api.NewRouter(a.Fiber, a.DB, a.WorkflowEngine)
+	revisionRepo := persistence.NewDataRevisionRepository(a.DB)
+	router := api.NewRouterFull(a.Fiber, a.DB, a.WorkflowEngine, a.Hydrator, revisionRepo)
 	for _, apiDef := range loaded.APIs {
 		if apiDef.Auth {
 			basePath := apiDef.GetBasePath()

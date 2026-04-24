@@ -9,6 +9,7 @@ import (
 	"github.com/bitcode-engine/engine/internal/compiler/parser"
 	"github.com/bitcode-engine/engine/internal/infrastructure/persistence"
 	tmplEngine "github.com/bitcode-engine/engine/internal/presentation/template"
+	"github.com/bitcode-engine/engine/internal/runtime/expression"
 	"gorm.io/gorm"
 )
 
@@ -43,6 +44,7 @@ type Renderer struct {
 	template          *tmplEngine.Engine
 	componentCompiler *ComponentCompiler
 	modelRegistry     ModelLookup
+	hydrator          *expression.Hydrator
 }
 
 type ModelLookup interface {
@@ -56,6 +58,10 @@ func NewRenderer(db *gorm.DB, tmpl *tmplEngine.Engine) *Renderer {
 func (r *Renderer) SetModelRegistry(registry ModelLookup) {
 	r.modelRegistry = registry
 	r.componentCompiler.modelLookup = registry
+}
+
+func (r *Renderer) SetHydrator(h *expression.Hydrator) {
+	r.hydrator = h
 }
 
 func (r *Renderer) SetViewResolver(resolver func(name string) *parser.ViewDefinition) {
@@ -164,6 +170,12 @@ func (r *Renderer) renderList(ctx context.Context, viewDef *parser.ViewDefinitio
 		return "", err
 	}
 
+	if r.hydrator != nil && r.modelRegistry != nil {
+		if modelDef, mErr := r.modelRegistry.Get(viewDef.Model); mErr == nil {
+			r.hydrator.HydrateRecords(ctx, modelDef, records)
+		}
+	}
+
 	totalPages := int((total + int64(pageSize) - 1) / int64(pageSize))
 
 	formUrl := ""
@@ -207,6 +219,11 @@ func (r *Renderer) renderForm(ctx context.Context, viewDef *parser.ViewDefinitio
 			rec, err := repo.FindByID(ctx, recordID)
 			if err == nil && rec != nil {
 				record = rec
+				if r.hydrator != nil && r.modelRegistry != nil {
+					if modelDef, mErr := r.modelRegistry.Get(viewDef.Model); mErr == nil {
+						r.hydrator.HydrateRecord(ctx, modelDef, record)
+					}
+				}
 			}
 		}
 	}

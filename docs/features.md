@@ -1,6 +1,6 @@
 # BitCode Platform — Features & Roadmap
 
-**Last Updated**: 22 April 2026
+**Last Updated**: 24 April 2026
 **Benchmark**: Frappe/ERPNext, Odoo, NocoBase
 **Engine Version**: 0.1.0
 
@@ -11,16 +11,16 @@
 | Metric | Count |
 |--------|-------|
 | Total Features Tracked | 67 |
-| ✅ Implemented | 30 |
-| ⚠️ Partial | 9 |
+| ✅ Implemented | 32 |
+| ⚠️ Partial | 7 |
 | ❌ Not Yet | 28 |
-| **Completion** | **44.8%** (effective ~51% counting partials as 0.5) |
+| **Completion** | **47.8%** (effective ~53% counting partials as 0.5) |
 
 ### Per-Category Summary
 
 | # | Category | ✅ | ⚠️ | ❌ | Total | Score |
 |---|----------|-----|------|------|-------|-------|
-| 1 | Core Framework & Data Modeling | 3 | 4 | 0 | 7 | 71% |
+| 1 | Core Framework & Data Modeling | 5 | 2 | 0 | 7 | 86% |
 | 2 | Permission & Access Control | 5 | 1 | 2 | 8 | 69% |
 | 3 | Audit Log & Monitoring | 1 | 4 | 1 | 6 | 50% |
 | 4 | Workflow & Automation | 4 | 1 | 3 | 8 | 56% |
@@ -73,12 +73,12 @@ Before the gap list — what's already **production-solid**:
 
 | # | Feature | Status | Effort | What Exists | What's Missing |
 |---|---------|--------|--------|-------------|----------------|
-| 1 | Schema Builder | ⚠️ | L | JSON-based model definitions (`models/*.json`), parsed by `compiler/parser/model.go`. Admin UI at `/admin/models/:name` shows fields & rules. | Visual drag-and-drop builder in browser. Frappe has DocType builder UI, NocoBase has visual schema editor. |
+| 1 | Schema Builder | ⚠️ | L | JSON-based model definitions (`models/*.json`), parsed by `compiler/parser/model.go`. Admin UI at `/admin/models/:name` shows fields & rules. Schema tab with visual field table + JSON editor + save/validate API. | Full drag-and-drop visual builder with field palette. Current schema tab is visual table + JSON editor, not drag-and-drop yet. |
 | 2 | Field Types | ✅ | — | 16+ types: string, text, integer, decimal, boolean, date, datetime, selection, email, many2one, one2many, many2many, json, file, computed. Stencil components cover 30+ field types. | — |
 | 3 | Model Relationships | ✅ | — | `many2one` (FK column), `one2many` (reverse FK), `many2many` (auto junction table). `MigrateModel()` handles DDL. | — |
 | 4 | Child Table / Inline Table | ✅ | — | `one2many` field + form view tabs embedding child views. `bc-child-table` Stencil component. | — |
-| 5 | Computed / Formula Fields | ⚠️ | M | `computed` type defined in parser. JSON definition supported. | Runtime expression evaluator missing — can't evaluate `sum(lines.subtotal)` at query time. Listed in AGENTS.md as "Remaining". |
-| 6 | Data Versioning | ⚠️ | M | Audit log model stores `changes` (JSON) per record. Middleware logs write operations. | Full before/after snapshot for rollback/restore. Currently only logs, not snapshots. |
+| 5 | Computed / Formula Fields | ✅ | — | `computed` type defined in parser. Runtime expression evaluator (`engine/internal/runtime/expression/`) evaluates scalar formulas (`quantity * unit_price`) and aggregate expressions (`sum(lines.subtotal)`) at query time. Hydrated in repository FindByID/FindAll and view renderer. Supports: arithmetic, comparisons, boolean logic, functions (sum/count/avg/min/max/abs/round/ceil/floor/if), dot-path field access, one2many child collection aggregates. 17 tests. | — |
+| 6 | Data Versioning | ✅ | — | `data_revisions` table stores full before/after snapshots on every create/update/delete via GenericRepository hooks. Monotonic per-record versioning. Admin API: `GET /admin/api/data/:model/:id/revisions`, `GET .../revisions/:version`, `POST .../restore/:version`. Restore creates new head revision. Change diff computed automatically. Cleanup support. 7 tests. | — |
 | 7 | Multi-Source Data | ⚠️ | L | 3 database drivers (SQLite/Postgres/MySQL) via `DB_DRIVER`. | Only 1 database per instance. No simultaneous connections to multiple external databases. |
 
 ---

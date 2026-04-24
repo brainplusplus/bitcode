@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"os"
+	"path/filepath"
 	"sort"
 	"strings"
 
@@ -33,24 +34,26 @@ type ViewInfo struct {
 type ViewResolver func() map[string]*ViewInfo
 
 type AdminPanel struct {
-	db             *gorm.DB
-	modelRegistry  *domainModel.Registry
-	moduleRegistry *module.Registry
-	viewResolver   ViewResolver
-	health         HealthInfo
-	revisionRepo   *persistence.ViewRevisionRepository
-	moduleDir      string
+	db               *gorm.DB
+	modelRegistry    *domainModel.Registry
+	moduleRegistry   *module.Registry
+	viewResolver     ViewResolver
+	health           HealthInfo
+	revisionRepo     *persistence.ViewRevisionRepository
+	dataRevisionRepo *persistence.DataRevisionRepository
+	moduleDir        string
 }
 
 func NewAdminPanel(db *gorm.DB, modelReg *domainModel.Registry, moduleReg *module.Registry, viewResolver ViewResolver, health HealthInfo, moduleDir string) *AdminPanel {
 	return &AdminPanel{
-		db:             db,
-		modelRegistry:  modelReg,
-		moduleRegistry: moduleReg,
-		viewResolver:   viewResolver,
-		health:         health,
-		revisionRepo:   persistence.NewViewRevisionRepository(db),
-		moduleDir:      moduleDir,
+		db:               db,
+		modelRegistry:    modelReg,
+		moduleRegistry:   moduleReg,
+		viewResolver:     viewResolver,
+		health:           health,
+		revisionRepo:     persistence.NewViewRevisionRepository(db),
+		dataRevisionRepo: persistence.NewDataRevisionRepository(db),
+		moduleDir:        moduleDir,
 	}
 }
 
@@ -78,6 +81,12 @@ func (a *AdminPanel) RegisterRoutes(app *fiber.App) {
 	api.Post("/views/:module/:name/rollback/:version", a.apiViewRollback)
 	api.Get("/views/:module/:name/preview", a.apiViewPreview)
 	api.Post("/views/:module/:name/publish", a.apiViewPublish)
+
+	api.Get("/models/:name/json", a.apiModelJSON)
+	api.Post("/models/:name", a.apiModelSave)
+	api.Get("/data/:model/:id/revisions", a.apiDataRevisions)
+	api.Get("/data/:model/:id/revisions/:version", a.apiDataRevisionDetail)
+	api.Post("/data/:model/:id/restore/:version", a.apiDataRestore)
 }
 
 func (a *AdminPanel) dashboard(c *fiber.Ctx) error {
@@ -191,6 +200,8 @@ func (a *AdminPanel) viewModel(c *fiber.Ctx) error {
 		a.renderFieldsTab(&html, model)
 	case "connections":
 		a.renderConnectionsTab(&html, model)
+	case "schema":
+		a.renderSchemaTab(&html, model)
 	default:
 		a.renderFormTab(&html, model)
 	}
@@ -383,6 +394,117 @@ func (a *AdminPanel) renderConnectionsTab(html *strings.Builder, model *parser.M
 	html.WriteString(`</div>`)
 
 	html.WriteString(`</div>`)
+}
+
+func (a *AdminPanel) renderSchemaTab(html *strings.Builder, model *parser.ModelDefinition) {
+	modelJSON, _ := json.MarshalIndent(model, "", "  ")
+	jsonContent := string(modelJSON)
+
+	modelPath := a.findModelFile(model.Name)
+	editable := modelPath != ""
+
+	readonlyAttr := ""
+	saveDisabled := ""
+	if !editable {
+		readonlyAttr = " readonly"
+		saveDisabled = " disabled"
+	}
+
+	html.WriteString(`<div style="margin-bottom:8px;display:flex;gap:4px;align-items:center">`)
+	html.WriteString(`<button onclick="setSchemaMode('visual')" class="filter-pill active" id="btn-visual">Visual</button>`)
+	html.WriteString(`<button onclick="setSchemaMode('json')" class="filter-pill" id="btn-json">JSON</button>`)
+	if !editable {
+		html.WriteString(`<span class="text-muted" style="margin-left:auto;font-size:12px">Read-only (embedded)</span>`)
+	}
+	html.WriteString(`</div>`)
+
+	html.WriteString(`<div id="panel-visual" class="card">`)
+	html.WriteString(`<div class="card-title">Fields</div>`)
+	html.WriteString(`<div style="padding:12px 16px">`)
+
+	html.WriteString(`<table class="list-table"><thead><tr><th style="width:30px"></th><th>Name</th><th>Type</th><th>Label</th><th>Required</th><th>Options</th><th>Relation</th></tr></thead><tbody>`)
+
+	sortedFields := sortedFieldNames(model.Fields)
+	for i, fieldName := range sortedFields {
+		field := model.Fields[fieldName]
+		req := ""
+		if field.Required {
+			req = `<span class="dot green-dot"></span>`
+		}
+		opts := ""
+		if len(field.Options) > 0 {
+			opts = fmt.Sprintf(`<code>%s</code>`, strings.Join(field.Options, ", "))
+		}
+		rel := ""
+		if field.Model != "" {
+			rel = fmt.Sprintf(`<a href="/admin/models/%s">%s</a>`, field.Model, field.Model)
+		}
+		computed := ""
+		if field.Computed != "" {
+			computed = fmt.Sprintf(` <span class="badge muted">computed: %s</span>`, field.Computed)
+		}
+		if field.Formula != "" {
+			computed = fmt.Sprintf(` <span class="badge muted">formula: %s</span>`, field.Formula)
+		}
+		label := field.Label
+		if label == "" {
+			label = `<span class="text-muted">&mdash;</span>`
+		}
+		html.WriteString(fmt.Sprintf(`<tr><td class="text-muted">%d</td><td class="fw-500">%s%s</td><td><code>%s</code></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>`,
+			i+1, fieldName, computed, field.Type, label, req, opts, rel))
+	}
+	html.WriteString(`</tbody></table>`)
+
+	if model.PrimaryKey != nil {
+		html.WriteString(fmt.Sprintf(`<div style="margin-top:12px;padding:8px 12px;background:var(--bg);border-radius:var(--radius);font-size:12px"><strong>Primary Key:</strong> strategy=<code>%s</code>`, model.PrimaryKey.Strategy))
+		if model.PrimaryKey.Field != "" {
+			html.WriteString(fmt.Sprintf(` field=<code>%s</code>`, model.PrimaryKey.Field))
+		}
+		if model.PrimaryKey.Format != "" {
+			html.WriteString(fmt.Sprintf(` format=<code>%s</code>`, model.PrimaryKey.Format))
+		}
+		html.WriteString(`</div>`)
+	}
+
+	html.WriteString(`</div></div>`)
+
+	bgColor := "#fff"
+	if !editable {
+		bgColor = "#f8f9fa"
+	}
+	html.WriteString(fmt.Sprintf(`<div id="panel-json" class="card" style="display:none"><div class="card-title">JSON Definition</div><div style="padding:12px 16px"><textarea id="schema-editor" style="width:100%%;min-height:500px;font-family:monospace;font-size:12px;padding:8px;border:1px solid var(--border);border-radius:var(--radius);resize:vertical;tab-size:2;background:%s;color:var(--text)"%s>%s</textarea></div></div>`,
+		bgColor, readonlyAttr, template.HTMLEscapeString(jsonContent)))
+
+	html.WriteString(fmt.Sprintf(`<div style="margin-top:8px;display:flex;gap:8px;align-items:center"><button onclick="saveModel()" class="btn-sm" style="cursor:pointer"%s>Save</button><span id="schema-save-status" class="text-muted"></span></div>`, saveDisabled))
+
+	html.WriteString(fmt.Sprintf(`<script>
+var schemaMode='visual';
+function setSchemaMode(m){
+schemaMode=m;
+document.getElementById('panel-visual').style.display=(m==='visual')?'block':'none';
+document.getElementById('panel-json').style.display=(m==='json')?'block':'none';
+document.querySelectorAll('.filter-pill').forEach(function(b){b.classList.remove('active')});
+document.getElementById('btn-'+m).classList.add('active');
+}
+function saveModel(){
+var s=document.getElementById('schema-save-status');s.textContent='Saving...';
+var content=document.getElementById('schema-editor').value;
+fetch('/admin/api/models/%s',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({content:content})})
+.then(function(r){return r.json()}).then(function(d){if(d.ok){s.textContent='Saved!';s.style.color='var(--green)'}else{s.textContent='Error: '+d.error;s.style.color='var(--red)'}})
+.catch(function(e){s.textContent='Error: '+e;s.style.color='var(--red)'})
+}
+</script>`, model.Name))
+}
+
+func (a *AdminPanel) findModelFile(modelName string) string {
+	modules := a.moduleRegistry.List()
+	for _, m := range modules {
+		modPath := filepath.Join(a.moduleDir, m.Definition.Name, "models", modelName+".json")
+		if _, err := os.Stat(modPath); err == nil {
+			return modPath
+		}
+	}
+	return ""
 }
 
 func (a *AdminPanel) listModelData(c *fiber.Ctx) error {
@@ -1052,10 +1174,11 @@ func (a *AdminPanel) pageHeader(title, activePage string) string {
 func (a *AdminPanel) modelPageHeader(modelName, moduleName, activeTab string) string {
 	breadcrumb := fmt.Sprintf(`<div class="breadcrumb"><a href="/admin">Admin</a> <span class="sep">/</span> <a href="/admin/models">Models</a> <span class="sep">/</span> <span class="fw-500">%s</span></div>`, modelName)
 
-	tabs := fmt.Sprintf(`<div class="tabs"><a href="/admin/models/%s?tab=form" class="tab%s">Form</a><a href="/admin/models/%s?tab=fields" class="tab%s">Fields</a><a href="/admin/models/%s?tab=connections" class="tab%s">Connections</a></div>`,
+	tabs := fmt.Sprintf(`<div class="tabs"><a href="/admin/models/%s?tab=form" class="tab%s">Form</a><a href="/admin/models/%s?tab=fields" class="tab%s">Fields</a><a href="/admin/models/%s?tab=connections" class="tab%s">Connections</a><a href="/admin/models/%s?tab=schema" class="tab%s">Schema</a></div>`,
 		modelName, activeClass(activeTab, "form"),
 		modelName, activeClass(activeTab, "fields"),
-		modelName, activeClass(activeTab, "connections"))
+		modelName, activeClass(activeTab, "connections"),
+		modelName, activeClass(activeTab, "schema"))
 
 	meta := fmt.Sprintf(`<div class="model-header"><div class="model-name">%s</div><div class="model-meta"><span class="badge muted">%s</span></div></div>`, modelName, moduleName)
 

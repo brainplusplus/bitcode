@@ -95,6 +95,10 @@ engine/
 │   │   │       ├── http.go                     # HTTP step — external API calls with method/url/headers/body
 │   │   │       ├── util.go                     # Assign + Log step handlers
 │   │   │       └── steps_test.go               # 9 tests (validate, emit, assign, if, parse)
+│   │   ├── expression/
+│   │   │   ├── evaluator.go                    # Expression evaluator — lexer, parser, AST, arithmetic/comparison/boolean/functions
+│   │   │   ├── evaluator_test.go               # 17 tests (arithmetic, fields, aggregates, comparisons, functions)
+│   │   │   └── hydrator.go                     # Computed field hydrator — loads one2many children, evaluates computed/formula fields
 │   │   ├── agent/
 │   │   │   ├── worker.go                       # Agent worker — subscribe to events, execute with retry
 │   │   │   └── cron.go                         # Cron scheduler — periodic job execution
@@ -109,8 +113,15 @@ engine/
 │   │   │   ├── dynamic_model.go                # MigrateModel() — CREATE TABLE from ModelDefinition, dialect-aware DDL
 │   │   │   │                                   #   MergeInheritedFields() — model inheritance field merging
 │   │   │   │                                   #   Auto-creates junction tables for many2many
-│   │   │   └── repository.go                   # GenericRepository — Create/FindByID/FindAll/Update/Delete/HardDelete
-│   │   │                                       #   Supports pagination, filtering, search, soft delete
+│   │   │   ├── repository.go                   # GenericRepository — Create/FindByID/FindAll/Update/Delete/HardDelete
+│   │   │   │                                   #   Supports pagination, filtering, search, soft delete
+│   │   │   │                                   #   Computed field hydration via expression.Hydrator
+│   │   │   │                                   #   Data revision snapshots on write operations
+│   │   │   ├── data_revision.go                # DataRevision — full record snapshots for rollback/restore
+│   │   │   │                                   #   Monotonic versioning per (model, record_id), change diff
+│   │   │   ├── data_revision_test.go           # 7 tests (create, version increment, list, get, cleanup, changes, latest)
+│   │   │   ├── view_revision.go                # ViewRevision — view JSON snapshots for editor versioning
+│   │   │   └── view_revision_test.go           # 6 tests
 │   │   ├── cache/
 │   │   │   ├── cache.go                        # Cache interface + NewCache() factory
 │   │   │   ├── memory.go                       # MemoryCache — in-process with TTL

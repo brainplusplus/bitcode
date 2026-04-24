@@ -96,6 +96,10 @@ func (h *CRUDHandler) Create(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"error": "invalid request body"})
 	}
 
+	if userID, ok := c.Locals("user_id").(string); ok {
+		h.repo.SetCurrentUser(userID)
+	}
+
 	session := h.extractSession(c)
 
 	if h.pkGenerator != nil && h.modelDef != nil {
@@ -152,6 +156,10 @@ func (h *CRUDHandler) Update(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"error": "invalid request body"})
 	}
 
+	if userID, ok := c.Locals("user_id").(string); ok {
+		h.repo.SetCurrentUser(userID)
+	}
+
 	delete(body, "id")
 	delete(body, "created_at")
 	delete(body, "created_by")
@@ -189,6 +197,10 @@ func (h *CRUDHandler) Update(c *fiber.Ctx) error {
 
 func (h *CRUDHandler) Delete(c *fiber.Ctx) error {
 	id := c.Params("id")
+
+	if userID, ok := c.Locals("user_id").(string); ok {
+		h.repo.SetCurrentUser(userID)
+	}
 
 	var err error
 	if h.apiDef.IsSoftDelete() {

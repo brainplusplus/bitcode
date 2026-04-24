@@ -4,6 +4,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/bitcode-engine/engine/internal/compiler/parser"
 	"github.com/bitcode-engine/engine/internal/infrastructure/persistence"
+	"github.com/bitcode-engine/engine/internal/runtime/expression"
 	"github.com/bitcode-engine/engine/internal/runtime/workflow"
 	"gorm.io/gorm"
 )
@@ -12,10 +13,20 @@ type Router struct {
 	app            *fiber.App
 	db             *gorm.DB
 	workflowEngine *workflow.Engine
+	hydrator       *expression.Hydrator
+	revisionRepo   *persistence.DataRevisionRepository
 }
 
 func NewRouter(app *fiber.App, db *gorm.DB, wfEngine *workflow.Engine) *Router {
 	return &Router{app: app, db: db, workflowEngine: wfEngine}
+}
+
+func NewRouterWithHydrator(app *fiber.App, db *gorm.DB, wfEngine *workflow.Engine, hydrator *expression.Hydrator) *Router {
+	return &Router{app: app, db: db, workflowEngine: wfEngine, hydrator: hydrator}
+}
+
+func NewRouterFull(app *fiber.App, db *gorm.DB, wfEngine *workflow.Engine, hydrator *expression.Hydrator, revRepo *persistence.DataRevisionRepository) *Router {
+	return &Router{app: app, db: db, workflowEngine: wfEngine, hydrator: hydrator, revisionRepo: revRepo}
 }
 
 func (r *Router) RegisterAPI(apiDef *parser.APIDefinition) {
@@ -26,6 +37,13 @@ func (r *Router) RegisterAPI(apiDef *parser.APIDefinition) {
 
 	if apiDef.Model != "" {
 		repo := persistence.NewGenericRepository(r.db, apiDef.Model+"s")
+		if r.hydrator != nil {
+			repo.SetHydrator(r.hydrator)
+		}
+		if r.revisionRepo != nil {
+			repo.SetRevisionRepo(r.revisionRepo)
+			repo.SetModelName(apiDef.Model)
+		}
 		crud := NewCRUDHandler(repo, apiDef, r.workflowEngine)
 
 		for _, ep := range endpoints {

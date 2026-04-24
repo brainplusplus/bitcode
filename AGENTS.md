@@ -137,7 +137,7 @@ bitcode/
 
 ### Remaining (Engine)
 
-- [ ] Computed field evaluation — Expression evaluator for `sum(lines.subtotal)` at query time
+- [x] Computed field evaluation — Expression evaluator for `sum(lines.subtotal)` at query time
 - [ ] Redis cache wiring — Wire into permission checker and query result cache
 - [ ] GraphQL API — Alternative to REST
 - [ ] Marketplace — Community module sharing
@@ -154,7 +154,7 @@ go test ./pkg/ddd/        # Specific package
 go test ./... -count=1    # No cache
 ```
 
-Current: 230 tests, 0 failures. Build: OK.
+Current: 247 tests, 0 failures. Build: OK.
 
 ## Build
 
