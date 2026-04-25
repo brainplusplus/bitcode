@@ -63,7 +63,7 @@ Before the gap list — what's already **production-solid**:
 6. **Plugin system** — Dual runtime (TypeScript + Python), JSON-RPC over stdin/stdout, health monitoring, auto-restart.
 7. **View system** — 6 view types (list, form, kanban, calendar, chart, custom) with SSR rendering + layout system.
 8. **Web Components** — 94 Stencil.js components: 30+ field types, layout, views, charts, dialogs, widgets, search, social, print.
-9. **Multi-database** — SQLite (zero-config default), PostgreSQL, MySQL, MongoDB. Auto-migration from JSON definitions. Per-module table prefix, Postgres schema support. Unified query builder with JSON DSL.
+9. **Multi-database** — SQLite (zero-config default), PostgreSQL, MySQL, MongoDB. Auto-migration from JSON definitions. Per-module table prefix, Postgres schema support. Comprehensive query builder with JSON DSL, OQL (Object Query Language — 3 syntax styles), JOINs, OR/AND/NOT groups, HAVING, DISTINCT, aggregates (COUNT/SUM/AVG/MIN/MAX), subqueries, UNION, raw expressions, scopes, eager loading (WITH/preload), locking, soft delete scopes, transactions.
 10. **Real-time** — WebSocket hub broadcasting domain events to connected clients.
 11. **File Storage** — Local + S3 storage with attachments table, path/name formatting, thumbnails, versioning, duplicate detection.
 

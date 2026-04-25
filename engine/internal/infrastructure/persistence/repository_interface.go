@@ -17,16 +17,34 @@ type Repository interface {
 	Upsert(ctx context.Context, data map[string]any, uniqueFields []string) (map[string]any, error)
 	Count(ctx context.Context, query *Query) (int64, error)
 	Sum(ctx context.Context, field string, query *Query) (float64, error)
+	Avg(ctx context.Context, field string, query *Query) (float64, error)
+	Min(ctx context.Context, field string, query *Query) (float64, error)
+	Max(ctx context.Context, field string, query *Query) (float64, error)
 	BulkCreate(ctx context.Context, records []map[string]any) ([]map[string]any, error)
+
+	Pluck(ctx context.Context, field string, query *Query) ([]any, error)
+	Exists(ctx context.Context, query *Query) (bool, error)
+	Aggregate(ctx context.Context, query *Query) ([]map[string]any, error)
+	Chunk(ctx context.Context, query *Query, size int, fn func(records []map[string]any) error) error
+
+	Increment(ctx context.Context, id string, field string, value int) error
+	Decrement(ctx context.Context, id string, field string, value int) error
 
 	FindActive(ctx context.Context, id string) (map[string]any, error)
 	FindAllActive(ctx context.Context, query *Query, page, pageSize int) ([]map[string]any, int64, error)
 	CountActive(ctx context.Context, query *Query) (int64, error)
 	SumActive(ctx context.Context, field string, query *Query) (float64, error)
 
+	FindAllWithTrashed(ctx context.Context, query *Query, page, pageSize int) ([]map[string]any, int64, error)
+	FindAllOnlyTrashed(ctx context.Context, query *Query, page, pageSize int) ([]map[string]any, int64, error)
+
 	AddMany2Many(ctx context.Context, id string, field string, relatedIDs []string) error
 	RemoveMany2Many(ctx context.Context, id string, field string, relatedIDs []string) error
 	LoadMany2Many(ctx context.Context, id string, field string) ([]map[string]any, error)
+
+	Transaction(ctx context.Context, fn func(txRepo Repository) error) error
+	RawQuery(ctx context.Context, sql string, values ...any) ([]map[string]any, error)
+	RawExec(ctx context.Context, sql string, values ...any) (int64, error)
 
 	SetModelDef(def *parser.ModelDefinition)
 	SetModelName(name string)

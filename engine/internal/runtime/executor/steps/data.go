@@ -48,8 +48,24 @@ func (h *DataHandler) Execute(ctx context.Context, execCtx *executor.Context, st
 	}
 }
 
+func (h *DataHandler) resolveQuery(step parser.StepDefinition) *persistence.Query {
+	if step.OQL != "" {
+		q, _, err := persistence.ParseOQL(step.OQL)
+		if err == nil && q != nil {
+			return q
+		}
+	}
+	return persistence.QueryFromDomain(step.Domain)
+}
+
 func (h *DataHandler) executeQuery(ctx context.Context, execCtx *executor.Context, step parser.StepDefinition, repo *persistence.GenericRepository) error {
-	results, _, err := repo.FindAll(ctx, persistence.QueryFromDomain(step.Domain), 1, 100)
+	query := h.resolveQuery(step)
+	page := 1
+	pageSize := 100
+	if query.Limit > 0 {
+		pageSize = query.Limit
+	}
+	results, _, err := repo.FindAll(ctx, query, page, pageSize)
 	if err != nil {
 		return err
 	}
@@ -106,7 +122,7 @@ func (h *DataHandler) executeUpsert(ctx context.Context, execCtx *executor.Conte
 }
 
 func (h *DataHandler) executeCount(ctx context.Context, execCtx *executor.Context, step parser.StepDefinition, repo *persistence.GenericRepository) error {
-	query := persistence.QueryFromDomain(step.Domain)
+	query := h.resolveQuery(step)
 	count, err := repo.Count(ctx, query)
 	if err != nil {
 		return err
@@ -124,7 +140,7 @@ func (h *DataHandler) executeSum(ctx context.Context, execCtx *executor.Context,
 	if step.SumField == "" {
 		return fmt.Errorf("sum step requires a sum_field")
 	}
-	query := persistence.QueryFromDomain(step.Domain)
+	query := h.resolveQuery(step)
 	sum, err := repo.Sum(ctx, step.SumField, query)
 	if err != nil {
 		return err

@@ -25,6 +25,16 @@ func (r *ModelProcessRegistry) Register(modelName string, repo persistence.Repos
 	r.repos[modelName] = repo
 }
 
+func resolveQueryFromArgs(args map[string]any) *persistence.Query {
+	if oql, ok := args["oql"].(string); ok && oql != "" {
+		q, _, err := persistence.ParseOQL(oql)
+		if err == nil && q != nil {
+			return q
+		}
+	}
+	return resolveQueryFromArgs(args)
+}
+
 func (r *ModelProcessRegistry) Execute(ctx context.Context, processName string, args map[string]any) (any, error) {
 	modelName, operation, err := parseModelProcess(processName)
 	if err != nil {
@@ -47,7 +57,7 @@ func (r *ModelProcessRegistry) Execute(ctx context.Context, processName string, 
 		return repo.FindByID(ctx, id)
 
 	case "GetAll", "FindAll":
-		query := persistence.ParseQueryFromMap(args)
+		query := resolveQueryFromArgs(args)
 		page := intFromMap(args, "page", 1)
 		pageSize := intFromMap(args, "page_size", 20)
 		records, total, err := repo.FindAll(ctx, query, page, pageSize)
@@ -57,7 +67,7 @@ func (r *ModelProcessRegistry) Execute(ctx context.Context, processName string, 
 		return map[string]any{"data": records, "total": total, "page": page, "page_size": pageSize}, nil
 
 	case "Paginate":
-		query := persistence.ParseQueryFromMap(args)
+		query := resolveQueryFromArgs(args)
 		page := intFromMap(args, "page", 1)
 		pageSize := intFromMap(args, "page_size", 20)
 		records, total, err := repo.FindAll(ctx, query, page, pageSize)
@@ -81,7 +91,7 @@ func (r *ModelProcessRegistry) Execute(ctx context.Context, processName string, 
 		return repo.FindActive(ctx, id)
 
 	case "FindAllActive":
-		query := persistence.ParseQueryFromMap(args)
+		query := resolveQueryFromArgs(args)
 		page := intFromMap(args, "page", 1)
 		pageSize := intFromMap(args, "page_size", 20)
 		records, total, err := repo.FindAllActive(ctx, query, page, pageSize)
@@ -91,7 +101,7 @@ func (r *ModelProcessRegistry) Execute(ctx context.Context, processName string, 
 		return map[string]any{"data": records, "total": total, "page": page, "page_size": pageSize}, nil
 
 	case "PaginateActive":
-		query := persistence.ParseQueryFromMap(args)
+		query := resolveQueryFromArgs(args)
 		page := intFromMap(args, "page", 1)
 		pageSize := intFromMap(args, "page_size", 20)
 		records, total, err := repo.FindAllActive(ctx, query, page, pageSize)
@@ -157,7 +167,7 @@ func (r *ModelProcessRegistry) Execute(ctx context.Context, processName string, 
 		return repo.Upsert(ctx, data, uniqueFields)
 
 	case "Count":
-		query := persistence.ParseQueryFromMap(args)
+		query := resolveQueryFromArgs(args)
 		count, err := repo.Count(ctx, query)
 		if err != nil {
 			return nil, err
@@ -165,7 +175,7 @@ func (r *ModelProcessRegistry) Execute(ctx context.Context, processName string, 
 		return count, nil
 
 	case "CountActive":
-		query := persistence.ParseQueryFromMap(args)
+		query := resolveQueryFromArgs(args)
 		count, err := repo.CountActive(ctx, query)
 		if err != nil {
 			return nil, err
@@ -177,7 +187,7 @@ func (r *ModelProcessRegistry) Execute(ctx context.Context, processName string, 
 		if field == "" {
 			return nil, fmt.Errorf("field required for Sum")
 		}
-		query := persistence.ParseQueryFromMap(args)
+		query := resolveQueryFromArgs(args)
 		sum, err := repo.Sum(ctx, field, query)
 		if err != nil {
 			return nil, err
@@ -189,12 +199,114 @@ func (r *ModelProcessRegistry) Execute(ctx context.Context, processName string, 
 		if field == "" {
 			return nil, fmt.Errorf("field required for SumActive")
 		}
-		query := persistence.ParseQueryFromMap(args)
+		query := resolveQueryFromArgs(args)
 		sum, err := repo.SumActive(ctx, field, query)
 		if err != nil {
 			return nil, err
 		}
 		return sum, nil
+
+	case "Avg":
+		field, _ := args["field"].(string)
+		if field == "" {
+			return nil, fmt.Errorf("field required for Avg")
+		}
+		query := resolveQueryFromArgs(args)
+		avg, err := repo.Avg(ctx, field, query)
+		if err != nil {
+			return nil, err
+		}
+		return avg, nil
+
+	case "Min":
+		field, _ := args["field"].(string)
+		if field == "" {
+			return nil, fmt.Errorf("field required for Min")
+		}
+		query := resolveQueryFromArgs(args)
+		min, err := repo.Min(ctx, field, query)
+		if err != nil {
+			return nil, err
+		}
+		return min, nil
+
+	case "Max":
+		field, _ := args["field"].(string)
+		if field == "" {
+			return nil, fmt.Errorf("field required for Max")
+		}
+		query := resolveQueryFromArgs(args)
+		max, err := repo.Max(ctx, field, query)
+		if err != nil {
+			return nil, err
+		}
+		return max, nil
+
+	case "Pluck":
+		field, _ := args["field"].(string)
+		if field == "" {
+			return nil, fmt.Errorf("field required for Pluck")
+		}
+		query := resolveQueryFromArgs(args)
+		values, err := repo.Pluck(ctx, field, query)
+		if err != nil {
+			return nil, err
+		}
+		return values, nil
+
+	case "Exists":
+		query := resolveQueryFromArgs(args)
+		exists, err := repo.Exists(ctx, query)
+		if err != nil {
+			return nil, err
+		}
+		return exists, nil
+
+	case "Aggregate":
+		query := resolveQueryFromArgs(args)
+		results, err := repo.Aggregate(ctx, query)
+		if err != nil {
+			return nil, err
+		}
+		return results, nil
+
+	case "WithTrashed":
+		query := resolveQueryFromArgs(args)
+		page := intFromMap(args, "page", 1)
+		pageSize := intFromMap(args, "page_size", 20)
+		records, total, err := repo.FindAllWithTrashed(ctx, query, page, pageSize)
+		if err != nil {
+			return nil, err
+		}
+		return map[string]any{"data": records, "total": total, "page": page, "page_size": pageSize}, nil
+
+	case "OnlyTrashed":
+		query := resolveQueryFromArgs(args)
+		page := intFromMap(args, "page", 1)
+		pageSize := intFromMap(args, "page_size", 20)
+		records, total, err := repo.FindAllOnlyTrashed(ctx, query, page, pageSize)
+		if err != nil {
+			return nil, err
+		}
+		return map[string]any{"data": records, "total": total, "page": page, "page_size": pageSize}, nil
+
+	case "Increment":
+		id, _ := args["id"].(string)
+		field, _ := args["field"].(string)
+		value := intFromMap(args, "value", 1)
+		if id == "" || field == "" {
+			return nil, fmt.Errorf("id and field required for Increment")
+		}
+		return nil, repo.Increment(ctx, id, field, value)
+
+	case "Decrement":
+		id, _ := args["id"].(string)
+		field, _ := args["field"].(string)
+		value := intFromMap(args, "value", 1)
+		if id == "" || field == "" {
+			return nil, fmt.Errorf("id and field required for Decrement")
+		}
+		return nil, repo.Decrement(ctx, id, field, value)
 
 	default:
 		return nil, fmt.Errorf("unknown model operation %q", operation)

@@ -549,6 +549,344 @@ func (r *MongoRepository) LoadMany2Many(ctx context.Context, id string, field st
 	return results, nil
 }
 
+func (r *MongoRepository) Avg(ctx context.Context, field string, query *Query) (float64, error) {
+	return r.mongoAggregateSingle(ctx, "$avg", field, query, r.buildNotDeletedFilter())
+}
+
+func (r *MongoRepository) Min(ctx context.Context, field string, query *Query) (float64, error) {
+	return r.mongoAggregateSingle(ctx, "$min", field, query, r.buildNotDeletedFilter())
+}
+
+func (r *MongoRepository) Max(ctx context.Context, field string, query *Query) (float64, error) {
+	return r.mongoAggregateSingle(ctx, "$max", field, query, r.buildNotDeletedFilter())
+}
+
+func (r *MongoRepository) mongoAggregateSingle(ctx context.Context, op, field string, query *Query, baseFilter bson.M) (float64, error) {
+	if r.tenantID != "" {
+		baseFilter["tenant_id"] = r.tenantID
+	}
+	applyMongoConditions(baseFilter, query)
+
+	pipeline := bson.A{
+		bson.M{"$match": baseFilter},
+		bson.M{"$group": bson.M{
+			"_id":    nil,
+			"result": bson.M{op: "$" + field},
+		}},
+	}
+
+	cursor, err := r.coll().Aggregate(ctx, pipeline)
+	if err != nil {
+		return 0, fmt.Errorf("failed to %s %s in %s: %w", op, field, r.collection, err)
+	}
+	defer cursor.Close(ctx)
+
+	if cursor.Next(ctx) {
+		var result bson.M
+		if err := cursor.Decode(&result); err == nil {
+			if v, ok := result["result"]; ok {
+				switch val := v.(type) {
+				case float64:
+					return val, nil
+				case int32:
+					return float64(val), nil
+				case int64:
+					return float64(val), nil
+				}
+			}
+		}
+	}
+	return 0, nil
+}
+
+func (r *MongoRepository) Pluck(ctx context.Context, field string, query *Query) ([]any, error) {
+	filter := r.buildNotDeletedFilter()
+	if r.tenantID != "" {
+		filter["tenant_id"] = r.tenantID
+	}
+	applyMongoConditions(filter, query)
+
+	projection := bson.M{field: 1, "_id": 0}
+	opts := options.Find().SetProjection(projection)
+
+	cursor, err := r.coll().Find(ctx, filter, opts)
+	if err != nil {
+		return nil, fmt.Errorf("failed to pluck %s in %s: %w", field, r.collection, err)
+	}
+	defer cursor.Close(ctx)
+
+	var results []any
+	for cursor.Next(ctx) {
+		var doc bson.M
+		if err := cursor.Decode(&doc); err != nil {
+			continue
+		}
+		if v, ok := doc[field]; ok {
+			results = append(results, v)
+		}
+	}
+	return results, nil
+}
+
+func (r *MongoRepository) Exists(ctx context.Context, query *Query) (bool, error) {
+	count, err := r.Count(ctx, query)
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+
+func (r *MongoRepository) Aggregate(ctx context.Context, query *Query) ([]map[string]any, error) {
+	filter := r.buildNotDeletedFilter()
+	if r.tenantID != "" {
+		filter["tenant_id"] = r.tenantID
+	}
+	applyMongoConditions(filter, query)
+
+	pipeline := bson.A{bson.M{"$match": filter}}
+
+	if query != nil && len(query.GroupBy) > 0 {
+		groupID := bson.M{}
+		for _, g := range query.GroupBy {
+			groupID[g] = "$" + g
+		}
+		groupStage := bson.M{"_id": groupID}
+		for _, agg := range query.Aggregates {
+			alias := agg.Alias
+			if alias == "" {
+				alias = strings.ToLower(agg.Function) + "_" + agg.Field
+			}
+			switch strings.ToUpper(agg.Function) {
+			case "COUNT":
+				groupStage[alias] = bson.M{"$sum": 1}
+			case "SUM":
+				groupStage[alias] = bson.M{"$sum": "$" + agg.Field}
+			case "AVG":
+				groupStage[alias] = bson.M{"$avg": "$" + agg.Field}
+			case "MIN":
+				groupStage[alias] = bson.M{"$min": "$" + agg.Field}
+			case "MAX":
+				groupStage[alias] = bson.M{"$max": "$" + agg.Field}
+			}
+		}
+		pipeline = append(pipeline, bson.M{"$group": groupStage})
+	}
+
+	if query != nil {
+		sort := bson.D{}
+		for _, o := range query.OrderBy {
+			dir := 1
+			if o.Direction == "desc" {
+				dir = -1
+			}
+			sort = append(sort, bson.E{Key: o.Field, Value: dir})
+		}
+		if len(sort) > 0 {
+			pipeline = append(pipeline, bson.M{"$sort": sort})
+		}
+	}
+
+	cursor, err := r.coll().Aggregate(ctx, pipeline)
+	if err != nil {
+		return nil, fmt.Errorf("failed to aggregate in %s: %w", r.collection, err)
+	}
+	defer cursor.Close(ctx)
+
+	var results []map[string]any
+	for cursor.Next(ctx) {
+		var doc bson.M
+		if err := cursor.Decode(&doc); err != nil {
+			continue
+		}
+		results = append(results, mongoDocToMap(doc))
+	}
+	if results == nil {
+		results = []map[string]any{}
+	}
+	return results, nil
+}
+
+func (r *MongoRepository) Chunk(ctx context.Context, query *Query, size int, fn func(records []map[string]any) error) error {
+	page := 1
+	for {
+		records, _, err := r.FindAll(ctx, query, page, size)
+		if err != nil {
+			return err
+		}
+		if len(records) == 0 {
+			break
+		}
+		if err := fn(records); err != nil {
+			return err
+		}
+		if len(records) < size {
+			break
+		}
+		page++
+	}
+	return nil
+}
+
+func (r *MongoRepository) Increment(ctx context.Context, id string, field string, value int) error {
+	result, err := r.coll().UpdateOne(ctx, bson.M{"_id": id}, bson.M{"$inc": bson.M{field: value}})
+	if err != nil {
+		return fmt.Errorf("failed to increment %s in %s: %w", field, r.collection, err)
+	}
+	if result.MatchedCount == 0 {
+		return fmt.Errorf("record not found in %s with id %s", r.collection, id)
+	}
+	return nil
+}
+
+func (r *MongoRepository) Decrement(ctx context.Context, id string, field string, value int) error {
+	return r.Increment(ctx, id, field, -value)
+}
+
+func (r *MongoRepository) Transaction(ctx context.Context, fn func(txRepo Repository) error) error {
+	session, err := r.conn.Client.StartSession()
+	if err != nil {
+		return fmt.Errorf("failed to start session: %w", err)
+	}
+	defer session.EndSession(ctx)
+
+	_, err = session.WithTransaction(ctx, func(sc context.Context) (any, error) {
+		txRepo := &MongoRepository{
+			conn:        r.conn,
+			collection:  r.collection,
+			modelDef:    r.modelDef,
+			modelName:   r.modelName,
+			currentUser: r.currentUser,
+			tenantID:    r.tenantID,
+			refLoader:   r.refLoader,
+		}
+		return nil, fn(txRepo)
+	})
+	return err
+}
+
+func (r *MongoRepository) RawQuery(ctx context.Context, sql string, values ...any) ([]map[string]any, error) {
+	return nil, fmt.Errorf("RawQuery not supported for MongoDB — use Aggregate instead")
+}
+
+func (r *MongoRepository) RawExec(ctx context.Context, sql string, values ...any) (int64, error) {
+	return 0, fmt.Errorf("RawExec not supported for MongoDB")
+}
+
+func (r *MongoRepository) FindAllWithTrashed(ctx context.Context, query *Query, page, pageSize int) ([]map[string]any, int64, error) {
+	filter := bson.M{}
+	if r.tenantID != "" {
+		filter["tenant_id"] = r.tenantID
+	}
+	applyMongoConditions(filter, query)
+
+	total, err := r.coll().CountDocuments(ctx, filter)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to count in %s: %w", r.collection, err)
+	}
+
+	if page < 1 {
+		page = 1
+	}
+	if pageSize < 1 {
+		pageSize = 20
+	}
+	offset := int64((page - 1) * pageSize)
+
+	opts := options.Find().SetSkip(offset).SetLimit(int64(pageSize))
+	if query != nil {
+		sort := bson.D{}
+		for _, o := range query.OrderBy {
+			dir := 1
+			if o.Direction == "desc" {
+				dir = -1
+			}
+			sort = append(sort, bson.E{Key: o.Field, Value: dir})
+		}
+		if len(sort) > 0 {
+			opts.SetSort(sort)
+		}
+	}
+
+	cursor, err := r.coll().Find(ctx, filter, opts)
+	if err != nil {
+		return []map[string]any{}, 0, fmt.Errorf("failed to query %s: %w", r.collection, err)
+	}
+	defer cursor.Close(ctx)
+
+	var results []map[string]any
+	for cursor.Next(ctx) {
+		var doc bson.M
+		if err := cursor.Decode(&doc); err != nil {
+			continue
+		}
+		results = append(results, mongoDocToMap(doc))
+	}
+	if results == nil {
+		results = []map[string]any{}
+	}
+	return results, total, nil
+}
+
+func (r *MongoRepository) FindAllOnlyTrashed(ctx context.Context, query *Query, page, pageSize int) ([]map[string]any, int64, error) {
+	filter := bson.M{}
+	if r.modelDef != nil && r.modelDef.IsSoftDeletes() {
+		filter["deleted_at"] = bson.M{"$ne": nil}
+	} else {
+		filter["active"] = false
+	}
+	if r.tenantID != "" {
+		filter["tenant_id"] = r.tenantID
+	}
+	applyMongoConditions(filter, query)
+
+	total, err := r.coll().CountDocuments(ctx, filter)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to count in %s: %w", r.collection, err)
+	}
+
+	if page < 1 {
+		page = 1
+	}
+	if pageSize < 1 {
+		pageSize = 20
+	}
+	offset := int64((page - 1) * pageSize)
+
+	opts := options.Find().SetSkip(offset).SetLimit(int64(pageSize))
+	if query != nil {
+		sort := bson.D{}
+		for _, o := range query.OrderBy {
+			dir := 1
+			if o.Direction == "desc" {
+				dir = -1
+			}
+			sort = append(sort, bson.E{Key: o.Field, Value: dir})
+		}
+		if len(sort) > 0 {
+			opts.SetSort(sort)
+		}
+	}
+
+	cursor, err := r.coll().Find(ctx, filter, opts)
+	if err != nil {
+		return []map[string]any{}, 0, fmt.Errorf("failed to query %s: %w", r.collection, err)
+	}
+	defer cursor.Close(ctx)
+
+	var results []map[string]any
+	for cursor.Next(ctx) {
+		var doc bson.M
+		if err := cursor.Decode(&doc); err != nil {
+			continue
+		}
+		results = append(results, mongoDocToMap(doc))
+	}
+	if results == nil {
+		results = []map[string]any{}
+	}
+	return results, total, nil
+}
+
 func (r *MongoRepository) populateExtendedRefs(ctx context.Context, data map[string]any) {
 	if r.modelDef == nil || r.refLoader == nil {
 		return
@@ -667,43 +1005,124 @@ func applyMongoConditions(filter bson.M, query *Query) {
 	if query == nil {
 		return
 	}
-	for _, cond := range query.Conditions {
-		field := cond.Field
-		if field == "id" {
-			field = "_id"
-		}
-		switch cond.Operator {
-		case "=":
-			filter[field] = cond.Value
-		case "!=":
-			filter[field] = bson.M{"$ne": cond.Value}
-		case ">":
-			filter[field] = bson.M{"$gt": cond.Value}
-		case "<":
-			filter[field] = bson.M{"$lt": cond.Value}
-		case ">=":
-			filter[field] = bson.M{"$gte": cond.Value}
-		case "<=":
-			filter[field] = bson.M{"$lte": cond.Value}
-		case "like":
-			pattern := fmt.Sprintf("%v", cond.Value)
-			pattern = strings.TrimPrefix(pattern, "%")
-			pattern = strings.TrimSuffix(pattern, "%")
-			filter[field] = bson.M{"$regex": pattern, "$options": "i"}
-		case "in":
-			filter[field] = bson.M{"$in": cond.Value}
-		case "not_in":
-			filter[field] = bson.M{"$nin": cond.Value}
-		case "is_null":
-			filter[field] = bson.M{"$eq": nil}
-		case "is_not_null":
-			filter[field] = bson.M{"$ne": nil}
-		case "between":
-			if vals, ok := cond.Value.([]any); ok && len(vals) == 2 {
-				filter[field] = bson.M{"$gte": vals[0], "$lte": vals[1]}
+
+	query.ApplyScopes()
+
+	clauses := query.GetEffectiveWhereClauses()
+	if len(clauses) > 0 {
+		andConditions := buildMongoWhereClauses(clauses)
+		if len(andConditions) > 0 {
+			if existing, ok := filter["$and"]; ok {
+				if arr, ok := existing.(bson.A); ok {
+					filter["$and"] = append(arr, andConditions...)
+				}
+			} else {
+				filter["$and"] = andConditions
 			}
 		}
 	}
+
+	for _, raw := range query.WhereRaw {
+		if raw.SQL != "" {
+			if existing, ok := filter["$and"]; ok {
+				if arr, ok := existing.(bson.A); ok {
+					filter["$and"] = append(arr, bson.M{"$where": raw.SQL})
+				}
+			} else {
+				filter["$and"] = bson.A{bson.M{"$where": raw.SQL}}
+			}
+		}
+	}
+}
+
+func buildMongoWhereClauses(clauses []WhereClause) bson.A {
+	var result bson.A
+	for _, clause := range clauses {
+		if clause.Condition != nil {
+			cond := buildMongoSingleCondition(*clause.Condition)
+			if cond != nil {
+				result = append(result, cond)
+			}
+		}
+		if clause.Group != nil {
+			groupFilter := buildMongoConditionGroup(*clause.Group)
+			if groupFilter != nil {
+				result = append(result, groupFilter)
+			}
+		}
+	}
+	return result
+}
+
+func buildMongoConditionGroup(group ConditionGroup) bson.M {
+	subConditions := buildMongoWhereClauses(group.Conditions)
+	if len(subConditions) == 0 {
+		return nil
+	}
+
+	var result bson.M
+	if group.Connector == ConnectorOr {
+		result = bson.M{"$or": subConditions}
+	} else {
+		result = bson.M{"$and": subConditions}
+	}
+
+	if group.Negate {
+		return bson.M{"$nor": bson.A{result}}
+	}
+	return result
+}
+
+func buildMongoSingleCondition(cond Condition) bson.M {
+	field := cond.Field
+	if field == "id" {
+		field = "_id"
+	}
+
+	switch cond.Operator {
+	case "=":
+		return bson.M{field: cond.Value}
+	case "!=":
+		return bson.M{field: bson.M{"$ne": cond.Value}}
+	case ">":
+		return bson.M{field: bson.M{"$gt": cond.Value}}
+	case "<":
+		return bson.M{field: bson.M{"$lt": cond.Value}}
+	case ">=":
+		return bson.M{field: bson.M{"$gte": cond.Value}}
+	case "<=":
+		return bson.M{field: bson.M{"$lte": cond.Value}}
+	case "like":
+		pattern := fmt.Sprintf("%v", cond.Value)
+		pattern = strings.TrimPrefix(pattern, "%")
+		pattern = strings.TrimSuffix(pattern, "%")
+		return bson.M{field: bson.M{"$regex": pattern, "$options": "i"}}
+	case "not_like":
+		pattern := fmt.Sprintf("%v", cond.Value)
+		pattern = strings.TrimPrefix(pattern, "%")
+		pattern = strings.TrimSuffix(pattern, "%")
+		return bson.M{field: bson.M{"$not": bson.M{"$regex": pattern, "$options": "i"}}}
+	case "in":
+		return bson.M{field: bson.M{"$in": cond.Value}}
+	case "not_in":
+		return bson.M{field: bson.M{"$nin": cond.Value}}
+	case "is_null":
+		return bson.M{field: bson.M{"$eq": nil}}
+	case "is_not_null":
+		return bson.M{field: bson.M{"$ne": nil}}
+	case "between":
+		if vals, ok := cond.Value.([]any); ok && len(vals) == 2 {
+			return bson.M{field: bson.M{"$gte": vals[0], "$lte": vals[1]}}
+		}
+	case "not_between":
+		if vals, ok := cond.Value.([]any); ok && len(vals) == 2 {
+			return bson.M{"$or": bson.A{
+				bson.M{field: bson.M{"$lt": vals[0]}},
+				bson.M{field: bson.M{"$gt": vals[1]}},
+			}}
+		}
+	}
+	return nil
 }
 
 func mongoDocToMap(doc bson.M) map[string]any {

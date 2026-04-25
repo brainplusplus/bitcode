@@ -54,7 +54,22 @@ func (h *CRUDHandler) List(c *fiber.Ctx) error {
 		}
 	}
 
-	results, total, err := h.repo.FindAll(c.Context(), persistence.QueryFromDomain(filters), page, pageSize)
+	var query *persistence.Query
+	if oql := c.Query("oql"); oql != "" {
+		q, _, err := persistence.ParseOQL(oql)
+		if err != nil {
+			return c.Status(400).JSON(fiber.Map{"error": fmt.Sprintf("invalid OQL: %s", err.Error())})
+		}
+		if len(filters) > 0 {
+			domainQ := persistence.QueryFromDomain(filters)
+			q.WhereClauses = append(domainQ.GetEffectiveWhereClauses(), q.WhereClauses...)
+		}
+		query = q
+	} else {
+		query = persistence.QueryFromDomain(filters)
+	}
+
+	results, total, err := h.repo.FindAll(c.Context(), query, page, pageSize)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
 	}

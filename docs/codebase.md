@@ -112,7 +112,15 @@ engine/
 │   │   ├── persistence/
 │   │   │   ├── database.go                     # NewDatabase() — SQLite/Postgres/MySQL connection via GORM
 │   │   │   ├── repository_interface.go         # Repository interface, SystemRepository, SequenceEngine, MigrationEngine interfaces
-│   │   │   ├── query.go                        # Unified Query builder + JSON DSL parser + QueryFromDomain converter
+│   │   │   ├── query.go                        # Comprehensive Query builder — OR/AND/NOT groups, JOINs, HAVING, DISTINCT,
+│   │   │   │                                   #   aggregates (COUNT/SUM/AVG/MIN/MAX), subqueries, UNION, raw expressions,
+│   │   │   │                                   #   scopes, eager loading (WITH/preload), locking, soft delete scopes,
+│   │   │   │                                   #   field sanitization, JSON/Map/Domain parsers
+│   │   │   ├── query_test.go                   # Tests for query builder (all features)
+│   │   │   ├── oql.go                          # OQL (Object Query Language) parser — 3 syntax styles:
+│   │   │   │                                   #   Style A: SQL-like (JPQL/HQL), Style B: Simplified DSL,
+│   │   │   │                                   #   Style C: Dot-notation. Auto-detect via ParseOQL()
+│   │   │   ├── oql_test.go                     # Tests for OQL parser (all 3 styles)
 │   │   │   ├── mongo_connection.go             # OpenMongoDB() — MongoDB connection via official driver
 │   │   │   ├── mongo_repository.go             # MongoRepository — MongoDB implementation of Repository interface
 │   │   │   ├── mongo_migration.go              # MongoMigrationEngine — index creation, system collection setup
@@ -122,7 +130,10 @@ engine/
 │   │   │   │                                   #   MergeInheritedFields() — model inheritance field merging
 │   │   │   │                                   #   Auto-creates junction tables for many2many
 │   │   │   ├── repository.go                   # GenericRepository (SQL) — implements Repository interface with GORM
-│   │   │   │                                   #   Supports pagination, filtering, search, soft delete
+│   │   │   │                                   #   Full query translation: JOINs, OR/AND/NOT, HAVING, DISTINCT,
+│   │   │   │                                   #   subqueries, locking, soft delete scopes, eager loading
+│   │   │   │                                   #   Avg/Min/Max/Pluck/Exists/Aggregate/Chunk/Increment/Decrement
+│   │   │   │                                   #   Transaction support, RawQuery/RawExec, relation preloading
 │   │   │   │                                   #   Computed field hydration via expression.Hydrator
 │   │   │   │                                   #   Data revision snapshots on write operations
 │   │   │   ├── data_revision.go                # DataRevision — full record snapshots for rollback/restore

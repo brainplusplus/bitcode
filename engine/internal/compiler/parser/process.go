@@ -40,6 +40,7 @@ type StepDefinition struct {
 	// query
 	Model  string  `json:"model,omitempty"`
 	Domain [][]any `json:"domain,omitempty"`
+	OQL    string  `json:"oql,omitempty"`
 	Into   string  `json:"into,omitempty"`
 
 	// create / update

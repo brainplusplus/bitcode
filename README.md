@@ -162,8 +162,8 @@ docker-compose up -d
 - **Multi-database** — SQLite (default), PostgreSQL, MySQL, MongoDB
 - **Table prefix** — Per-module table name prefix (`"table": {"prefix": "crm"}` → `crm_contact`)
 - **Postgres schema** — Configurable schema via `DB_SCHEMA` (default: `public`)
-- **Query builder** — Unified query builder for SQL and MongoDB with JSON DSL support
-- **Model process registry** — Built-in `models.{name}.{op}` functions (Get, FindAll, Create, Update, Delete, Upsert, Count, Sum)
+- **Query builder** — Comprehensive query builder for SQL and MongoDB with JSON DSL + OQL (Object Query Language — 3 syntax styles: SQL-like, simplified DSL, dot-notation). Supports JOINs, OR/AND/NOT groups, HAVING, DISTINCT, aggregates, subqueries, UNION, raw expressions, scopes, eager loading, locking, soft delete scopes
+- **Model process registry** — Built-in `models.{name}.{op}` functions (Get, FindAll, Create, Update, Delete, Upsert, Count, Sum, Avg, Min, Max, Pluck, Exists, Aggregate, WithTrashed, OnlyTrashed, Increment, Decrement)
 - **Cache** — Memory (default), Redis (optional)
 - **Real-time** — WebSocket domain event broadcasting
 - **Multi-tenancy** — Tenant isolation via header/subdomain/path
