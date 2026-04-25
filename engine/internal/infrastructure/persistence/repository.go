@@ -195,19 +195,31 @@ func (r *GenericRepository) FindByCompositePK(ctx context.Context, keys map[stri
 }
 
 func (r *GenericRepository) FindAll(ctx context.Context, query *Query, page int, pageSize int) ([]map[string]any, int64, error) {
-	q := r.applyTenant(r.db.WithContext(ctx).Table(r.tableName))
-	if query != nil && query.SoftDeleteScope != "" {
-		q = r.applySoftDeleteScope(q, query)
-	} else {
-		q = r.applyNotDeleted(q)
+	if query != nil {
+		query.ApplyScopes()
 	}
-	q = r.applyQuery(q, query)
 
+	baseQ := r.applyTenant(r.db.WithContext(ctx).Table(r.tableName))
+	if query != nil && query.SoftDeleteScope != "" {
+		baseQ = r.applySoftDeleteScope(baseQ, query)
+	} else {
+		baseQ = r.applyNotDeleted(baseQ)
+	}
+
+	countQ := baseQ.Session(&gorm.Session{})
+	if query != nil {
+		countQ = r.applyJoins(countQ, query)
+		countQ = r.applyWhereClauses(countQ, query)
+		countQ = r.applyWhereRaw(countQ, query)
+		countQ = r.applyWhereSubQueries(countQ, query)
+	}
 	var total int64
-	countQ := q.Session(&gorm.Session{})
 	if err := countQ.Count(&total).Error; err != nil {
 		return nil, 0, fmt.Errorf("failed to count records in %s: %w", r.tableName, err)
 	}
+
+	q := baseQ.Session(&gorm.Session{})
+	q = r.applyQuery(q, query)
 
 	if query != nil && query.Limit > 0 {
 		q = q.Limit(query.Limit)
@@ -248,14 +260,26 @@ func (r *GenericRepository) FindAll(ctx context.Context, query *Query, page int,
 }
 
 func (r *GenericRepository) FindAllActive(ctx context.Context, query *Query, page int, pageSize int) ([]map[string]any, int64, error) {
-	q := r.applyActiveFilter(r.applyTenant(r.db.WithContext(ctx).Table(r.tableName)))
-	q = r.applyQuery(q, query)
+	if query != nil {
+		query.ApplyScopes()
+	}
 
+	baseQ := r.applyActiveFilter(r.applyTenant(r.db.WithContext(ctx).Table(r.tableName)))
+
+	countQ := baseQ.Session(&gorm.Session{})
+	if query != nil {
+		countQ = r.applyJoins(countQ, query)
+		countQ = r.applyWhereClauses(countQ, query)
+		countQ = r.applyWhereRaw(countQ, query)
+		countQ = r.applyWhereSubQueries(countQ, query)
+	}
 	var total int64
-	countQ := q.Session(&gorm.Session{})
 	if err := countQ.Count(&total).Error; err != nil {
 		return nil, 0, fmt.Errorf("failed to count records in %s: %w", r.tableName, err)
 	}
+
+	q := baseQ.Session(&gorm.Session{})
+	q = r.applyQuery(q, query)
 
 	if query != nil && query.Limit > 0 {
 		q = q.Limit(query.Limit)
@@ -326,7 +350,27 @@ func (r *GenericRepository) applyQuery(q *gorm.DB, query *Query) *gorm.DB {
 	q = r.applyHaving(q, query)
 	q = r.applyOrderBy(q, query)
 	q = r.applyLocking(q, query)
+	q = r.applyUnions(q, query)
 
+	return q
+}
+
+func (r *GenericRepository) applyUnions(q *gorm.DB, query *Query) *gorm.DB {
+	if len(query.Unions) == 0 {
+		return q
+	}
+	for _, u := range query.Unions {
+		if u.Query == nil {
+			continue
+		}
+		subDB := r.db.Session(&gorm.Session{NewDB: true}).Table(r.tableName)
+		subDB = r.applyQuery(subDB, u.Query)
+		keyword := "UNION"
+		if u.All {
+			keyword = "UNION ALL"
+		}
+		q = r.db.Raw("? "+keyword+" ?", q, subDB)
+	}
 	return q
 }
 
@@ -810,6 +854,9 @@ func (r *GenericRepository) CountActive(ctx context.Context, query *Query) (int6
 }
 
 func (r *GenericRepository) Sum(ctx context.Context, field string, query *Query) (float64, error) {
+	if !IsSafeFieldName(field) {
+		return 0, fmt.Errorf("invalid field name: %s", field)
+	}
 	q := r.applyNotDeleted(r.applyTenant(r.db.WithContext(ctx).Table(r.tableName)))
 	q = r.applyQuery(q, query)
 	var result float64
@@ -820,6 +867,9 @@ func (r *GenericRepository) Sum(ctx context.Context, field string, query *Query)
 }
 
 func (r *GenericRepository) SumActive(ctx context.Context, field string, query *Query) (float64, error) {
+	if !IsSafeFieldName(field) {
+		return 0, fmt.Errorf("invalid field name: %s", field)
+	}
 	q := r.applyActiveFilter(r.applyTenant(r.db.WithContext(ctx).Table(r.tableName)))
 	q = r.applyQuery(q, query)
 	var result float64
@@ -900,6 +950,9 @@ func (r *GenericRepository) LoadMany2Many(ctx context.Context, id string, field 
 }
 
 func (r *GenericRepository) Avg(ctx context.Context, field string, query *Query) (float64, error) {
+	if !IsSafeFieldName(field) {
+		return 0, fmt.Errorf("invalid field name: %s", field)
+	}
 	q := r.applyNotDeleted(r.applyTenant(r.db.WithContext(ctx).Table(r.tableName)))
 	q = r.applyQuery(q, query)
 	var result float64
@@ -910,6 +963,9 @@ func (r *GenericRepository) Avg(ctx context.Context, field string, query *Query)
 }
 
 func (r *GenericRepository) Min(ctx context.Context, field string, query *Query) (float64, error) {
+	if !IsSafeFieldName(field) {
+		return 0, fmt.Errorf("invalid field name: %s", field)
+	}
 	q := r.applyNotDeleted(r.applyTenant(r.db.WithContext(ctx).Table(r.tableName)))
 	q = r.applyQuery(q, query)
 	var result float64
@@ -920,6 +976,9 @@ func (r *GenericRepository) Min(ctx context.Context, field string, query *Query)
 }
 
 func (r *GenericRepository) Max(ctx context.Context, field string, query *Query) (float64, error) {
+	if !IsSafeFieldName(field) {
+		return 0, fmt.Errorf("invalid field name: %s", field)
+	}
 	q := r.applyNotDeleted(r.applyTenant(r.db.WithContext(ctx).Table(r.tableName)))
 	q = r.applyQuery(q, query)
 	var result float64
@@ -949,9 +1008,45 @@ func (r *GenericRepository) Exists(ctx context.Context, query *Query) (bool, err
 
 func (r *GenericRepository) Aggregate(ctx context.Context, query *Query) ([]map[string]any, error) {
 	q := r.applyNotDeleted(r.applyTenant(r.db.WithContext(ctx).Table(r.tableName)))
-	q = r.applyQuery(q, query)
+
+	if query != nil {
+		query.ApplyScopes()
+		q = r.applyJoins(q, query)
+		q = r.applyWhereClauses(q, query)
+		q = r.applyWhereRaw(q, query)
+
+		var selectParts []string
+		for _, g := range query.GroupBy {
+			if IsSafeFieldName(g) {
+				selectParts = append(selectParts, g)
+			}
+		}
+		for _, agg := range query.Aggregates {
+			fn := strings.ToUpper(agg.Function)
+			if !IsSafeFieldName(agg.Field) && agg.Field != "*" {
+				continue
+			}
+			alias := agg.Alias
+			if alias == "" {
+				alias = strings.ToLower(fn) + "_" + strings.ReplaceAll(agg.Field, "*", "all")
+			}
+			if agg.Distinct {
+				selectParts = append(selectParts, fmt.Sprintf("%s(DISTINCT %s) AS %s", fn, agg.Field, alias))
+			} else {
+				selectParts = append(selectParts, fmt.Sprintf("%s(%s) AS %s", fn, agg.Field, alias))
+			}
+		}
+		if len(selectParts) > 0 {
+			q = q.Select(strings.Join(selectParts, ", "))
+		}
+
+		q = r.applyGroupBy(q, query)
+		q = r.applyHaving(q, query)
+		q = r.applyOrderBy(q, query)
+	}
+
 	var results []map[string]any
-	if err := q.Find(&results).Error; err != nil {
+	if err := q.Scan(&results).Error; err != nil {
 		return nil, fmt.Errorf("failed to aggregate in %s: %w", r.tableName, err)
 	}
 	if results == nil {

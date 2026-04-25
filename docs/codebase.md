@@ -105,6 +105,9 @@ engine/
 │   │   │   └── cron.go                         # Cron scheduler — periodic job execution
 │   │   ├── workflow/
 │   │   │   └── engine.go                       # Workflow engine — Register, ExecuteTransition, GetInitialState
+│   │   ├── model_process.go                    # ModelProcessRegistry — built-in model operations (CRUD, aggregates, dynamic finders)
+│   │   ├── dynamic_finder.go                   # Dynamic finder parser — FindBy{Field}, CountBy, SumBy, etc. with And/Or/operator suffixes
+│   │   ├── dynamic_finder_test.go              # 24 tests for dynamic finder parsing
 │   │   └── plugin/
 │   │       └── manager.go                      # Plugin manager — spawn TS/Python processes, JSON-RPC over stdin/stdout
 │   │

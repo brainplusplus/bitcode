@@ -184,6 +184,70 @@ All accessible via `models.{name}.{operation}`:
 | `Increment` | `id`, `field`, `value` |
 | `Decrement` | `id`, `field`, `value` |
 
+## Dynamic Finders
+
+Convention-based query methods parsed from operation name. Available via `models.{name}.{operation}`:
+
+### Patterns
+
+| Pattern | Example | SQL |
+|---------|---------|-----|
+| `FindBy{Field}` | `FindByEmail` | `WHERE email = ? LIMIT 1` |
+| `FindAllBy{Field}` | `FindAllByStatus` | `WHERE status = ?` |
+| `FindBy{Field}And{Field}` | `FindByStatusAndCity` | `WHERE status = ? AND city = ?` |
+| `FindBy{Field}Or{Field}` | `FindByEmailOrPhone` | `WHERE email = ? OR phone = ?` |
+| `CountBy{Field}` | `CountByStatus` | `COUNT WHERE status = ?` |
+| `ExistsBy{Field}` | `ExistsByEmail` | `EXISTS WHERE email = ?` |
+| `DeleteBy{Field}` | `DeleteByStatus` | `DELETE WHERE status = ?` |
+| `SumBy{AggField}{Field}` | `SumByAmountStatus` | `SUM(amount) WHERE status = ?` |
+| `AvgBy{AggField}{Field}` | `AvgByAgeStatus` | `AVG(age) WHERE status = ?` |
+| `MinBy{AggField}{Field}` | `MinByPriceCategory` | `MIN(price) WHERE category = ?` |
+| `MaxBy{AggField}{Field}` | `MaxBySalaryDepartment` | `MAX(salary) WHERE department = ?` |
+| `PluckBy{AggField}{Field}` | `PluckByEmailStatus` | `SELECT email WHERE status = ?` |
+
+### Operator Suffixes
+
+| Suffix | Operator | Example |
+|--------|----------|---------|
+| (none) | `=` | `FindByStatus` |
+| `Gt` | `>` | `FindAllByAgeGt` |
+| `Gte` | `>=` | `FindAllByAgeGte` |
+| `Lt` | `<` | `FindAllByPriceLt` |
+| `Lte` | `<=` | `FindAllByPriceLte` |
+| `Not` | `!=` | `FindAllByStatusNot` |
+| `Like` | `LIKE` | `FindAllByNameLike` |
+| `In` | `IN` | `FindAllByCityIn` |
+| `NotIn` | `NOT IN` | `FindAllByStatusNotIn` |
+| `Between` | `BETWEEN` | `FindAllByAgeBetween` |
+| `IsNull` | `IS NULL` | `FindAllByDeletedAtIsNull` |
+| `IsNotNull` | `IS NOT NULL` | `FindAllByEmailIsNotNull` |
+
+### OrderBy
+
+Append `OrderBy{Field}Asc` or `OrderBy{Field}Desc`:
+
+```
+FindAllByStatusOrderByNameAsc
+FindAllByActiveOrderByCreatedAtDesc
+FindAllByStatusOrderByNameAscAndCreatedAtDesc
+```
+
+### Usage in JSON
+
+```json
+{
+  "process": "models.contacts.FindAllByStatusOrderByNameAsc",
+  "args": { "status": "active" }
+}
+```
+
+```json
+{
+  "process": "models.orders.SumByAmountStatus",
+  "args": { "status": "confirmed" }
+}
+```
+
 ## OQL (Object Query Language)
 
 Three syntax styles, auto-detected by `ParseOQL()`:

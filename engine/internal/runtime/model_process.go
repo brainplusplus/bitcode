@@ -32,7 +32,7 @@ func resolveQueryFromArgs(args map[string]any) *persistence.Query {
 			return q
 		}
 	}
-	return resolveQueryFromArgs(args)
+	return persistence.ParseQueryFromMap(args)
 }
 
 func (r *ModelProcessRegistry) Execute(ctx context.Context, processName string, args map[string]any) (any, error) {
@@ -309,6 +309,9 @@ func (r *ModelProcessRegistry) Execute(ctx context.Context, processName string, 
 		return nil, repo.Decrement(ctx, id, field, value)
 
 	default:
+		if finder, ok := ParseDynamicFinder(operation); ok {
+			return executeDynamicFinder(ctx, finder, repo, args)
+		}
 		return nil, fmt.Errorf("unknown model operation %q", operation)
 	}
 }
