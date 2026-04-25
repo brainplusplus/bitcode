@@ -248,6 +248,42 @@ FindAllByStatusOrderByNameAscAndCreatedAtDesc
 }
 ```
 
+## Module-Qualified Model Names
+
+When multiple modules define models with the same name (e.g., CRM and HRM both have `contact`), use module-qualified names:
+
+```
+models.crm.contact.FindAll        // CRM contacts
+models.hrm.contact.FindAll        // HRM contacts
+models.crm.contact.FindByEmail    // Dynamic finder on CRM contact
+```
+
+If a model name is unique across all modules, the short form works:
+
+```
+models.order.FindAll              // Only one 'order' model exists
+```
+
+If a model name is ambiguous (exists in multiple modules) and you use the short form, you get a clear error:
+
+```
+model "contact" is ambiguous — exists in modules: crm, hrm.
+Use qualified name: models.crm.contact.FindAll or models.hrm.contact.FindAll
+```
+
+## Table Name Resolution
+
+All relation loading (WITH/preload), JOINs, and Many2Many operations automatically resolve model names to actual table names using the module's table prefix configuration:
+
+```json
+// module.json
+{ "name": "crm", "table": { "prefix": "crm" } }
+
+// model: contact → table: crm_contact
+// WITH company → resolves to crm_company (not "company")
+// JOIN companies → resolves to crm_companies (not "companies")
+```
+
 ## OQL (Object Query Language)
 
 Three syntax styles, auto-detected by `ParseOQL()`:

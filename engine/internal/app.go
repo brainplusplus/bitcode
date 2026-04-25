@@ -1026,6 +1026,7 @@ func (a *App) handleViewPost(c *fiber.Ctx) error {
 	revisionRepo := persistence.NewDataRevisionRepository(a.DB)
 	repo.SetRevisionRepo(revisionRepo)
 	repo.SetModelName(entry.Def.Model)
+	repo.SetTableNameResolver(a.ModelRegistry)
 	token := c.Cookies("token")
 	if token != "" {
 		if claims, clErr := security.ValidateToken(a.JWTConfig, token); clErr == nil {

@@ -16,16 +16,17 @@ import (
 )
 
 type GenericRepository struct {
-	db           *gorm.DB
-	tableName    string
-	tenantID     string
-	modelDef     *parser.ModelDefinition
-	pkCol        string
-	hydrator     *expression.Hydrator
-	revisionRepo *DataRevisionRepository
-	modelName    string
-	currentUser  string
-	encryptor    *security.FieldEncryptor
+	db                *gorm.DB
+	tableName         string
+	tenantID          string
+	modelDef          *parser.ModelDefinition
+	pkCol             string
+	hydrator          *expression.Hydrator
+	revisionRepo      *DataRevisionRepository
+	modelName         string
+	currentUser       string
+	encryptor         *security.FieldEncryptor
+	tableNameResolver TableNameResolver
 }
 
 func NewGenericRepository(db *gorm.DB, tableName string) *GenericRepository {
@@ -70,6 +71,17 @@ func (r *GenericRepository) SetCurrentUser(userID string) {
 
 func (r *GenericRepository) SetEncryptor(enc *security.FieldEncryptor) {
 	r.encryptor = enc
+}
+
+func (r *GenericRepository) SetTableNameResolver(resolver TableNameResolver) {
+	r.tableNameResolver = resolver
+}
+
+func (r *GenericRepository) resolveTableName(modelName string) string {
+	if r.tableNameResolver != nil {
+		return r.tableNameResolver.TableName(modelName)
+	}
+	return modelName
 }
 
 func (r *GenericRepository) encryptFields(record map[string]any) {
@@ -376,9 +388,10 @@ func (r *GenericRepository) applyUnions(q *gorm.DB, query *Query) *gorm.DB {
 
 func (r *GenericRepository) applyJoins(q *gorm.DB, query *Query) *gorm.DB {
 	for _, j := range query.Joins {
-		tableRef := j.Table
+		resolvedTable := r.resolveTableName(j.Table)
+		tableRef := resolvedTable
 		if j.Alias != "" {
-			tableRef = j.Table + " " + j.Alias
+			tableRef = resolvedTable + " " + j.Alias
 		}
 		if j.RawOn != "" {
 			q = q.Joins(fmt.Sprintf("%s JOIN %s ON %s", j.Type, tableRef, j.RawOn))
@@ -937,8 +950,18 @@ func (r *GenericRepository) LoadMany2Many(ctx context.Context, id string, field 
 	if len(relatedIDs) == 0 {
 		return []map[string]any{}, nil
 	}
+
+	relatedTable := field
+	if r.modelDef != nil {
+		if fieldDef, ok := r.modelDef.Fields[field]; ok && fieldDef.Model != "" {
+			relatedTable = r.resolveTableName(fieldDef.Model)
+		} else {
+			relatedTable = r.resolveTableName(field)
+		}
+	}
+
 	var results []map[string]any
-	if err := r.db.WithContext(ctx).Table(field+"s").
+	if err := r.db.WithContext(ctx).Table(relatedTable).
 		Where("id IN ?", relatedIDs).
 		Find(&results).Error; err != nil {
 		return nil, err
@@ -1099,16 +1122,17 @@ func (r *GenericRepository) Decrement(ctx context.Context, id string, field stri
 func (r *GenericRepository) Transaction(ctx context.Context, fn func(txRepo Repository) error) error {
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		txRepo := &GenericRepository{
-			db:           tx,
-			tableName:    r.tableName,
-			tenantID:     r.tenantID,
-			modelDef:     r.modelDef,
-			pkCol:        r.pkCol,
-			hydrator:     r.hydrator,
-			revisionRepo: r.revisionRepo,
-			modelName:    r.modelName,
-			currentUser:  r.currentUser,
-			encryptor:    r.encryptor,
+			db:                tx,
+			tableName:         r.tableName,
+			tenantID:          r.tenantID,
+			modelDef:          r.modelDef,
+			pkCol:             r.pkCol,
+			hydrator:          r.hydrator,
+			revisionRepo:      r.revisionRepo,
+			modelName:         r.modelName,
+			currentUser:       r.currentUser,
+			encryptor:         r.encryptor,
+			tableNameResolver: r.tableNameResolver,
 		}
 		return fn(txRepo)
 	})
@@ -1194,7 +1218,7 @@ func (r *GenericRepository) loadMany2OneRelation(ctx context.Context, w WithClau
 		ids = append(ids, id)
 	}
 
-	relatedTable := fieldDef.Model
+	relatedTable := r.resolveTableName(fieldDef.Model)
 	relQ := r.db.WithContext(ctx).Table(relatedTable).Where("id IN ?", ids)
 	if len(w.Select) > 0 {
 		relQ = relQ.Select(w.Select)
@@ -1241,7 +1265,7 @@ func (r *GenericRepository) loadOne2ManyRelation(ctx context.Context, w WithClau
 		inverseField = r.modelName + "_id"
 	}
 
-	relatedTable := fieldDef.Model
+	relatedTable := r.resolveTableName(fieldDef.Model)
 	relQ := r.db.WithContext(ctx).Table(relatedTable).Where(fmt.Sprintf("%s IN ?", inverseField), parentIDs)
 	if len(w.Select) > 0 {
 		relQ = relQ.Select(w.Select)
@@ -1285,15 +1309,86 @@ func (r *GenericRepository) loadOne2ManyRelation(ctx context.Context, w WithClau
 }
 
 func (r *GenericRepository) loadMany2ManyRelation(ctx context.Context, w WithClause, results []map[string]any) {
-	for i, rec := range results {
+	parentIDs := make([]string, 0, len(results))
+	for _, rec := range results {
 		if id, ok := rec[r.pkCol]; ok {
-			related, err := r.LoadMany2Many(ctx, fmt.Sprintf("%v", id), w.Relation)
-			if err != nil {
-				results[i]["_"+w.Relation] = []map[string]any{}
-				continue
-			}
-			results[i]["_"+w.Relation] = related
+			parentIDs = append(parentIDs, fmt.Sprintf("%v", id))
 		}
+	}
+	if len(parentIDs) == 0 {
+		return
+	}
+
+	junctionTable := r.tableName + "_" + w.Relation
+	var junctionRecords []map[string]any
+	parentCol := r.modelName + "_id"
+	relatedCol := w.Relation + "_id"
+	if err := r.db.WithContext(ctx).Table(junctionTable).
+		Where(fmt.Sprintf("%s IN ?", parentCol), parentIDs).
+		Find(&junctionRecords).Error; err != nil {
+		for _, rec := range results {
+			rec["_"+w.Relation] = []map[string]any{}
+		}
+		return
+	}
+
+	parentToRelatedIDs := make(map[string][]string)
+	allRelatedIDs := make(map[string]bool)
+	for _, jr := range junctionRecords {
+		pid := fmt.Sprintf("%v", jr[parentCol])
+		rid := fmt.Sprintf("%v", jr[relatedCol])
+		parentToRelatedIDs[pid] = append(parentToRelatedIDs[pid], rid)
+		allRelatedIDs[rid] = true
+	}
+
+	if len(allRelatedIDs) == 0 {
+		for _, rec := range results {
+			rec["_"+w.Relation] = []map[string]any{}
+		}
+		return
+	}
+
+	relatedTable := w.Relation
+	if r.modelDef != nil {
+		if fieldDef, ok := r.modelDef.Fields[w.Relation]; ok && fieldDef.Model != "" {
+			relatedTable = r.resolveTableName(fieldDef.Model)
+		} else {
+			relatedTable = r.resolveTableName(w.Relation)
+		}
+	}
+
+	ids := make([]string, 0, len(allRelatedIDs))
+	for id := range allRelatedIDs {
+		ids = append(ids, id)
+	}
+
+	var relatedRecords []map[string]any
+	if err := r.db.WithContext(ctx).Table(relatedTable).
+		Where("id IN ?", ids).
+		Find(&relatedRecords).Error; err != nil {
+		for _, rec := range results {
+			rec["_"+w.Relation] = []map[string]any{}
+		}
+		return
+	}
+
+	relatedMap := make(map[string]map[string]any)
+	for _, rel := range relatedRecords {
+		if id, ok := rel["id"]; ok {
+			relatedMap[fmt.Sprintf("%v", id)] = rel
+		}
+	}
+
+	for _, rec := range results {
+		pid := fmt.Sprintf("%v", rec[r.pkCol])
+		relIDs := parentToRelatedIDs[pid]
+		children := make([]map[string]any, 0, len(relIDs))
+		for _, rid := range relIDs {
+			if rel, ok := relatedMap[rid]; ok {
+				children = append(children, rel)
+			}
+		}
+		rec["_"+w.Relation] = children
 	}
 }
 

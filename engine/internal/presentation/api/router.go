@@ -76,6 +76,11 @@ func (r *Router) RegisterAPI(apiDef *parser.APIDefinition) {
 		if r.encryptor != nil {
 			repo.SetEncryptor(r.encryptor)
 		}
+		if r.tableNameResolver != nil {
+			if tnr, ok := r.tableNameResolver.(persistence.TableNameResolver); ok {
+				repo.SetTableNameResolver(tnr)
+			}
+		}
 		crud := NewCRUDHandler(repo, apiDef, r.workflowEngine)
 
 		for _, ep := range endpoints {

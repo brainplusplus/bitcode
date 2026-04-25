@@ -170,3 +170,72 @@ func TestRegistry_TableName_BasePrefix(t *testing.T) {
 		t.Errorf("expected 'res_user', got %q", got)
 	}
 }
+
+func TestRegistry_AmbiguousModel(t *testing.T) {
+	reg := NewRegistry()
+	crmContact := &parser.ModelDefinition{Name: "contact", Module: "crm", Fields: map[string]parser.FieldDefinition{"name": {Type: "string"}}}
+	hrmContact := &parser.ModelDefinition{Name: "contact", Module: "hrm", Fields: map[string]parser.FieldDefinition{"name": {Type: "string"}}}
+	crmMod := &parser.ModuleDefinition{Name: "crm", Table: &parser.TableConfig{Prefix: "crm"}}
+	hrmMod := &parser.ModuleDefinition{Name: "hrm", Table: &parser.TableConfig{Prefix: "hrm"}}
+
+	if err := reg.RegisterWithModule(crmContact, crmMod); err != nil {
+		t.Fatal(err)
+	}
+	if err := reg.RegisterWithModule(hrmContact, hrmMod); err != nil {
+		t.Fatal(err)
+	}
+
+	if !reg.IsAmbiguous("contact") {
+		t.Error("expected 'contact' to be ambiguous")
+	}
+
+	modules := reg.ModulesForModel("contact")
+	if len(modules) != 2 {
+		t.Fatalf("expected 2 modules, got %d", len(modules))
+	}
+
+	crmTable := reg.TableName("crm.contact")
+	if crmTable != "crm_contact" {
+		t.Errorf("expected 'crm_contact', got %q", crmTable)
+	}
+
+	hrmTable := reg.TableName("hrm.contact")
+	if hrmTable != "hrm_contact" {
+		t.Errorf("expected 'hrm_contact', got %q", hrmTable)
+	}
+}
+
+func TestRegistry_QualifiedGet(t *testing.T) {
+	reg := NewRegistry()
+	crmContact := &parser.ModelDefinition{Name: "contact", Module: "crm", Fields: map[string]parser.FieldDefinition{"name": {Type: "string"}}}
+	if err := reg.Register(crmContact); err != nil {
+		t.Fatal(err)
+	}
+
+	model, err := reg.Get("crm.contact")
+	if err != nil {
+		t.Fatalf("expected to find crm.contact: %v", err)
+	}
+	if model.Module != "crm" {
+		t.Errorf("expected module 'crm', got %q", model.Module)
+	}
+
+	model2, err := reg.Get("contact")
+	if err != nil {
+		t.Fatalf("expected to find contact: %v", err)
+	}
+	if model2.Name != "contact" {
+		t.Errorf("expected name 'contact', got %q", model2.Name)
+	}
+}
+
+func TestRegistry_NotAmbiguous(t *testing.T) {
+	reg := NewRegistry()
+	model := &parser.ModelDefinition{Name: "order", Module: "sales", Fields: map[string]parser.FieldDefinition{"total": {Type: "decimal"}}}
+	if err := reg.Register(model); err != nil {
+		t.Fatal(err)
+	}
+	if reg.IsAmbiguous("order") {
+		t.Error("expected 'order' to not be ambiguous")
+	}
+}

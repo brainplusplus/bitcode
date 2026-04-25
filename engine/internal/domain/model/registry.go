@@ -8,15 +8,17 @@ import (
 )
 
 type Registry struct {
-	models     map[string]*parser.ModelDefinition
-	tableNames map[string]string
-	mu         sync.RWMutex
+	models      map[string]*parser.ModelDefinition
+	tableNames  map[string]string
+	moduleNames map[string][]string
+	mu          sync.RWMutex
 }
 
 func NewRegistry() *Registry {
 	return &Registry{
-		models:     make(map[string]*parser.ModelDefinition),
-		tableNames: make(map[string]string),
+		models:      make(map[string]*parser.ModelDefinition),
+		tableNames:  make(map[string]string),
+		moduleNames: make(map[string][]string),
 	}
 }
 
@@ -28,12 +30,12 @@ func (r *Registry) Register(model *parser.ModelDefinition) error {
 		return fmt.Errorf("model name is required")
 	}
 
-	key := model.Name
 	if model.Module != "" {
-		key = model.Module + "." + model.Name
+		qualifiedKey := model.Module + "." + model.Name
+		r.models[qualifiedKey] = model
+		r.moduleNames[model.Name] = appendUnique(r.moduleNames[model.Name], model.Module)
 	}
 
-	r.models[key] = model
 	r.models[model.Name] = model
 	return nil
 }
@@ -44,7 +46,11 @@ func (r *Registry) RegisterWithModule(model *parser.ModelDefinition, moduleDef *
 	}
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	r.tableNames[model.Name] = ResolveTableName(model, moduleDef)
+	tableName := ResolveTableName(model, moduleDef)
+	r.tableNames[model.Name] = tableName
+	if model.Module != "" {
+		r.tableNames[model.Module+"."+model.Name] = tableName
+	}
 	return nil
 }
 
@@ -105,4 +111,25 @@ func (r *Registry) TableName(modelName string) string {
 		return tn
 	}
 	return modelName
+}
+
+func (r *Registry) IsAmbiguous(modelName string) bool {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	return len(r.moduleNames[modelName]) > 1
+}
+
+func (r *Registry) ModulesForModel(modelName string) []string {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	return r.moduleNames[modelName]
+}
+
+func appendUnique(slice []string, val string) []string {
+	for _, s := range slice {
+		if s == val {
+			return slice
+		}
+	}
+	return append(slice, val)
 }

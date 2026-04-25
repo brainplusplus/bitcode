@@ -530,6 +530,7 @@ func (a *AdminPanel) listModelData(c *fiber.Ctx) error {
 	}
 
 	repo := persistence.NewGenericRepository(a.db, a.modelRegistry.TableName(name))
+	repo.SetTableNameResolver(a.modelRegistry)
 	records, total, err := repo.FindAll(c.Context(), nil, 1, 50)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": err.Error()})

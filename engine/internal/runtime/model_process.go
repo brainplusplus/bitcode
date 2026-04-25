@@ -3,19 +3,22 @@ package runtime
 import (
 	"context"
 	"fmt"
+	"strings"
 	"sync"
 
 	"github.com/bitcode-framework/bitcode/internal/infrastructure/persistence"
 )
 
 type ModelProcessRegistry struct {
-	repos map[string]persistence.Repository
-	mu    sync.RWMutex
+	repos       map[string]persistence.Repository
+	modelModules map[string][]string
+	mu          sync.RWMutex
 }
 
 func NewModelProcessRegistry() *ModelProcessRegistry {
 	return &ModelProcessRegistry{
-		repos: make(map[string]persistence.Repository),
+		repos:        make(map[string]persistence.Repository),
+		modelModules: make(map[string][]string),
 	}
 }
 
@@ -23,6 +26,24 @@ func (r *ModelProcessRegistry) Register(modelName string, repo persistence.Repos
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.repos[modelName] = repo
+}
+
+func (r *ModelProcessRegistry) RegisterWithModule(moduleName, modelName string, repo persistence.Repository) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	qualifiedName := moduleName + "." + modelName
+	r.repos[qualifiedName] = repo
+	r.repos[modelName] = repo
+	r.modelModules[modelName] = appendUniqueStr(r.modelModules[modelName], moduleName)
+}
+
+func appendUniqueStr(slice []string, val string) []string {
+	for _, s := range slice {
+		if s == val {
+			return slice
+		}
+	}
+	return append(slice, val)
 }
 
 func resolveQueryFromArgs(args map[string]any) *persistence.Query {
@@ -43,10 +64,22 @@ func (r *ModelProcessRegistry) Execute(ctx context.Context, processName string, 
 
 	r.mu.RLock()
 	repo, ok := r.repos[modelName]
-	r.mu.RUnlock()
 	if !ok {
+		r.mu.RUnlock()
 		return nil, fmt.Errorf("model %q not registered", modelName)
 	}
+	if !strings.Contains(modelName, ".") {
+		if modules := r.modelModules[modelName]; len(modules) > 1 {
+			r.mu.RUnlock()
+			qualified := make([]string, len(modules))
+			for i, m := range modules {
+				qualified[i] = fmt.Sprintf("models.%s.%s.%s", m, modelName, operation)
+			}
+			return nil, fmt.Errorf("model %q is ambiguous — exists in modules: %s. Use qualified name: %s",
+				modelName, strings.Join(modules, ", "), strings.Join(qualified, " or "))
+		}
+	}
+	r.mu.RUnlock()
 
 	switch operation {
 	case "Get", "Find":
@@ -316,18 +349,22 @@ func (r *ModelProcessRegistry) Execute(ctx context.Context, processName string, 
 	}
 }
 
+// parseModelProcess parses "models.{model}.{op}" or "models.{module}.{model}.{op}"
 func parseModelProcess(name string) (string, string, error) {
-	// format: models.{model_name}.{operation}
 	if len(name) < 9 || name[:7] != "models." {
 		return "", "", fmt.Errorf("invalid model process name %q", name)
 	}
 	rest := name[7:]
-	for i := len(rest) - 1; i >= 0; i-- {
-		if rest[i] == '.' {
-			return rest[:i], rest[i+1:], nil
-		}
+
+	parts := strings.Split(rest, ".")
+	switch len(parts) {
+	case 2:
+		return parts[0], parts[1], nil
+	case 3:
+		return parts[0] + "." + parts[1], parts[2], nil
+	default:
+		return "", "", fmt.Errorf("invalid model process name %q: expected models.{model}.{op} or models.{module}.{model}.{op}", name)
 	}
-	return "", "", fmt.Errorf("invalid model process name %q: missing operation", name)
 }
 
 func intFromMap(m map[string]any, key string, defaultVal int) int {
