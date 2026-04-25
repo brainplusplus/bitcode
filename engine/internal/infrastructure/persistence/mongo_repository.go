@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/bitcode-framework/bitcode/internal/compiler/parser"
 	"go.mongodb.org/mongo-driver/v2/bson"
@@ -72,7 +73,7 @@ func (r *MongoRepository) FindByID(ctx context.Context, id string) (map[string]a
 }
 
 func (r *MongoRepository) FindAll(ctx context.Context, query *Query, page, pageSize int) ([]map[string]any, int64, error) {
-	filter := bson.M{"active": true}
+	filter := r.buildNotDeletedFilter()
 	if r.tenantID != "" {
 		filter["tenant_id"] = r.tenantID
 	}
@@ -125,6 +126,134 @@ func (r *MongoRepository) FindAll(ctx context.Context, query *Query, page, pageS
 	}
 
 	return results, total, nil
+}
+
+func (r *MongoRepository) FindActive(ctx context.Context, id string) (map[string]any, error) {
+	filter := r.buildActiveFilter()
+	filter["_id"] = id
+	if r.tenantID != "" {
+		filter["tenant_id"] = r.tenantID
+	}
+
+	var result bson.M
+	err := r.coll().FindOne(ctx, filter).Decode(&result)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, fmt.Errorf("record not found in %s", r.collection)
+		}
+		return nil, fmt.Errorf("failed to find record in %s: %w", r.collection, err)
+	}
+
+	return mongoDocToMap(result), nil
+}
+
+func (r *MongoRepository) FindAllActive(ctx context.Context, query *Query, page, pageSize int) ([]map[string]any, int64, error) {
+	filter := r.buildActiveFilter()
+	if r.tenantID != "" {
+		filter["tenant_id"] = r.tenantID
+	}
+	applyMongoConditions(filter, query)
+
+	total, err := r.coll().CountDocuments(ctx, filter)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to count in %s: %w", r.collection, err)
+	}
+
+	if page < 1 {
+		page = 1
+	}
+	if pageSize < 1 {
+		pageSize = 20
+	}
+	offset := int64((page - 1) * pageSize)
+
+	opts := options.Find().SetSkip(offset).SetLimit(int64(pageSize))
+	if query != nil {
+		sort := bson.D{}
+		for _, o := range query.OrderBy {
+			dir := 1
+			if o.Direction == "desc" {
+				dir = -1
+			}
+			sort = append(sort, bson.E{Key: o.Field, Value: dir})
+		}
+		if len(sort) > 0 {
+			opts.SetSort(sort)
+		}
+	}
+
+	cursor, err := r.coll().Find(ctx, filter, opts)
+	if err != nil {
+		return []map[string]any{}, 0, fmt.Errorf("failed to query %s: %w", r.collection, err)
+	}
+	defer cursor.Close(ctx)
+
+	var results []map[string]any
+	for cursor.Next(ctx) {
+		var doc bson.M
+		if err := cursor.Decode(&doc); err != nil {
+			continue
+		}
+		results = append(results, mongoDocToMap(doc))
+	}
+	if results == nil {
+		results = []map[string]any{}
+	}
+
+	return results, total, nil
+}
+
+func (r *MongoRepository) CountActive(ctx context.Context, query *Query) (int64, error) {
+	filter := r.buildActiveFilter()
+	if r.tenantID != "" {
+		filter["tenant_id"] = r.tenantID
+	}
+	applyMongoConditions(filter, query)
+
+	count, err := r.coll().CountDocuments(ctx, filter)
+	if err != nil {
+		return 0, fmt.Errorf("failed to count in %s: %w", r.collection, err)
+	}
+	return count, nil
+}
+
+func (r *MongoRepository) SumActive(ctx context.Context, field string, query *Query) (float64, error) {
+	matchFilter := r.buildActiveFilter()
+	if r.tenantID != "" {
+		matchFilter["tenant_id"] = r.tenantID
+	}
+	applyMongoConditions(matchFilter, query)
+
+	pipeline := bson.A{
+		bson.M{"$match": matchFilter},
+		bson.M{"$group": bson.M{
+			"_id":   nil,
+			"total": bson.M{"$sum": "$" + field},
+		}},
+	}
+
+	cursor, err := r.coll().Aggregate(ctx, pipeline)
+	if err != nil {
+		return 0, fmt.Errorf("failed to sum %s in %s: %w", field, r.collection, err)
+	}
+	defer cursor.Close(ctx)
+
+	if cursor.Next(ctx) {
+		var result bson.M
+		if err := cursor.Decode(&result); err == nil {
+			if total, ok := result["total"]; ok {
+				switch v := total.(type) {
+				case float64:
+					return v, nil
+				case int32:
+					return float64(v), nil
+				case int64:
+					return float64(v), nil
+				}
+			}
+		}
+	}
+	return 0, nil
 }
 
 func (r *MongoRepository) Create(ctx context.Context, data map[string]any) (map[string]any, error) {
@@ -229,7 +358,7 @@ func (r *MongoRepository) Upsert(ctx context.Context, data map[string]any, uniqu
 }
 
 func (r *MongoRepository) Count(ctx context.Context, query *Query) (int64, error) {
-	filter := bson.M{"active": true}
+	filter := r.buildNotDeletedFilter()
 	if r.tenantID != "" {
 		filter["tenant_id"] = r.tenantID
 	}
@@ -243,7 +372,7 @@ func (r *MongoRepository) Count(ctx context.Context, query *Query) (int64, error
 }
 
 func (r *MongoRepository) Sum(ctx context.Context, field string, query *Query) (float64, error) {
-	matchFilter := bson.M{"active": true}
+	matchFilter := r.buildNotDeletedFilter()
 	if r.tenantID != "" {
 		matchFilter["tenant_id"] = r.tenantID
 	}
@@ -483,6 +612,50 @@ func (r *MongoRepository) buildM2MRefs(ctx context.Context, field string, ids []
 		})
 	}
 	return refs, nil
+}
+
+func (r *MongoRepository) buildNotDeletedFilter() bson.M {
+	if r.modelDef != nil && r.modelDef.IsSoftDeletes() {
+		return bson.M{"deleted_at": bson.M{"$eq": nil}}
+	}
+	return bson.M{}
+}
+
+func (r *MongoRepository) buildActiveFilter() bson.M {
+	filter := bson.M{"active": true}
+	if r.modelDef != nil && r.modelDef.IsSoftDeletes() {
+		filter["deleted_at"] = bson.M{"$eq": nil}
+	}
+	return filter
+}
+
+func (r *MongoRepository) UpdateWithVersion(ctx context.Context, id string, data map[string]any, expectedVersion int) error {
+	delete(data, "id")
+	delete(data, "_id")
+
+	r.populateExtendedRefs(ctx, data)
+
+	data["version"] = expectedVersion + 1
+	filter := bson.M{"_id": id, "version": expectedVersion}
+	result, err := r.coll().UpdateOne(ctx, filter, bson.M{"$set": data})
+	if err != nil {
+		return fmt.Errorf("failed to update in %s: %w", r.collection, err)
+	}
+	if result.MatchedCount == 0 {
+		return fmt.Errorf("version conflict")
+	}
+	return nil
+}
+
+func (r *MongoRepository) SoftDeleteWithTimestamp(ctx context.Context, id string, deletedAt time.Time) error {
+	result, err := r.coll().UpdateOne(ctx, bson.M{"_id": id}, bson.M{"$set": bson.M{"active": false, "deleted_at": deletedAt}})
+	if err != nil {
+		return fmt.Errorf("failed to soft-delete in %s: %w", r.collection, err)
+	}
+	if result.MatchedCount == 0 {
+		return fmt.Errorf("record not found in %s with id %s", r.collection, id)
+	}
+	return nil
 }
 
 func applyMongoConditions(filter bson.M, query *Query) {

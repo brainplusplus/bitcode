@@ -1,8 +1,10 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -125,9 +127,15 @@ func (h *CRUDHandler) Create(c *fiber.Ctx) error {
 		}
 	}
 
-	if userID, ok := c.Locals("user_id").(string); ok {
-		body["created_by"] = userID
-		body["updated_by"] = userID
+	if h.modelDef == nil || h.modelDef.IsTimestampsBy() {
+		if userID, ok := c.Locals("user_id").(string); ok {
+			body["created_by"] = userID
+			body["updated_by"] = userID
+		}
+	}
+
+	if h.modelDef != nil && h.modelDef.IsVersion() {
+		body["version"] = 1
 	}
 
 	if h.apiDef.Workflow != "" && h.workflowEngine != nil {
@@ -173,8 +181,28 @@ func (h *CRUDHandler) Update(c *fiber.Ctx) error {
 		}
 	}
 
-	if userID, ok := c.Locals("user_id").(string); ok {
-		body["updated_by"] = userID
+	if h.modelDef == nil || h.modelDef.IsTimestampsBy() {
+		if userID, ok := c.Locals("user_id").(string); ok {
+			body["updated_by"] = userID
+		}
+	}
+
+	var expectedVersion int
+	if h.modelDef != nil && h.modelDef.IsVersion() {
+		if v, ok := body["version"]; ok {
+			switch vt := v.(type) {
+			case float64:
+				expectedVersion = int(vt)
+			case int:
+				expectedVersion = vt
+			case json.Number:
+				n, _ := vt.Int64()
+				expectedVersion = int(n)
+			}
+			delete(body, "version")
+		} else {
+			return c.Status(400).JSON(fiber.Map{"error": "version field is required for optimistic locking"})
+		}
 	}
 
 	if h.modelDef != nil && pkgen.IsCompositeNoSurrogate(h.modelDef) {
@@ -183,6 +211,16 @@ func (h *CRUDHandler) Update(c *fiber.Ctx) error {
 			return c.Status(400).JSON(fiber.Map{"error": "invalid composite key"})
 		}
 		if err := h.repo.UpdateByCompositePK(c.Context(), keys, body); err != nil {
+			return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+		}
+		return c.JSON(fiber.Map{"message": "updated"})
+	}
+
+	if h.modelDef != nil && h.modelDef.IsVersion() && expectedVersion > 0 {
+		if err := h.repo.UpdateWithVersion(c.Context(), id, body, expectedVersion); err != nil {
+			if err.Error() == "version conflict" {
+				return c.Status(409).JSON(fiber.Map{"error": "record has been modified by another user"})
+			}
 			return c.Status(500).JSON(fiber.Map{"error": err.Error()})
 		}
 		return c.JSON(fiber.Map{"message": "updated"})
@@ -204,7 +242,11 @@ func (h *CRUDHandler) Delete(c *fiber.Ctx) error {
 
 	var err error
 	if h.apiDef.IsSoftDelete() {
-		err = h.repo.Delete(c.Context(), id)
+		if h.modelDef != nil && h.modelDef.IsSoftDeletes() {
+			err = h.repo.SoftDeleteWithTimestamp(c.Context(), id, time.Now())
+		} else {
+			err = h.repo.Delete(c.Context(), id)
+		}
 	} else {
 		err = h.repo.HardDelete(c.Context(), id)
 	}
@@ -249,8 +291,10 @@ func (h *CRUDHandler) WorkflowAction(actionName string) fiber.Handler {
 			updateData[k] = v
 		}
 
-		if userID, ok := c.Locals("user_id").(string); ok {
-			updateData["updated_by"] = userID
+		if h.modelDef == nil || h.modelDef.IsTimestampsBy() {
+			if userID, ok := c.Locals("user_id").(string); ok {
+				updateData["updated_by"] = userID
+			}
 		}
 
 		if err := h.repo.Update(c.Context(), id, updateData); err != nil {

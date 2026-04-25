@@ -19,6 +19,11 @@ type Repository interface {
 	Sum(ctx context.Context, field string, query *Query) (float64, error)
 	BulkCreate(ctx context.Context, records []map[string]any) ([]map[string]any, error)
 
+	FindActive(ctx context.Context, id string) (map[string]any, error)
+	FindAllActive(ctx context.Context, query *Query, page, pageSize int) ([]map[string]any, int64, error)
+	CountActive(ctx context.Context, query *Query) (int64, error)
+	SumActive(ctx context.Context, field string, query *Query) (float64, error)
+
 	AddMany2Many(ctx context.Context, id string, field string, relatedIDs []string) error
 	RemoveMany2Many(ctx context.Context, id string, field string, relatedIDs []string) error
 	LoadMany2Many(ctx context.Context, id string, field string) ([]map[string]any, error)

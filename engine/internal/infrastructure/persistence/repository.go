@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/bitcode-framework/bitcode/internal/compiler/parser"
 	"github.com/bitcode-framework/bitcode/internal/runtime/expression"
@@ -132,6 +133,21 @@ func (r *GenericRepository) applyTenant(query *gorm.DB) *gorm.DB {
 	return query
 }
 
+func (r *GenericRepository) applyNotDeleted(query *gorm.DB) *gorm.DB {
+	if r.modelDef != nil && r.modelDef.IsSoftDeletes() {
+		return query.Where("deleted_at IS NULL")
+	}
+	return query
+}
+
+func (r *GenericRepository) applyActiveFilter(query *gorm.DB) *gorm.DB {
+	q := query.Where("active = ?", true)
+	if r.modelDef != nil && r.modelDef.IsSoftDeletes() {
+		q = q.Where("deleted_at IS NULL")
+	}
+	return q
+}
+
 func (r *GenericRepository) Create(ctx context.Context, record map[string]any) (map[string]any, error) {
 	if r.tenantID != "" {
 		record["tenant_id"] = r.tenantID
@@ -177,7 +193,7 @@ func (r *GenericRepository) FindByCompositePK(ctx context.Context, keys map[stri
 }
 
 func (r *GenericRepository) FindAll(ctx context.Context, query *Query, page int, pageSize int) ([]map[string]any, int64, error) {
-	q := r.applyTenant(r.db.WithContext(ctx).Table(r.tableName)).Where("active = ?", true)
+	q := r.applyNotDeleted(r.applyTenant(r.db.WithContext(ctx).Table(r.tableName)))
 	q = r.applyQuery(q, query)
 
 	var total int64
@@ -211,6 +227,57 @@ func (r *GenericRepository) FindAll(ctx context.Context, query *Query, page int,
 	}
 
 	return results, total, nil
+}
+
+func (r *GenericRepository) FindAllActive(ctx context.Context, query *Query, page int, pageSize int) ([]map[string]any, int64, error) {
+	q := r.applyActiveFilter(r.applyTenant(r.db.WithContext(ctx).Table(r.tableName)))
+	q = r.applyQuery(q, query)
+
+	var total int64
+	if err := q.Count(&total).Error; err != nil {
+		return nil, 0, fmt.Errorf("failed to count records in %s: %w", r.tableName, err)
+	}
+
+	if page < 1 {
+		page = 1
+	}
+	if pageSize < 1 {
+		pageSize = 20
+	}
+	offset := (page - 1) * pageSize
+
+	var results []map[string]any
+	if err := q.Offset(offset).Limit(pageSize).Find(&results).Error; err != nil {
+		return []map[string]any{}, 0, fmt.Errorf("failed to query records in %s: %w", r.tableName, err)
+	}
+
+	if results == nil {
+		results = []map[string]any{}
+	}
+
+	for _, record := range results {
+		r.decryptFields(record)
+	}
+
+	if r.hydrator != nil && r.modelDef != nil {
+		r.hydrator.HydrateRecords(ctx, r.modelDef, results)
+	}
+
+	return results, total, nil
+}
+
+func (r *GenericRepository) FindActive(ctx context.Context, id string) (map[string]any, error) {
+	var result map[string]any
+	query := r.applyActiveFilter(r.applyTenant(r.db.WithContext(ctx).Table(r.tableName)))
+	err := query.Where(fmt.Sprintf("%s = ?", r.pkCol), id).Take(&result).Error
+	if err != nil {
+		return nil, fmt.Errorf("record not found in %s: %w", r.tableName, err)
+	}
+	r.decryptFields(result)
+	if r.hydrator != nil && r.modelDef != nil {
+		r.hydrator.HydrateRecord(ctx, r.modelDef, result)
+	}
+	return result, nil
 }
 
 func (r *GenericRepository) applyQuery(q *gorm.DB, query *Query) *gorm.DB {
@@ -346,6 +413,52 @@ func (r *GenericRepository) HardDelete(ctx context.Context, id string) error {
 	return nil
 }
 
+func (r *GenericRepository) UpdateWithVersion(ctx context.Context, id string, data map[string]any, expectedVersion int) error {
+	var before map[string]any
+	if r.revisionRepo != nil {
+		r.db.WithContext(ctx).Table(r.tableName).Where(fmt.Sprintf("%s = ?", r.pkCol), id).Take(&before)
+	}
+
+	r.encryptFields(data)
+	data["version"] = gorm.Expr("version + 1")
+	result := r.db.WithContext(ctx).Table(r.tableName).
+		Where(fmt.Sprintf("%s = ? AND version = ?", r.pkCol), id, expectedVersion).
+		Updates(data)
+	if result.Error != nil {
+		return fmt.Errorf("failed to update record in %s: %w", r.tableName, result.Error)
+	}
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("version conflict")
+	}
+
+	if before != nil {
+		var after map[string]any
+		r.db.WithContext(ctx).Table(r.tableName).Where(fmt.Sprintf("%s = ?", r.pkCol), id).Take(&after)
+		r.saveRevision("update", id, before, after)
+	}
+	return nil
+}
+
+func (r *GenericRepository) SoftDeleteWithTimestamp(ctx context.Context, id string, deletedAt time.Time) error {
+	var before map[string]any
+	if r.revisionRepo != nil {
+		r.db.WithContext(ctx).Table(r.tableName).Where(fmt.Sprintf("%s = ?", r.pkCol), id).Take(&before)
+	}
+
+	result := r.db.WithContext(ctx).Table(r.tableName).
+		Where(fmt.Sprintf("%s = ?", r.pkCol), id).
+		Updates(map[string]any{"active": false, "deleted_at": deletedAt})
+	if result.Error != nil {
+		return fmt.Errorf("failed to soft-delete record in %s: %w", r.tableName, result.Error)
+	}
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("record not found in %s with id %s", r.tableName, id)
+	}
+
+	r.saveRevision("delete", id, before, nil)
+	return nil
+}
+
 func (r *GenericRepository) SetModelDef(def *parser.ModelDefinition) {
 	r.modelDef = def
 }
@@ -378,7 +491,17 @@ func (r *GenericRepository) Upsert(ctx context.Context, data map[string]any, uni
 }
 
 func (r *GenericRepository) Count(ctx context.Context, query *Query) (int64, error) {
-	q := r.applyTenant(r.db.WithContext(ctx).Table(r.tableName)).Where("active = ?", true)
+	q := r.applyNotDeleted(r.applyTenant(r.db.WithContext(ctx).Table(r.tableName)))
+	q = r.applyQuery(q, query)
+	var count int64
+	if err := q.Count(&count).Error; err != nil {
+		return 0, fmt.Errorf("failed to count in %s: %w", r.tableName, err)
+	}
+	return count, nil
+}
+
+func (r *GenericRepository) CountActive(ctx context.Context, query *Query) (int64, error) {
+	q := r.applyActiveFilter(r.applyTenant(r.db.WithContext(ctx).Table(r.tableName)))
 	q = r.applyQuery(q, query)
 	var count int64
 	if err := q.Count(&count).Error; err != nil {
@@ -388,7 +511,17 @@ func (r *GenericRepository) Count(ctx context.Context, query *Query) (int64, err
 }
 
 func (r *GenericRepository) Sum(ctx context.Context, field string, query *Query) (float64, error) {
-	q := r.applyTenant(r.db.WithContext(ctx).Table(r.tableName)).Where("active = ?", true)
+	q := r.applyNotDeleted(r.applyTenant(r.db.WithContext(ctx).Table(r.tableName)))
+	q = r.applyQuery(q, query)
+	var result float64
+	if err := q.Select(fmt.Sprintf("COALESCE(SUM(%s), 0)", field)).Scan(&result).Error; err != nil {
+		return 0, fmt.Errorf("failed to sum %s in %s: %w", field, r.tableName, err)
+	}
+	return result, nil
+}
+
+func (r *GenericRepository) SumActive(ctx context.Context, field string, query *Query) (float64, error) {
+	q := r.applyActiveFilter(r.applyTenant(r.db.WithContext(ctx).Table(r.tableName)))
 	q = r.applyQuery(q, query)
 	var result float64
 	if err := q.Select(fmt.Sprintf("COALESCE(SUM(%s), 0)", field)).Scan(&result).Error; err != nil {

@@ -13,7 +13,8 @@ bitcode/
 │       ├── 2026-04-18-component-system-plan.md
 │       ├── 2026-04-22-fix-process-engine-design.md
 │       ├── 2026-04-22-i18n-implementation-plan.md
-│       └── 2026-04-22-i18n-stencil-components-design.md
+│       ├── 2026-04-22-i18n-stencil-components-design.md
+│       └── 2026-04-25-model-options-design.md
 │
 ├── engine/                                     # Go runtime (the core)
 ├── packages/                                   # Shared libraries

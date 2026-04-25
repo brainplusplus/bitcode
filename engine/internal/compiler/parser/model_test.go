@@ -515,3 +515,90 @@ func TestParseModel_PrimaryKeyValidationErrors(t *testing.T) {
 		})
 	}
 }
+
+func TestModelDefinition_OptionsDefaults(t *testing.T) {
+	data := []byte(`{
+		"name": "customer",
+		"fields": {
+			"name": {"type": "string", "required": true}
+		}
+	}`)
+
+	model, err := ParseModel(data)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if model.IsVersion() {
+		t.Error("expected version default false")
+	}
+	if !model.IsTimestamps() {
+		t.Error("expected timestamps default true")
+	}
+	if !model.IsTimestampsBy() {
+		t.Error("expected timestamps_by default true")
+	}
+	if model.IsSoftDeletes() {
+		t.Error("expected soft_deletes default false")
+	}
+}
+
+func TestModelDefinition_OptionsExplicit(t *testing.T) {
+	data := []byte(`{
+		"name": "order",
+		"version": true,
+		"timestamps": false,
+		"timestamps_by": false,
+		"soft_deletes": true,
+		"fields": {
+			"name": {"type": "string", "required": true}
+		}
+	}`)
+
+	model, err := ParseModel(data)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if !model.IsVersion() {
+		t.Error("expected version true")
+	}
+	if model.IsTimestamps() {
+		t.Error("expected timestamps false")
+	}
+	if model.IsTimestampsBy() {
+		t.Error("expected timestamps_by false")
+	}
+	if !model.IsSoftDeletes() {
+		t.Error("expected soft_deletes true")
+	}
+}
+
+func TestModelDefinition_OptionsPartial(t *testing.T) {
+	data := []byte(`{
+		"name": "product",
+		"version": true,
+		"soft_deletes": true,
+		"fields": {
+			"name": {"type": "string", "required": true}
+		}
+	}`)
+
+	model, err := ParseModel(data)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if !model.IsVersion() {
+		t.Error("expected version true")
+	}
+	if !model.IsTimestamps() {
+		t.Error("expected timestamps default true when not specified")
+	}
+	if !model.IsTimestampsBy() {
+		t.Error("expected timestamps_by default true when not specified")
+	}
+	if !model.IsSoftDeletes() {
+		t.Error("expected soft_deletes true")
+	}
+}

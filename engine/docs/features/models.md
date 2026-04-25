@@ -54,6 +54,66 @@ This creates a `customers` table with `id`, `name`, `email`, `created_at`, `upda
 | `computed` | string | Computation expression (computed) |
 | `auto` | bool | Auto-set value (datetime) |
 
+## Model Options
+
+Control auto-generated columns and behavior at the model level:
+
+```json
+{
+  "name": "order",
+  "version": true,
+  "timestamps": true,
+  "timestamps_by": true,
+  "soft_deletes": true,
+  "fields": { ... }
+}
+```
+
+| Option | Type | Default | Columns Generated |
+|--------|------|---------|-------------------|
+| `version` | bool | `false` | `version INTEGER NOT NULL DEFAULT 1` — optimistic locking |
+| `timestamps` | bool | `true` | `created_at`, `updated_at` |
+| `timestamps_by` | bool | `true` | `created_by`, `updated_by` |
+| `soft_deletes` | bool | `false` | `deleted_at` (nullable datetime) |
+
+### Optimistic Locking (`version: true`)
+
+When enabled, every update requires the client to send the current `version` in the request body. The engine checks `WHERE version = ?` and increments it atomically. If another user modified the record first, the update returns **HTTP 409 Conflict** with `"record has been modified by another user"`.
+
+```bash
+# Read record (version: 3)
+curl http://localhost:8080/api/order/abc123
+
+# Update with version check
+curl -X PUT http://localhost:8080/api/order/abc123 \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Updated", "version": 3}'
+# → Success: version becomes 4
+
+# Stale update (version 3 already changed)
+curl -X PUT http://localhost:8080/api/order/abc123 \
+  -d '{"name": "Conflict", "version": 3}'
+# → 409 Conflict
+```
+
+### Soft Deletes (`soft_deletes: true`)
+
+When enabled, `DELETE` sets `deleted_at = NOW()` and `active = false` instead of removing the row. Records with `deleted_at IS NOT NULL` are excluded from `FindAll`, `Count`, and `Sum` queries.
+
+### Active vs Soft Deletes
+
+These are two separate concepts:
+
+- **`active`** — A business field. An inactive record still appears in lists but cannot be used in selections/dropdowns. User-controlled toggle.
+- **`soft_deletes`** — Recycle bin. A deleted record is hidden from all queries. Can be restored.
+
+The repository provides two sets of query methods:
+
+| Method | Filter | Use Case |
+|--------|--------|----------|
+| `FindAll` / `FindByID` / `Count` / `Sum` / `Paginate` | Excludes soft-deleted (`deleted_at IS NULL`) | Default queries |
+| `FindAllActive` / `FindActive` / `CountActive` / `SumActive` / `PaginateActive` | `active = true` + excludes soft-deleted | Dropdowns, selections, active-only views |
+
 ## Auto-generated Columns
 
 Every model automatically gets:
@@ -61,11 +121,13 @@ Every model automatically gets:
 | Column | Type | Description |
 |--------|------|-------------|
 | `id` | UUID | Primary key (auto-generated) |
-| `created_at` | datetime | Set on creation |
-| `updated_at` | datetime | Set on every update |
-| `created_by` | UUID FK | User who created the record |
-| `updated_by` | UUID FK | User who last updated |
-| `active` | boolean | Soft delete flag (default true) |
+| `active` | boolean | Business active flag (default true) |
+| `created_at` | datetime | Set on creation (when `timestamps: true`, default) |
+| `updated_at` | datetime | Set on every update (when `timestamps: true`, default) |
+| `created_by` | UUID FK | User who created the record (when `timestamps_by: true`, default) |
+| `updated_by` | UUID FK | User who last updated (when `timestamps_by: true`, default) |
+| `version` | integer | Optimistic lock counter (only when `version: true`) |
+| `deleted_at` | datetime | Soft delete timestamp (only when `soft_deletes: true`) |
 
 You never need to define these in your JSON.
 

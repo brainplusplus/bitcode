@@ -73,6 +73,40 @@ func (r *ModelProcessRegistry) Execute(ctx context.Context, processName string, 
 			"total_pages": totalPages,
 		}, nil
 
+	case "FindActive":
+		id, _ := args["id"].(string)
+		if id == "" {
+			return nil, fmt.Errorf("id required for %s", operation)
+		}
+		return repo.FindActive(ctx, id)
+
+	case "FindAllActive":
+		query := persistence.ParseQueryFromMap(args)
+		page := intFromMap(args, "page", 1)
+		pageSize := intFromMap(args, "page_size", 20)
+		records, total, err := repo.FindAllActive(ctx, query, page, pageSize)
+		if err != nil {
+			return nil, err
+		}
+		return map[string]any{"data": records, "total": total, "page": page, "page_size": pageSize}, nil
+
+	case "PaginateActive":
+		query := persistence.ParseQueryFromMap(args)
+		page := intFromMap(args, "page", 1)
+		pageSize := intFromMap(args, "page_size", 20)
+		records, total, err := repo.FindAllActive(ctx, query, page, pageSize)
+		if err != nil {
+			return nil, err
+		}
+		totalPages := (total + int64(pageSize) - 1) / int64(pageSize)
+		return map[string]any{
+			"data":        records,
+			"total":       total,
+			"page":        page,
+			"page_size":   pageSize,
+			"total_pages": totalPages,
+		}, nil
+
 	case "Create":
 		data, _ := args["data"].(map[string]any)
 		if data == nil {
@@ -130,6 +164,14 @@ func (r *ModelProcessRegistry) Execute(ctx context.Context, processName string, 
 		}
 		return count, nil
 
+	case "CountActive":
+		query := persistence.ParseQueryFromMap(args)
+		count, err := repo.CountActive(ctx, query)
+		if err != nil {
+			return nil, err
+		}
+		return count, nil
+
 	case "Sum":
 		field, _ := args["field"].(string)
 		if field == "" {
@@ -137,6 +179,18 @@ func (r *ModelProcessRegistry) Execute(ctx context.Context, processName string, 
 		}
 		query := persistence.ParseQueryFromMap(args)
 		sum, err := repo.Sum(ctx, field, query)
+		if err != nil {
+			return nil, err
+		}
+		return sum, nil
+
+	case "SumActive":
+		field, _ := args["field"].(string)
+		if field == "" {
+			return nil, fmt.Errorf("field required for SumActive")
+		}
+		query := persistence.ParseQueryFromMap(args)
+		sum, err := repo.SumActive(ctx, field, query)
 		if err != nil {
 			return nil, err
 		}

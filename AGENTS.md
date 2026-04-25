@@ -155,7 +155,8 @@ All 11 locale files must be provided for every module that has user-facing text.
 - [x] MongoDB support — Full parity MongoDB driver with extended reference pattern, unified query builder, MongoDB sequence engine, system collection migration
 - [x] Query builder — Unified `Query` type with JSON DSL, translates to GORM chain (SQL) or bson.M filter (MongoDB), operators: =, !=, >, <, >=, <=, like, in, not_in, between, is_null, is_not_null
 - [x] Repository interface — `Repository` interface abstraction, `GenericRepository` (SQL) and `MongoRepository` (MongoDB) implementations, factory-based creation
-- [x] Model process registry — `models.{name}.{op}` built-in functions: Get/Find, GetAll/FindAll, Paginate, Create, Update, Delete, Upsert, Count, Sum
+- [x] Model process registry — `models.{name}.{op}` built-in functions: Get/Find, GetAll/FindAll, Paginate, Create, Update, Delete, Upsert, Count, Sum + Active variants (FindActive, FindAllActive, PaginateActive, CountActive, SumActive)
+- [x] Model options — `version` (optimistic locking), `timestamps`, `timestamps_by`, `soft_deletes` (deleted_at) in model JSON. Conditional column generation, UpdateWithVersion (409 conflict), SoftDeleteWithTimestamp
 - [x] Extended model fields — `title_field` (display name resolution chain), `search_field` (searchable fields config)
 - [x] Login with username or email — Auth handler accepts username or email in login field
 
@@ -188,7 +189,7 @@ go test ./pkg/ddd/        # Specific package
 go test ./... -count=1    # No cache
 ```
 
-Current: 260 tests, 0 failures. Build: OK.
+Current: 263 tests, 0 failures. Build: OK.
 
 ## Build
 

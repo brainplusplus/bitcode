@@ -145,20 +145,52 @@ type ModelTableConfig struct {
 }
 
 type ModelDefinition struct {
-	Name        string                     `json:"name"`
-	Module      string                     `json:"module,omitempty"`
-	Label       string                     `json:"label,omitempty"`
-	Inherit     string                     `json:"inherit,omitempty"`
-	PrimaryKey  *PrimaryKeyConfig          `json:"primary_key,omitempty"`
-	Fields      map[string]FieldDefinition `json:"fields"`
-	RecordRules []RecordRuleDefinition     `json:"record_rules,omitempty"`
-	Indexes     [][]string                 `json:"indexes,omitempty"`
-	FileConfig  *FileConfig                `json:"file_config,omitempty"`
-	TitleField  string                     `json:"title_field,omitempty"`
-	SearchField []string                   `json:"search_field,omitempty"`
-	TableRaw    json.RawMessage            `json:"table,omitempty"`
-	TableName   string                     `json:"-"`
-	TablePrefix *string                    `json:"-"`
+	Name         string                     `json:"name"`
+	Module       string                     `json:"module,omitempty"`
+	Label        string                     `json:"label,omitempty"`
+	Inherit      string                     `json:"inherit,omitempty"`
+	PrimaryKey   *PrimaryKeyConfig          `json:"primary_key,omitempty"`
+	Fields       map[string]FieldDefinition `json:"fields"`
+	RecordRules  []RecordRuleDefinition     `json:"record_rules,omitempty"`
+	Indexes      [][]string                 `json:"indexes,omitempty"`
+	FileConfig   *FileConfig                `json:"file_config,omitempty"`
+	TitleField   string                     `json:"title_field,omitempty"`
+	SearchField  []string                   `json:"search_field,omitempty"`
+	TableRaw     json.RawMessage            `json:"table,omitempty"`
+	TableName    string                     `json:"-"`
+	TablePrefix  *string                    `json:"-"`
+	Version      *bool                      `json:"version,omitempty"`
+	Timestamps   *bool                      `json:"timestamps,omitempty"`
+	TimestampsBy *bool                      `json:"timestamps_by,omitempty"`
+	SoftDeletes  *bool                      `json:"soft_deletes,omitempty"`
+}
+
+func (m *ModelDefinition) IsVersion() bool {
+	if m.Version == nil {
+		return false
+	}
+	return *m.Version
+}
+
+func (m *ModelDefinition) IsTimestamps() bool {
+	if m.Timestamps == nil {
+		return true
+	}
+	return *m.Timestamps
+}
+
+func (m *ModelDefinition) IsTimestampsBy() bool {
+	if m.TimestampsBy == nil {
+		return true
+	}
+	return *m.TimestampsBy
+}
+
+func (m *ModelDefinition) IsSoftDeletes() bool {
+	if m.SoftDeletes == nil {
+		return false
+	}
+	return *m.SoftDeletes
 }
 
 func ParseModel(data []byte) (*ModelDefinition, error) {

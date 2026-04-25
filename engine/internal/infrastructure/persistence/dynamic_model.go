@@ -106,25 +106,56 @@ func buildColumns(model *parser.ModelDefinition, dialect DBDialect) string {
 		}
 	}
 
+	if model.IsTimestamps() {
+		switch dialect {
+		case DialectPostgres:
+			cols += "  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),\n"
+			cols += "  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),\n"
+		case DialectMySQL:
+			cols += "  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,\n"
+			cols += "  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n"
+		default:
+			cols += "  created_at DATETIME NOT NULL DEFAULT (datetime('now')),\n"
+			cols += "  updated_at DATETIME NOT NULL DEFAULT (datetime('now')),\n"
+		}
+	}
+
+	if model.IsTimestampsBy() {
+		switch dialect {
+		case DialectPostgres:
+			cols += "  created_by UUID,\n"
+			cols += "  updated_by UUID,\n"
+		case DialectMySQL:
+			cols += "  created_by CHAR(36),\n"
+			cols += "  updated_by CHAR(36),\n"
+		default:
+			cols += "  created_by TEXT,\n"
+			cols += "  updated_by TEXT,\n"
+		}
+	}
+
 	switch dialect {
 	case DialectPostgres:
-		cols += "  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),\n"
-		cols += "  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),\n"
-		cols += "  created_by UUID,\n"
-		cols += "  updated_by UUID,\n"
 		cols += "  active BOOLEAN NOT NULL DEFAULT TRUE"
 	case DialectMySQL:
-		cols += "  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,\n"
-		cols += "  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n"
-		cols += "  created_by CHAR(36),\n"
-		cols += "  updated_by CHAR(36),\n"
 		cols += "  active BOOLEAN NOT NULL DEFAULT TRUE"
 	default:
-		cols += "  created_at DATETIME NOT NULL DEFAULT (datetime('now')),\n"
-		cols += "  updated_at DATETIME NOT NULL DEFAULT (datetime('now')),\n"
-		cols += "  created_by TEXT,\n"
-		cols += "  updated_by TEXT,\n"
 		cols += "  active INTEGER NOT NULL DEFAULT 1"
+	}
+
+	if model.IsVersion() {
+		cols += ",\n  version INTEGER NOT NULL DEFAULT 1"
+	}
+
+	if model.IsSoftDeletes() {
+		switch dialect {
+		case DialectPostgres:
+			cols += ",\n  deleted_at TIMESTAMPTZ"
+		case DialectMySQL:
+			cols += ",\n  deleted_at DATETIME"
+		default:
+			cols += ",\n  deleted_at DATETIME"
+		}
 	}
 
 	for name, field := range model.Fields {
@@ -324,13 +355,17 @@ func createJunctionTable(db *gorm.DB, model1 string, fieldName string, model2 st
 
 func MergeInheritedFields(parent *parser.ModelDefinition, child *parser.ModelDefinition) *parser.ModelDefinition {
 	merged := &parser.ModelDefinition{
-		Name:        child.Name,
-		Module:      child.Module,
-		Label:       child.Label,
-		Inherit:     child.Inherit,
-		Fields:      make(map[string]parser.FieldDefinition),
-		RecordRules: parent.RecordRules,
-		Indexes:     parent.Indexes,
+		Name:         child.Name,
+		Module:       child.Module,
+		Label:        child.Label,
+		Inherit:      child.Inherit,
+		Fields:       make(map[string]parser.FieldDefinition),
+		RecordRules:  parent.RecordRules,
+		Indexes:      parent.Indexes,
+		Version:      parent.Version,
+		Timestamps:   parent.Timestamps,
+		TimestampsBy: parent.TimestampsBy,
+		SoftDeletes:  parent.SoftDeletes,
 	}
 
 	for name, field := range parent.Fields {
@@ -349,6 +384,19 @@ func MergeInheritedFields(parent *parser.ModelDefinition, child *parser.ModelDef
 
 	if merged.Label == "" {
 		merged.Label = parent.Label
+	}
+
+	if child.Version != nil {
+		merged.Version = child.Version
+	}
+	if child.Timestamps != nil {
+		merged.Timestamps = child.Timestamps
+	}
+	if child.TimestampsBy != nil {
+		merged.TimestampsBy = child.TimestampsBy
+	}
+	if child.SoftDeletes != nil {
+		merged.SoftDeletes = child.SoftDeletes
 	}
 
 	return merged
