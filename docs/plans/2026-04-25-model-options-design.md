@@ -1,4 +1,4 @@
-# Model Options: version, timestamps, timestamps_by, soft_deletes
+# Model Options: version, timestamps, timestamps_by, soft_deletes, soft_deletes_by
 
 ## Summary
 
@@ -13,6 +13,7 @@ Add model-level options to control automatic column generation and behavior for 
   "timestamps": true,
   "timestamps_by": true,
   "soft_deletes": false,
+  "soft_deletes_by": false,
   "fields": { ... }
 }
 ```
@@ -25,6 +26,7 @@ Add model-level options to control automatic column generation and behavior for 
 | `timestamps` | bool | `true` | `created_at DATETIME`, `updated_at DATETIME` |
 | `timestamps_by` | bool | `true` | `created_by UUID`, `updated_by UUID` |
 | `soft_deletes` | bool | `false` | `deleted_at DATETIME` (nullable) |
+| `soft_deletes_by` | bool | `false` | `deleted_by UUID` |
 
 Note: `active BOOLEAN DEFAULT TRUE` is always generated — it is a business field, not a delete mechanism.
 
@@ -65,6 +67,12 @@ These are two **separate** concepts:
 - On delete: sets `deleted_at = NOW()` AND `active = false`.
 - `FindAll` filters `WHERE deleted_at IS NULL` to exclude soft-deleted records.
 - When `false` (default), `deleted_at` column is not generated. `FindAll` has no auto-filter.
+
+### `soft_deletes_by: true`
+
+- Adds `deleted_by` column (UUID FK to users).
+- On soft delete: sets `deleted_by` to the current user ID.
+- When `false` (default), `deleted_by` column is not generated.
 
 ## Query Methods
 

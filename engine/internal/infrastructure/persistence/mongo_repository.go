@@ -647,8 +647,13 @@ func (r *MongoRepository) UpdateWithVersion(ctx context.Context, id string, data
 	return nil
 }
 
-func (r *MongoRepository) SoftDeleteWithTimestamp(ctx context.Context, id string, deletedAt time.Time) error {
-	result, err := r.coll().UpdateOne(ctx, bson.M{"_id": id}, bson.M{"$set": bson.M{"active": false, "deleted_at": deletedAt}})
+func (r *MongoRepository) SoftDeleteWithTimestamp(ctx context.Context, id string, deletedAt time.Time, deletedBy string) error {
+	updates := bson.M{"active": false, "deleted_at": deletedAt}
+	if r.modelDef != nil && r.modelDef.IsSoftDeletesBy() && deletedBy != "" {
+		updates["deleted_by"] = deletedBy
+	}
+
+	result, err := r.coll().UpdateOne(ctx, bson.M{"_id": id}, bson.M{"$set": updates})
 	if err != nil {
 		return fmt.Errorf("failed to soft-delete in %s: %w", r.collection, err)
 	}

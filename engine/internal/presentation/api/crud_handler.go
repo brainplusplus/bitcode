@@ -240,10 +240,15 @@ func (h *CRUDHandler) Delete(c *fiber.Ctx) error {
 		h.repo.SetCurrentUser(userID)
 	}
 
+	var deletedBy string
+	if userID, ok := c.Locals("user_id").(string); ok {
+		deletedBy = userID
+	}
+
 	var err error
 	if h.apiDef.IsSoftDelete() {
 		if h.modelDef != nil && h.modelDef.IsSoftDeletes() {
-			err = h.repo.SoftDeleteWithTimestamp(c.Context(), id, time.Now())
+			err = h.repo.SoftDeleteWithTimestamp(c.Context(), id, time.Now(), deletedBy)
 		} else {
 			err = h.repo.Delete(c.Context(), id)
 		}

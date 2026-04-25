@@ -1,12 +1,12 @@
 workflow sudah?
-prefix_tables in module || on progress
+
 resources mirip laravel
 views diganti pages
 /app => internal, /web => public
-mongodb support || on progress
+
 background job
 cron
-query builder, can used process atau ts python || on progress
+
 repository => can used by another process
 datasources
 field model/form bisa dependent, misal province, city, dll
@@ -17,13 +17,21 @@ email template
 email editor
 data seeder mendukung xlsx, csv maupun json, dan bisa custom processing data seedernya
 i18n kalau bisa digabung jadi 1 utk 11 bahasa, jadi bukan id.json gitu, tapi lebih ke model.json
-go install di run.bat
+
 CRUD component stencil with export, pdf, etc support
 openapi/swagger
 rest api, websocket, graphql
-update namespace bitcode-engine menjadi bitcode-framework
 website
 i18n utk semua label di json
 di model json, ada event2 seperti di laravel yakni before, on, after utk insert, update, delete yang bisa mengacu ke process
 ada version di field model json, buat menangani race condition
 khusus database lain selain main (external), modelnya menggunakan namespace di jsonnya, creadential ada di .toml, dan ada opsi utk auto migrate dan auto generate model json, semisal external [database.ext1], namespace = "ext1"
+mcp server buat vibe coding bitcode
+
+
+=======
+prefix_tables in module || done
+query builder, can used process atau ts python || done
+mongodb support || done
+update namespace bitcode-engine menjadi bitcode-framework || done
+go install di run.bat || done

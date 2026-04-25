@@ -439,15 +439,20 @@ func (r *GenericRepository) UpdateWithVersion(ctx context.Context, id string, da
 	return nil
 }
 
-func (r *GenericRepository) SoftDeleteWithTimestamp(ctx context.Context, id string, deletedAt time.Time) error {
+func (r *GenericRepository) SoftDeleteWithTimestamp(ctx context.Context, id string, deletedAt time.Time, deletedBy string) error {
 	var before map[string]any
 	if r.revisionRepo != nil {
 		r.db.WithContext(ctx).Table(r.tableName).Where(fmt.Sprintf("%s = ?", r.pkCol), id).Take(&before)
 	}
 
+	updates := map[string]any{"active": false, "deleted_at": deletedAt}
+	if r.modelDef != nil && r.modelDef.IsSoftDeletesBy() && deletedBy != "" {
+		updates["deleted_by"] = deletedBy
+	}
+
 	result := r.db.WithContext(ctx).Table(r.tableName).
 		Where(fmt.Sprintf("%s = ?", r.pkCol), id).
-		Updates(map[string]any{"active": false, "deleted_at": deletedAt})
+		Updates(updates)
 	if result.Error != nil {
 		return fmt.Errorf("failed to soft-delete record in %s: %w", r.tableName, result.Error)
 	}

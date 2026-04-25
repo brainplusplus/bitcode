@@ -75,6 +75,7 @@ Control auto-generated columns and behavior at the model level:
 | `timestamps` | bool | `true` | `created_at`, `updated_at` |
 | `timestamps_by` | bool | `true` | `created_by`, `updated_by` |
 | `soft_deletes` | bool | `false` | `deleted_at` (nullable datetime) |
+| `soft_deletes_by` | bool | `false` | `deleted_by` (UUID FK) |
 
 ### Optimistic Locking (`version: true`)
 
@@ -128,6 +129,7 @@ Every model automatically gets:
 | `updated_by` | UUID FK | User who last updated (when `timestamps_by: true`, default) |
 | `version` | integer | Optimistic lock counter (only when `version: true`) |
 | `deleted_at` | datetime | Soft delete timestamp (only when `soft_deletes: true`) |
+| `deleted_by` | UUID FK | User who deleted the record (only when `soft_deletes_by: true`) |
 
 You never need to define these in your JSON.
 

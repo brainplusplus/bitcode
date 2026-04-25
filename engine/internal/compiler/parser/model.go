@@ -159,10 +159,11 @@ type ModelDefinition struct {
 	TableRaw     json.RawMessage            `json:"table,omitempty"`
 	TableName    string                     `json:"-"`
 	TablePrefix  *string                    `json:"-"`
-	Version      *bool                      `json:"version,omitempty"`
-	Timestamps   *bool                      `json:"timestamps,omitempty"`
-	TimestampsBy *bool                      `json:"timestamps_by,omitempty"`
-	SoftDeletes  *bool                      `json:"soft_deletes,omitempty"`
+	Version       *bool                      `json:"version,omitempty"`
+	Timestamps    *bool                      `json:"timestamps,omitempty"`
+	TimestampsBy  *bool                      `json:"timestamps_by,omitempty"`
+	SoftDeletes   *bool                      `json:"soft_deletes,omitempty"`
+	SoftDeletesBy *bool                      `json:"soft_deletes_by,omitempty"`
 }
 
 func (m *ModelDefinition) IsVersion() bool {
@@ -191,6 +192,13 @@ func (m *ModelDefinition) IsSoftDeletes() bool {
 		return false
 	}
 	return *m.SoftDeletes
+}
+
+func (m *ModelDefinition) IsSoftDeletesBy() bool {
+	if m.SoftDeletesBy == nil {
+		return false
+	}
+	return *m.SoftDeletesBy
 }
 
 func ParseModel(data []byte) (*ModelDefinition, error) {

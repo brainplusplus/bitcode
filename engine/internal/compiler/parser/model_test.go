@@ -541,6 +541,9 @@ func TestModelDefinition_OptionsDefaults(t *testing.T) {
 	if model.IsSoftDeletes() {
 		t.Error("expected soft_deletes default false")
 	}
+	if model.IsSoftDeletesBy() {
+		t.Error("expected soft_deletes_by default false")
+	}
 }
 
 func TestModelDefinition_OptionsExplicit(t *testing.T) {
@@ -550,6 +553,7 @@ func TestModelDefinition_OptionsExplicit(t *testing.T) {
 		"timestamps": false,
 		"timestamps_by": false,
 		"soft_deletes": true,
+		"soft_deletes_by": true,
 		"fields": {
 			"name": {"type": "string", "required": true}
 		}
@@ -571,6 +575,9 @@ func TestModelDefinition_OptionsExplicit(t *testing.T) {
 	}
 	if !model.IsSoftDeletes() {
 		t.Error("expected soft_deletes true")
+	}
+	if !model.IsSoftDeletesBy() {
+		t.Error("expected soft_deletes_by true")
 	}
 }
 
@@ -600,5 +607,8 @@ func TestModelDefinition_OptionsPartial(t *testing.T) {
 	}
 	if !model.IsSoftDeletes() {
 		t.Error("expected soft_deletes true")
+	}
+	if model.IsSoftDeletesBy() {
+		t.Error("expected soft_deletes_by default false when not specified")
 	}
 }

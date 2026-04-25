@@ -158,6 +158,17 @@ func buildColumns(model *parser.ModelDefinition, dialect DBDialect) string {
 		}
 	}
 
+	if model.IsSoftDeletesBy() {
+		switch dialect {
+		case DialectPostgres:
+			cols += ",\n  deleted_by UUID"
+		case DialectMySQL:
+			cols += ",\n  deleted_by CHAR(36)"
+		default:
+			cols += ",\n  deleted_by TEXT"
+		}
+	}
+
 	for name, field := range model.Fields {
 		sqlType := fieldTypeToSQL(field, dialect)
 		if sqlType == "" {
@@ -362,10 +373,11 @@ func MergeInheritedFields(parent *parser.ModelDefinition, child *parser.ModelDef
 		Fields:       make(map[string]parser.FieldDefinition),
 		RecordRules:  parent.RecordRules,
 		Indexes:      parent.Indexes,
-		Version:      parent.Version,
-		Timestamps:   parent.Timestamps,
-		TimestampsBy: parent.TimestampsBy,
-		SoftDeletes:  parent.SoftDeletes,
+		Version:       parent.Version,
+		Timestamps:    parent.Timestamps,
+		TimestampsBy:  parent.TimestampsBy,
+		SoftDeletes:   parent.SoftDeletes,
+		SoftDeletesBy: parent.SoftDeletesBy,
 	}
 
 	for name, field := range parent.Fields {
@@ -397,6 +409,9 @@ func MergeInheritedFields(parent *parser.ModelDefinition, child *parser.ModelDef
 	}
 	if child.SoftDeletes != nil {
 		merged.SoftDeletes = child.SoftDeletes
+	}
+	if child.SoftDeletesBy != nil {
+		merged.SoftDeletesBy = child.SoftDeletesBy
 	}
 
 	return merged
