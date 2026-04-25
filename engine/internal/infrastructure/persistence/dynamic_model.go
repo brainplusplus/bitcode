@@ -3,7 +3,7 @@ package persistence
 import (
 	"fmt"
 
-	"github.com/bitcode-engine/engine/internal/compiler/parser"
+	"github.com/bitcode-framework/bitcode/internal/compiler/parser"
 	"gorm.io/gorm"
 )
 

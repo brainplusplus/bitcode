@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/bitcode-engine/engine/internal/infrastructure/persistence"
+	"github.com/bitcode-framework/bitcode/internal/infrastructure/persistence"
 )
 
 type ModelProcessRegistry struct {

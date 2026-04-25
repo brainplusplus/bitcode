@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
-	"github.com/bitcode-engine/engine/pkg/security"
+	"github.com/bitcode-framework/bitcode/pkg/security"
 	"gorm.io/gorm"
 )
 

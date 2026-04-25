@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/bitcode-engine/engine/internal/compiler/parser"
-	"github.com/bitcode-engine/engine/internal/infrastructure/persistence"
-	"github.com/bitcode-engine/engine/internal/runtime/executor"
+	"github.com/bitcode-framework/bitcode/internal/compiler/parser"
+	"github.com/bitcode-framework/bitcode/internal/infrastructure/persistence"
+	"github.com/bitcode-framework/bitcode/internal/runtime/executor"
 	"gorm.io/gorm"
 )
 

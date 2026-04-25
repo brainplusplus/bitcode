@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/bitcode-engine/engine/internal/compiler/parser"
+	"github.com/bitcode-framework/bitcode/internal/compiler/parser"
 )
 
 type CronJob struct {

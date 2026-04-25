@@ -12,7 +12,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 
-	domainstorage "github.com/bitcode-engine/engine/internal/domain/storage"
+	domainstorage "github.com/bitcode-framework/bitcode/internal/domain/storage"
 )
 
 type S3Storage struct {

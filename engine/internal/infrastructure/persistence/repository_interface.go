@@ -3,7 +3,7 @@ package persistence
 import (
 	"context"
 
-	"github.com/bitcode-engine/engine/internal/compiler/parser"
+	"github.com/bitcode-framework/bitcode/internal/compiler/parser"
 )
 
 type Repository interface {

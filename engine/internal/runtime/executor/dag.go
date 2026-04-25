@@ -6,7 +6,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/bitcode-engine/engine/internal/compiler/parser"
+	"github.com/bitcode-framework/bitcode/internal/compiler/parser"
 )
 
 func (e *Executor) ExecuteDAG(ctx context.Context, process *parser.ProcessDefinition, input map[string]any, userID string) (*Context, error) {

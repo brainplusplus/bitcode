@@ -1,4 +1,4 @@
-module github.com/bitcode-engine/engine
+module github.com/bitcode-framework/bitcode
 
 go 1.24
 

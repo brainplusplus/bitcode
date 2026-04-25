@@ -1080,7 +1080,7 @@ func extractRecursive(mfs ModuleFS, dir string, targetDir string) error {
 
 In `app.go`:
 ```go
-import "github.com/bitcode-engine/engine/embedded"
+import "github.com/bitcode-framework/bitcode/embedded"
 ```
 
 **Step 5: Verify build**
@@ -1120,8 +1120,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/bitcode-engine/engine/embedded"
-	"github.com/bitcode-engine/engine/internal/infrastructure/module"
+	"github.com/bitcode-framework/bitcode/embedded"
+	"github.com/bitcode-framework/bitcode/internal/infrastructure/module"
 	"github.com/spf13/cobra"
 )
 

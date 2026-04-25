@@ -6,10 +6,10 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
-	"github.com/bitcode-engine/engine/internal/compiler/parser"
-	"github.com/bitcode-engine/engine/internal/infrastructure/persistence"
-	"github.com/bitcode-engine/engine/internal/runtime/pkgen"
-	"github.com/bitcode-engine/engine/internal/runtime/workflow"
+	"github.com/bitcode-framework/bitcode/internal/compiler/parser"
+	"github.com/bitcode-framework/bitcode/internal/infrastructure/persistence"
+	"github.com/bitcode-framework/bitcode/internal/runtime/pkgen"
+	"github.com/bitcode-framework/bitcode/internal/runtime/workflow"
 )
 
 type CRUDHandler struct {

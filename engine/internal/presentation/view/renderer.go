@@ -6,10 +6,10 @@ import (
 	"html/template"
 	"strings"
 
-	"github.com/bitcode-engine/engine/internal/compiler/parser"
-	"github.com/bitcode-engine/engine/internal/infrastructure/persistence"
-	tmplEngine "github.com/bitcode-engine/engine/internal/presentation/template"
-	"github.com/bitcode-engine/engine/internal/runtime/expression"
+	"github.com/bitcode-framework/bitcode/internal/compiler/parser"
+	"github.com/bitcode-framework/bitcode/internal/infrastructure/persistence"
+	tmplEngine "github.com/bitcode-framework/bitcode/internal/presentation/template"
+	"github.com/bitcode-framework/bitcode/internal/runtime/expression"
 	"gorm.io/gorm"
 )
 

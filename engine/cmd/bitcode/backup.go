@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/bitcode-engine/engine/internal/infrastructure/persistence"
+	"github.com/bitcode-framework/bitcode/internal/infrastructure/persistence"
 	"github.com/spf13/cobra"
 )
 

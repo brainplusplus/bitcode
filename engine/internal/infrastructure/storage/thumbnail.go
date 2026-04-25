@@ -13,7 +13,7 @@ import (
 
 	"github.com/disintegration/imaging"
 
-	domainstorage "github.com/bitcode-engine/engine/internal/domain/storage"
+	domainstorage "github.com/bitcode-framework/bitcode/internal/domain/storage"
 )
 
 type ThumbnailService struct {

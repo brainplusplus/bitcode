@@ -3,8 +3,8 @@ package steps
 import (
 	"context"
 
-	"github.com/bitcode-engine/engine/internal/compiler/parser"
-	"github.com/bitcode-engine/engine/internal/runtime/executor"
+	"github.com/bitcode-framework/bitcode/internal/compiler/parser"
+	"github.com/bitcode-framework/bitcode/internal/runtime/executor"
 )
 
 type EmitHandler struct{}

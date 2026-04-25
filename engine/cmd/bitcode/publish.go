@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/bitcode-engine/engine/embedded"
-	"github.com/bitcode-engine/engine/internal/infrastructure/module"
+	"github.com/bitcode-framework/bitcode/embedded"
+	"github.com/bitcode-framework/bitcode/internal/infrastructure/module"
 	"github.com/spf13/cobra"
 )
 
@@ -268,14 +268,14 @@ func publishAirToml(force, dryRun bool) error {
 func detectEngineRepoWithPath() (bool, string) {
 	if _, err := os.Stat("go.mod"); err == nil {
 		data, err := os.ReadFile("go.mod")
-		if err == nil && strings.Contains(string(data), "github.com/bitcode-engine/engine") {
+		if err == nil && strings.Contains(string(data), "github.com/bitcode-framework/bitcode") {
 			return true, "."
 		}
 	}
 
 	if _, err := os.Stat("../../engine/go.mod"); err == nil {
 		data, err := os.ReadFile("../../engine/go.mod")
-		if err == nil && strings.Contains(string(data), "github.com/bitcode-engine/engine") {
+		if err == nil && strings.Contains(string(data), "github.com/bitcode-framework/bitcode") {
 			return true, "../../engine"
 		}
 	}
@@ -324,7 +324,7 @@ func airTomlAppTemplate() string {
 tmp_dir = "tmp"
 
 [build]
-  cmd = "go build -o ./tmp/bitcode github.com/bitcode-engine/engine/cmd/bitcode"
+  cmd = "go build -o ./tmp/bitcode github.com/bitcode-framework/bitcode/cmd/bitcode"
   bin = "./tmp/bitcode serve"
   include_ext = ["json", "html", "yaml", "toml"]
   include_dir = ["%s"]

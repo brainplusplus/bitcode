@@ -7,7 +7,7 @@ import (
 	"time"
 	"unicode"
 
-	domainstorage "github.com/bitcode-engine/engine/internal/domain/storage"
+	domainstorage "github.com/bitcode-framework/bitcode/internal/domain/storage"
 	"github.com/google/uuid"
 )
 

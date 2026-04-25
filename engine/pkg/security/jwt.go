@@ -55,7 +55,7 @@ func GenerateToken(cfg JWTConfig, userID string, username string, roles []string
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(cfg.Expiration)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			Issuer:    "bitcode-engine",
+			Issuer:    "bitcode",
 		},
 	}
 

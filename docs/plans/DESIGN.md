@@ -486,7 +486,7 @@ Partial view:
 ### 3.1 Project Structure (Engine)
 
 ```
-bitcode-engine/
+bitcode-framework/bitcode/
 ├── cmd/
 │   ├── engine/main.go              # Server entry point
 │   └── bitcode/main.go             # CLI entry point

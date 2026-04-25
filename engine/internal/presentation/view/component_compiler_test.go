@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/bitcode-engine/engine/internal/compiler/parser"
+	"github.com/bitcode-framework/bitcode/internal/compiler/parser"
 )
 
 func TestCompileForm_BasicLayout(t *testing.T) {

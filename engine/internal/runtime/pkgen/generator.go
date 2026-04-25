@@ -7,8 +7,8 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/bitcode-engine/engine/internal/compiler/parser"
-	"github.com/bitcode-engine/engine/internal/runtime/format"
+	"github.com/bitcode-framework/bitcode/internal/compiler/parser"
+	"github.com/bitcode-framework/bitcode/internal/runtime/format"
 )
 
 type Generator struct {

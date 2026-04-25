@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/bitcode-engine/engine/internal/compiler/parser"
+	"github.com/bitcode-framework/bitcode/internal/compiler/parser"
 )
 
 const MaxNestingDepth = 10

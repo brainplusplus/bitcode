@@ -3,7 +3,7 @@ package security
 import (
 	"time"
 
-	"github.com/bitcode-engine/engine/pkg/ddd"
+	"github.com/bitcode-framework/bitcode/pkg/ddd"
 )
 
 type Permission struct {

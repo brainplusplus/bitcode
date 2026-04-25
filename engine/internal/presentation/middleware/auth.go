@@ -4,7 +4,7 @@ import (
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/bitcode-engine/engine/pkg/security"
+	"github.com/bitcode-framework/bitcode/pkg/security"
 )
 
 func AuthMiddleware(jwtCfg security.JWTConfig) fiber.Handler {

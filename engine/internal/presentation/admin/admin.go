@@ -12,11 +12,11 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/bitcode-engine/engine/internal/compiler/parser"
-	domainModel "github.com/bitcode-engine/engine/internal/domain/model"
-	"github.com/bitcode-engine/engine/internal/infrastructure/module"
-	"github.com/bitcode-engine/engine/internal/infrastructure/persistence"
-	"github.com/bitcode-engine/engine/pkg/security"
+	"github.com/bitcode-framework/bitcode/internal/compiler/parser"
+	domainModel "github.com/bitcode-framework/bitcode/internal/domain/model"
+	"github.com/bitcode-framework/bitcode/internal/infrastructure/module"
+	"github.com/bitcode-framework/bitcode/internal/infrastructure/persistence"
+	"github.com/bitcode-framework/bitcode/pkg/security"
 	"gorm.io/gorm"
 )
 

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/bitcode-engine/engine/internal/compiler/parser"
+	"github.com/bitcode-framework/bitcode/internal/compiler/parser"
 )
 
 type ProcessRegistry struct {

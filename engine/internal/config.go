@@ -5,10 +5,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bitcode-engine/engine/internal/infrastructure/cache"
-	"github.com/bitcode-engine/engine/internal/infrastructure/persistence"
-	infrastorage "github.com/bitcode-engine/engine/internal/infrastructure/storage"
-	"github.com/bitcode-engine/engine/internal/presentation/middleware"
+	"github.com/bitcode-framework/bitcode/internal/infrastructure/cache"
+	"github.com/bitcode-framework/bitcode/internal/infrastructure/persistence"
+	infrastorage "github.com/bitcode-framework/bitcode/internal/infrastructure/storage"
+	"github.com/bitcode-framework/bitcode/internal/presentation/middleware"
 	"github.com/spf13/viper"
 )
 

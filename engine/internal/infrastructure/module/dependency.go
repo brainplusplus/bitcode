@@ -3,7 +3,7 @@ package module
 import (
 	"fmt"
 
-	"github.com/bitcode-engine/engine/internal/compiler/parser"
+	"github.com/bitcode-framework/bitcode/internal/compiler/parser"
 )
 
 func ResolveDependencies(modules map[string]*parser.ModuleDefinition, targets ...string) ([]string, error) {

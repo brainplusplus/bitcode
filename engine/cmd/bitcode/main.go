@@ -14,10 +14,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/bitcode-engine/engine/internal"
-	"github.com/bitcode-engine/engine/internal/compiler/parser"
-	"github.com/bitcode-engine/engine/internal/infrastructure/watcher"
-	"github.com/bitcode-engine/engine/pkg/security"
+	"github.com/bitcode-framework/bitcode/internal"
+	"github.com/bitcode-framework/bitcode/internal/compiler/parser"
+	"github.com/bitcode-framework/bitcode/internal/infrastructure/watcher"
+	"github.com/bitcode-framework/bitcode/pkg/security"
 	"github.com/google/uuid"
 	"github.com/spf13/cobra"
 )
@@ -161,14 +161,14 @@ Override with --engine or --no-engine flags.`,
 func detectEngineRepo() bool {
 	if _, err := os.Stat("go.mod"); err == nil {
 		data, err := os.ReadFile("go.mod")
-		if err == nil && strings.Contains(string(data), "github.com/bitcode-engine/engine") {
+		if err == nil && strings.Contains(string(data), "github.com/bitcode-framework/bitcode") {
 			return true
 		}
 	}
 
 	if _, err := os.Stat("../../engine/go.mod"); err == nil {
 		data, err := os.ReadFile("../../engine/go.mod")
-		if err == nil && strings.Contains(string(data), "github.com/bitcode-engine/engine") {
+		if err == nil && strings.Contains(string(data), "github.com/bitcode-framework/bitcode") {
 			return true
 		}
 	}

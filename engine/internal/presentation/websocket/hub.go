@@ -8,7 +8,7 @@ import (
 
 	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
-	"github.com/bitcode-engine/engine/internal/domain/event"
+	"github.com/bitcode-framework/bitcode/internal/domain/event"
 )
 
 type Message struct {

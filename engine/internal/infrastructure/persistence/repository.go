@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/bitcode-engine/engine/internal/compiler/parser"
-	"github.com/bitcode-engine/engine/internal/runtime/expression"
-	"github.com/bitcode-engine/engine/internal/runtime/pkgen"
-	"github.com/bitcode-engine/engine/pkg/security"
+	"github.com/bitcode-framework/bitcode/internal/compiler/parser"
+	"github.com/bitcode-framework/bitcode/internal/runtime/expression"
+	"github.com/bitcode-framework/bitcode/internal/runtime/pkgen"
+	"github.com/bitcode-framework/bitcode/pkg/security"
 	"gorm.io/gorm"
 )
 

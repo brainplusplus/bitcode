@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package plugin;
 
-option go_package = "github.com/bitcode-engine/engine/pkg/plugin/proto";
+option go_package = "github.com/bitcode-framework/bitcode/pkg/plugin/proto";
 
 service PluginService {
   rpc Execute (ExecuteRequest) returns (ExecuteResponse);

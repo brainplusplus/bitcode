@@ -3,8 +3,8 @@ package security
 import (
 	"time"
 
-	"github.com/bitcode-engine/engine/pkg/ddd"
-	pkgsec "github.com/bitcode-engine/engine/pkg/security"
+	"github.com/bitcode-framework/bitcode/pkg/ddd"
+	pkgsec "github.com/bitcode-framework/bitcode/pkg/security"
 )
 
 type User struct {

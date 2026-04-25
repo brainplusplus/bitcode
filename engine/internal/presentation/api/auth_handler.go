@@ -8,10 +8,10 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
-	"github.com/bitcode-engine/engine/internal/infrastructure/cache"
-	"github.com/bitcode-engine/engine/internal/infrastructure/persistence"
-	"github.com/bitcode-engine/engine/pkg/email"
-	"github.com/bitcode-engine/engine/pkg/security"
+	"github.com/bitcode-framework/bitcode/internal/infrastructure/cache"
+	"github.com/bitcode-framework/bitcode/internal/infrastructure/persistence"
+	"github.com/bitcode-framework/bitcode/pkg/email"
+	"github.com/bitcode-framework/bitcode/pkg/security"
 	"gorm.io/gorm"
 )
 

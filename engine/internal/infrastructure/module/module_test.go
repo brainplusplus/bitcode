@@ -3,7 +3,7 @@ package module
 import (
 	"testing"
 
-	"github.com/bitcode-engine/engine/internal/compiler/parser"
+	"github.com/bitcode-framework/bitcode/internal/compiler/parser"
 )
 
 func TestRegistry_RegisterAndGet(t *testing.T) {

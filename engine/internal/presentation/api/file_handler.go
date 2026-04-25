@@ -15,9 +15,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 
-	domainstorage "github.com/bitcode-engine/engine/internal/domain/storage"
-	infrastorage "github.com/bitcode-engine/engine/internal/infrastructure/storage"
-	"github.com/bitcode-engine/engine/pkg/security"
+	domainstorage "github.com/bitcode-framework/bitcode/internal/domain/storage"
+	infrastorage "github.com/bitcode-framework/bitcode/internal/infrastructure/storage"
+	"github.com/bitcode-framework/bitcode/pkg/security"
 )
 
 type FileHandler struct {
