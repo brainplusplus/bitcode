@@ -17,15 +17,16 @@ func publishCmd() *cobra.Command {
 	var models, apis, views, templates, processes, data bool
 
 	cmd := &cobra.Command{
-		Use:   "publish [module] [file]",
-		Short: "Publish embedded module files to project for customization",
-		Long: `Extract embedded module files to your project's modules directory.
+		Use:   "publish [module|air.toml] [file]",
+		Short: "Publish embedded module files or config templates to project",
+		Long: `Extract embedded module files or generate config templates.
 Similar to Laravel's artisan vendor:publish.
 
 Examples:
   bitcode publish base                    # Publish entire base module
   bitcode publish base --models           # Publish only models
   bitcode publish base models/user.json   # Publish single file
+  bitcode publish air.toml                # Generate .air.toml config
   bitcode publish --list                  # List publishable modules`,
 		Args: cobra.MaximumNArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -35,7 +36,11 @@ Examples:
 			}
 
 			if len(args) == 0 {
-				return fmt.Errorf("module name required. Use --list to see available modules")
+				return fmt.Errorf("module name or 'air.toml' required. Use --list to see available modules")
+			}
+
+			if args[0] == "air.toml" {
+				return publishAirToml(force, dryRun)
 			}
 
 			moduleName := args[0]
@@ -219,5 +224,120 @@ func listPublishable() error {
 			fmt.Printf("  %s (%d bytes)\n", entry, len(data))
 		}
 	}
+	fmt.Println("\nConfig templates:")
+	fmt.Println("  air.toml (Air hot-reload config)")
 	return nil
+}
+
+func publishAirToml(force, dryRun bool) error {
+	targetPath := ".air.toml"
+
+	if !force {
+		if _, err := os.Stat(targetPath); err == nil {
+			return fmt.Errorf(".air.toml already exists. Use --force to overwrite")
+		}
+	}
+
+	isEngineRepo, enginePath := detectEngineRepoWithPath()
+
+	var template string
+	if isEngineRepo {
+		template = airTomlEngineTemplate(enginePath)
+	} else {
+		template = airTomlAppTemplate()
+	}
+
+	if dryRun {
+		fmt.Println("[DRY RUN] Would create .air.toml:")
+		fmt.Println(template)
+		return nil
+	}
+
+	if err := os.WriteFile(targetPath, []byte(template), 0644); err != nil {
+		return fmt.Errorf("failed to write .air.toml: %w", err)
+	}
+
+	mode := "app project"
+	if isEngineRepo {
+		mode = "engine repository"
+	}
+	fmt.Printf("Published .air.toml (%s mode)\n", mode)
+	return nil
+}
+
+func detectEngineRepoWithPath() (bool, string) {
+	if _, err := os.Stat("go.mod"); err == nil {
+		data, err := os.ReadFile("go.mod")
+		if err == nil && strings.Contains(string(data), "github.com/bitcode-engine/engine") {
+			return true, "."
+		}
+	}
+
+	if _, err := os.Stat("../../engine/go.mod"); err == nil {
+		data, err := os.ReadFile("../../engine/go.mod")
+		if err == nil && strings.Contains(string(data), "github.com/bitcode-engine/engine") {
+			return true, "../../engine"
+		}
+	}
+
+	return false, ""
+}
+
+func airTomlEngineTemplate(enginePath string) string {
+	cmdPath := strings.ReplaceAll(filepath.Join(enginePath, "cmd/bitcode/"), "\\", "/")
+	if enginePath == "." {
+		cmdPath = "./cmd/bitcode/"
+	}
+	
+	includeDirs := `["cmd", "internal", "pkg", "modules"]`
+	if enginePath != "." {
+		enginePathUnix := strings.ReplaceAll(enginePath, "\\", "/")
+		includeDirs = fmt.Sprintf(`["%s", "modules"]`, enginePathUnix)
+	}
+
+	return fmt.Sprintf(`root = "."
+tmp_dir = "tmp"
+
+[build]
+  cmd = "go build -o ./tmp/bitcode %s"
+  bin = "./tmp/bitcode serve"
+  include_ext = ["go", "json", "html", "yaml", "toml"]
+  include_dir = %s
+  exclude_dir = ["tmp", "vendor", "node_modules", "uploads", "packages", ".git"]
+  exclude_regex = ["_test\\.go$"]
+  delay = 1000
+  stop_on_error = true
+  send_interrupt = true
+  kill_delay = 3000
+
+[log]
+  time = false
+
+[misc]
+  clean_on_exit = true
+`, cmdPath, includeDirs)
+}
+
+func airTomlAppTemplate() string {
+	moduleDir := envOrDefault("MODULE_DIR", "modules")
+	return fmt.Sprintf(`root = "."
+tmp_dir = "tmp"
+
+[build]
+  cmd = "go build -o ./tmp/bitcode github.com/bitcode-engine/engine/cmd/bitcode"
+  bin = "./tmp/bitcode serve"
+  include_ext = ["json", "html", "yaml", "toml"]
+  include_dir = ["%s"]
+  exclude_dir = ["tmp", "vendor", "node_modules", "uploads"]
+  delay = 1000
+  stop_on_error = true
+  send_interrupt = true
+  kill_delay = 3000
+
+[log]
+  time = false
+
+[misc]
+  clean_on_exit = true
+`, moduleDir)
 }

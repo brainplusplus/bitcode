@@ -67,6 +67,7 @@ bitcode module list          # List available modules
 bitcode module create mymod  # Scaffold new module
 bitcode publish base         # Extract embedded module to project
 bitcode publish base --models    # Extract only models
+bitcode publish air.toml     # Generate .air.toml config (auto-detects mode)
 bitcode publish --list       # List publishable modules
 bitcode user create admin admin@example.com
 bitcode user list

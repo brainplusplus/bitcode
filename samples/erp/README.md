@@ -99,6 +99,10 @@ cd samples/erp
 go install -C ../../engine ./cmd/bitcode/
 bitcode serve       # Production mode
 bitcode dev         # Dev mode (auto-detects engine repo, uses Air if available)
+
+# Option 3: Custom Air config (optional)
+bitcode publish air.toml  # Generate .air.toml
+air                       # Run with Air directly
 ```
 
 ## Test the API
