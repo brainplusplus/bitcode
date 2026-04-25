@@ -25,17 +25,15 @@ if not exist "..\..\engine\go.mod" (
     exit /b 1
 )
 
-:: Tidy dependencies
-echo [1/2] Installing dependencies...
-cd ..\..\engine
-go mod tidy >nul 2>&1
+:: Install bitcode CLI
+echo [1/2] Installing bitcode CLI...
+go install -C ..\..\engine ./cmd/bitcode/
 if %errorlevel% neq 0 (
-    echo [ERROR] Failed to install dependencies.
+    echo [ERROR] Failed to install bitcode CLI.
     pause
     exit /b 1
 )
 echo       Done.
-cd /d "%~dp0"
 
 echo.
 echo  ----------------------------------------
@@ -52,23 +50,7 @@ echo   Press Ctrl+C to stop.
 echo  ----------------------------------------
 echo.
 
-:: Try air (hot-reload), fallback to manual build+run
-where air >nul 2>&1
-if %errorlevel% equ 0 (
-    echo [2/2] Starting with Air (hot-reload enabled)
-    echo       Watching: *.go, *.json, *.html, *.yaml
-    echo.
-    air
-) else (
-    echo [2/2] Building and starting (no hot-reload)
-    echo       Install Air for hot-reload: go install github.com/air-verse/air@latest
-    echo.
-    if not exist tmp mkdir tmp
-    go build -C ..\..\engine -o ..\samples\erp\tmp\engine.exe cmd\engine\main.go
-    if %errorlevel% neq 0 (
-        echo [ERROR] Build failed.
-        pause
-        exit /b 1
-    )
-    tmp\engine.exe
-)
+:: Start with bitcode dev (auto-detects engine repo, uses Air if available)
+echo [2/2] Starting bitcode dev...
+echo.
+bitcode dev

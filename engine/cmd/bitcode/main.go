@@ -4,19 +4,21 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"os/signal"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
 	"sync"
 	"syscall"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/bitcode-engine/engine/internal"
 	"github.com/bitcode-engine/engine/internal/compiler/parser"
 	"github.com/bitcode-engine/engine/internal/infrastructure/watcher"
 	"github.com/bitcode-engine/engine/pkg/security"
+	"github.com/google/uuid"
 	"github.com/spf13/cobra"
 )
 
@@ -28,8 +30,9 @@ func main() {
 		Short: "BitCode Engine CLI",
 	}
 
-	root.AddCommand(initCmd())
+	root.AddCommand(serveCmd())
 	root.AddCommand(devCmd())
+	root.AddCommand(initCmd())
 	root.AddCommand(validateCmd())
 	root.AddCommand(versionCmd())
 	root.AddCommand(moduleCmd())
@@ -40,6 +43,53 @@ func main() {
 	if err := root.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
+	}
+}
+
+func serveCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "serve",
+		Short: "Start production server",
+		Long:  "Start the BitCode engine server. Loads config, initializes app, loads modules, and serves HTTP.",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			app, err := buildApp()
+			if err != nil {
+				return fmt.Errorf("failed to initialize app: %w", err)
+			}
+
+			if err := app.LoadModules(); err != nil {
+				return fmt.Errorf("failed to load modules: %w", err)
+			}
+
+			serverErr := make(chan error, 1)
+			go func() {
+				if err := app.Start(); err != nil {
+					serverErr <- err
+				}
+			}()
+
+			quit := make(chan os.Signal, 1)
+			signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+
+			select {
+			case <-quit:
+				fmt.Println("Shutting down...")
+			case err := <-serverErr:
+				if err == nil {
+					return nil
+				}
+				msg := err.Error()
+				if strings.Contains(msg, "server closed") || strings.Contains(msg, "use of closed network connection") {
+					return nil
+				}
+				return fmt.Errorf("server error: %w", err)
+			}
+
+			if err := app.Shutdown(); err != nil {
+				log.Printf("shutdown error: %v", err)
+			}
+			return nil
+		},
 	}
 }
 
@@ -76,76 +126,179 @@ func initCmd() *cobra.Command {
 }
 
 func devCmd() *cobra.Command {
-	return &cobra.Command{
+	var forceEngine bool
+	var forceApp bool
+
+	cmd := &cobra.Command{
 		Use:   "dev",
 		Short: "Start development server with hot reload",
+		Long: `Start BitCode in development mode with automatic reload.
+
+Auto-detects context:
+  - Engine repo: uses Air for Go hot reload (rebuilds on .go changes)
+  - App project: watches module files (JSON, HTML, templates) and reloads in-process
+
+Override with --engine or --no-engine flags.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			var (
-				mu         sync.Mutex
-				currentApp *internal.App
-			)
-
-			startApp := func() error {
-				app, err := buildApp()
-				if err != nil {
-					return err
-				}
-				if err := app.LoadModules(); err != nil {
-					return fmt.Errorf("failed to load modules: %w", err)
-				}
-				mu.Lock()
-				currentApp = app
-				mu.Unlock()
-
-				go func() {
-					if err := app.Start(); err != nil {
-						errMsg := err.Error()
-						if strings.Contains(errMsg, "server closed") || strings.Contains(errMsg, "use of closed network connection") {
-							return
-						}
-						log.Printf("[DEV] server error: %v", err)
-					}
-				}()
-				return nil
+			engineMode := forceEngine
+			if !forceEngine && !forceApp {
+				engineMode = detectEngineRepo()
 			}
 
-			stopApp := func() {
-				mu.Lock()
-				app := currentApp
-				currentApp = nil
-				mu.Unlock()
-				if app != nil {
-					app.Shutdown()
-				}
+			if engineMode {
+				return runEngineDevMode()
 			}
-
-			if err := startApp(); err != nil {
-				return err
-			}
-
-			moduleDir := envOrDefault("MODULE_DIR", "modules")
-			w := watcher.New(moduleDir, 2*time.Second, func() {
-				log.Println("[DEV] changes detected, restarting server...")
-				stopApp()
-				time.Sleep(100 * time.Millisecond)
-				if err := startApp(); err != nil {
-					log.Printf("[DEV] restart failed: %v", err)
-				} else {
-					log.Println("[DEV] server restarted")
-				}
-			})
-			go w.Start()
-
-			quit := make(chan os.Signal, 1)
-			signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-			<-quit
-
-			w.Stop()
-			fmt.Println("Shutting down...")
-			stopApp()
-			return nil
+			return runAppDevMode()
 		},
 	}
+
+	cmd.Flags().BoolVar(&forceEngine, "engine", false, "Force engine development mode (Air hot reload for Go code)")
+	cmd.Flags().BoolVar(&forceApp, "no-engine", false, "Force app development mode (module file watcher only)")
+
+	return cmd
+}
+
+func detectEngineRepo() bool {
+	if _, err := os.Stat("go.mod"); err == nil {
+		data, err := os.ReadFile("go.mod")
+		if err == nil && strings.Contains(string(data), "github.com/bitcode-engine/engine") {
+			return true
+		}
+	}
+
+	if _, err := os.Stat("../../engine/go.mod"); err == nil {
+		data, err := os.ReadFile("../../engine/go.mod")
+		if err == nil && strings.Contains(string(data), "github.com/bitcode-engine/engine") {
+			return true
+		}
+	}
+
+	return false
+}
+
+func runEngineDevMode() error {
+	if _, err := exec.LookPath("air"); err != nil {
+		fmt.Println("[DEV] Air not found. Install it for Go hot reload:")
+		fmt.Println("      go install github.com/air-verse/air@latest")
+		fmt.Println()
+		fmt.Println("[DEV] Falling back to app dev mode (module watcher only)...")
+		fmt.Println()
+		return runAppDevMode()
+	}
+
+	engineDir := "."
+	if _, err := os.Stat("../../engine/go.mod"); err == nil {
+		engineDir = "../../engine"
+	}
+
+	moduleDir := envOrDefault("MODULE_DIR", "modules")
+
+	binName := "./tmp/bitcode"
+	if runtime.GOOS == "windows" {
+		binName = "./tmp/bitcode.exe"
+	}
+
+	buildCmd := fmt.Sprintf("go build -o %s ./cmd/bitcode/", binName)
+
+	airArgs := []string{
+		"--build.cmd", buildCmd,
+		"--build.bin", binName + " serve",
+		"--build.include_ext", "go,json,html,yaml,toml",
+		"--build.exclude_dir", "tmp,vendor,node_modules,uploads,packages,.git",
+		"--build.exclude_regex", "_test\\.go$",
+		"--build.delay", "1000",
+		"--build.stop_on_error", "true",
+		"--build.send_interrupt", "true",
+		"--build.kill_delay", "3000",
+		"--misc.clean_on_exit", "true",
+	}
+
+	if engineDir != "." {
+		airArgs = append(airArgs, "--build.include_dir", engineDir+","+moduleDir)
+	}
+
+	fmt.Println("[DEV] Engine development mode (Air hot reload)")
+	fmt.Println("      Watching: *.go, *.json, *.html, *.yaml, *.toml")
+	fmt.Println()
+
+	airCmd := exec.Command("air", airArgs...)
+	airCmd.Stdout = os.Stdout
+	airCmd.Stderr = os.Stderr
+	airCmd.Stdin = os.Stdin
+	airCmd.Env = os.Environ()
+
+	return airCmd.Run()
+}
+
+func runAppDevMode() error {
+	var (
+		mu         sync.Mutex
+		currentApp *internal.App
+	)
+
+	startApp := func() error {
+		app, err := buildApp()
+		if err != nil {
+			return err
+		}
+		if err := app.LoadModules(); err != nil {
+			return fmt.Errorf("failed to load modules: %w", err)
+		}
+		mu.Lock()
+		currentApp = app
+		mu.Unlock()
+
+		go func() {
+			if err := app.Start(); err != nil {
+				errMsg := err.Error()
+				if strings.Contains(errMsg, "server closed") || strings.Contains(errMsg, "use of closed network connection") {
+					return
+				}
+				log.Printf("[DEV] server error: %v", err)
+			}
+		}()
+		return nil
+	}
+
+	stopApp := func() {
+		mu.Lock()
+		app := currentApp
+		currentApp = nil
+		mu.Unlock()
+		if app != nil {
+			app.Shutdown()
+		}
+	}
+
+	if err := startApp(); err != nil {
+		return err
+	}
+
+	moduleDir := envOrDefault("MODULE_DIR", "modules")
+	w := watcher.New(moduleDir, 2*time.Second, func() {
+		log.Println("[DEV] changes detected, restarting server...")
+		stopApp()
+		time.Sleep(100 * time.Millisecond)
+		if err := startApp(); err != nil {
+			log.Printf("[DEV] restart failed: %v", err)
+		} else {
+			log.Println("[DEV] server restarted")
+		}
+	})
+	go w.Start()
+
+	fmt.Println("[DEV] App development mode (module watcher)")
+	fmt.Println("      Watching:", moduleDir)
+	fmt.Println()
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+
+	w.Stop()
+	fmt.Println("Shutting down...")
+	stopApp()
+	return nil
 }
 
 func validateCmd() *cobra.Command {

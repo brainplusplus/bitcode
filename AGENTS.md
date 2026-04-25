@@ -20,7 +20,7 @@ Modular low-code ERP platform. Go engine reads JSON definitions and produces run
 ```
 bitcode/
 ├── engine/              Go runtime
-│   ├── cmd/             Entry points (engine server + bitcode CLI)
+│   ├── cmd/             Entry point (bitcode CLI — serve, dev, init, validate, etc.)
 │   ├── internal/        Private app code (compiler, domain, runtime, infrastructure, presentation)
 │   ├── pkg/             Public packages (ddd, security, plugin SDK)
 │   ├── modules/         Built-in modules (base, crm, sales)
@@ -188,15 +188,16 @@ go test ./pkg/ddd/        # Specific package
 go test ./... -count=1    # No cache
 ```
 
-Current: 252 tests, 0 failures. Build: OK.
+Current: 260 tests, 0 failures. Build: OK.
 
 ## Build
 
 ```bash
 cd engine
-make build    # Build engine binary
-make cli      # Build CLI binary
+make build    # Build bitcode binary
+make install  # Install bitcode to $GOPATH/bin
+make serve    # Start production server
+make dev      # Start dev server (auto-detects mode)
 make test     # Run tests
-make dev      # Run dev server
 make tidy     # go mod tidy
 ```

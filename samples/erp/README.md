@@ -90,11 +90,15 @@ Sample ERP application built entirely with JSON definitions. Demonstrates all en
 ```bash
 cd samples/erp
 
-# Run with SQLite (zero config, default)
-MODULE_DIR=modules go run ../../engine/cmd/engine/main.go
+# Option 1: Use run scripts (installs bitcode CLI + starts dev server)
+./run.sh            # Linux/macOS
+.\run.bat           # Windows CMD
+.\run.ps1           # Windows PowerShell
 
-# Or with the CLI
-MODULE_DIR=modules go run ../../engine/cmd/bitcode/main.go dev
+# Option 2: Manual (after go install)
+go install -C ../../engine ./cmd/bitcode/
+bitcode serve       # Production mode
+bitcode dev         # Dev mode (auto-detects engine repo, uses Air if available)
 ```
 
 ## Test the API
@@ -144,10 +148,10 @@ curl http://localhost:8080/views/lead_list
 curl http://localhost:8080/views/employee_list
 
 # Validate all definitions
-MODULE_DIR=modules go run ../../engine/cmd/bitcode/main.go validate
+bitcode validate
 
 # List modules
-MODULE_DIR=modules go run ../../engine/cmd/bitcode/main.go module list
+bitcode module list
 ```
 
 ## Admin UI
@@ -174,8 +178,7 @@ Events are broadcast automatically when processes emit domain events.
 ## Multi-tenancy
 
 ```bash
-TENANT_ENABLED=true TENANT_STRATEGY=header \
-  MODULE_DIR=modules go run ../../engine/cmd/engine/main.go
+TENANT_ENABLED=true TENANT_STRATEGY=header bitcode serve
 
 curl -H "X-Tenant-ID: company-a" http://localhost:8080/api/contacts
 curl -H "X-Tenant-ID: company-b" http://localhost:8080/api/contacts
@@ -187,14 +190,13 @@ Strategies: `header` (X-Tenant-ID), `subdomain` (company-a.app.com), `path` (/te
 
 ```bash
 DB_DRIVER=postgres DB_HOST=localhost DB_USER=bitcode DB_PASSWORD=bitcode DB_NAME=erp_sample \
-  MODULE_DIR=modules go run ../../engine/cmd/engine/main.go
+  bitcode serve
 ```
 
 ## With Redis Cache
 
 ```bash
-CACHE_DRIVER=redis REDIS_URL=redis://localhost:6379 \
-  MODULE_DIR=modules go run ../../engine/cmd/engine/main.go
+CACHE_DRIVER=redis REDIS_URL=redis://localhost:6379 bitcode serve
 ```
 
 ## Project Structure

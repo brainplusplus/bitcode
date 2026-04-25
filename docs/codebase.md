@@ -33,9 +33,8 @@ The Go backend that reads JSON definitions and runs the application.
 ```
 engine/
 ├── cmd/                                        # Entry points
-│   ├── engine/main.go                          # Server — load config, init app, load modules, start Fiber
 │   └── bitcode/
-│       ├── main.go                             # CLI — init, dev, validate, module, user, db, version, publish
+│       ├── main.go                             # CLI — serve, dev, init, validate, module, user, db, version, publish
 │       ├── publish.go                          # Module publish command
 │       └── backup.go                           # db backup/restore commands (SQLite/Postgres/MySQL)
 │
@@ -442,7 +441,7 @@ samples/erp/
 ├── bitcode.toml                                # Alternative TOML config
 ├── .env.example                                # Environment variable template
 ├── README.md                                   # Comprehensive feature documentation
-├── build.bat / run.bat / kill.bat              # Windows helper scripts
+├── run.bat / run.ps1 / run.sh                  # Cross-platform run scripts (go install + bitcode dev)
 │
 └── modules/
     ├── base/                                   # Core module (users, roles, groups, permissions)
@@ -564,10 +563,11 @@ type ModuleFS interface {
 ```bash
 # Engine
 cd engine
-make build          # Build engine binary → bin/engine
-make cli            # Build CLI binary → bin/bitcode
-make test           # Run all tests
+make build          # Build bitcode binary → bin/bitcode
+make install        # Install bitcode to $GOPATH/bin
+make serve          # Start production server
 make dev            # Start dev server with hot reload
+make test           # Run all tests
 
 # Components
 cd packages/components
@@ -577,8 +577,9 @@ npm run start       # Dev server with watch
 
 # Sample ERP
 cd samples/erp
-MODULE_DIR=modules go run ../../engine/cmd/engine/main.go
-# Or: MODULE_DIR=modules go run ../../engine/cmd/bitcode/main.go dev
+./run.sh            # Linux/macOS
+.\run.bat           # Windows CMD
+.\run.ps1           # Windows PowerShell
 ```
 
 ---

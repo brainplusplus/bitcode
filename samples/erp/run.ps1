@@ -24,18 +24,15 @@ if (-not (Test-Path "../../engine/go.mod")) {
     exit 1
 }
 
-# Tidy dependencies
-Write-Host "[1/2] Installing dependencies..."
-Push-Location ../../engine
-go mod tidy 2>$null
+# Install bitcode CLI
+Write-Host "[1/2] Installing bitcode CLI..."
+go install -C ../../engine ./cmd/bitcode/
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "[ERROR] Failed to install dependencies."
-    Pop-Location
+    Write-Host "[ERROR] Failed to install bitcode CLI."
     Read-Host "Press Enter to exit"
     exit 1
 }
 Write-Host "      Done."
-Pop-Location
 
 Write-Host ""
 Write-Host "  ----------------------------------------"
@@ -52,25 +49,7 @@ Write-Host "   Press Ctrl+C to stop."
 Write-Host "  ----------------------------------------"
 Write-Host ""
 
-# Try air (hot-reload), fallback to manual build+run
-if (Get-Command air -ErrorAction SilentlyContinue) {
-    Write-Host "[2/2] Starting with Air (hot-reload enabled)"
-    Write-Host "      Watching: *.go, *.json, *.html, *.yaml"
-    Write-Host ""
-    air
-} else {
-    Write-Host "[2/2] Building and starting (no hot-reload)"
-    Write-Host "      Install Air for hot-reload: go install github.com/air-verse/air@latest"
-    Write-Host ""
-
-    if (-not (Test-Path "tmp")) { New-Item -ItemType Directory -Path "tmp" | Out-Null }
-
-    go build -C ../../engine -o ../samples/erp/tmp/engine.exe cmd/engine/main.go
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host "[ERROR] Build failed."
-        Read-Host "Press Enter to exit"
-        exit 1
-    }
-
-    & ./tmp/engine.exe
-}
+# Start with bitcode dev (auto-detects engine repo, uses Air if available)
+Write-Host "[2/2] Starting bitcode dev..."
+Write-Host ""
+bitcode dev

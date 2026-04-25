@@ -5,7 +5,7 @@ Isolate data between tenants (companies, organizations) sharing the same engine 
 ## Enable
 
 ```bash
-TENANT_ENABLED=true go run cmd/engine/main.go
+TENANT_ENABLED=true bitcode serve
 ```
 
 ## Configuration

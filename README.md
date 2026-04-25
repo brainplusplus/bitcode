@@ -20,17 +20,15 @@ bitcode/
 ## Quick Start
 
 ```bash
-# Build the engine
+# Install the CLI
 cd engine
-go mod tidy
-go build -o bin/engine cmd/engine/main.go
-go build -o bin/bitcode cmd/bitcode/main.go
+go install ./cmd/bitcode/
 
 # Run (SQLite, zero config)
-./bin/engine
+bitcode serve
 
 # Or use go run
-go run cmd/engine/main.go
+go run ./cmd/bitcode/ serve
 ```
 
 Server starts at `http://localhost:8080`. SQLite database created automatically as `bitcode.db`.
@@ -39,7 +37,7 @@ Server starts at `http://localhost:8080`. SQLite database created automatically 
 
 ```bash
 cd samples/erp
-MODULE_DIR=modules go run ../../engine/cmd/engine/main.go
+MODULE_DIR=modules go run ../../engine/cmd/bitcode/ serve
 ```
 
 ```bash
@@ -61,8 +59,9 @@ npm run build
 ## CLI Commands
 
 ```bash
+bitcode serve                # Start production server
+bitcode dev                  # Start dev server (auto-detects mode, hot reload)
 bitcode init my-app          # Scaffold new project
-bitcode dev                  # Start dev server (hot reload)
 bitcode validate             # Validate all JSON definitions
 bitcode module list          # List available modules
 bitcode module create mymod  # Scaffold new module
@@ -128,13 +127,13 @@ All config via environment variables or `bitcode.toml`/`bitcode.yaml`. Defaults 
 ### PostgreSQL
 
 ```bash
-DB_DRIVER=postgres DB_HOST=localhost DB_NAME=myapp go run engine/cmd/engine/main.go
+DB_DRIVER=postgres DB_HOST=localhost DB_NAME=myapp bitcode serve
 ```
 
 ### MySQL
 
 ```bash
-DB_DRIVER=mysql DB_HOST=localhost DB_USER=root DB_PASSWORD=root DB_NAME=myapp go run engine/cmd/engine/main.go
+DB_DRIVER=mysql DB_HOST=localhost DB_USER=root DB_PASSWORD=root DB_NAME=myapp bitcode serve
 ```
 
 ### Docker
