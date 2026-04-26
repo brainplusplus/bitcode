@@ -1,33 +1,134 @@
 <style>
-.bc-home-header{margin-bottom:2.5rem;text-align:center}
-.bc-home-header h1{font-size:1.5rem;font-weight:700;color:#1E293B;letter-spacing:-0.02em}
-.bc-home-header p{color:#94A3B8;margin-top:0.3rem;font-size:0.88rem}
-.bc-app-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem;max-width:720px;margin:0 auto}
-.bc-app-card{background:#fff;border:1px solid #F1F5F9;border-radius:12px;padding:1.5rem 1rem;text-align:center;cursor:pointer;transition:all 150ms ease;text-decoration:none;color:#1E293B;display:flex;flex-direction:column;align-items:center;gap:0.65rem}
-.bc-app-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,0.08);border-color:#E2E8F0}
-.bc-app-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff}
-.bc-app-name{font-weight:600;font-size:0.88rem}
-.bc-app-count{font-size:0.72rem;color:#94A3B8}
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap');
+
+.bc-home-wrap{max-width:940px;margin:0 auto;padding:1.5rem 1rem 3rem;font-family:'DM Sans',var(--font)}
+
+/* ── Background ambient glow ── */
+.bc-home-wrap::before{content:'';position:fixed;top:-120px;left:50%;transform:translateX(-50%);width:700px;height:420px;background:radial-gradient(ellipse at center,rgba(99,102,241,0.06) 0%,rgba(99,102,241,0.02) 40%,transparent 70%);pointer-events:none;z-index:0}
+
+/* ── Header ── */
+.bc-home-header{text-align:center;margin-bottom:2rem;position:relative;z-index:1}
+.bc-home-greeting{font-size:1.75rem;font-weight:700;color:var(--text);letter-spacing:-0.03em;line-height:1.2}
+.bc-home-greeting .bc-wave{display:inline-block;animation:bc-wave-anim 2.5s ease-in-out infinite;transform-origin:70% 70%}
+@keyframes bc-wave-anim{0%{transform:rotate(0deg)}10%{transform:rotate(14deg)}20%{transform:rotate(-8deg)}30%{transform:rotate(14deg)}40%{transform:rotate(-4deg)}50%{transform:rotate(10deg)}60%{transform:rotate(0deg)}100%{transform:rotate(0deg)}}
+.bc-home-subtitle{color:var(--text-muted);margin-top:0.35rem;font-size:0.92rem;font-weight:400;letter-spacing:-0.01em}
+
+/* ── Search bar ── */
+.bc-home-search{position:relative;max-width:400px;margin:1.5rem auto 2rem;z-index:1}
+.bc-home-search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--text-muted);pointer-events:none}
+.bc-home-search input{width:100%;padding:0.65rem 1rem 0.65rem 2.6rem;border:1.5px solid var(--border);border-radius:50px;background:var(--card-bg);font-size:0.88rem;font-family:inherit;color:var(--text);outline:none;transition:all 200ms ease;box-shadow:var(--shadow-xs)}
+.bc-home-search input::placeholder{color:var(--text-muted);font-weight:400}
+.bc-home-search input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(99,102,241,0.1),var(--shadow)}
+
+/* ── App grid ── */
+.bc-app-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1.15rem;position:relative;z-index:1}
+
+/* ── App card ── */
+.bc-app-card{background:var(--card-bg);border:1px solid var(--border-light);border-radius:16px;padding:1.6rem 1rem 1.3rem;text-align:center;cursor:pointer;text-decoration:none;color:var(--text);display:flex;flex-direction:column;align-items:center;gap:0.7rem;position:relative;overflow:hidden;transition:transform 280ms cubic-bezier(.22,.68,0,1.2),box-shadow 280ms ease,border-color 200ms ease;opacity:0;animation:bc-card-in 0.5s ease forwards}
+.bc-app-card::before{content:'';position:absolute;inset:0;border-radius:16px;opacity:0;transition:opacity 300ms ease;pointer-events:none}
+.bc-app-card:hover{transform:translateY(-6px) scale(1.02);box-shadow:0 12px 32px -8px rgba(0,0,0,0.12),0 4px 8px -2px rgba(0,0,0,0.06);border-color:transparent;text-decoration:none;color:var(--text)}
+.bc-app-card:active{transform:translateY(-2px) scale(0.99);transition-duration:80ms}
+
+/* ── Staggered entrance ── */
+@keyframes bc-card-in{from{opacity:0;transform:translateY(24px) scale(0.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+.bc-app-card:nth-child(1){animation-delay:0.04s}
+.bc-app-card:nth-child(2){animation-delay:0.08s}
+.bc-app-card:nth-child(3){animation-delay:0.12s}
+.bc-app-card:nth-child(4){animation-delay:0.16s}
+.bc-app-card:nth-child(5){animation-delay:0.2s}
+.bc-app-card:nth-child(6){animation-delay:0.24s}
+.bc-app-card:nth-child(7){animation-delay:0.28s}
+.bc-app-card:nth-child(8){animation-delay:0.32s}
+.bc-app-card:nth-child(9){animation-delay:0.36s}
+.bc-app-card:nth-child(10){animation-delay:0.4s}
+.bc-app-card:nth-child(11){animation-delay:0.44s}
+.bc-app-card:nth-child(12){animation-delay:0.48s}
+.bc-app-card:nth-child(13){animation-delay:0.52s}
+.bc-app-card:nth-child(14){animation-delay:0.56s}
+.bc-app-card:nth-child(15){animation-delay:0.6s}
+.bc-app-card:nth-child(16){animation-delay:0.64s}
+
+/* ── Icon container ── */
+.bc-app-icon{width:64px;height:64px;border-radius:16px;display:flex;align-items:center;justify-content:center;color:#fff;position:relative;transition:transform 280ms cubic-bezier(.22,.68,0,1.2),box-shadow 280ms ease}
+.bc-app-icon svg{width:28px;height:28px;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.15))}
+.bc-app-icon::after{content:'';position:absolute;inset:-3px;border-radius:19px;opacity:0;transition:opacity 300ms ease;pointer-events:none}
+.bc-app-card:hover .bc-app-icon{transform:scale(1.08);box-shadow:0 6px 20px -4px currentColor}
+.bc-app-card:hover .bc-app-icon::after{opacity:0.15;background:inherit;filter:blur(10px)}
+
+/* ── Card text ── */
+.bc-app-name{font-weight:600;font-size:0.92rem;letter-spacing:-0.01em;line-height:1.3;color:var(--text)}
+.bc-app-count{font-size:0.76rem;color:var(--text-muted);font-weight:400}
+
+/* ── Admin card special style ── */
+.bc-app-card--admin{border-style:dashed;border-color:var(--border)}
+.bc-app-card--admin .bc-app-icon{background:linear-gradient(135deg,#64748B,#475569)!important}
+.bc-app-card--admin:hover{border-color:#94A3B8;border-style:solid}
+
+/* ── Empty state ── */
+.bc-home-empty{display:none;text-align:center;padding:3rem 1rem;color:var(--text-muted);font-size:0.92rem;grid-column:1/-1}
+.bc-home-empty svg{width:48px;height:48px;margin-bottom:0.75rem;opacity:0.35}
+
+/* ── Responsive ── */
+@media(max-width:640px){
+  .bc-home-wrap{padding:1rem 0.75rem 2rem}
+  .bc-home-greeting{font-size:1.35rem}
+  .bc-app-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:0.85rem}
+  .bc-app-card{padding:1.3rem 0.75rem 1.1rem}
+  .bc-app-icon{width:52px;height:52px;border-radius:14px}
+  .bc-app-icon svg{width:24px;height:24px}
+}
 </style>
 
-<div class="bc-home-header">
-  <h1>Welcome back, {{.Username}}</h1>
-  <p>Select an application to get started</p>
+<div class="bc-home-wrap">
+  <div class="bc-home-header">
+    <div class="bc-home-greeting"><span class="bc-wave">👋</span> Welcome back, {{.Username}}</div>
+    <div class="bc-home-subtitle">Select an application to get started</div>
+  </div>
+
+  <div class="bc-home-search">
+    <svg class="bc-home-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" id="bc-app-filter" placeholder="Search applications…" autocomplete="off">
+  </div>
+
+  <div class="bc-app-grid" id="bc-app-grid">
+    {{range .ModuleCards}}
+    <a class="bc-app-card" href="/app/{{.FirstView}}" data-name="{{.Label}}">
+      <div class="bc-app-icon" style="background:{{.Color}}">{{.IconSVG}}</div>
+      <div class="bc-app-name">{{.Label}}</div>
+      <div class="bc-app-count">{{.ViewCount}} views</div>
+    </a>
+    {{end}}
+    <a class="bc-app-card bc-app-card--admin" href="/admin" data-name="Admin">
+      <div class="bc-app-icon" style="background:#64748B">
+        <svg width="28" height="28" viewBox="0 0 20 20" fill="#fff"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
+      </div>
+      <div class="bc-app-name">Admin</div>
+      <div class="bc-app-count">System administration</div>
+    </a>
+    <div class="bc-home-empty" id="bc-no-results">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+      <div>No applications match your search</div>
+    </div>
+  </div>
 </div>
 
-<div class="bc-app-grid">
-  {{range .ModuleCards}}
-  <a class="bc-app-card" href="/app/{{.FirstView}}">
-    <div class="bc-app-icon" style="background:{{.Color}}">{{.IconSVG}}</div>
-    <div class="bc-app-name">{{.Label}}</div>
-    <div class="bc-app-count">{{.ViewCount}} views</div>
-  </a>
-  {{end}}
-  <a class="bc-app-card" href="/admin">
-    <div class="bc-app-icon" style="background:#94A3B8">
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="#fff"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
-    </div>
-    <div class="bc-app-name">Admin</div>
-    <div class="bc-app-count">System administration</div>
-  </a>
-</div>
+<script>
+(function(){
+  var input=document.getElementById('bc-app-filter');
+  if(!input)return;
+  var grid=document.getElementById('bc-app-grid');
+  var cards=grid.querySelectorAll('.bc-app-card');
+  var empty=document.getElementById('bc-no-results');
+  input.addEventListener('input',function(){
+    var q=this.value.toLowerCase().trim();
+    var visible=0;
+    cards.forEach(function(c){
+      var name=(c.getAttribute('data-name')||'').toLowerCase();
+      var show=!q||name.indexOf(q)!==-1;
+      c.style.display=show?'':'none';
+      if(show)visible++;
+    });
+    if(empty)empty.style.display=visible===0?'block':'none';
+  });
+})();
+</script>

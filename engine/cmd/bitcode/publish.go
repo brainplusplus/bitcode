@@ -324,8 +324,8 @@ func airTomlAppTemplate() string {
 tmp_dir = "tmp"
 
 [build]
-  cmd = "go build -o ./tmp/bitcode github.com/bitcode-framework/bitcode/cmd/bitcode"
-  bin = "./tmp/bitcode serve"
+  cmd = "go install github.com/bitcode-framework/bitcode/cmd/bitcode"
+  bin = "bitcode serve"
   include_ext = ["json", "html", "yaml", "toml"]
   include_dir = ["%s"]
   exclude_dir = ["tmp", "vendor", "node_modules", "uploads"]

@@ -10,7 +10,7 @@
     "auth.login.submit": "Войти",
     "auth.login.forgot": "Забыли пароль?",
     "auth.login.register": "Создать аккаунт",
-    "auth.login.powered_by": "Работает на LowCode Engine",
+    "auth.login.powered_by": "Работает на BitCode Engine",
 
     "auth.register.title": "Регистрация",
     "auth.register.subtitle": "Создать новый аккаунт",

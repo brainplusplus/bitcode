@@ -10,7 +10,7 @@
     "auth.login.submit": "Iniciar sesión",
     "auth.login.forgot": "¿Olvidaste tu contraseña?",
     "auth.login.register": "Crear cuenta",
-    "auth.login.powered_by": "Desarrollado con LowCode Engine",
+    "auth.login.powered_by": "Desarrollado con BitCode Engine",
 
     "auth.register.title": "Registrarse",
     "auth.register.subtitle": "Crear una cuenta nueva",

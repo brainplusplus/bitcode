@@ -3,50 +3,332 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{{t .Locale "auth.login.title"}} — LowCode</title>
+<title>{{t .Locale "auth.login.title"}} — BitCode</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);display:flex;justify-content:center;align-items:center;min-height:100vh;padding:1rem}
-.auth-card{background:#fff;padding:2.5rem;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.3);width:100%;max-width:400px}
-.auth-brand{display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem}
-.auth-brand svg{width:36px;height:36px}
-.auth-brand span{font-size:1.3rem;font-weight:700;color:#1a1a2e}
-.auth-subtitle{color:#718096;margin-bottom:1.75rem;font-size:0.9rem}
-.auth-error{background:#FEE2E2;color:#991B1B;padding:0.75rem;border-radius:8px;margin-bottom:1rem;font-size:0.85rem}
-.auth-success{background:#ECFDF5;color:#065F46;padding:0.75rem;border-radius:8px;margin-bottom:1rem;font-size:0.85rem}
-.auth-label{display:block;font-weight:600;margin-bottom:0.3rem;font-size:0.85rem;color:#333}
-.auth-input{width:100%;padding:0.7rem 0.9rem;border:1.5px solid #e2e8f0;border-radius:8px;font-size:0.95rem;margin-bottom:1rem;outline:none;transition:border 0.2s,box-shadow 0.2s;font-family:inherit}
-.auth-input:focus{border-color:#6366F1;box-shadow:0 0 0 3px rgba(99,102,241,0.15)}
-.auth-btn{width:100%;padding:0.75rem;background:#6366F1;color:#fff;border:none;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;transition:background 0.2s;font-family:inherit}
-.auth-btn:hover{background:#4F46E5}
-.auth-links{display:flex;justify-content:space-between;margin-top:1.25rem;font-size:0.82rem}
-.auth-links a{color:#6366F1;text-decoration:none}
-.auth-links a:hover{text-decoration:underline}
-.auth-footer{text-align:center;margin-top:1.5rem;font-size:0.8rem;color:#a0aec0}
+
+:root{
+  --primary:#4F46E5;
+  --primary-hover:#4338CA;
+  --primary-light:rgba(79,70,229,0.08);
+  --primary-ring:rgba(79,70,229,0.18);
+  --navy-deep:#0A1628;
+  --navy-mid:#162447;
+  --navy-light:#1B3A5C;
+  --text-primary:#0F172A;
+  --text-secondary:#64748B;
+  --text-tertiary:#94A3B8;
+  --border:#E2E8F0;
+  --border-focus:#4F46E5;
+  --bg-white:#FFFFFF;
+  --bg-input:#F8FAFC;
+  --error-bg:#FEF2F2;
+  --error-text:#991B1B;
+  --error-border:#FECACA;
+  --success-bg:#ECFDF5;
+  --success-text:#065F46;
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',sans-serif;
+}
+
+html,body{height:100%;font-family:var(--font);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+
+/* ── LAYOUT ── */
+.login-shell{display:flex;min-height:100vh;background:var(--bg-white)}
+
+/* ── LEFT PANEL ── */
+.brand-panel{
+  position:relative;
+  width:55%;
+  background:linear-gradient(160deg,var(--navy-deep) 0%,var(--navy-mid) 45%,var(--navy-light) 100%);
+  display:flex;flex-direction:column;justify-content:space-between;
+  padding:2.5rem 3.5rem;
+  overflow:hidden;
+  animation:panelReveal .7s ease-out both;
+}
+
+@keyframes panelReveal{from{opacity:0;transform:translateX(-30px)}to{opacity:1;transform:translateX(0)}}
+
+/* grid overlay */
+.brand-panel::before{
+  content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:64px 64px;
+  pointer-events:none;
+}
+
+/* radial glow */
+.brand-panel::after{
+  content:'';position:absolute;
+  width:600px;height:600px;
+  bottom:-200px;right:-150px;
+  background:radial-gradient(circle,rgba(79,70,229,.12) 0%,transparent 70%);
+  pointer-events:none;
+}
+
+.brand-logo{display:flex;align-items:center;gap:.75rem;position:relative;z-index:1}
+.brand-logo svg{width:38px;height:38px;flex-shrink:0}
+.brand-logo span{font-size:1.25rem;font-weight:700;color:#fff;letter-spacing:-.01em}
+
+.brand-content{position:relative;z-index:1;max-width:520px}
+.brand-headline{
+  font-size:clamp(2rem,3.2vw,2.85rem);
+  font-weight:800;line-height:1.15;
+  color:#fff;letter-spacing:-.03em;
+  margin-bottom:1.25rem;
+}
+.brand-headline span{display:block;background:linear-gradient(135deg,#818CF8,#6366F1,#A78BFA);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.brand-desc{
+  font-size:1.05rem;line-height:1.65;
+  color:rgba(203,213,225,.85);
+  max-width:440px;
+}
+
+.brand-badges{
+  display:flex;gap:2rem;position:relative;z-index:1;
+  padding-top:1rem;
+}
+.brand-badge{display:flex;align-items:center;gap:.5rem;color:rgba(203,213,225,.7);font-size:.85rem;font-weight:500}
+.brand-badge svg{width:18px;height:18px;flex-shrink:0;opacity:.8}
+
+/* floating shapes */
+.shape{position:absolute;border-radius:50%;pointer-events:none;opacity:.06;background:#fff}
+.shape-1{width:320px;height:320px;top:-80px;right:10%}
+.shape-2{width:180px;height:180px;bottom:15%;left:-60px}
+.shape-3{width:100px;height:100px;top:40%;right:-30px;border-radius:24px;transform:rotate(45deg)}
+
+/* ── RIGHT PANEL ── */
+.form-panel{
+  width:45%;display:flex;align-items:center;justify-content:center;
+  padding:2.5rem;
+  animation:formReveal .6s ease-out .15s both;
+}
+
+@keyframes formReveal{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+.form-container{width:100%;max-width:400px}
+
+.form-heading{font-size:1.85rem;font-weight:800;color:var(--text-primary);letter-spacing:-.03em;margin-bottom:.35rem}
+.form-subheading{font-size:.925rem;color:var(--text-secondary);line-height:1.5;margin-bottom:2rem}
+
+/* error / success */
+.auth-error{
+  background:var(--error-bg);color:var(--error-text);
+  border:1px solid var(--error-border);
+  padding:.75rem 1rem;border-radius:10px;margin-bottom:1.25rem;font-size:.855rem;
+  display:flex;align-items:center;gap:.5rem;
+}
+.auth-error::before{content:'';display:block;width:18px;height:18px;flex-shrink:0;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='currentColor'%3E%3Cpath fill-rule='evenodd' d='M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z' clip-rule='evenodd'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='currentColor'%3E%3Cpath fill-rule='evenodd' d='M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z' clip-rule='evenodd'/%3E%3C/svg%3E") center/contain no-repeat}
+.auth-success{background:var(--success-bg);color:var(--success-text);padding:.75rem 1rem;border-radius:10px;margin-bottom:1.25rem;font-size:.855rem}
+
+/* labels */
+.field-group{margin-bottom:1.15rem}
+.field-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.45rem}
+.field-label{font-size:.72rem;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.06em}
+.field-link{font-size:.78rem;font-weight:600;color:var(--primary);text-decoration:none;transition:color .15s}
+.field-link:hover{color:var(--primary-hover)}
+
+/* inputs */
+.input-wrap{position:relative}
+.input-wrap svg{position:absolute;left:.85rem;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--text-tertiary);pointer-events:none;transition:color .2s}
+.input-wrap input{
+  width:100%;padding:.78rem .9rem .78rem 2.65rem;
+  background:var(--bg-input);
+  border:1.5px solid var(--border);border-radius:10px;
+  font-size:.92rem;color:var(--text-primary);
+  font-family:var(--font);
+  outline:none;transition:border .2s,box-shadow .2s,background .2s;
+}
+.input-wrap input::placeholder{color:var(--text-tertiary)}
+.input-wrap input:focus{border-color:var(--border-focus);box-shadow:0 0 0 3.5px var(--primary-ring);background:var(--bg-white)}
+.input-wrap input:focus ~ svg,.input-wrap input:focus + svg{color:var(--primary)}
+
+/* checkbox */
+.remember-row{display:flex;align-items:center;gap:.5rem;margin:1.25rem 0 1.5rem}
+.remember-row input[type=checkbox]{
+  width:16px;height:16px;accent-color:var(--primary);cursor:pointer;border-radius:4px;
+}
+.remember-row label{font-size:.84rem;color:var(--text-secondary);cursor:pointer;user-select:none}
+
+/* button */
+.submit-btn{
+  width:100%;padding:.82rem 1.25rem;
+  background:var(--primary);color:#fff;
+  border:none;border-radius:10px;
+  font-size:.95rem;font-weight:700;
+  font-family:var(--font);
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:.5rem;
+  transition:background .2s,transform .1s,box-shadow .2s;
+  box-shadow:0 1px 3px rgba(79,70,229,.2),0 4px 12px rgba(79,70,229,.15);
+}
+.submit-btn:hover{background:var(--primary-hover);box-shadow:0 2px 6px rgba(79,70,229,.25),0 8px 20px rgba(79,70,229,.2)}
+.submit-btn:active{transform:scale(.985)}
+.submit-btn svg{width:18px;height:18px;transition:transform .2s}
+.submit-btn:hover svg{transform:translateX(3px)}
+
+/* divider */
+.divider{display:flex;align-items:center;gap:1rem;margin:1.5rem 0}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.divider span{font-size:.78rem;color:var(--text-tertiary);white-space:nowrap}
+
+/* register link */
+.register-link{text-align:center}
+.register-link a{
+  font-size:.88rem;font-weight:600;color:var(--primary);text-decoration:none;
+  transition:color .15s;
+}
+.register-link a:hover{color:var(--primary-hover)}
+
+/* footer */
+.form-footer{margin-top:2.5rem;text-align:center}
+.form-footer-secure{font-size:.72rem;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin-bottom:.3rem;display:flex;align-items:center;justify-content:center;gap:.35rem}
+.form-footer-secure svg{width:13px;height:13px;opacity:.6}
+.form-footer-powered{font-size:.75rem;color:var(--text-tertiary)}
+
+/* copyright bar */
+.copyright-bar{
+  position:fixed;bottom:0;left:0;right:0;
+  text-align:center;padding:.6rem 1rem;
+  font-size:.7rem;color:var(--text-tertiary);
+  background:rgba(255,255,255,.85);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  border-top:1px solid rgba(226,232,240,.6);
+  z-index:10;
+}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1024px){
+  .brand-panel{padding:2rem 2.5rem}
+  .brand-headline{font-size:2rem}
+  .form-panel{padding:2rem 1.5rem}
+}
+
+@media(max-width:768px){
+  .brand-panel{display:none}
+  .form-panel{width:100%;min-height:100vh;padding:2rem 1.5rem;align-items:flex-start;padding-top:3rem}
+  .form-container{max-width:420px}
+
+  /* mobile brand header */
+  .mobile-brand{display:flex;align-items:center;gap:.6rem;margin-bottom:2rem}
+  .mobile-brand svg{width:32px;height:32px}
+  .mobile-brand span{font-size:1.1rem;font-weight:700;color:var(--text-primary)}
+}
+
+@media(min-width:769px){
+  .mobile-brand{display:none}
+}
 </style>
 </head>
 <body>
-<div class="auth-card">
-  <div class="auth-brand">
-    <svg viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#6366F1"/><path d="M10 10h5v16h-5V10zm11 5h5v11h-5V15z" fill="#fff"/></svg>
-    <span>LowCode</span>
+<div class="login-shell">
+
+  <!-- ── LEFT: BRAND PANEL ── -->
+  <div class="brand-panel">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+
+    <div class="brand-logo">
+      <svg viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#6366F1"/><path d="M10 10h5v16h-5V10zm11 5h5v11h-5V15z" fill="#fff"/></svg>
+      <span>BitCode</span>
+    </div>
+
+    <div class="brand-content">
+      <h1 class="brand-headline">Build Enterprise Apps.<span>Without Writing Code.</span></h1>
+      <p class="brand-desc">A secure, high-performance platform for mission-critical business applications and seamless operational control.</p>
+    </div>
+
+    <div class="brand-badges">
+      <div class="brand-badge">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
+        Enterprise Security
+      </div>
+      <div class="brand-badge">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg>
+        High Performance
+      </div>
+    </div>
   </div>
-  <p class="auth-subtitle">{{t .Locale "auth.login.subtitle"}}</p>
-  {{if .Error}}
-  <div class="auth-error">{{.Error}}</div>
-  {{end}}
-  <form method="POST" action="/app/auth/login{{if .Next}}?next={{.Next}}{{end}}">
-    <label class="auth-label">{{t .Locale "auth.login.username"}}</label>
-    <input class="auth-input" type="text" name="username" placeholder="{{t .Locale "auth.login.username_placeholder"}}" autofocus required>
-    <label class="auth-label">{{t .Locale "auth.login.password"}}</label>
-    <input class="auth-input" type="password" name="password" placeholder="{{t .Locale "auth.login.password_placeholder"}}" required>
-    <button class="auth-btn" type="submit">{{t .Locale "auth.login.submit"}}</button>
-  </form>
-  <div class="auth-links">
-    <a href="/app/auth/forgot">{{t .Locale "auth.login.forgot"}}</a>
-    {{if .RegisterEnabled}}<a href="/app/auth/register">{{t .Locale "auth.login.register"}}</a>{{end}}
+
+  <!-- ── RIGHT: FORM PANEL ── -->
+  <div class="form-panel">
+    <div class="form-container">
+
+      <!-- mobile-only brand -->
+      <div class="mobile-brand">
+        <svg viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#6366F1"/><path d="M10 10h5v16h-5V10zm11 5h5v11h-5V15z" fill="#fff"/></svg>
+        <span>BitCode</span>
+      </div>
+
+      <h1 class="form-heading">{{t .Locale "auth.login.title"}}</h1>
+      <p class="form-subheading">{{t .Locale "auth.login.subtitle"}}</p>
+
+      {{if .Error}}
+      <div class="auth-error">{{.Error}}</div>
+      {{end}}
+
+      <form method="POST" action="/app/auth/login{{if .Next}}?next={{.Next}}{{end}}">
+
+        <!-- USERNAME -->
+        <div class="field-group">
+          <div class="field-header">
+            <span class="field-label">{{t .Locale "auth.login.username"}}</span>
+          </div>
+          <div class="input-wrap">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
+            <input type="text" name="username" placeholder="{{t .Locale "auth.login.username_placeholder"}}" autofocus required>
+          </div>
+        </div>
+
+        <!-- PASSWORD -->
+        <div class="field-group">
+          <div class="field-header">
+            <span class="field-label">{{t .Locale "auth.login.password"}}</span>
+            <a href="/app/auth/forgot" class="field-link">{{t .Locale "auth.login.forgot"}}</a>
+          </div>
+          <div class="input-wrap">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
+            <input type="password" name="password" placeholder="{{t .Locale "auth.login.password_placeholder"}}" required>
+          </div>
+        </div>
+
+        <!-- REMEMBER -->
+        <div class="remember-row">
+          <input type="checkbox" id="remember" name="remember">
+          <label for="remember">Keep me signed in</label>
+        </div>
+
+        <!-- SUBMIT -->
+        <button class="submit-btn" type="submit">
+          {{t .Locale "auth.login.submit"}}
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </button>
+      </form>
+
+      {{if .RegisterEnabled}}
+      <div class="divider"><span>or</span></div>
+      <div class="register-link">
+        <a href="/app/auth/register">{{t .Locale "auth.login.register"}}</a>
+      </div>
+      {{end}}
+
+      <div class="form-footer">
+        <div class="form-footer-secure">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+          Secure Area &middot; Authorized Personnel Only
+        </div>
+        <div class="form-footer-powered">{{t .Locale "auth.login.powered_by"}}</div>
+      </div>
+
+    </div>
   </div>
-  <div class="auth-footer">{{t .Locale "auth.login.powered_by"}}</div>
+
 </div>
+
+<div class="copyright-bar">&copy; 2024 BitCode Engine. All rights reserved.</div>
+
 </body>
 </html>

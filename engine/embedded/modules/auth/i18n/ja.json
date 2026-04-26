@@ -10,7 +10,7 @@
     "auth.login.submit": "サインイン",
     "auth.login.forgot": "パスワードをお忘れですか？",
     "auth.login.register": "アカウント作成",
-    "auth.login.powered_by": "Powered by LowCode Engine",
+    "auth.login.powered_by": "Powered by BitCode Engine",
 
     "auth.register.title": "登録",
     "auth.register.subtitle": "新しいアカウントを作成",

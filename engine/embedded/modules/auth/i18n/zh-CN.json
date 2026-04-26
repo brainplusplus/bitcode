@@ -10,7 +10,7 @@
     "auth.login.submit": "登录",
     "auth.login.forgot": "忘记密码？",
     "auth.login.register": "创建账户",
-    "auth.login.powered_by": "由 LowCode Engine 提供支持",
+    "auth.login.powered_by": "由 BitCode Engine 提供支持",
 
     "auth.register.title": "注册",
     "auth.register.subtitle": "创建新账户",

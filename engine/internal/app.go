@@ -122,7 +122,7 @@ func NewApp(cfg AppConfig) (*App, error) {
 	}
 
 	fiberApp := fiber.New(fiber.Config{
-		AppName:      "LowCode Engine",
+		AppName:      "BitCode Engine",
 		ErrorHandler: defaultErrorHandler,
 		BodyLimit:    50 * 1024 * 1024,
 	})
@@ -622,6 +622,13 @@ func (a *App) handleHomePage(c *fiber.Ctx) error {
 	for _, mod := range a.moduleOrder {
 		if mod == "base" {
 			continue
+		}
+
+		if installed, err := a.ModuleRegistry.Get(mod); err == nil {
+			vis := installed.Definition.MenuVisibility
+			if vis == "none" || vis == "admin" {
+				continue
+			}
 		}
 
 		viewCount := 0
@@ -1695,7 +1702,7 @@ func (a *App) Start() error {
 	if port == "" {
 		port = "8080"
 	}
-	log.Printf("LowCode Engine starting on :%s", port)
+	log.Printf("BitCode Engine starting on :%s", port)
 	return a.Fiber.Listen(":" + port)
 }
 
@@ -1757,7 +1764,7 @@ func homePageHTML(username string, modules []string, views map[string]*viewEntry
 	}
 
 	return fmt.Sprintf(`<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Home - LowCode Engine</title>
+<title>Home - BitCode Engine</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f4f6f9}
@@ -1769,7 +1776,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem}
 </style></head><body>
 <nav class="nav">
-<h1>LowCode Engine</h1>
+<h1>BitCode Engine</h1>
 <div><a href="/admin">Admin</a><a href="/health">Health</a><a href="/app/auth/logout">Logout</a></div>
 </nav>
 <div class="container">

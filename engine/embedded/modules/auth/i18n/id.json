@@ -10,7 +10,7 @@
     "auth.login.submit": "Masuk",
     "auth.login.forgot": "Lupa kata sandi?",
     "auth.login.register": "Buat akun",
-    "auth.login.powered_by": "Didukung oleh LowCode Engine",
+    "auth.login.powered_by": "Didukung oleh BitCode Engine",
 
     "auth.register.title": "Daftar",
     "auth.register.subtitle": "Buat akun baru",

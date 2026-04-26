@@ -10,7 +10,7 @@
     "auth.login.submit": "로그인",
     "auth.login.forgot": "비밀번호를 잊으셨나요?",
     "auth.login.register": "계정 만들기",
-    "auth.login.powered_by": "Powered by LowCode Engine",
+    "auth.login.powered_by": "Powered by BitCode Engine",
 
     "auth.register.title": "회원가입",
     "auth.register.subtitle": "새 계정 만들기",

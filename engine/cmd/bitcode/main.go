@@ -7,7 +7,6 @@ import (
 	"os/exec"
 	"os/signal"
 	"path/filepath"
-	"runtime"
 	"strconv"
 	"strings"
 	"sync"
@@ -162,14 +161,14 @@ Override with --engine or --no-engine flags.`,
 func detectEngineRepo() bool {
 	if _, err := os.Stat("go.mod"); err == nil {
 		data, err := os.ReadFile("go.mod")
-		if err == nil && strings.Contains(string(data), "github.com/bitcode-engine/engine") {
+		if err == nil && strings.Contains(string(data), "github.com/bitcode-framework/bitcode") {
 			return true
 		}
 	}
 
 	if _, err := os.Stat("../../engine/go.mod"); err == nil {
 		data, err := os.ReadFile("../../engine/go.mod")
-		if err == nil && strings.Contains(string(data), "github.com/bitcode-engine/engine") {
+		if err == nil && strings.Contains(string(data), "github.com/bitcode-framework/bitcode") {
 			return true
 		}
 	}
@@ -206,43 +205,61 @@ func runEngineDevMode() error {
 
 	moduleDir := envOrDefault("MODULE_DIR", "modules")
 
-	binName := "./tmp/bitcode"
-	if runtime.GOOS == "windows" {
-		binName = "./tmp/bitcode.exe"
+	tomlPath := func(p string) string {
+		return strings.ReplaceAll(p, `\`, `/`)
 	}
 
-	var buildCmd string
+	absEngine, _ := filepath.Abs(engineDir)
+	installCmd := fmt.Sprintf("go install -C %s ./cmd/bitcode/", tomlPath(absEngine))
+
+	bitcodeBin, _ := exec.LookPath("bitcode")
+	if bitcodeBin == "" {
+		goBin := os.Getenv("GOBIN")
+		if goBin == "" {
+			goBin = filepath.Join(os.Getenv("GOPATH"), "bin")
+		}
+		bitcodeBin = filepath.Join(goBin, "bitcode")
+	}
+
+	includeDirs := fmt.Sprintf("[%q]", moduleDir)
 	if engineDir != "." {
-		absEngine, _ := filepath.Abs(engineDir)
-		absBin, _ := filepath.Abs(binName)
-		buildCmd = fmt.Sprintf("go build -C %s -o %s ./cmd/bitcode/", absEngine, absBin)
-	} else {
-		buildCmd = fmt.Sprintf("go build -o %s ./cmd/bitcode/", binName)
+		includeDirs = fmt.Sprintf("[%q, %q]", tomlPath(absEngine), moduleDir)
 	}
 
-	airArgs := []string{
-		"--build.cmd", buildCmd,
-		"--build.bin", binName + " serve",
-		"--build.include_ext", "go,json,html,yaml,toml",
-		"--build.exclude_dir", "tmp,vendor,node_modules,uploads,packages,.git",
-		"--build.exclude_regex", "_test\\.go$",
-		"--build.delay", "1000",
-		"--build.stop_on_error", "true",
-		"--build.send_interrupt", "true",
-		"--build.kill_delay", "3000",
-		"--misc.clean_on_exit", "true",
-	}
+	airToml := fmt.Sprintf(`root = "."
+tmp_dir = "tmp"
 
-	if engineDir != "." {
-		airArgs = append(airArgs, "--build.include_dir", engineDir+","+moduleDir)
+[build]
+  cmd = %q
+  entrypoint = [%q, "serve"]
+  include_ext = ["go", "json", "html", "yaml", "toml"]
+  include_dir = %s
+  exclude_dir = ["tmp", "vendor", "node_modules", "uploads", "packages", ".git"]
+  exclude_regex = ["_test\\.go$"]
+  delay = 1000
+  stop_on_error = true
+  kill_delay = 3000
+
+[log]
+  time = false
+
+[misc]
+  clean_on_exit = true
+`, installCmd, tomlPath(bitcodeBin), includeDirs)
+
+	airTomlPath := filepath.Join("tmp", ".air.toml")
+	os.MkdirAll("tmp", 0755)
+	if err := os.WriteFile(airTomlPath, []byte(airToml), 0644); err != nil {
+		return fmt.Errorf("failed to write air config: %w", err)
 	}
+	defer os.Remove(airTomlPath)
 
 	fmt.Println("[DEV] Engine development mode (Air hot reload)")
-	fmt.Println("      Using CLI flags (run 'bitcode publish air.toml' to customize)")
+	fmt.Println("      Using go install + Air watcher")
 	fmt.Println("      Watching: *.go, *.json, *.html, *.yaml, *.toml")
 	fmt.Println()
 
-	airCmd := exec.Command("air", airArgs...)
+	airCmd := exec.Command("air", "-c", airTomlPath)
 	airCmd.Stdout = os.Stdout
 	airCmd.Stderr = os.Stderr
 	airCmd.Stdin = os.Stdin

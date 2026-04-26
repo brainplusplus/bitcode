@@ -10,7 +10,7 @@
     "auth.login.submit": "تسجيل الدخول",
     "auth.login.forgot": "نسيت كلمة المرور؟",
     "auth.login.register": "إنشاء حساب",
-    "auth.login.powered_by": "مدعوم من LowCode Engine",
+    "auth.login.powered_by": "مدعوم من BitCode Engine",
 
     "auth.register.title": "التسجيل",
     "auth.register.subtitle": "إنشاء حساب جديد",
