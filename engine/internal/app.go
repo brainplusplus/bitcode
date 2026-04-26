@@ -295,7 +295,7 @@ func NewApp(cfg AppConfig) (*App, error) {
 			return count, err
 		})
 	}
-	v.SetCustomRunner(func(ctx context.Context, cv parser.CustomValidator, fieldName string, fieldValue any, data map[string]any) error {
+	v.SetCustomRunner(func(ctx context.Context, cv parser.CustomValidator, fieldName string, fieldValue any, data map[string]any, modulePath string) error {
 		if cv.Process != "" {
 			proc, err := processReg.LoadProcess(cv.Process)
 			if err != nil {
@@ -319,12 +319,19 @@ func NewApp(cfg AppConfig) (*App, error) {
 			return nil
 		}
 		if cv.Script != nil && pluginMgr != nil {
+			scriptPath := cv.Script.File
+			if !filepath.IsAbs(scriptPath) && modulePath != "" {
+				resolved := filepath.Join(modulePath, scriptPath)
+				if _, statErr := os.Stat(resolved); statErr == nil {
+					scriptPath = resolved
+				}
+			}
 			params := map[string]any{
 				"field": fieldName,
 				"value": fieldValue,
 				"data":  data,
 			}
-			result, err := pluginMgr.Run(ctx, cv.Script.File, params)
+			result, err := pluginMgr.Run(ctx, scriptPath, params)
 			if err != nil {
 				return err
 			}

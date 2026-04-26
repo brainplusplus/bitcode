@@ -414,5 +414,73 @@ func MergeInheritedFields(parent *parser.ModelDefinition, child *parser.ModelDef
 		merged.SoftDeletesBy = child.SoftDeletesBy
 	}
 
+	merged.Events = mergeEvents(parent.Events, child.Events)
+	merged.Validators = mergeModelValidators(parent.Validators, child.Validators)
+
+	if child.Sanitize != nil {
+		merged.Sanitize = child.Sanitize
+	} else {
+		merged.Sanitize = parent.Sanitize
+	}
+
+	if child.ModulePath != "" {
+		merged.ModulePath = child.ModulePath
+	} else {
+		merged.ModulePath = parent.ModulePath
+	}
+
 	return merged
+}
+
+func mergeEvents(parent *parser.EventsDefinition, child *parser.EventsDefinition) *parser.EventsDefinition {
+	if parent == nil && child == nil {
+		return nil
+	}
+	if parent == nil {
+		return child
+	}
+	if child == nil {
+		return parent
+	}
+
+	merged := &parser.EventsDefinition{
+		BeforeValidate:   append(parent.BeforeValidate, child.BeforeValidate...),
+		AfterValidate:    append(parent.AfterValidate, child.AfterValidate...),
+		BeforeCreate:     append(parent.BeforeCreate, child.BeforeCreate...),
+		AfterCreate:      append(parent.AfterCreate, child.AfterCreate...),
+		BeforeUpdate:     append(parent.BeforeUpdate, child.BeforeUpdate...),
+		AfterUpdate:      append(parent.AfterUpdate, child.AfterUpdate...),
+		BeforeDelete:     append(parent.BeforeDelete, child.BeforeDelete...),
+		AfterDelete:      append(parent.AfterDelete, child.AfterDelete...),
+		BeforeSave:       append(parent.BeforeSave, child.BeforeSave...),
+		AfterSave:        append(parent.AfterSave, child.AfterSave...),
+		BeforeSoftDelete: append(parent.BeforeSoftDelete, child.BeforeSoftDelete...),
+		AfterSoftDelete:  append(parent.AfterSoftDelete, child.AfterSoftDelete...),
+		BeforeHardDelete: append(parent.BeforeHardDelete, child.BeforeHardDelete...),
+		AfterHardDelete:  append(parent.AfterHardDelete, child.AfterHardDelete...),
+		BeforeRestore:    append(parent.BeforeRestore, child.BeforeRestore...),
+		AfterRestore:     append(parent.AfterRestore, child.AfterRestore...),
+	}
+
+	if len(parent.OnChange) > 0 || len(child.OnChange) > 0 {
+		merged.OnChange = make(map[string][]parser.EventHandler)
+		for field, handlers := range parent.OnChange {
+			merged.OnChange[field] = append(merged.OnChange[field], handlers...)
+		}
+		for field, handlers := range child.OnChange {
+			merged.OnChange[field] = append(merged.OnChange[field], handlers...)
+		}
+	}
+
+	return merged
+}
+
+func mergeModelValidators(parent []parser.ModelValidator, child []parser.ModelValidator) []parser.ModelValidator {
+	if len(parent) == 0 {
+		return child
+	}
+	if len(child) == 0 {
+		return parent
+	}
+	return append(parent, child...)
 }

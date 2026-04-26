@@ -15,7 +15,7 @@ type ExistsChecker func(ctx context.Context, tableName string, id any, condition
 
 type RelationCounter func(ctx context.Context, tableName string, foreignKey string, parentID any) (int64, error)
 
-type CustomValidatorRunner func(ctx context.Context, cv parser.CustomValidator, fieldName string, fieldValue any, data map[string]any) error
+type CustomValidatorRunner func(ctx context.Context, cv parser.CustomValidator, fieldName string, fieldValue any, data map[string]any, modulePath string) error
 
 type Validator struct {
 	translator        func(locale, key string) string
@@ -431,10 +431,44 @@ func (v *Validator) validateField(ctx context.Context, fieldName string, fieldDe
 		return
 	}
 
+	if validation.FileSize != "" || len(validation.FileType) > 0 {
+		v.validateFile(fieldName, data, label, locale, validation, errs)
+	}
+
 	v.validateUnique(ctx, fieldName, fieldDef, modelDef, val, data, operation, currentRecordID, label, locale, validation, errs)
 	v.validateExists(ctx, fieldName, fieldDef, val, label, locale, validation, errs)
 	v.validateRelationItems(ctx, fieldName, fieldDef, modelDef, data, operation, label, locale, validation, errs)
-	v.validateCustom(ctx, fieldName, val, data, label, locale, validation, errs)
+	v.validateCustom(ctx, fieldName, val, data, modelDef.ModulePath, label, locale, validation, errs)
+}
+
+func (v *Validator) validateFile(fieldName string, data map[string]any, label string, locale string, validation *parser.FieldValidation, errs *ValidationErrors) {
+	if validation.FileSize != "" {
+		sizeKey := fieldName + "_size"
+		if fileSize, ok := data[sizeKey]; ok {
+			maxBytes := parseFileSize(validation.FileSize)
+			if maxBytes > 0 {
+				if actualSize, ok := toFloat(fileSize); ok && int64(actualSize) > maxBytes {
+					errs.Add(fieldName, "file_size", v.msg(validation, "file_size", locale, fmt.Sprintf("%s must not exceed %s", label, validation.FileSize)), map[string]any{"max_size": validation.FileSize})
+				}
+			}
+		}
+	}
+
+	if len(validation.FileType) > 0 {
+		typeKey := fieldName + "_type"
+		if fileType, ok := data[typeKey].(string); ok && fileType != "" {
+			allowed := false
+			for _, t := range validation.FileType {
+				if strings.EqualFold(fileType, t) {
+					allowed = true
+					break
+				}
+			}
+			if !allowed {
+				errs.Add(fieldName, "file_type", v.msg(validation, "file_type", locale, fmt.Sprintf("%s must be one of the allowed file types", label)), map[string]any{"allowed_types": validation.FileType})
+			}
+		}
+	}
 }
 
 func (v *Validator) validateUnique(ctx context.Context, fieldName string, fieldDef *parser.FieldDefinition, modelDef *parser.ModelDefinition, val any, data map[string]any, operation string, currentRecordID string, label string, locale string, validation *parser.FieldValidation, errs *ValidationErrors) {
@@ -557,7 +591,7 @@ func resolveIntValue(val any) int {
 	return 0
 }
 
-func (v *Validator) validateCustom(ctx context.Context, fieldName string, val any, data map[string]any, label string, locale string, validation *parser.FieldValidation, errs *ValidationErrors) {
+func (v *Validator) validateCustom(ctx context.Context, fieldName string, val any, data map[string]any, modulePath string, label string, locale string, validation *parser.FieldValidation, errs *ValidationErrors) {
 	if len(validation.Custom) == 0 {
 		return
 	}
@@ -566,7 +600,7 @@ func (v *Validator) validateCustom(ctx context.Context, fieldName string, val an
 	}
 
 	for _, cv := range validation.Custom {
-		if err := v.customRunner(ctx, cv, fieldName, val, data); err != nil {
+		if err := v.customRunner(ctx, cv, fieldName, val, data, modulePath); err != nil {
 			msg := cv.Message
 			if msg == "" {
 				msg = err.Error()
@@ -613,6 +647,11 @@ func (v *Validator) autoMapValidation(fieldDef *parser.FieldDefinition) *parser.
 
 	if fieldDef.Required {
 		val.Required = true
+		hasRule = true
+	}
+
+	if fieldDef.Unique {
+		val.UniqueSimple = true
 		hasRule = true
 	}
 
@@ -702,7 +741,7 @@ func (v *Validator) validateModelLevel(ctx context.Context, modelDef *parser.Mod
 				Script:  mv.Script,
 				Message: mv.Message,
 			}
-			if err := v.customRunner(ctx, cv, "_model", nil, data); err != nil {
+			if err := v.customRunner(ctx, cv, "_model", nil, data, modelDef.ModulePath); err != nil {
 				msg := mv.Message
 				if msg == "" {
 					msg = err.Error()
