@@ -53,9 +53,10 @@ type MigrationSourceOptions struct {
 }
 
 type MigrationProcessor struct {
-	Type    string     `json:"type"`
-	Script  *ScriptRef `json:"script,omitempty"`
-	Process string     `json:"process,omitempty"`
+	Type       string            `json:"type"`
+	Script     *ScriptRef        `json:"script,omitempty"`
+	Process    string            `json:"process,omitempty"`
+	ExtraFiles map[string]string `json:"extra_files,omitempty"`
 }
 
 type MigrationOptions struct {

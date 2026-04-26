@@ -59,10 +59,27 @@ Filename format: `YYYYMMDD_HHMMSS_name.json`
     "active": true
   },
   "down": {
-    "strategy": "delete_by_source"
+    "strategy": "delete_seeded"
   }
 }
 ```
+
+## Dependency Ordering
+
+Migrations within a module can declare `depends_on` to control execution order:
+
+```json
+{
+  "name": "seed_employees",
+  "depends_on": ["seed_departments", "seed_positions"],
+  "model": "employee",
+  "source": { "type": "json", "file": "data/employees.json" }
+}
+```
+
+Dependencies are resolved via topological sort. Circular dependencies are detected at parse time.
+
+**Important**: `depends_on` is intra-module only. For cross-module dependencies (e.g., CRM contacts depending on base roles), use module-level `depends` in `module.json` — modules are installed in dependency order automatically.
 
 ## Source Types
 
@@ -150,6 +167,25 @@ The script receives `{ records, model, module }` and should return the transform
 ```
 
 The process receives `{ records, model, module }` in its input context.
+
+### Extra Files
+
+Processors can reference additional data files for lookup/enrichment:
+
+```json
+{
+  "processor": {
+    "type": "script",
+    "script": { "lang": "typescript", "file": "scripts/enrich.ts" },
+    "extra_files": {
+      "company_map": "data/company_mapping.json",
+      "region_codes": "data/regions.csv"
+    }
+  }
+}
+```
+
+The processor receives `{ records, model, module, extra_files: { company_map: [...], region_codes: "..." } }`. JSON files are parsed automatically; other formats are passed as raw strings.
 
 ## Rollback Strategies
 

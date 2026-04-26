@@ -630,4 +630,78 @@ func TestCoerceType(t *testing.T) {
 	if coerceType("true", "bool") != true {
 		t.Error("coerce string to bool failed")
 	}
+	if coerceType("abc", "int") != "abc" {
+		t.Error("coerce invalid int should return original string")
+	}
+}
+
+func TestSafeFieldName(t *testing.T) {
+	valid := []string{"name", "email", "user_id", "field123", "_private"}
+	for _, f := range valid {
+		if !safeFieldName.MatchString(f) {
+			t.Errorf("expected %q to be valid", f)
+		}
+	}
+
+	invalid := []string{"name; DROP TABLE", "field-name", "123start", "a.b", "x=1"}
+	for _, f := range invalid {
+		if safeFieldName.MatchString(f) {
+			t.Errorf("expected %q to be invalid", f)
+		}
+	}
+}
+
+func TestGormDataInserter_RejectsUnsafeFieldNames(t *testing.T) {
+	db := setupTestDB(t)
+	db.Exec("CREATE TABLE contact (id TEXT, name TEXT)")
+	inserter := NewGormDataInserter(db)
+
+	ctx := context.Background()
+	_, err := inserter.Exists(ctx, "contact", map[string]any{"name; DROP TABLE contact--": "x"})
+	if err == nil {
+		t.Error("expected error for unsafe field name in Exists")
+	}
+
+	err = inserter.Update(ctx, "contact", map[string]any{"name; DROP TABLE contact--": "x"}, map[string]any{"name": "y"})
+	if err == nil {
+		t.Error("expected error for unsafe field name in Update")
+	}
+}
+
+func TestExtraFilesLoading(t *testing.T) {
+	db := setupTestDB(t)
+	db.Exec("CREATE TABLE contact (id TEXT, name TEXT, email TEXT, region TEXT, created_at TEXT, updated_at TEXT)")
+	_ = setupEngine(t, db)
+
+	tmpDir := t.TempDir()
+	os.MkdirAll(filepath.Join(tmpDir, "data"), 0755)
+	os.MkdirAll(filepath.Join(tmpDir, "migrations"), 0755)
+
+	writeJSON(t, filepath.Join(tmpDir, "data", "contacts.json"), []map[string]any{
+		{"name": "Alice", "email": "alice@test.com"},
+	})
+	writeJSON(t, filepath.Join(tmpDir, "data", "regions.json"), map[string]any{
+		"default": "Asia",
+	})
+
+	writeMigration(t, filepath.Join(tmpDir, "migrations"), "20260101_000001_contacts.json", map[string]any{
+		"name": "seed_contacts", "model": "contact",
+		"source": map[string]any{"type": "json", "file": "data/contacts.json"},
+		"processor": map[string]any{
+			"type": "script",
+			"script": map[string]any{"lang": "typescript", "file": "scripts/noop.ts"},
+			"extra_files": map[string]string{
+				"regions": "data/regions.json",
+			},
+		},
+	})
+
+	migrations, err := CollectModuleMigrations(tmpDir, []string{"migrations/*.json"})
+	if err != nil {
+		t.Fatalf("discover failed: %v", err)
+	}
+
+	if migrations[0].Def.Processor.ExtraFiles["regions"] != "data/regions.json" {
+		t.Error("extra_files not parsed correctly")
+	}
 }

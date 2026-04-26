@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -310,25 +311,34 @@ func seedCreateCmd() *cobra.Command {
 				ext = "xlsx"
 			}
 
-			content := fmt.Sprintf(`{
-  "name": "%s",
-  "model": "%s",
-  "description": "",
-  "source": {
-    "type": "%s",
-    "file": "data/%s.%s"
-  },
-  "options": {
-    "batch_size": 100,
-    "on_conflict": "skip"
-  }
-}`, name, model, sourceType, name, ext)
+			deps := discoverModelDependencies(filepath.Join(moduleDir, moduleName), model)
 
-			if err := os.WriteFile(filePath, []byte(content), 0644); err != nil {
+			migDef := map[string]any{
+				"name":  name,
+				"model": model,
+				"source": map[string]any{
+					"type": sourceType,
+					"file": fmt.Sprintf("data/%s.%s", name, ext),
+				},
+				"options": map[string]any{
+					"batch_size":  100,
+					"on_conflict": "skip",
+				},
+			}
+			if len(deps) > 0 {
+				migDef["depends_on"] = deps
+			}
+
+			content, _ := json.MarshalIndent(migDef, "", "  ")
+
+			if err := os.WriteFile(filePath, content, 0644); err != nil {
 				return fmt.Errorf("failed to create migration file: %w", err)
 			}
 
 			fmt.Printf("Created migration: %s\n", filePath)
+			if len(deps) > 0 {
+				fmt.Printf("Auto-detected depends_on: %v\n", deps)
+			}
 			return nil
 		},
 	}
@@ -337,6 +347,38 @@ func seedCreateCmd() *cobra.Command {
 	cmd.Flags().StringVarP(&sourceType, "type", "t", "json", "Source type (json, csv, xlsx, xml)")
 	cmd.Flags().StringVar(&model, "model", "", "Target model name (required)")
 	return cmd
+}
+
+func discoverModelDependencies(modulePath string, modelName string) []string {
+	modelsDir := filepath.Join(modulePath, "models")
+	modelFile := filepath.Join(modelsDir, modelName+".json")
+
+	data, err := os.ReadFile(modelFile)
+	if err != nil {
+		return nil
+	}
+
+	var modelDef struct {
+		Fields map[string]struct {
+			Type  string `json:"type"`
+			Model string `json:"model"`
+		} `json:"fields"`
+	}
+	if err := json.Unmarshal(data, &modelDef); err != nil {
+		return nil
+	}
+
+	seen := make(map[string]bool)
+	var deps []string
+	for _, field := range modelDef.Fields {
+		if field.Type == "many2one" && field.Model != "" && field.Model != modelName {
+			if !seen[field.Model] {
+				seen[field.Model] = true
+				deps = append(deps, "seed_"+field.Model)
+			}
+		}
+	}
+	return deps
 }
 
 func migrationTimestamp() string {

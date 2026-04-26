@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 
@@ -17,11 +18,13 @@ import (
 	"gorm.io/gorm"
 )
 
+var safeFieldName = regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_]*$`)
+
 type TableNameResolver interface {
 	TableName(modelName string) string
 }
 
-func resolveSeederTable(modelName string, resolver TableNameResolver) string {
+func resolveTableName(modelName string, resolver TableNameResolver) string {
 	if resolver != nil {
 		return resolver.TableName(modelName)
 	}
@@ -43,6 +46,7 @@ type DataInserter interface {
 	Delete(ctx context.Context, table string, ids []string) error
 	DeleteAll(ctx context.Context, table string) error
 	WithTransaction(ctx context.Context, fn func(tx DataInserter) error) error
+	SupportsNestedDocs() bool
 }
 
 type GormDataInserter struct {
@@ -60,6 +64,9 @@ func (g *GormDataInserter) Insert(ctx context.Context, table string, record map[
 func (g *GormDataInserter) Exists(ctx context.Context, table string, fields map[string]any) (bool, error) {
 	q := g.db.WithContext(ctx).Table(table)
 	for k, v := range fields {
+		if !safeFieldName.MatchString(k) {
+			return false, fmt.Errorf("invalid field name: %s", k)
+		}
 		q = q.Where(fmt.Sprintf("%s = ?", k), v)
 	}
 	var count int64
@@ -70,6 +77,9 @@ func (g *GormDataInserter) Exists(ctx context.Context, table string, fields map[
 func (g *GormDataInserter) Update(ctx context.Context, table string, fields map[string]any, updates map[string]any) error {
 	q := g.db.WithContext(ctx).Table(table)
 	for k, v := range fields {
+		if !safeFieldName.MatchString(k) {
+			return fmt.Errorf("invalid field name: %s", k)
+		}
 		q = q.Where(fmt.Sprintf("%s = ?", k), v)
 	}
 	return q.Updates(updates).Error
@@ -91,6 +101,8 @@ func (g *GormDataInserter) WithTransaction(ctx context.Context, fn func(tx DataI
 		return fn(&GormDataInserter{db: gormTx})
 	})
 }
+
+func (g *GormDataInserter) SupportsNestedDocs() bool { return false }
 
 type MongoDataInserter struct {
 	conn *persistence.MongoConnection
@@ -156,6 +168,8 @@ func (m *MongoDataInserter) DeleteAll(ctx context.Context, table string) error {
 func (m *MongoDataInserter) WithTransaction(ctx context.Context, fn func(tx DataInserter) error) error {
 	return fn(m)
 }
+
+func (m *MongoDataInserter) SupportsNestedDocs() bool { return true }
 
 type MigrationEngine struct {
 	tracker       *persistence.MigrationTracker
@@ -296,14 +310,14 @@ func (e *MigrationEngine) executeMigration(ctx context.Context, modulePath strin
 		}
 	}
 
-	records = e.prepareRecords(def, records)
+	records = e.prepareRecords(def, records, e.inserter.SupportsNestedDocs())
 
 	if def.Options.DryRun {
 		log.Printf("[MIGRATION] dry run: would insert %d records into %s", len(records), def.Model)
 		return len(records), nil, nil
 	}
 
-	table := resolveSeederTable(def.Model, e.resolver)
+	table := resolveTableName(def.Model, e.resolver)
 
 	var count int
 	var insertedIDs []string
@@ -324,7 +338,7 @@ func (e *MigrationEngine) executeMigration(ctx context.Context, modulePath strin
 func (e *MigrationEngine) rollbackMigration(ctx context.Context, modulePath string, moduleName string, mf *parser.MigrationFile) error {
 	def := mf.Def
 	strategy := def.GetDownStrategy()
-	table := resolveSeederTable(def.Model, e.resolver)
+	table := resolveTableName(def.Model, e.resolver)
 
 	switch strategy {
 	case parser.DownNone:
@@ -372,12 +386,20 @@ func (e *MigrationEngine) rollbackMigration(ctx context.Context, modulePath stri
 func (e *MigrationEngine) runProcessor(ctx context.Context, modulePath string, def *parser.MigrationDefinition, records []map[string]any) ([]map[string]any, error) {
 	proc := def.Processor
 
+	extraData, err := e.loadExtraFiles(modulePath, proc.ExtraFiles)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load extra_files: %w", err)
+	}
+
 	switch proc.Type {
 	case "process":
 		if e.processRunner == nil {
 			return nil, fmt.Errorf("process runner not configured")
 		}
 		input := map[string]any{"records": records, "model": def.Model, "module": def.Module}
+		if len(extraData) > 0 {
+			input["extra_files"] = extraData
+		}
 		result, err := e.processRunner.RunProcess(ctx, proc.Process, input)
 		if err != nil {
 			return nil, err
@@ -390,6 +412,9 @@ func (e *MigrationEngine) runProcessor(ctx context.Context, modulePath string, d
 		}
 		scriptPath := ResolveSourcePath(modulePath, proc.Script.File)
 		params := map[string]any{"records": records, "model": def.Model, "module": def.Module}
+		if len(extraData) > 0 {
+			params["extra_files"] = extraData
+		}
 		result, err := e.scriptRunner.Run(ctx, scriptPath, params)
 		if err != nil {
 			return nil, err
@@ -399,6 +424,29 @@ func (e *MigrationEngine) runProcessor(ctx context.Context, modulePath string, d
 	default:
 		return nil, fmt.Errorf("unsupported processor type: %s", proc.Type)
 	}
+}
+
+func (e *MigrationEngine) loadExtraFiles(modulePath string, extraFiles map[string]string) (map[string]any, error) {
+	if len(extraFiles) == 0 {
+		return nil, nil
+	}
+
+	result := make(map[string]any, len(extraFiles))
+	for key, filePath := range extraFiles {
+		fullPath := ResolveSourcePath(modulePath, filePath)
+		data, err := os.ReadFile(fullPath)
+		if err != nil {
+			return nil, fmt.Errorf("extra_file %q (%s): %w", key, filePath, err)
+		}
+
+		var parsed any
+		if err := json.Unmarshal(data, &parsed); err != nil {
+			result[key] = string(data)
+		} else {
+			result[key] = parsed
+		}
+	}
+	return result, nil
 }
 
 func extractProcessedRecords(result any, fallback []map[string]any) ([]map[string]any, error) {
@@ -444,7 +492,7 @@ func extractProcessedRecords(result any, fallback []map[string]any) ([]map[strin
 	return records, nil
 }
 
-func (e *MigrationEngine) prepareRecords(def *parser.MigrationDefinition, records []map[string]any) []map[string]any {
+func (e *MigrationEngine) prepareRecords(def *parser.MigrationDefinition, records []map[string]any, nestedDocs bool) []map[string]any {
 	now := time.Now().Format("2006-01-02 15:04:05")
 
 	for i := range records {
@@ -473,12 +521,14 @@ func (e *MigrationEngine) prepareRecords(def *parser.MigrationDefinition, record
 			}
 		}
 
-		for k, v := range records[i] {
-			switch val := v.(type) {
-			case map[string]any, []any, []map[string]any:
-				jsonBytes, err := json.Marshal(val)
-				if err == nil {
-					records[i][k] = string(jsonBytes)
+		if !nestedDocs {
+			for k, v := range records[i] {
+				switch val := v.(type) {
+				case map[string]any, []any, []map[string]any:
+					jsonBytes, err := json.Marshal(val)
+					if err == nil {
+						records[i][k] = string(jsonBytes)
+					}
 				}
 			}
 		}
@@ -578,6 +628,7 @@ func buildUniqueWhere(record map[string]any, configuredFields []string) map[stri
 
 	field := findUniqueField(record)
 	if field != "" {
+		log.Printf("[MIGRATION] warning: no unique_fields configured, guessing %q as unique key", field)
 		where[field] = record[field]
 	}
 	return where
