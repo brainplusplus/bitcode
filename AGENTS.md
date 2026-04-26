@@ -178,12 +178,13 @@ All 11 locale files must be provided for every module that has user-facing text.
 - [x] Field validation — `validation` in model JSON: 40+ built-in validators, conditional (required_if, when, on), custom (process/script), model-level cross-field validators. 422 error response. Auto-maps existing required/max/min. DB-backed unique (scoped, case-insensitive), exists/exists_where, min_items/max_items for relations.
 - [x] Field sanitization — `sanitize` in model JSON: 14 built-in sanitizers (trim, lowercase, slugify, etc.). Model-level `_all_strings` shorthand.
 - [x] Client-side onchange API — `POST /api/{model}/onchange` endpoint for real-time field change handling in forms.
+- [x] Data Migration System — Laravel-style data migration/seeder. Multi-format (JSON, CSV, XLSX, XML). `migrations/` folder per module, timestamped files, `ir_migration` tracking table, batch support, up/down rollback, custom processors (script/process), field mapping, defaults, upsert/skip/error conflict modes. CLI: `bitcode seed run/rollback/status/fresh/create`. Auto-runs on module install. 18 tests.
 - [ ] Redis cache wiring — Wire into permission checker and query result cache
 - [ ] GraphQL API — Alternative to REST
 - [ ] Marketplace — Community module sharing
 - [ ] NATS event bus — Replace in-process bus for distributed deployments
 
-> **Full roadmap with 69 features**: see [`docs/features.md`](docs/features.md)
+> **Full roadmap with 71 features**: see [`docs/features.md`](docs/features.md)
 
 ## Testing
 
@@ -194,7 +195,7 @@ go test ./pkg/ddd/        # Specific package
 go test ./... -count=1    # No cache
 ```
 
-Current: 381 tests, 0 failures. Build: OK.
+Current: 399 tests, 0 failures. Build: OK.
 
 ## Build
 

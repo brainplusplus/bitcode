@@ -1,0 +1,8 @@
+[
+  { "name": "VIP", "color": "#EF4444" },
+  { "name": "Hot Lead", "color": "#F59E0B" },
+  { "name": "Partner", "color": "#10B981" },
+  { "name": "Enterprise", "color": "#6366F1" },
+  { "name": "Prospect", "color": "#8B5CF6" },
+  { "name": "Churned", "color": "#6B7280" }
+]

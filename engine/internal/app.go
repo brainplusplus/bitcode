@@ -109,6 +109,7 @@ type App struct {
 	HookDispatcher  *hook.ModelHookDispatcher
 	Validator       *validation.ValidatorAdapter
 	Sanitizer       *validation.Sanitizer
+	MigrationEngine *module.MigrationEngine
 	viewDefs        map[string]*viewEntry
 	moduleMenus     map[string][]parser.MenuItemDefinition
 	moduleOrder     []string
@@ -182,6 +183,9 @@ func NewApp(cfg AppConfig) (*App, error) {
 		}
 		if err := persistence.AutoMigrateAuditLog(db); err != nil {
 			log.Printf("[WARN] failed to migrate audit_logs: %v", err)
+		}
+		if err := module.MigrateMigrationTable(db); err != nil {
+			log.Printf("[WARN] failed to migrate ir_migration: %v", err)
 		}
 
 		gormSeq := persistence.NewGormSequenceEngine(db)
@@ -356,6 +360,12 @@ func NewApp(cfg AppConfig) (*App, error) {
 		return nil, nil
 	})
 	app.HookDispatcher = hook.NewModelHookDispatcher(hookDispatcher)
+
+	if db != nil {
+		migEngine := module.NewMigrationEngine(db, modelReg)
+		migEngine.SetScriptRunner(pluginMgr)
+		app.MigrationEngine = migEngine
+	}
 
 	app.registerStepHandlers()
 	app.setupMiddleware()
@@ -1522,6 +1532,25 @@ func (a *App) installModule(modPath string) error {
 		log.Printf("[WARN] seeding failed for %s: %v", modName, err)
 	}
 
+	if a.MigrationEngine != nil {
+		a.MigrationEngine.SetProcessRunner(&appProcessRunner{
+			executor: a.Executor,
+			registry: a.ProcessRegistry,
+		})
+		migrations, err := module.CollectModuleMigrations(modPath, loaded.Definition.Migrations)
+		if err != nil {
+			log.Printf("[WARN] failed to discover migrations for %s: %v", modName, err)
+		} else if len(migrations) > 0 {
+			ctx := context.Background()
+			count, err := a.MigrationEngine.RunUp(ctx, modPath, modName, migrations)
+			if err != nil {
+				log.Printf("[WARN] migration failed for %s: %v", modName, err)
+			} else if count > 0 {
+				log.Printf("[MIGRATION] %s: %d records seeded", modName, count)
+			}
+		}
+	}
+
 	a.ModuleRegistry.Register(loaded.Definition, modPath)
 	return nil
 }
@@ -1735,4 +1764,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 <div class="welcome"><h2>Welcome, %s</h2><p>Select a module to get started.</p></div>
 <div class="grid">%s</div>
 </div></body></html>`, username, moduleCards.String())
+}
+
+type appProcessRunner struct {
+	executor *executor.Executor
+	registry *executor.ProcessRegistry
+}
+
+func (r *appProcessRunner) RunProcess(ctx context.Context, processName string, input map[string]any) (any, error) {
+	proc, err := r.registry.LoadProcess(processName)
+	if err != nil {
+		return nil, fmt.Errorf("process %q not found: %w", processName, err)
+	}
+	execCtx, err := r.executor.Execute(ctx, proc, input, "")
+	if err != nil {
+		return nil, err
+	}
+	if execCtx != nil {
+		return execCtx.Result, nil
+	}
+	return nil, nil
 }

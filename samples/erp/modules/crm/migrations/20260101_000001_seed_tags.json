@@ -1,0 +1,17 @@
+{
+  "name": "seed_tags",
+  "model": "tag",
+  "description": "Seed default CRM tags",
+  "source": {
+    "type": "json",
+    "file": "data/tags.json"
+  },
+  "options": {
+    "batch_size": 50,
+    "on_conflict": "skip",
+    "unique_fields": ["name"]
+  },
+  "down": {
+    "strategy": "delete_by_source"
+  }
+}

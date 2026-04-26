@@ -1,0 +1,27 @@
+{
+  "name": "seed_contacts",
+  "model": "contact",
+  "description": "Seed demo contacts from CSV",
+  "source": {
+    "type": "csv",
+    "file": "data/contacts.csv",
+    "options": {
+      "delimiter": ","
+    }
+  },
+  "options": {
+    "batch_size": 100,
+    "on_conflict": "skip",
+    "unique_fields": ["email"]
+  },
+  "field_mapping": {
+    "contact_name": "name",
+    "contact_email": "email"
+  },
+  "defaults": {
+    "type": "person"
+  },
+  "down": {
+    "strategy": "delete_by_source"
+  }
+}

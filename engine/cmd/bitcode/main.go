@@ -38,6 +38,7 @@ func main() {
 	root.AddCommand(moduleCmd())
 	root.AddCommand(userCmd())
 	root.AddCommand(dbCmd())
+	root.AddCommand(seedCmd())
 	root.AddCommand(publishCmd())
 
 	if err := root.Execute(); err != nil {
@@ -561,6 +562,7 @@ func dbCmd() *cobra.Command {
 
 	cmd.AddCommand(backupCmd())
 	cmd.AddCommand(restoreCmd())
+	cmd.AddCommand(seedCmd())
 
 	return cmd
 }

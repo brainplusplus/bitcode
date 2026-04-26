@@ -76,6 +76,12 @@ bitcode db backup            # Backup database (driver-aware)
 bitcode db backup --gzip     # Compressed backup
 bitcode db restore backup.db # Restore from backup
 bitcode db restore --force   # Skip confirmation
+bitcode seed run             # Run pending data migrations
+bitcode seed run -m crm      # Run for specific module
+bitcode seed rollback        # Rollback last batch
+bitcode seed status          # Show migration status
+bitcode seed fresh           # Reset and re-run all
+bitcode seed create name -m mod --model model  # Create migration file
 bitcode version
 ```
 

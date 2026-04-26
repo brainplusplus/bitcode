@@ -36,9 +36,10 @@ The Go backend that reads JSON definitions and runs the application.
 engine/
 ├── cmd/                                        # Entry points
 │   └── bitcode/
-│       ├── main.go                             # CLI — serve, dev, init, validate, module, user, db, version, publish
+│       ├── main.go                             # CLI — serve, dev, init, validate, module, user, db, seed, version, publish
 │       ├── publish.go                          # Module publish command
-│       └── backup.go                           # db backup/restore commands (SQLite/Postgres/MySQL)
+│       ├── backup.go                           # db backup/restore commands (SQLite/Postgres/MySQL)
+│       └── seed.go                             # Data migration CLI — seed run/rollback/status/fresh/create
 │
 ├── internal/                                   # Private application code
 │   ├── app.go                                  # Central wiring — NewApp(), LoadModules(), Start(), Shutdown()
@@ -55,7 +56,8 @@ engine/
 │   │   ├── view.go                             # ViewDefinition, 6 view types (list/form/kanban/calendar/chart/custom)
 │   │   ├── view_test.go                        # 6 tests
 │   │   ├── agent.go                            # AgentDefinition, triggers, cron expressions, retry config
-│   │   ├── module.go                           # ModuleDefinition, permissions, groups, menu, settings, i18n patterns
+│   │   ├── migration.go                        # MigrationDefinition, source types (JSON/CSV/XLSX/XML), processors, conflict modes
+│   │   ├── module.go                           # ModuleDefinition, permissions, groups, menu, settings, migrations, i18n patterns
 │   │   ├── workflow.go                         # WorkflowDefinition, states, transitions, CanTransition()
 │   │   └── workflow_test.go                    # 3 tests (parse, transitions, multi-from)
 │   │
@@ -164,6 +166,7 @@ engine/
 │   │   │   │                                   #   FindByRecord, FindByUser, FindLoginHistory, FindRequests
 │   │   │   │                                   #   ImpersonatedBy field, AutoMigrateAuditLog()
 │   │   │   ├── audit_log_test.go               # 5 tests (write, find by record, requests, user, login history)
+│   │   │   ├── migration_tracker.go            # MigrationTracker — ir_migration table, batch tracking, status
 │   │   │   └── backup.go                       # Backup/Restore — driver-aware (SQLite copy, pg_dump, mysqldump)
 │   │   ├── cache/
 │   │   │   ├── cache.go                        # Cache interface + NewCache() factory
@@ -177,6 +180,9 @@ engine/
 │   │   │   ├── fs.go                           # DiskFS, EmbedFS, LayeredFS — module filesystem abstraction
 │   │   │   ├── fs_test.go                      # FS tests
 │   │   │   ├── seeder.go                       # SeedModule() — load data/*.json, insert records
+│   │   │   ├── reader.go                       # Multi-format data readers (JSON, CSV, XLSX, XML)
+│   │   │   ├── migration.go                    # MigrationEngine — RunUp/RunDown/RollbackBatch, processor support
+│   │   │   ├── migration_test.go               # 18 tests (JSON/CSV/XML readers, upsert, field mapping, defaults, tracker)
 │   │   │   ├── module_test.go                  # 7 tests (registry, dependencies, parse)
 │   │   │   └── integration_test.go             # Integration tests
 │   │   ├── i18n/
