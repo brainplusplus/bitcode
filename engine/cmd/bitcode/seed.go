@@ -75,16 +75,15 @@ func seedRunCmd() *cobra.Command {
 				}
 				totalRecords += count
 			} else {
-				allMigrations, err := module.CollectAllModuleMigrations(moduleDir)
+				ordered, err := module.CollectAllModuleMigrationsOrdered(moduleDir, app.ModuleOrder())
 				if err != nil {
 					return fmt.Errorf("failed to discover migrations: %w", err)
 				}
 
-				for modName, migrations := range allMigrations {
-					modPath := filepath.Join(moduleDir, modName)
-					count, err := app.MigrationEngine.RunUp(ctx, modPath, modName, migrations)
+				for _, om := range ordered {
+					count, err := app.MigrationEngine.RunUp(ctx, om.Path, om.Module, om.Migrations)
 					if err != nil {
-						return fmt.Errorf("module %s: %w", modName, err)
+						return fmt.Errorf("module %s: %w", om.Module, err)
 					}
 					totalRecords += count
 				}
@@ -127,14 +126,14 @@ func seedRollbackCmd() *cobra.Command {
 			ctx := context.Background()
 
 			for i := 0; i < steps; i++ {
-				allMigrations, err := module.CollectAllModuleMigrations(moduleDir)
+				ordered, err := module.CollectAllModuleMigrationsOrdered(moduleDir, app.ModuleOrder())
 				if err != nil {
 					return err
 				}
 
 				var allFiles []*parser.MigrationFile
-				for _, files := range allMigrations {
-					allFiles = append(allFiles, files...)
+				for _, om := range ordered {
+					allFiles = append(allFiles, om.Migrations...)
 				}
 
 				modPath := moduleDir
@@ -199,18 +198,18 @@ func seedStatusCmd() *cobra.Command {
 			}
 
 			moduleDir := envOrDefault("MODULE_DIR", "modules")
-			allMigrations, _ := module.CollectAllModuleMigrations(moduleDir)
-			for modName, migrations := range allMigrations {
-				if moduleName != "" && modName != moduleName {
+			ordered, _ := module.CollectAllModuleMigrationsOrdered(moduleDir, app.ModuleOrder())
+			for _, om := range ordered {
+				if moduleName != "" && om.Module != moduleName {
 					continue
 				}
 				var names []string
-				for _, m := range migrations {
+				for _, m := range om.Migrations {
 					names = append(names, m.Name)
 				}
-				pending := app.MigrationEngine.Tracker().GetPending(modName, names)
+				pending := app.MigrationEngine.Tracker().GetPending(om.Module, names)
 				if len(pending) > 0 {
-					fmt.Printf("\nPending (%s): %s\n", modName, strings.Join(pending, ", "))
+					fmt.Printf("\nPending (%s): %s\n", om.Module, strings.Join(pending, ", "))
 				}
 			}
 
@@ -251,19 +250,18 @@ func seedFreshCmd() *cobra.Command {
 			ctx := context.Background()
 			totalRecords := 0
 
-			allMigrations, err := module.CollectAllModuleMigrations(moduleDir)
+			ordered, err := module.CollectAllModuleMigrationsOrdered(moduleDir, app.ModuleOrder())
 			if err != nil {
 				return err
 			}
 
-			for modName, migrations := range allMigrations {
-				if moduleName != "" && modName != moduleName {
+			for _, om := range ordered {
+				if moduleName != "" && om.Module != moduleName {
 					continue
 				}
-				modPath := filepath.Join(moduleDir, modName)
-				count, err := app.MigrationEngine.RunUp(ctx, modPath, modName, migrations)
+				count, err := app.MigrationEngine.RunUp(ctx, om.Path, om.Module, om.Migrations)
 				if err != nil {
-					return fmt.Errorf("module %s: %w", modName, err)
+					return fmt.Errorf("module %s: %w", om.Module, err)
 				}
 				totalRecords += count
 			}

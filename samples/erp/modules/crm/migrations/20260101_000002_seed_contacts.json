@@ -22,6 +22,6 @@
     "type": "person"
   },
   "down": {
-    "strategy": "delete_by_source"
+    "strategy": "delete_seeded"
   }
 }

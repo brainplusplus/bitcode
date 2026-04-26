@@ -161,6 +161,11 @@ func NewApp(cfg AppConfig) (*App, error) {
 			log.Printf("[WARN] failed to migrate mongo system tables: %v", err)
 		}
 
+		mongoMigStore := persistence.NewMongoMigrationStore(conn)
+		if err := mongoMigStore.Migrate(); err != nil {
+			log.Printf("[WARN] failed to migrate ir_migration collection: %v", err)
+		}
+
 		mongoSeq := persistence.NewMongoSequenceEngine(conn)
 		seqEngine = mongoSeq
 		hydrator = expression.NewHydrator(nil, modelReg)
@@ -362,7 +367,15 @@ func NewApp(cfg AppConfig) (*App, error) {
 	app.HookDispatcher = hook.NewModelHookDispatcher(hookDispatcher)
 
 	if db != nil {
-		migEngine := module.NewMigrationEngine(db, modelReg)
+		gormStore := persistence.NewGormMigrationStore(db)
+		gormInserter := module.NewGormDataInserter(db)
+		migEngine := module.NewMigrationEngine(gormStore, gormInserter, modelReg)
+		migEngine.SetScriptRunner(pluginMgr)
+		app.MigrationEngine = migEngine
+	} else if mongoConn != nil {
+		mongoStore := persistence.NewMongoMigrationStore(mongoConn)
+		mongoInserter := module.NewMongoDataInserter(mongoConn)
+		migEngine := module.NewMigrationEngine(mongoStore, mongoInserter, modelReg)
 		migEngine.SetScriptRunner(pluginMgr)
 		app.MigrationEngine = migEngine
 	}
@@ -1528,15 +1541,33 @@ func (a *App) installModule(modPath string) error {
 		a.TemplateEngine.LoadDirectoryWithPrefix(templateDir, "templates")
 	}
 
-	if err := module.SeedModule(a.DB, modPath, loaded.Definition.Data, a.ModelRegistry); err != nil {
-		log.Printf("[WARN] seeding failed for %s: %v", modName, err)
-	}
-
+	hasMigrations := len(loaded.Definition.Migrations) > 0
 	if a.MigrationEngine != nil {
 		a.MigrationEngine.SetProcessRunner(&appProcessRunner{
 			executor: a.Executor,
 			registry: a.ProcessRegistry,
 		})
+	}
+
+	if !hasMigrations {
+		if a.DB != nil {
+			if err := module.SeedModule(a.DB, modPath, loaded.Definition.Data, a.ModelRegistry); err != nil {
+				log.Printf("[WARN] seeding failed for %s: %v", modName, err)
+			}
+		}
+	} else {
+		legacySeedName := "_legacy_seed"
+		if a.MigrationEngine != nil && !a.MigrationEngine.Tracker().HasRun(modName, legacySeedName) {
+			if a.DB != nil {
+				if err := module.SeedModule(a.DB, modPath, loaded.Definition.Data, a.ModelRegistry); err != nil {
+					log.Printf("[WARN] seeding failed for %s: %v", modName, err)
+				}
+			}
+			a.MigrationEngine.Tracker().Record(modName, legacySeedName, "", "json", 0, 0, 0, nil, nil)
+		}
+	}
+
+	if a.MigrationEngine != nil {
 		migrations, err := module.CollectModuleMigrations(modPath, loaded.Definition.Migrations)
 		if err != nil {
 			log.Printf("[WARN] failed to discover migrations for %s: %v", modName, err)
@@ -1676,6 +1707,10 @@ func (a *App) loadWorkflows(modPath string, patterns []string) {
 			}
 		}
 	}
+}
+
+func (a *App) ModuleOrder() []string {
+	return a.moduleOrder
 }
 
 func (a *App) Start() error {

@@ -30,10 +30,10 @@ const (
 type MigrationDownStrategy string
 
 const (
-	DownDeleteBySource MigrationDownStrategy = "delete_by_source"
-	DownTruncate       MigrationDownStrategy = "truncate"
-	DownNone           MigrationDownStrategy = "none"
-	DownCustom         MigrationDownStrategy = "custom"
+	DownNone         MigrationDownStrategy = "none"
+	DownDeleteSeeded MigrationDownStrategy = "delete_seeded"
+	DownTruncate     MigrationDownStrategy = "truncate"
+	DownCustom       MigrationDownStrategy = "custom"
 )
 
 type MigrationSource struct {
@@ -43,36 +43,37 @@ type MigrationSource struct {
 }
 
 type MigrationSourceOptions struct {
-	Sheet       string `json:"sheet,omitempty"`
-	HeaderRow   int    `json:"header_row,omitempty"`
-	Delimiter   string `json:"delimiter,omitempty"`
-	RootElement string `json:"root_element,omitempty"`
-	Encoding    string `json:"encoding,omitempty"`
-	SkipRows    int    `json:"skip_rows,omitempty"`
+	Sheet       string            `json:"sheet,omitempty"`
+	HeaderRow   int               `json:"header_row,omitempty"`
+	Delimiter   string            `json:"delimiter,omitempty"`
+	RootElement string            `json:"root_element,omitempty"`
+	Encoding    string            `json:"encoding,omitempty"`
+	SkipRows    int               `json:"skip_rows,omitempty"`
+	FieldTypes  map[string]string `json:"field_types,omitempty"`
 }
 
 type MigrationProcessor struct {
-	Type    string          `json:"type"`
-	Script  *ScriptRef      `json:"script,omitempty"`
-	Process string          `json:"process,omitempty"`
+	Type    string     `json:"type"`
+	Script  *ScriptRef `json:"script,omitempty"`
+	Process string     `json:"process,omitempty"`
 }
 
 type MigrationOptions struct {
-	BatchSize      int                   `json:"batch_size,omitempty"`
-	OnConflict     MigrationConflictMode `json:"on_conflict,omitempty"`
-	UniqueFields   []string              `json:"unique_fields,omitempty"`
-	UpdateFields   []string              `json:"update_fields,omitempty"`
-	GenerateID     *bool                 `json:"generate_id,omitempty"`
-	HashPasswords  *bool                 `json:"hash_passwords,omitempty"`
-	SetTimestamps  *bool                 `json:"set_timestamps,omitempty"`
-	DryRun         bool                  `json:"dry_run,omitempty"`
+	BatchSize     int                   `json:"batch_size,omitempty"`
+	OnConflict    MigrationConflictMode `json:"on_conflict,omitempty"`
+	UniqueFields  []string              `json:"unique_fields,omitempty"`
+	UpdateFields  []string              `json:"update_fields,omitempty"`
+	GenerateID    *bool                 `json:"generate_id,omitempty"`
+	HashPasswords *bool                 `json:"hash_passwords,omitempty"`
+	SetTimestamps *bool                 `json:"set_timestamps,omitempty"`
+	NoUpdate      bool                  `json:"noupdate,omitempty"`
+	DryRun        bool                  `json:"dry_run,omitempty"`
 }
 
 type MigrationDown struct {
-	Strategy  MigrationDownStrategy  `json:"strategy,omitempty"`
-	Condition map[string]any         `json:"condition,omitempty"`
-	Process   string                 `json:"process,omitempty"`
-	Script    *ScriptRef             `json:"script,omitempty"`
+	Strategy MigrationDownStrategy `json:"strategy,omitempty"`
+	Process  string                `json:"process,omitempty"`
+	Script   *ScriptRef            `json:"script,omitempty"`
 }
 
 type MigrationDefinition struct {

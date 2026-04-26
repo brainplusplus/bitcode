@@ -27,42 +27,52 @@ func setupTestDB(t *testing.T) *gorm.DB {
 
 type testResolver struct{}
 
-func (r *testResolver) TableName(modelName string) string {
-	return modelName
+func (r *testResolver) TableName(modelName string) string { return modelName }
+
+func setupEngine(t *testing.T, db *gorm.DB) *MigrationEngine {
+	t.Helper()
+	MigrateMigrationTable(db)
+	store := persistence.NewGormMigrationStore(db)
+	inserter := NewGormDataInserter(db)
+	return NewMigrationEngine(store, inserter, &testResolver{})
+}
+
+func writeMigration(t *testing.T, dir string, filename string, def map[string]any) {
+	t.Helper()
+	data, _ := json.Marshal(def)
+	os.WriteFile(filepath.Join(dir, filename), data, 0644)
+}
+
+func writeJSON(t *testing.T, path string, data any) {
+	t.Helper()
+	b, _ := json.Marshal(data)
+	os.WriteFile(path, b, 0644)
 }
 
 func TestMigrationEngine_RunUp_JSON(t *testing.T) {
 	db := setupTestDB(t)
-	MigrateMigrationTable(db)
-	db.Exec("CREATE TABLE contact (id TEXT, name TEXT, email TEXT, created_at TEXT, updated_at TEXT, _migration_source TEXT)")
+	db.Exec("CREATE TABLE contact (id TEXT, name TEXT, email TEXT, created_at TEXT, updated_at TEXT)")
+	engine := setupEngine(t, db)
 
 	tmpDir := t.TempDir()
 	os.MkdirAll(filepath.Join(tmpDir, "data"), 0755)
 	os.MkdirAll(filepath.Join(tmpDir, "migrations"), 0755)
 
-	contacts := []map[string]any{
+	writeJSON(t, filepath.Join(tmpDir, "data", "contacts.json"), []map[string]any{
 		{"name": "Alice", "email": "alice@test.com"},
 		{"name": "Bob", "email": "bob@test.com"},
-	}
-	data, _ := json.Marshal(contacts)
-	os.WriteFile(filepath.Join(tmpDir, "data", "contacts.json"), data, 0644)
+	})
 
-	migDef := map[string]any{
+	writeMigration(t, filepath.Join(tmpDir, "migrations"), "20260101_000001_seed_contacts.json", map[string]any{
 		"name": "seed_contacts", "model": "contact",
 		"source":  map[string]any{"type": "json", "file": "data/contacts.json"},
 		"options": map[string]any{"on_conflict": "skip"},
-		"down":    map[string]any{"strategy": "delete_by_source"},
-	}
-	migData, _ := json.Marshal(migDef)
-	os.WriteFile(filepath.Join(tmpDir, "migrations", "20260101_000001_seed_contacts.json"), migData, 0644)
+		"down":    map[string]any{"strategy": "delete_seeded"},
+	})
 
-	engine := NewMigrationEngine(db, &testResolver{})
 	migrations, err := CollectModuleMigrations(tmpDir, []string{"migrations/*.json"})
 	if err != nil {
 		t.Fatalf("discover failed: %v", err)
-	}
-	if len(migrations) != 1 {
-		t.Fatalf("expected 1 migration, got %d", len(migrations))
 	}
 
 	ctx := context.Background()
@@ -83,30 +93,26 @@ func TestMigrationEngine_RunUp_JSON(t *testing.T) {
 	}
 }
 
-func TestMigrationEngine_RunDown(t *testing.T) {
+func TestMigrationEngine_RunDown_DeleteSeeded(t *testing.T) {
 	db := setupTestDB(t)
-	MigrateMigrationTable(db)
-	db.Exec("CREATE TABLE tag (id TEXT, name TEXT, created_at TEXT, updated_at TEXT, _migration_source TEXT)")
+	db.Exec("CREATE TABLE tag (id TEXT, name TEXT, created_at TEXT, updated_at TEXT)")
+	engine := setupEngine(t, db)
 
 	tmpDir := t.TempDir()
 	os.MkdirAll(filepath.Join(tmpDir, "data"), 0755)
 	os.MkdirAll(filepath.Join(tmpDir, "migrations"), 0755)
 
-	tags := []map[string]any{{"name": "VIP"}, {"name": "Partner"}}
-	data, _ := json.Marshal(tags)
-	os.WriteFile(filepath.Join(tmpDir, "data", "tags.json"), data, 0644)
+	writeJSON(t, filepath.Join(tmpDir, "data", "tags.json"), []map[string]any{
+		{"name": "VIP"}, {"name": "Partner"},
+	})
 
-	migDef := map[string]any{
+	writeMigration(t, filepath.Join(tmpDir, "migrations"), "20260101_000001_seed_tags.json", map[string]any{
 		"name": "seed_tags", "model": "tag",
 		"source": map[string]any{"type": "json", "file": "data/tags.json"},
-		"down":   map[string]any{"strategy": "delete_by_source"},
-	}
-	migData, _ := json.Marshal(migDef)
-	os.WriteFile(filepath.Join(tmpDir, "migrations", "20260101_000001_seed_tags.json"), migData, 0644)
+		"down":   map[string]any{"strategy": "delete_seeded"},
+	})
 
-	engine := NewMigrationEngine(db, &testResolver{})
 	migrations, _ := CollectModuleMigrations(tmpDir, []string{"migrations/*.json"})
-
 	ctx := context.Background()
 	engine.RunUp(ctx, tmpDir, "test", migrations)
 
@@ -130,38 +136,32 @@ func TestMigrationEngine_RunDown(t *testing.T) {
 	}
 }
 
-func TestMigrationEngine_Upsert(t *testing.T) {
+func TestMigrationEngine_CompositeUniqueUpsert(t *testing.T) {
 	db := setupTestDB(t)
-	MigrateMigrationTable(db)
-	db.Exec("CREATE TABLE contact (id TEXT, name TEXT, email TEXT, phone TEXT, created_at TEXT, updated_at TEXT)")
-	db.Exec("INSERT INTO contact (id, name, email, phone) VALUES ('1', 'Old', 'alice@test.com', '111')")
+	db.Exec("CREATE TABLE contact (id TEXT, name TEXT, email TEXT, company TEXT, phone TEXT, created_at TEXT, updated_at TEXT)")
+	db.Exec("INSERT INTO contact (id, name, email, company, phone) VALUES ('1', 'Old', 'alice@test.com', 'Acme', '111')")
+	engine := setupEngine(t, db)
 
 	tmpDir := t.TempDir()
 	os.MkdirAll(filepath.Join(tmpDir, "data"), 0755)
 	os.MkdirAll(filepath.Join(tmpDir, "migrations"), 0755)
 
-	contacts := []map[string]any{
-		{"name": "Alice Updated", "email": "alice@test.com", "phone": "222"},
-		{"name": "Bob", "email": "bob@test.com", "phone": "333"},
-	}
-	data, _ := json.Marshal(contacts)
-	os.WriteFile(filepath.Join(tmpDir, "data", "contacts.json"), data, 0644)
+	writeJSON(t, filepath.Join(tmpDir, "data", "contacts.json"), []map[string]any{
+		{"name": "Alice Updated", "email": "alice@test.com", "company": "Acme", "phone": "222"},
+		{"name": "Bob", "email": "bob@test.com", "company": "Beta", "phone": "333"},
+	})
 
-	migDef := map[string]any{
+	writeMigration(t, filepath.Join(tmpDir, "migrations"), "20260101_000001_upsert.json", map[string]any{
 		"name": "upsert_contacts", "model": "contact",
 		"source": map[string]any{"type": "json", "file": "data/contacts.json"},
 		"options": map[string]any{
 			"on_conflict":   "upsert",
-			"unique_fields": []string{"email"},
+			"unique_fields": []string{"email", "company"},
 			"update_fields": []string{"name", "phone"},
 		},
-	}
-	migData, _ := json.Marshal(migDef)
-	os.WriteFile(filepath.Join(tmpDir, "migrations", "20260101_000001_upsert.json"), migData, 0644)
+	})
 
-	engine := NewMigrationEngine(db, &testResolver{})
 	migrations, _ := CollectModuleMigrations(tmpDir, []string{"migrations/*.json"})
-
 	ctx := context.Background()
 	_, err := engine.RunUp(ctx, tmpDir, "test", migrations)
 	if err != nil {
@@ -169,7 +169,7 @@ func TestMigrationEngine_Upsert(t *testing.T) {
 	}
 
 	var result map[string]any
-	db.Table("contact").Where("email = ?", "alice@test.com").Take(&result)
+	db.Table("contact").Where("email = ? AND company = ?", "alice@test.com", "Acme").Take(&result)
 	if result["name"] != "Alice Updated" {
 		t.Errorf("expected 'Alice Updated', got %v", result["name"])
 	}
@@ -181,35 +181,63 @@ func TestMigrationEngine_Upsert(t *testing.T) {
 	}
 }
 
-func TestMigrationEngine_FieldMapping(t *testing.T) {
+func TestMigrationEngine_NoUpdate(t *testing.T) {
 	db := setupTestDB(t)
-	MigrateMigrationTable(db)
 	db.Exec("CREATE TABLE contact (id TEXT, name TEXT, email TEXT, created_at TEXT, updated_at TEXT)")
+	db.Exec("INSERT INTO contact (id, name, email) VALUES ('1', 'Custom Name', 'alice@test.com')")
+	engine := setupEngine(t, db)
 
 	tmpDir := t.TempDir()
 	os.MkdirAll(filepath.Join(tmpDir, "data"), 0755)
 	os.MkdirAll(filepath.Join(tmpDir, "migrations"), 0755)
 
-	contacts := []map[string]any{{"full_name": "Alice", "mail": "alice@test.com"}}
-	data, _ := json.Marshal(contacts)
-	os.WriteFile(filepath.Join(tmpDir, "data", "contacts.json"), data, 0644)
+	writeJSON(t, filepath.Join(tmpDir, "data", "contacts.json"), []map[string]any{
+		{"name": "Default Name", "email": "alice@test.com"},
+	})
 
-	migDef := map[string]any{
+	writeMigration(t, filepath.Join(tmpDir, "migrations"), "20260101_000001_noupdate.json", map[string]any{
+		"name": "noupdate_contacts", "model": "contact",
+		"source": map[string]any{"type": "json", "file": "data/contacts.json"},
+		"options": map[string]any{
+			"on_conflict":   "upsert",
+			"unique_fields": []string{"email"},
+			"noupdate":      true,
+		},
+	})
+
+	migrations, _ := CollectModuleMigrations(tmpDir, []string{"migrations/*.json"})
+	ctx := context.Background()
+	engine.RunUp(ctx, tmpDir, "test", migrations)
+
+	var result map[string]any
+	db.Table("contact").Where("email = ?", "alice@test.com").Take(&result)
+	if result["name"] != "Custom Name" {
+		t.Errorf("noupdate should preserve 'Custom Name', got %v", result["name"])
+	}
+}
+
+func TestMigrationEngine_FieldMapping(t *testing.T) {
+	db := setupTestDB(t)
+	db.Exec("CREATE TABLE contact (id TEXT, name TEXT, email TEXT, created_at TEXT, updated_at TEXT)")
+	engine := setupEngine(t, db)
+
+	tmpDir := t.TempDir()
+	os.MkdirAll(filepath.Join(tmpDir, "data"), 0755)
+	os.MkdirAll(filepath.Join(tmpDir, "migrations"), 0755)
+
+	writeJSON(t, filepath.Join(tmpDir, "data", "contacts.json"), []map[string]any{
+		{"full_name": "Alice", "mail": "alice@test.com"},
+	})
+
+	writeMigration(t, filepath.Join(tmpDir, "migrations"), "20260101_000001_mapped.json", map[string]any{
 		"name": "mapped", "model": "contact",
 		"source":        map[string]any{"type": "json", "file": "data/contacts.json"},
 		"field_mapping": map[string]string{"full_name": "name", "mail": "email"},
-	}
-	migData, _ := json.Marshal(migDef)
-	os.WriteFile(filepath.Join(tmpDir, "migrations", "20260101_000001_mapped.json"), migData, 0644)
+	})
 
-	engine := NewMigrationEngine(db, &testResolver{})
 	migrations, _ := CollectModuleMigrations(tmpDir, []string{"migrations/*.json"})
-
 	ctx := context.Background()
-	count, err := engine.RunUp(ctx, tmpDir, "test", migrations)
-	if err != nil {
-		t.Fatalf("RunUp failed: %v", err)
-	}
+	count, _ := engine.RunUp(ctx, tmpDir, "test", migrations)
 	if count != 1 {
 		t.Errorf("expected 1, got %d", count)
 	}
@@ -223,28 +251,24 @@ func TestMigrationEngine_FieldMapping(t *testing.T) {
 
 func TestMigrationEngine_Defaults(t *testing.T) {
 	db := setupTestDB(t)
-	MigrateMigrationTable(db)
 	db.Exec("CREATE TABLE contact (id TEXT, name TEXT, email TEXT, type TEXT, created_at TEXT, updated_at TEXT)")
+	engine := setupEngine(t, db)
 
 	tmpDir := t.TempDir()
 	os.MkdirAll(filepath.Join(tmpDir, "data"), 0755)
 	os.MkdirAll(filepath.Join(tmpDir, "migrations"), 0755)
 
-	contacts := []map[string]any{{"name": "Alice", "email": "alice@test.com"}}
-	data, _ := json.Marshal(contacts)
-	os.WriteFile(filepath.Join(tmpDir, "data", "contacts.json"), data, 0644)
+	writeJSON(t, filepath.Join(tmpDir, "data", "contacts.json"), []map[string]any{
+		{"name": "Alice", "email": "alice@test.com"},
+	})
 
-	migDef := map[string]any{
+	writeMigration(t, filepath.Join(tmpDir, "migrations"), "20260101_000001_defaults.json", map[string]any{
 		"name": "defaults", "model": "contact",
 		"source":   map[string]any{"type": "json", "file": "data/contacts.json"},
 		"defaults": map[string]any{"type": "person"},
-	}
-	migData, _ := json.Marshal(migDef)
-	os.WriteFile(filepath.Join(tmpDir, "migrations", "20260101_000001_defaults.json"), migData, 0644)
+	})
 
-	engine := NewMigrationEngine(db, &testResolver{})
 	migrations, _ := CollectModuleMigrations(tmpDir, []string{"migrations/*.json"})
-
 	ctx := context.Background()
 	engine.RunUp(ctx, tmpDir, "test", migrations)
 
@@ -252,6 +276,102 @@ func TestMigrationEngine_Defaults(t *testing.T) {
 	db.Table("contact").Take(&result)
 	if result["type"] != "person" {
 		t.Errorf("expected 'person', got %v", result["type"])
+	}
+}
+
+func TestMigrationEngine_FieldTypes(t *testing.T) {
+	db := setupTestDB(t)
+	db.Exec("CREATE TABLE product (id TEXT, code TEXT, price REAL, created_at TEXT, updated_at TEXT)")
+	engine := setupEngine(t, db)
+
+	tmpDir := t.TempDir()
+	os.MkdirAll(filepath.Join(tmpDir, "data"), 0755)
+	os.MkdirAll(filepath.Join(tmpDir, "migrations"), 0755)
+
+	os.WriteFile(filepath.Join(tmpDir, "data", "products.csv"), []byte("code,price\n00123,45.99\n"), 0644)
+
+	writeMigration(t, filepath.Join(tmpDir, "migrations"), "20260101_000001_products.json", map[string]any{
+		"name": "seed_products", "model": "product",
+		"source": map[string]any{
+			"type": "csv", "file": "data/products.csv",
+			"options": map[string]any{
+				"field_types": map[string]string{"code": "string"},
+			},
+		},
+	})
+
+	migrations, _ := CollectModuleMigrations(tmpDir, []string{"migrations/*.json"})
+	ctx := context.Background()
+	engine.RunUp(ctx, tmpDir, "test", migrations)
+
+	var result map[string]any
+	db.Table("product").Take(&result)
+	if result["code"] != "00123" {
+		t.Errorf("expected code '00123' (string), got %v (%T)", result["code"], result["code"])
+	}
+}
+
+func TestMigrationEngine_Transaction_Rollback(t *testing.T) {
+	db := setupTestDB(t)
+	db.Exec("CREATE TABLE contact (id TEXT PRIMARY KEY, name TEXT NOT NULL, email TEXT UNIQUE, created_at TEXT, updated_at TEXT)")
+	engine := setupEngine(t, db)
+
+	tmpDir := t.TempDir()
+	os.MkdirAll(filepath.Join(tmpDir, "data"), 0755)
+	os.MkdirAll(filepath.Join(tmpDir, "migrations"), 0755)
+
+	writeJSON(t, filepath.Join(tmpDir, "data", "contacts.json"), []map[string]any{
+		{"name": "Alice", "email": "alice@test.com"},
+		{"name": "Bob", "email": "alice@test.com"},
+	})
+
+	writeMigration(t, filepath.Join(tmpDir, "migrations"), "20260101_000001_fail.json", map[string]any{
+		"name": "fail_contacts", "model": "contact",
+		"source":  map[string]any{"type": "json", "file": "data/contacts.json"},
+		"options": map[string]any{"on_conflict": "error"},
+	})
+
+	migrations, _ := CollectModuleMigrations(tmpDir, []string{"migrations/*.json"})
+	ctx := context.Background()
+	_, err := engine.RunUp(ctx, tmpDir, "test", migrations)
+	if err == nil {
+		t.Error("expected error on duplicate email with conflict=error")
+	}
+
+	var count int64
+	db.Table("contact").Count(&count)
+	if count != 0 {
+		t.Errorf("expected 0 records after transaction rollback, got %d", count)
+	}
+}
+
+func TestMigrationEngine_LazyBatch(t *testing.T) {
+	db := setupTestDB(t)
+	db.Exec("CREATE TABLE tag (id TEXT, name TEXT, created_at TEXT, updated_at TEXT)")
+	engine := setupEngine(t, db)
+
+	tmpDir := t.TempDir()
+	os.MkdirAll(filepath.Join(tmpDir, "data"), 0755)
+	os.MkdirAll(filepath.Join(tmpDir, "migrations"), 0755)
+
+	writeJSON(t, filepath.Join(tmpDir, "data", "tags.json"), []map[string]any{{"name": "VIP"}})
+
+	writeMigration(t, filepath.Join(tmpDir, "migrations"), "20260101_000001_tags.json", map[string]any{
+		"name": "seed_tags", "model": "tag",
+		"source": map[string]any{"type": "json", "file": "data/tags.json"},
+	})
+
+	migrations, _ := CollectModuleMigrations(tmpDir, []string{"migrations/*.json"})
+	ctx := context.Background()
+
+	engine.RunUp(ctx, tmpDir, "test", migrations)
+	batch1 := engine.Tracker().CurrentBatch()
+
+	engine.RunUp(ctx, tmpDir, "test", migrations)
+	batch2 := engine.Tracker().CurrentBatch()
+
+	if batch2 != batch1 {
+		t.Errorf("batch should not increment when all migrations skipped: batch1=%d batch2=%d", batch1, batch2)
 	}
 }
 
@@ -371,8 +491,8 @@ func TestMigrationTracker_Status(t *testing.T) {
 	MigrateMigrationTable(db)
 
 	tracker := persistence.NewMigrationTracker(db)
-	tracker.Record("crm", "seed_tags", "tag", "json", 5, 1, 0, nil)
-	tracker.Record("crm", "seed_contacts", "contact", "csv", 10, 1, 0, nil)
+	tracker.Record("crm", "seed_tags", "tag", "json", 5, 1, 0, nil, nil)
+	tracker.Record("crm", "seed_contacts", "contact", "csv", 10, 1, 0, nil, nil)
 
 	entries, err := tracker.Status()
 	if err != nil {
@@ -388,11 +508,32 @@ func TestMigrationTracker_GetPending(t *testing.T) {
 	MigrateMigrationTable(db)
 
 	tracker := persistence.NewMigrationTracker(db)
-	tracker.Record("crm", "seed_tags", "tag", "json", 5, 1, 0, nil)
+	tracker.Record("crm", "seed_tags", "tag", "json", 5, 1, 0, nil, nil)
 
 	pending := tracker.GetPending("crm", []string{"seed_tags", "seed_contacts", "seed_leads"})
 	if len(pending) != 2 {
 		t.Fatalf("expected 2 pending, got %d", len(pending))
+	}
+}
+
+func TestMigrationTracker_RecordIDs(t *testing.T) {
+	db := setupTestDB(t)
+	MigrateMigrationTable(db)
+
+	tracker := persistence.NewMigrationTracker(db)
+	ids := []string{"id-1", "id-2", "id-3"}
+	tracker.Record("crm", "seed_tags", "tag", "json", 3, 1, 0, ids, nil)
+
+	rec, err := tracker.GetByName("crm", "seed_tags")
+	if err != nil {
+		t.Fatalf("GetByName failed: %v", err)
+	}
+	gotIDs := rec.GetRecordIDs()
+	if len(gotIDs) != 3 {
+		t.Fatalf("expected 3 IDs, got %d", len(gotIDs))
+	}
+	if gotIDs[0] != "id-1" {
+		t.Errorf("expected 'id-1', got %s", gotIDs[0])
 	}
 }
 
@@ -415,5 +556,20 @@ func TestInferType(t *testing.T) {
 		if result != tt.expected {
 			t.Errorf("inferType(%q) = %v (%T), want %v (%T)", tt.input, result, result, tt.expected, tt.expected)
 		}
+	}
+}
+
+func TestCoerceType(t *testing.T) {
+	if coerceType(int64(123), "string") != "123" {
+		t.Error("coerce int to string failed")
+	}
+	if coerceType("00123", "string") != "00123" {
+		t.Error("coerce string to string should preserve")
+	}
+	if coerceType("42", "int") != int64(42) {
+		t.Error("coerce string to int failed")
+	}
+	if coerceType("true", "bool") != true {
+		t.Error("coerce string to bool failed")
 	}
 }

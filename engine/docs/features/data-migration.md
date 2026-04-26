@@ -156,7 +156,7 @@ The process receives `{ records, model, module }` in its input context.
 | Strategy | Behavior |
 |----------|----------|
 | `none` | No rollback (default) |
-| `delete_by_source` | Delete records with matching `_migration_source` column |
+| `delete_seeded` | Delete records by tracked IDs stored in ir_migration |
 | `truncate` | Delete all records from the table |
 | `custom` | Run a custom process or script |
 
@@ -263,13 +263,55 @@ bitcode seed create seed_products --module crm --model product --type json
 }
 ```
 
+## MongoDB Support
+
+Full parity with SQL. The migration system uses a `MigrationStore` interface with both `GormMigrationStore` (SQL) and `MongoMigrationStore` (MongoDB) implementations. Data insertion uses a `DataInserter` interface with `GormDataInserter` and `MongoDataInserter`.
+
+## Legacy Seeder Coordination
+
+When a module has both `data` (legacy seeder) and `migrations` configured, the legacy seeder runs once and is tracked as `_legacy_seed` in ir_migration. Subsequent runs skip the legacy seeder. Modules without `migrations` continue using the legacy seeder as before.
+
+## noupdate (Odoo-style)
+
+```json
+{
+  "options": {
+    "on_conflict": "upsert",
+    "unique_fields": ["code"],
+    "noupdate": true
+  }
+}
+```
+
+When `noupdate` is true, existing records are never overwritten. New records are inserted, but existing ones are skipped even in upsert mode. This preserves user customizations.
+
+## field_types Override
+
+```json
+{
+  "source": {
+    "type": "csv",
+    "file": "data/products.csv",
+    "options": {
+      "field_types": {
+        "code": "string",
+        "price": "float",
+        "active": "boolean"
+      }
+    }
+  }
+}
+```
+
+Overrides automatic type inference for specific fields. Supported types: `string`, `int`, `float`, `bool`.
+
 ## Implementation
 
 | File | Description |
 |------|-------------|
 | `compiler/parser/migration.go` | Migration JSON parser, file discovery, sorting |
-| `infrastructure/persistence/migration_tracker.go` | ir_migration table, batch tracking, status |
+| `infrastructure/persistence/migration_tracker.go` | MigrationStore interface, GormMigrationStore, MongoMigrationStore, record_ids tracking |
 | `infrastructure/module/reader.go` | Multi-format data readers (JSON, CSV, XLSX, XML) |
-| `infrastructure/module/migration.go` | Migration engine — RunUp, RunDown, processors |
-| `infrastructure/module/migration_test.go` | 18 tests |
-| `cmd/bitcode/seed.go` | CLI commands |
+| `infrastructure/module/migration.go` | MigrationEngine, DataInserter interface, GormDataInserter, MongoDataInserter, transaction wrapping |
+| `infrastructure/module/migration_test.go` | 24 tests |
+| `cmd/bitcode/seed.go` | CLI commands with dependency-ordered execution |
