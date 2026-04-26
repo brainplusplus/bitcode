@@ -161,14 +161,14 @@ Override with --engine or --no-engine flags.`,
 func detectEngineRepo() bool {
 	if _, err := os.Stat("go.mod"); err == nil {
 		data, err := os.ReadFile("go.mod")
-		if err == nil && strings.Contains(string(data), "github.com/bitcode-framework/bitcode") {
+		if err == nil && strings.Contains(string(data), "github.com/bitcode-engine/engine") {
 			return true
 		}
 	}
 
 	if _, err := os.Stat("../../engine/go.mod"); err == nil {
 		data, err := os.ReadFile("../../engine/go.mod")
-		if err == nil && strings.Contains(string(data), "github.com/bitcode-framework/bitcode") {
+		if err == nil && strings.Contains(string(data), "github.com/bitcode-engine/engine") {
 			return true
 		}
 	}
@@ -184,6 +184,18 @@ func runEngineDevMode() error {
 		fmt.Println("[DEV] Falling back to app dev mode (module watcher only)...")
 		fmt.Println()
 		return runAppDevMode()
+	}
+
+	if _, err := os.Stat(".air.toml"); err == nil {
+		fmt.Println("[DEV] Engine development mode (Air hot reload)")
+		fmt.Println("      Using .air.toml config")
+		fmt.Println()
+		airCmd := exec.Command("air")
+		airCmd.Stdout = os.Stdout
+		airCmd.Stderr = os.Stderr
+		airCmd.Stdin = os.Stdin
+		airCmd.Env = os.Environ()
+		return airCmd.Run()
 	}
 
 	engineDir := "."
@@ -225,6 +237,7 @@ func runEngineDevMode() error {
 	}
 
 	fmt.Println("[DEV] Engine development mode (Air hot reload)")
+	fmt.Println("      Using CLI flags (run 'bitcode publish air.toml' to customize)")
 	fmt.Println("      Watching: *.go, *.json, *.html, *.yaml, *.toml")
 	fmt.Println()
 
