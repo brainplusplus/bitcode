@@ -22,6 +22,7 @@ type HookDispatcher interface {
 	DispatchAfterUpdate(ctx context.Context, modelDef *parser.ModelDefinition, data map[string]any, oldData map[string]any, changes map[string]any, session map[string]any)
 	DispatchBeforeDelete(ctx context.Context, modelDef *parser.ModelDefinition, record map[string]any, isSoft bool, session map[string]any) error
 	DispatchAfterDelete(ctx context.Context, modelDef *parser.ModelDefinition, record map[string]any, isSoft bool, session map[string]any)
+	DispatchOnChangeOnly(ctx context.Context, modelDef *parser.ModelDefinition, data map[string]any, changes map[string]any, session map[string]any) error
 }
 
 type FieldValidator interface {
@@ -779,8 +780,8 @@ func (r *GenericRepository) Update(ctx context.Context, id string, data map[stri
 			if err := r.hookDispatcher.DispatchBeforeUpdate(ctx, r.modelDef, merged, before, changes, session); err != nil {
 				return err
 			}
-			for k := range changes {
-				if v, ok := merged[k]; ok {
+			for k, v := range merged {
+				if beforeVal, existed := before[k]; !existed || fmt.Sprintf("%v", beforeVal) != fmt.Sprintf("%v", v) {
 					data[k] = v
 				}
 			}
@@ -818,12 +819,47 @@ func (r *GenericRepository) Update(ctx context.Context, id string, data map[stri
 
 func (r *GenericRepository) UpdateByCompositePK(ctx context.Context, keys map[string]any, data map[string]any) error {
 	var before map[string]any
-	if r.revisionRepo != nil {
+	needsBefore := r.revisionRepo != nil || r.modelDef != nil
+	if needsBefore {
 		q := r.db.WithContext(ctx).Table(r.tableName)
 		for col, val := range keys {
 			q = q.Where(fmt.Sprintf("%s = ?", col), val)
 		}
 		q.Take(&before)
+	}
+
+	if r.modelDef != nil && before != nil {
+		changes := data
+		merged := r.mergeForValidation(before, data)
+
+		if r.sanitizer != nil {
+			r.sanitizer.SanitizeChangedFields(r.modelDef, merged, changes)
+			for k := range changes {
+				if v, ok := merged[k]; ok {
+					data[k] = v
+				}
+			}
+		}
+
+		if r.validator != nil {
+			merged["__old"] = before
+			if err := r.validator.ValidateUpdate(r.modelDef, merged, changes, r.locale); err != nil {
+				return err
+			}
+			delete(merged, "__old")
+		}
+
+		session := r.buildSession()
+		if r.hookDispatcher != nil {
+			if err := r.hookDispatcher.DispatchBeforeUpdate(ctx, r.modelDef, merged, before, changes, session); err != nil {
+				return err
+			}
+			for k, v := range merged {
+				if beforeVal, existed := before[k]; !existed || fmt.Sprintf("%v", beforeVal) != fmt.Sprintf("%v", v) {
+					data[k] = v
+				}
+			}
+		}
 	}
 
 	query := r.db.WithContext(ctx).Table(r.tableName)
@@ -838,7 +874,7 @@ func (r *GenericRepository) UpdateByCompositePK(ctx context.Context, keys map[st
 		return fmt.Errorf("record not found in %s", r.tableName)
 	}
 
-	if before != nil {
+	if before != nil && r.revisionRepo != nil {
 		var after map[string]any
 		q := r.db.WithContext(ctx).Table(r.tableName)
 		for col, val := range keys {
@@ -848,6 +884,18 @@ func (r *GenericRepository) UpdateByCompositePK(ctx context.Context, keys map[st
 		recordID := fmt.Sprintf("%v", keys)
 		r.saveRevision("update", recordID, before, after)
 	}
+
+	if r.modelDef != nil && before != nil {
+		session := r.buildSession()
+		if r.hookDispatcher != nil {
+			r.hookDispatcher.DispatchAfterUpdate(ctx, r.modelDef, data, before, data, session)
+		}
+		if r.eventBus != nil {
+			eventData := map[string]any{"record": data, "old_data": before, "changes": data}
+			r.eventBus.Publish(ctx, "model."+r.modelName+".updated", eventData)
+		}
+	}
+
 	return nil
 }
 
@@ -922,8 +970,43 @@ func (r *GenericRepository) HardDelete(ctx context.Context, id string) error {
 
 func (r *GenericRepository) UpdateWithVersion(ctx context.Context, id string, data map[string]any, expectedVersion int) error {
 	var before map[string]any
-	if r.revisionRepo != nil {
+	needsBefore := r.revisionRepo != nil || r.modelDef != nil
+	if needsBefore {
 		r.db.WithContext(ctx).Table(r.tableName).Where(fmt.Sprintf("%s = ?", r.pkCol), id).Take(&before)
+	}
+
+	if r.modelDef != nil && before != nil {
+		changes := data
+		merged := r.mergeForValidation(before, data)
+
+		if r.sanitizer != nil {
+			r.sanitizer.SanitizeChangedFields(r.modelDef, merged, changes)
+			for k := range changes {
+				if v, ok := merged[k]; ok {
+					data[k] = v
+				}
+			}
+		}
+
+		if r.validator != nil {
+			merged["__old"] = before
+			if err := r.validator.ValidateUpdate(r.modelDef, merged, changes, r.locale); err != nil {
+				return err
+			}
+			delete(merged, "__old")
+		}
+
+		session := r.buildSession()
+		if r.hookDispatcher != nil {
+			if err := r.hookDispatcher.DispatchBeforeUpdate(ctx, r.modelDef, merged, before, changes, session); err != nil {
+				return err
+			}
+			for k, v := range merged {
+				if beforeVal, existed := before[k]; !existed || fmt.Sprintf("%v", beforeVal) != fmt.Sprintf("%v", v) {
+					data[k] = v
+				}
+			}
+		}
 	}
 
 	r.encryptFields(data)
@@ -938,11 +1021,23 @@ func (r *GenericRepository) UpdateWithVersion(ctx context.Context, id string, da
 		return fmt.Errorf("version conflict")
 	}
 
-	if before != nil {
+	if before != nil && r.revisionRepo != nil {
 		var after map[string]any
 		r.db.WithContext(ctx).Table(r.tableName).Where(fmt.Sprintf("%s = ?", r.pkCol), id).Take(&after)
 		r.saveRevision("update", id, before, after)
 	}
+
+	if r.modelDef != nil && before != nil {
+		session := r.buildSession()
+		if r.hookDispatcher != nil {
+			r.hookDispatcher.DispatchAfterUpdate(ctx, r.modelDef, data, before, data, session)
+		}
+		if r.eventBus != nil {
+			eventData := map[string]any{"record": data, "old_data": before, "changes": data}
+			r.eventBus.Publish(ctx, "model."+r.modelName+".updated", eventData)
+		}
+	}
+
 	return nil
 }
 
@@ -1071,11 +1166,41 @@ func (r *GenericRepository) BulkCreate(ctx context.Context, records []map[string
 		if r.tenantID != "" {
 			records[i]["tenant_id"] = r.tenantID
 		}
+		if r.modelDef != nil {
+			if r.sanitizer != nil {
+				r.sanitizer.SanitizeRecord(r.modelDef, records[i])
+			}
+			if r.validator != nil {
+				if err := r.validator.ValidateCreate(r.modelDef, records[i], r.locale); err != nil {
+					return nil, fmt.Errorf("record %d: %w", i, err)
+				}
+			}
+			if r.hookDispatcher != nil {
+				session := r.buildSession()
+				if err := r.hookDispatcher.DispatchCreate(ctx, r.modelDef, records[i], session); err != nil {
+					return nil, fmt.Errorf("record %d: %w", i, err)
+				}
+			}
+		}
 		r.encryptFields(records[i])
 	}
 	if err := r.db.WithContext(ctx).Table(r.tableName).Create(&records).Error; err != nil {
 		return nil, fmt.Errorf("failed to bulk create in %s: %w", r.tableName, err)
 	}
+
+	if r.modelDef != nil {
+		session := r.buildSession()
+		for _, record := range records {
+			r.decryptFields(record)
+			if r.hookDispatcher != nil {
+				r.hookDispatcher.DispatchAfterCreate(ctx, r.modelDef, record, session)
+			}
+			if r.eventBus != nil {
+				r.eventBus.Publish(ctx, "model."+r.modelName+".created", record)
+			}
+		}
+	}
+
 	return records, nil
 }
 

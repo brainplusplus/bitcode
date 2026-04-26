@@ -114,6 +114,11 @@ func (r *Router) RegisterAPI(apiDef *parser.APIDefinition) {
 			repo.SetEventBus(r.eventBus)
 		}
 		crud := NewCRUDHandler(repo, apiDef, r.workflowEngine)
+		crud.hookDispatcher = r.hookDispatcher
+
+		if apiDef.Model != "" && crud.modelDef != nil && crud.modelDef.Events != nil && len(crud.modelDef.Events.OnChange) > 0 {
+			group.Post("/onchange", crud.OnChange)
+		}
 
 		for _, ep := range endpoints {
 			handler := r.resolveHandler(crud, ep)

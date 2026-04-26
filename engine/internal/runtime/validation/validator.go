@@ -1,22 +1,67 @@
 package validation
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/bitcode-framework/bitcode/internal/compiler/parser"
 )
 
+type UniqueChecker func(ctx context.Context, tableName string, fieldName string, value any, excludeID string, cfg *parser.UniqueConfig, isSoftDelete bool, data map[string]any) (bool, error)
+
+type ExistsChecker func(ctx context.Context, tableName string, id any, conditions map[string]any) (bool, error)
+
+type RelationCounter func(ctx context.Context, tableName string, foreignKey string, parentID any) (int64, error)
+
+type CustomValidatorRunner func(ctx context.Context, cv parser.CustomValidator, fieldName string, fieldValue any, data map[string]any) error
+
 type Validator struct {
-	translator func(locale, key string) string
+	translator          func(locale, key string) string
+	uniqueChecker       UniqueChecker
+	existsChecker       ExistsChecker
+	relationCounter     RelationCounter
+	customRunner        CustomValidatorRunner
+	tableNameResolver   func(modelName string) string
+	ctx                 context.Context
+	currentRecordID     string
 }
 
 func NewValidator() *Validator {
-	return &Validator{}
+	return &Validator{ctx: context.Background()}
 }
 
 func (v *Validator) SetTranslator(fn func(locale, key string) string) {
 	v.translator = fn
+}
+
+func (v *Validator) SetUniqueChecker(fn UniqueChecker) {
+	v.uniqueChecker = fn
+}
+
+func (v *Validator) SetExistsChecker(fn ExistsChecker) {
+	v.existsChecker = fn
+}
+
+func (v *Validator) SetRelationCounter(fn RelationCounter) {
+	v.relationCounter = fn
+}
+
+func (v *Validator) SetCustomRunner(fn CustomValidatorRunner) {
+	v.customRunner = fn
+}
+
+func (v *Validator) SetTableNameResolver(fn func(string) string) {
+	v.tableNameResolver = fn
+}
+
+func (v *Validator) SetContext(ctx context.Context) {
+	v.ctx = ctx
+}
+
+func (v *Validator) SetCurrentRecordID(id string) {
+	v.currentRecordID = id
 }
 
 func (v *Validator) ValidateCreate(modelDef *parser.ModelDefinition, data map[string]any, locale string) *ValidationErrors {
@@ -371,6 +416,154 @@ func (v *Validator) validateField(fieldName string, fieldDef *parser.FieldDefini
 			}
 		}
 	}
+
+	if errs.HasFieldErrors(fieldName) {
+		return
+	}
+
+	v.validateUnique(fieldName, fieldDef, modelDef, val, data, operation, label, locale, validation, errs)
+	v.validateExists(fieldName, fieldDef, val, label, locale, validation, errs)
+	v.validateRelationItems(fieldName, fieldDef, modelDef, data, operation, label, locale, validation, errs)
+	v.validateCustom(fieldName, val, data, label, locale, validation, errs)
+}
+
+func (v *Validator) validateUnique(fieldName string, fieldDef *parser.FieldDefinition, modelDef *parser.ModelDefinition, val any, data map[string]any, operation string, label string, locale string, validation *parser.FieldValidation, errs *ValidationErrors) {
+	if !validation.UniqueSimple && validation.UniqueConfig == nil {
+		return
+	}
+	if v.uniqueChecker == nil {
+		return
+	}
+
+	tableName := modelDef.Name
+	if v.tableNameResolver != nil {
+		tableName = v.tableNameResolver(modelDef.Name)
+	}
+
+	excludeID := ""
+	if operation == "update" {
+		excludeID = v.currentRecordID
+	}
+
+	isSoftDelete := modelDef.IsSoftDeletes()
+
+	exists, err := v.uniqueChecker(v.ctx, tableName, fieldName, val, excludeID, validation.UniqueConfig, isSoftDelete, data)
+	if err != nil {
+		log.Printf("[VALIDATION] unique check error for %s.%s: %v", modelDef.Name, fieldName, err)
+		return
+	}
+	if exists {
+		errs.Add(fieldName, "unique", v.msg(validation, "unique", locale, fmt.Sprintf("%s has already been taken", label)), nil)
+	}
+}
+
+func (v *Validator) validateExists(fieldName string, fieldDef *parser.FieldDefinition, val any, label string, locale string, validation *parser.FieldValidation, errs *ValidationErrors) {
+	if !validation.Exists && len(validation.ExistsWhere) == 0 {
+		return
+	}
+	if v.existsChecker == nil {
+		return
+	}
+	if fieldDef.Model == "" {
+		return
+	}
+
+	tableName := fieldDef.Model
+	if v.tableNameResolver != nil {
+		tableName = v.tableNameResolver(fieldDef.Model)
+	}
+
+	exists, err := v.existsChecker(v.ctx, tableName, val, validation.ExistsWhere)
+	if err != nil {
+		log.Printf("[VALIDATION] exists check error for %s: %v", fieldName, err)
+		return
+	}
+	if !exists {
+		errs.Add(fieldName, "exists", v.msg(validation, "exists", locale, fmt.Sprintf("%s references a record that does not exist", label)), nil)
+	}
+}
+
+func (v *Validator) validateRelationItems(fieldName string, fieldDef *parser.FieldDefinition, modelDef *parser.ModelDefinition, data map[string]any, operation string, label string, locale string, validation *parser.FieldValidation, errs *ValidationErrors) {
+	if validation.MinItems == nil && validation.MaxItems == nil {
+		return
+	}
+	if v.relationCounter == nil {
+		return
+	}
+	if fieldDef.Type != parser.FieldOne2Many && fieldDef.Type != parser.FieldMany2Many {
+		return
+	}
+
+	relTable := fieldDef.Model
+	if v.tableNameResolver != nil {
+		relTable = v.tableNameResolver(fieldDef.Model)
+	}
+
+	pkCol := "id"
+	if modelDef.PrimaryKey != nil && modelDef.PrimaryKey.Field != "" {
+		pkCol = modelDef.PrimaryKey.Field
+	}
+	parentID := data[pkCol]
+	if parentID == nil {
+		return
+	}
+
+	foreignKey := fieldDef.Inverse
+	if foreignKey == "" {
+		foreignKey = modelDef.Name + "_id"
+	}
+
+	count, err := v.relationCounter(v.ctx, relTable, foreignKey, parentID)
+	if err != nil {
+		log.Printf("[VALIDATION] relation count error for %s: %v", fieldName, err)
+		return
+	}
+
+	if validation.MinItems != nil {
+		minItems := resolveIntValue(validation.MinItems)
+		if minItems > 0 && count < int64(minItems) {
+			errs.Add(fieldName, "min_items", v.msg(validation, "min_items", locale, fmt.Sprintf("%s must have at least %d items", label, minItems)), map[string]any{"min_items": minItems})
+		}
+	}
+	if validation.MaxItems != nil {
+		maxItems := resolveIntValue(validation.MaxItems)
+		if maxItems > 0 && count > int64(maxItems) {
+			errs.Add(fieldName, "max_items", v.msg(validation, "max_items", locale, fmt.Sprintf("%s must not exceed %d items", label, maxItems)), map[string]any{"max_items": maxItems})
+		}
+	}
+}
+
+func resolveIntValue(val any) int {
+	switch v := val.(type) {
+	case int:
+		return v
+	case float64:
+		return int(v)
+	case map[string]any:
+		if raw, ok := v["value"]; ok {
+			return resolveIntValue(raw)
+		}
+	}
+	return 0
+}
+
+func (v *Validator) validateCustom(fieldName string, val any, data map[string]any, label string, locale string, validation *parser.FieldValidation, errs *ValidationErrors) {
+	if len(validation.Custom) == 0 {
+		return
+	}
+	if v.customRunner == nil {
+		return
+	}
+
+	for _, cv := range validation.Custom {
+		if err := v.customRunner(v.ctx, cv, fieldName, val, data); err != nil {
+			msg := cv.Message
+			if msg == "" {
+				msg = err.Error()
+			}
+			errs.Add(fieldName, "custom", v.msg(validation, "custom", locale, msg), nil)
+		}
+	}
 }
 
 func (v *Validator) checkImmutableAfter(immutableAfter any, data map[string]any, fieldName string, strVal string, label string, locale string, validation *parser.FieldValidation, errs *ValidationErrors) bool {
@@ -486,6 +679,23 @@ func (v *Validator) validateModelLevel(modelDef *parser.ModelDefinition, data ma
 				msg := mv.Message
 				if msg == "" {
 					msg = fmt.Sprintf("Validation failed: %s", mv.Name)
+				}
+				msg = v.translate(locale, msg)
+				errs.AddModel(mv.Name, msg)
+			}
+			continue
+		}
+
+		if (mv.Process != "" || mv.Script != nil) && v.customRunner != nil {
+			cv := parser.CustomValidator{
+				Process: mv.Process,
+				Script:  mv.Script,
+				Message: mv.Message,
+			}
+			if err := v.customRunner(v.ctx, cv, "_model", nil, data); err != nil {
+				msg := mv.Message
+				if msg == "" {
+					msg = err.Error()
 				}
 				msg = v.translate(locale, msg)
 				errs.AddModel(mv.Name, msg)

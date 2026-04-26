@@ -246,6 +246,94 @@ func NewApp(cfg AppConfig) (*App, error) {
 	v.SetTranslator(func(locale, key string) string {
 		return translator.Translate(locale, key)
 	})
+	v.SetTableNameResolver(func(modelName string) string {
+		return modelReg.TableName(modelName)
+	})
+	if db != nil {
+		v.SetUniqueChecker(func(ctx context.Context, tableName string, fieldName string, value any, excludeID string, cfg *parser.UniqueConfig, isSoftDelete bool, data map[string]any) (bool, error) {
+			q := db.WithContext(ctx).Table(tableName)
+			if cfg != nil && cfg.CaseInsensitive {
+				q = q.Where(fmt.Sprintf("LOWER(%s) = LOWER(?)", fieldName), value)
+			} else {
+				q = q.Where(fmt.Sprintf("%s = ?", fieldName), value)
+			}
+			if excludeID != "" {
+				q = q.Where("id != ?", excludeID)
+			}
+			if isSoftDelete {
+				if cfg == nil || !cfg.IncludeTrashed {
+					q = q.Where("deleted_at IS NULL")
+				}
+			}
+			if cfg != nil {
+				for _, scope := range cfg.Scope {
+					if scopeVal, ok := data[scope]; ok {
+						q = q.Where(fmt.Sprintf("%s = ?", scope), scopeVal)
+					}
+				}
+			}
+			var count int64
+			if err := q.Count(&count).Error; err != nil {
+				return false, err
+			}
+			return count > 0, nil
+		})
+		v.SetExistsChecker(func(ctx context.Context, tableName string, id any, conditions map[string]any) (bool, error) {
+			q := db.WithContext(ctx).Table(tableName).Where("id = ?", id)
+			for k, val := range conditions {
+				q = q.Where(fmt.Sprintf("%s = ?", k), val)
+			}
+			var count int64
+			if err := q.Count(&count).Error; err != nil {
+				return false, err
+			}
+			return count > 0, nil
+		})
+		v.SetRelationCounter(func(ctx context.Context, tableName string, foreignKey string, parentID any) (int64, error) {
+			var count int64
+			err := db.WithContext(ctx).Table(tableName).Where(fmt.Sprintf("%s = ?", foreignKey), parentID).Count(&count).Error
+			return count, err
+		})
+	}
+	v.SetCustomRunner(func(ctx context.Context, cv parser.CustomValidator, fieldName string, fieldValue any, data map[string]any) error {
+		if cv.Process != "" {
+			proc, err := processReg.LoadProcess(cv.Process)
+			if err != nil {
+				return fmt.Errorf("custom validator process %q not found: %w", cv.Process, err)
+			}
+			input := make(map[string]any)
+			for k, val := range data {
+				input[k] = val
+			}
+			input["_field"] = fieldName
+			input["_value"] = fieldValue
+			execCtx, err := app.Executor.Execute(ctx, proc, input, "")
+			if err != nil {
+				return err
+			}
+			if execCtx != nil && execCtx.Result != nil {
+				if errStr, ok := execCtx.Result.(string); ok && errStr != "" {
+					return fmt.Errorf("%s", errStr)
+				}
+			}
+			return nil
+		}
+		if cv.Script != nil && pluginMgr != nil {
+			params := map[string]any{
+				"field": fieldName,
+				"value": fieldValue,
+				"data":  data,
+			}
+			result, err := pluginMgr.Run(ctx, cv.Script.File, params)
+			if err != nil {
+				return err
+			}
+			if errStr, ok := result.(string); ok && errStr != "" {
+				return fmt.Errorf("%s", errStr)
+			}
+		}
+		return nil
+	})
 	app.Validator = validation.NewValidatorAdapter(v)
 	app.Sanitizer = validation.NewSanitizer()
 

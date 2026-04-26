@@ -211,7 +211,7 @@ func (d *Dispatcher) executeHandler(ctx context.Context, eventName string, handl
 	if result != nil && isBeforeEvent(eventName) {
 		if modifications, ok := result.(map[string]any); ok {
 			for k, v := range modifications {
-				if k[0] != '_' {
+				if len(k) > 0 && k[0] != '_' {
 					eventCtx.Data[k] = v
 				}
 			}
@@ -229,8 +229,8 @@ func (d *Dispatcher) executeHandlerWithRetry(ctx context.Context, eventName stri
 
 	delay := 5 * time.Second
 	if handler.Retry.Delay != "" {
-		if d, parseErr := time.ParseDuration(handler.Retry.Delay); parseErr == nil {
-			delay = d
+		if parsed, parseErr := time.ParseDuration(handler.Retry.Delay); parseErr == nil {
+			delay = parsed
 		}
 	}
 

@@ -13,13 +13,18 @@ import (
 )
 
 type MongoRepository struct {
-	conn       *MongoConnection
-	collection string
-	modelDef   *parser.ModelDefinition
-	modelName  string
-	currentUser string
-	tenantID   string
-	refLoader  func(modelName string, id string) (string, error)
+	conn           *MongoConnection
+	collection     string
+	modelDef       *parser.ModelDefinition
+	modelName      string
+	currentUser    string
+	tenantID       string
+	refLoader      func(modelName string, id string) (string, error)
+	hookDispatcher HookDispatcher
+	validator      FieldValidator
+	sanitizer      FieldSanitizer
+	eventBus       EventPublisher
+	locale         string
 }
 
 func NewMongoRepository(conn *MongoConnection, collection string) *MongoRepository {
@@ -44,6 +49,26 @@ func (r *MongoRepository) SetCurrentUser(userID string) {
 
 func (r *MongoRepository) SetRefLoader(fn func(modelName string, id string) (string, error)) {
 	r.refLoader = fn
+}
+
+func (r *MongoRepository) SetHookDispatcher(d HookDispatcher) {
+	r.hookDispatcher = d
+}
+
+func (r *MongoRepository) SetValidator(v FieldValidator) {
+	r.validator = v
+}
+
+func (r *MongoRepository) SetSanitizer(s FieldSanitizer) {
+	r.sanitizer = s
+}
+
+func (r *MongoRepository) SetEventBus(bus EventPublisher) {
+	r.eventBus = bus
+}
+
+func (r *MongoRepository) SetLocale(locale string) {
+	r.locale = locale
 }
 
 func (r *MongoRepository) GetTableName() string {
@@ -260,6 +285,24 @@ func (r *MongoRepository) Create(ctx context.Context, data map[string]any) (map[
 	if r.tenantID != "" {
 		data["tenant_id"] = r.tenantID
 	}
+
+	if r.modelDef != nil {
+		if r.sanitizer != nil {
+			r.sanitizer.SanitizeRecord(r.modelDef, data)
+		}
+		if r.validator != nil {
+			if err := r.validator.ValidateCreate(r.modelDef, data, r.locale); err != nil {
+				return nil, err
+			}
+		}
+		if r.hookDispatcher != nil {
+			session := r.mongoBuildSession()
+			if err := r.hookDispatcher.DispatchCreate(ctx, r.modelDef, data, session); err != nil {
+				return nil, err
+			}
+		}
+	}
+
 	if _, hasID := data["id"]; hasID {
 		data["_id"] = data["id"]
 		delete(data, "id")
@@ -279,12 +322,65 @@ func (r *MongoRepository) Create(ctx context.Context, data map[string]any) (map[
 		data["id"] = id
 		delete(data, "_id")
 	}
+
+	if r.modelDef != nil {
+		if r.hookDispatcher != nil {
+			session := r.mongoBuildSession()
+			r.hookDispatcher.DispatchAfterCreate(ctx, r.modelDef, data, session)
+		}
+		if r.eventBus != nil {
+			r.eventBus.Publish(ctx, "model."+r.modelName+".created", data)
+		}
+	}
+
 	return data, nil
 }
 
 func (r *MongoRepository) Update(ctx context.Context, id string, data map[string]any) error {
 	delete(data, "id")
 	delete(data, "_id")
+
+	if r.modelDef != nil {
+		var before map[string]any
+		if err := r.coll().FindOne(ctx, bson.M{"_id": id}).Decode(&before); err == nil {
+			if bid, ok := before["_id"]; ok {
+				before["id"] = bid
+				delete(before, "_id")
+			}
+
+			changes := data
+			merged := r.mongoMerge(before, data)
+
+			if r.sanitizer != nil {
+				r.sanitizer.SanitizeChangedFields(r.modelDef, merged, changes)
+				for k := range changes {
+					if v, ok := merged[k]; ok {
+						data[k] = v
+					}
+				}
+			}
+
+			if r.validator != nil {
+				merged["__old"] = before
+				if err := r.validator.ValidateUpdate(r.modelDef, merged, changes, r.locale); err != nil {
+					return err
+				}
+				delete(merged, "__old")
+			}
+
+			session := r.mongoBuildSession()
+			if r.hookDispatcher != nil {
+				if err := r.hookDispatcher.DispatchBeforeUpdate(ctx, r.modelDef, merged, before, changes, session); err != nil {
+					return err
+				}
+				for k := range changes {
+					if v, ok := merged[k]; ok {
+						data[k] = v
+					}
+				}
+			}
+		}
+	}
 
 	r.populateExtendedRefs(ctx, data)
 
@@ -295,10 +391,31 @@ func (r *MongoRepository) Update(ctx context.Context, id string, data map[string
 	if result.MatchedCount == 0 {
 		return fmt.Errorf("record not found in %s with id %s", r.collection, id)
 	}
+
+	if r.modelDef != nil {
+		session := r.mongoBuildSession()
+		if r.hookDispatcher != nil {
+			r.hookDispatcher.DispatchAfterUpdate(ctx, r.modelDef, data, nil, data, session)
+		}
+		if r.eventBus != nil {
+			r.eventBus.Publish(ctx, "model."+r.modelName+".updated", map[string]any{"record": data, "changes": data})
+		}
+	}
+
 	return nil
 }
 
 func (r *MongoRepository) Delete(ctx context.Context, id string) error {
+	if r.modelDef != nil && r.hookDispatcher != nil {
+		var before map[string]any
+		if err := r.coll().FindOne(ctx, bson.M{"_id": id}).Decode(&before); err == nil {
+			session := r.mongoBuildSession()
+			if err := r.hookDispatcher.DispatchBeforeDelete(ctx, r.modelDef, before, true, session); err != nil {
+				return err
+			}
+		}
+	}
+
 	result, err := r.coll().UpdateOne(ctx, bson.M{"_id": id}, bson.M{"$set": bson.M{"active": false}})
 	if err != nil {
 		return fmt.Errorf("failed to soft-delete in %s: %w", r.collection, err)
@@ -306,10 +423,31 @@ func (r *MongoRepository) Delete(ctx context.Context, id string) error {
 	if result.MatchedCount == 0 {
 		return fmt.Errorf("record not found in %s with id %s", r.collection, id)
 	}
+
+	if r.modelDef != nil {
+		session := r.mongoBuildSession()
+		if r.hookDispatcher != nil {
+			r.hookDispatcher.DispatchAfterDelete(ctx, r.modelDef, map[string]any{"id": id}, true, session)
+		}
+		if r.eventBus != nil {
+			r.eventBus.Publish(ctx, "model."+r.modelName+".deleted", map[string]any{"id": id})
+		}
+	}
+
 	return nil
 }
 
 func (r *MongoRepository) HardDelete(ctx context.Context, id string) error {
+	if r.modelDef != nil && r.hookDispatcher != nil {
+		var before map[string]any
+		if err := r.coll().FindOne(ctx, bson.M{"_id": id}).Decode(&before); err == nil {
+			session := r.mongoBuildSession()
+			if err := r.hookDispatcher.DispatchBeforeDelete(ctx, r.modelDef, before, false, session); err != nil {
+				return err
+			}
+		}
+	}
+
 	result, err := r.coll().DeleteOne(ctx, bson.M{"_id": id})
 	if err != nil {
 		return fmt.Errorf("failed to delete in %s: %w", r.collection, err)
@@ -317,6 +455,17 @@ func (r *MongoRepository) HardDelete(ctx context.Context, id string) error {
 	if result.DeletedCount == 0 {
 		return fmt.Errorf("record not found in %s with id %s", r.collection, id)
 	}
+
+	if r.modelDef != nil {
+		session := r.mongoBuildSession()
+		if r.hookDispatcher != nil {
+			r.hookDispatcher.DispatchAfterDelete(ctx, r.modelDef, map[string]any{"id": id}, false, session)
+		}
+		if r.eventBus != nil {
+			r.eventBus.Publish(ctx, "model."+r.modelName+".deleted", map[string]any{"id": id})
+		}
+	}
+
 	return nil
 }
 
@@ -1135,4 +1284,26 @@ func mongoDocToMap(doc bson.M) map[string]any {
 		result[k] = v
 	}
 	return result
+}
+
+func (r *MongoRepository) mongoBuildSession() map[string]any {
+	session := make(map[string]any)
+	if r.currentUser != "" {
+		session["user_id"] = r.currentUser
+	}
+	if r.tenantID != "" {
+		session["tenant_id"] = r.tenantID
+	}
+	return session
+}
+
+func (r *MongoRepository) mongoMerge(old map[string]any, incoming map[string]any) map[string]any {
+	merged := make(map[string]any, len(old))
+	for k, v := range old {
+		merged[k] = v
+	}
+	for k, v := range incoming {
+		merged[k] = v
+	}
+	return merged
 }

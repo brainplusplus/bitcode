@@ -217,3 +217,23 @@ func (m *ModelHookDispatcher) DispatchAfterDelete(ctx context.Context, modelDef 
 		m.dispatcher.DispatchSplit(ctx, "after_hard_delete", modelDef.Events.AfterHardDelete, eventCtx)
 	}
 }
+
+func (m *ModelHookDispatcher) DispatchOnChangeOnly(ctx context.Context, modelDef *parser.ModelDefinition, data map[string]any, changes map[string]any, session map[string]any) error {
+	if modelDef.Events == nil || len(modelDef.Events.OnChange) == 0 {
+		return nil
+	}
+
+	eventCtx := &EventContext{
+		Model:     modelDef.Name,
+		Module:    modelDef.Module,
+		Operation: "update",
+		Data:      data,
+		Changes:   changes,
+		Session:   session,
+	}
+	if uid, ok := session["user_id"].(string); ok {
+		eventCtx.UserID = uid
+	}
+
+	return m.dispatcher.DispatchOnChange(ctx, eventCtx, modelDef.Events, 0)
+}

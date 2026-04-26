@@ -21,6 +21,7 @@ type CRUDHandler struct {
 	workflowEngine *workflow.Engine
 	modelDef       *parser.ModelDefinition
 	pkGenerator    *pkgen.Generator
+	hookDispatcher persistence.HookDispatcher
 }
 
 func NewCRUDHandler(repo *persistence.GenericRepository, apiDef *parser.APIDefinition, wfEngine *workflow.Engine) *CRUDHandler {
@@ -348,6 +349,62 @@ func (h *CRUDHandler) extractSession(c *fiber.Ctx) map[string]any {
 		session["group_code"] = groupCode
 	}
 	return session
+}
+
+func (h *CRUDHandler) OnChange(c *fiber.Ctx) error {
+	if h.modelDef == nil || h.modelDef.Events == nil || len(h.modelDef.Events.OnChange) == 0 {
+		return c.Status(400).JSON(fiber.Map{"error": "no on_change handlers configured for this model"})
+	}
+
+	var body struct {
+		Field string         `json:"field"`
+		Data  map[string]any `json:"data"`
+	}
+	if err := c.BodyParser(&body); err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "invalid request body"})
+	}
+	if body.Field == "" || body.Data == nil {
+		return c.Status(400).JSON(fiber.Map{"error": "field and data are required"})
+	}
+
+	handlers, ok := h.modelDef.Events.OnChange[body.Field]
+	if !ok || len(handlers) == 0 {
+		return c.JSON(fiber.Map{"data": body.Data, "changed": false})
+	}
+
+	filtered := make([]parser.EventHandler, 0)
+	for _, handler := range handlers {
+		if !handler.ServerOnly {
+			filtered = append(filtered, handler)
+		}
+	}
+	if len(filtered) == 0 {
+		return c.JSON(fiber.Map{"data": body.Data, "changed": false})
+	}
+
+	dataBefore := make(map[string]any, len(body.Data))
+	for k, v := range body.Data {
+		dataBefore[k] = v
+	}
+
+	if h.hookDispatcher != nil {
+		session := h.extractSession(c)
+		if err := h.hookDispatcher.DispatchOnChangeOnly(c.Context(), h.modelDef, body.Data, map[string]any{body.Field: body.Data[body.Field]}, session); err != nil {
+			return handleError(c, err, 500)
+		}
+	}
+
+	changed := false
+	for k, v := range body.Data {
+		if oldV, ok := dataBefore[k]; ok {
+			if fmt.Sprintf("%v", v) != fmt.Sprintf("%v", oldV) {
+				changed = true
+				break
+			}
+		}
+	}
+
+	return c.JSON(fiber.Map{"data": body.Data, "changed": changed})
 }
 
 func generateUUID() string {

@@ -175,8 +175,9 @@ All 11 locale files must be provided for every module that has user-facing text.
 
 - [x] Computed field evaluation — Expression evaluator for `sum(lines.subtotal)` at query time
 - [x] Model lifecycle events — `events` in model JSON: 16 event types (before/after validate, create, update, delete, save, soft_delete, hard_delete, restore + on_change). Process/script handlers with condition, sync/async, retry, priority, bulk_mode. Repository-layer injection. Auto event bus publish.
-- [x] Field validation — `validation` in model JSON: 40+ built-in validators, conditional (required_if, when, on), custom (process/script), model-level cross-field validators. 422 error response. Auto-maps existing required/max/min.
+- [x] Field validation — `validation` in model JSON: 40+ built-in validators, conditional (required_if, when, on), custom (process/script), model-level cross-field validators. 422 error response. Auto-maps existing required/max/min. DB-backed unique (scoped, case-insensitive), exists/exists_where, min_items/max_items for relations.
 - [x] Field sanitization — `sanitize` in model JSON: 14 built-in sanitizers (trim, lowercase, slugify, etc.). Model-level `_all_strings` shorthand.
+- [x] Client-side onchange API — `POST /api/{model}/onchange` endpoint for real-time field change handling in forms.
 - [ ] Redis cache wiring — Wire into permission checker and query result cache
 - [ ] GraphQL API — Alternative to REST
 - [ ] Marketplace — Community module sharing
