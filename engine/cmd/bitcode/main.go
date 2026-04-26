@@ -198,7 +198,14 @@ func runEngineDevMode() error {
 		binName = "./tmp/bitcode.exe"
 	}
 
-	buildCmd := fmt.Sprintf("go build -o %s ./cmd/bitcode/", binName)
+	var buildCmd string
+	if engineDir != "." {
+		absEngine, _ := filepath.Abs(engineDir)
+		absBin, _ := filepath.Abs(binName)
+		buildCmd = fmt.Sprintf("go build -C %s -o %s ./cmd/bitcode/", absEngine, absBin)
+	} else {
+		buildCmd = fmt.Sprintf("go build -o %s ./cmd/bitcode/", binName)
+	}
 
 	airArgs := []string{
 		"--build.cmd", buildCmd,
