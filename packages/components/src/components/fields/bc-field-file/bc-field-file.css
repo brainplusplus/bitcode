@@ -145,8 +145,39 @@
   50% { opacity: 0.6; }
 }
 
-.bc-file-remove {
+.bc-file-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
   flex-shrink: 0;
+}
+
+.bc-file-action-btn {
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--bc-text-secondary, #9ca3af);
+  padding: 0;
+  border-radius: 4px;
+  transition: all 0.15s;
+}
+
+.bc-file-action-btn:hover {
+  color: var(--bc-primary, #3b82f6);
+  background: var(--bc-bg-hover, #eff6ff);
+}
+
+.bc-file-action-btn svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.bc-file-remove {
   width: 1.5rem;
   height: 1.5rem;
   display: flex;
@@ -169,4 +200,10 @@
 .bc-file-remove svg {
   width: 1rem;
   height: 1rem;
+}
+
+.bc-file-preview-container {
+  margin-top: 0.75rem;
+  border-radius: 8px;
+  overflow: hidden;
 }

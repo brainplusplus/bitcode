@@ -1,0 +1,113 @@
+:host {
+  display: block;
+  font-family: var(--bc-font-family, system-ui, sans-serif);
+}
+
+.bc-viewer-doc {
+  border: 1px solid var(--bc-border-color, #e5e7eb);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--bc-bg-primary, #fff);
+}
+
+.bc-viewer-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  background: var(--bc-bg-secondary, #f9fafb);
+  border-bottom: 1px solid var(--bc-border-color, #e5e7eb);
+}
+
+.bc-viewer-toolbar-label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--bc-text-secondary, #6b7280);
+}
+
+.bc-viewer-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  border: 1px solid var(--bc-border-color, #d1d5db);
+  border-radius: 6px;
+  background: var(--bc-bg-primary, #fff);
+  color: var(--bc-text-primary, #374151);
+  font-size: 0.8125rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.bc-viewer-btn:hover {
+  background: var(--bc-bg-hover, #f3f4f6);
+  border-color: var(--bc-primary, #3b82f6);
+  color: var(--bc-primary, #3b82f6);
+}
+
+.bc-viewer-btn svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.bc-viewer-doc-frame {
+  width: 100%;
+  border: none;
+  display: block;
+}
+
+.bc-viewer-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  gap: 0.75rem;
+}
+
+.bc-viewer-empty svg {
+  width: 3rem;
+  height: 3rem;
+  color: var(--bc-text-secondary, #9ca3af);
+}
+
+.bc-viewer-empty span {
+  font-size: 0.875rem;
+  color: var(--bc-text-secondary, #6b7280);
+}
+
+.bc-viewer-local {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1rem;
+  gap: 0.5rem;
+}
+
+.bc-viewer-local-icon svg {
+  width: 3rem;
+  height: 3rem;
+  color: var(--bc-primary, #3b82f6);
+}
+
+.bc-viewer-local-type {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--bc-text-primary, #374151);
+}
+
+.bc-viewer-local-name {
+  font-size: 0.8125rem;
+  color: var(--bc-text-secondary, #6b7280);
+  word-break: break-all;
+  text-align: center;
+  max-width: 300px;
+}
+
+.bc-viewer-local-hint {
+  font-size: 0.75rem;
+  color: var(--bc-text-secondary, #9ca3af);
+  margin-bottom: 0.5rem;
+}

@@ -142,7 +142,8 @@ All 11 locale files must be provided for every module that has user-facing text.
 - [x] Modern UI — Polished CSS design system with cards, tables, badges, kanban boards, responsive layout
 - [x] DAG executor — Parallel step execution for process engine
 - [x] Component compiler — Compiles view JSON into Stencil Web Component HTML
-- [x] Stencil Web Components — 94 components (fields, layout, views, charts, dialogs, widgets, search, social, print)
+- [x] Stencil Web Components — 102 components (fields, layout, views, charts, dialogs, widgets, media viewers/players, search, social, print)
+- [x] Media viewers — 8 viewer/player components (PDF, image, document, YouTube, Instagram, TikTok, video, audio) + file upload preview integration
 - [x] Embedded module system — Base module embedded in binary via `go:embed`, 3-layer resolution (project → global → embedded)
 - [x] `bitcode publish` CLI — Extract embedded modules to project for customization (whole/per-type/per-file)
 - [x] Menu visibility — `menu_visibility` field in module.json (`app` or `admin`)

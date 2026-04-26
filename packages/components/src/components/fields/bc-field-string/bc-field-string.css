@@ -1,1 +1,5 @@
 @import '../field-base.css';
+
+.bc-field-embed-preview {
+  margin-top: 0.75rem;
+}

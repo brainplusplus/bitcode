@@ -636,9 +636,17 @@ export namespace Components {
          */
         "accept": string;
         /**
+          * @default '/api'
+         */
+        "apiBase": string;
+        /**
           * @default false
          */
         "disabled": boolean;
+        /**
+          * @default ''
+         */
+        "fieldName": string;
         /**
           * @default ''
          */
@@ -650,11 +658,39 @@ export namespace Components {
         /**
           * @default ''
          */
+        "model": string;
+        /**
+          * @default false
+         */
+        "multiple": boolean;
+        /**
+          * @default ''
+         */
         "name": string;
+        /**
+          * @default ''
+         */
+        "nameFormat": string;
+        /**
+          * @default ''
+         */
+        "pathFormat": string;
+        /**
+          * @default false
+         */
+        "preview": boolean;
+        /**
+          * @default ''
+         */
+        "recordId": string;
         /**
           * @default false
          */
         "required": boolean;
+        /**
+          * @default true
+         */
+        "showDownload": boolean;
         /**
           * @default ''
          */
@@ -770,6 +806,10 @@ export namespace Components {
         /**
           * @default ''
          */
+        "fieldName": string;
+        /**
+          * @default ''
+         */
         "label": string;
         /**
           * @default '10MB'
@@ -778,11 +818,27 @@ export namespace Components {
         /**
           * @default ''
          */
+        "model": string;
+        /**
+          * @default ''
+         */
         "name": string;
+        /**
+          * @default true
+         */
+        "preview": boolean;
+        /**
+          * @default ''
+         */
+        "recordId": string;
         /**
           * @default false
          */
         "required": boolean;
+        /**
+          * @default false
+         */
+        "showDownload": boolean;
         /**
           * @default ''
          */
@@ -1259,6 +1315,10 @@ export namespace Components {
           * @default ''
          */
         "value": string;
+        /**
+          * @default ''
+         */
+        "widget": string;
     }
     interface BcFieldTableselect {
         /**
@@ -1829,6 +1889,190 @@ export namespace Components {
           * @default ''
          */
         "viewTitle": string;
+    }
+    interface BcViewerAudio {
+        /**
+          * @default false
+         */
+        "autoplay": boolean;
+        /**
+          * @default true
+         */
+        "controls": boolean;
+        /**
+          * @default true
+         */
+        "download": boolean;
+        /**
+          * @default false
+         */
+        "loop": boolean;
+        /**
+          * @default ''
+         */
+        "src": string;
+        /**
+          * @default ''
+         */
+        "type": string;
+    }
+    interface BcViewerDocument {
+        /**
+          * @default true
+         */
+        "download": boolean;
+        /**
+          * @default '600px'
+         */
+        "height": string;
+        /**
+          * @default 'microsoft'
+         */
+        "provider": 'microsoft' | 'google';
+        /**
+          * @default ''
+         */
+        "src": string;
+    }
+    interface BcViewerImage {
+        /**
+          * @default ''
+         */
+        "alt": string;
+        /**
+          * @default false
+         */
+        "download": boolean;
+        /**
+          * @default 'auto'
+         */
+        "height": string;
+        /**
+          * @default true
+         */
+        "lightbox": boolean;
+        /**
+          * @default ''
+         */
+        "src": string;
+        /**
+          * @default '100%'
+         */
+        "width": string;
+        /**
+          * @default true
+         */
+        "zoomable": boolean;
+    }
+    interface BcViewerInstagram {
+        /**
+          * @default true
+         */
+        "captioned": boolean;
+        /**
+          * @default ''
+         */
+        "src": string;
+        /**
+          * @default '400px'
+         */
+        "width": string;
+    }
+    interface BcViewerPdf {
+        /**
+          * @default true
+         */
+        "download": boolean;
+        /**
+          * @default '600px'
+         */
+        "height": string;
+        /**
+          * @default ''
+         */
+        "src": string;
+        /**
+          * @default true
+         */
+        "toolbar": boolean;
+    }
+    interface BcViewerTiktok {
+        /**
+          * @default ''
+         */
+        "src": string;
+        /**
+          * @default '325px'
+         */
+        "width": string;
+    }
+    interface BcViewerVideo {
+        /**
+          * @default false
+         */
+        "autoplay": boolean;
+        /**
+          * @default true
+         */
+        "controls": boolean;
+        /**
+          * @default true
+         */
+        "download": boolean;
+        /**
+          * @default 'auto'
+         */
+        "height": string;
+        /**
+          * @default false
+         */
+        "loop": boolean;
+        /**
+          * @default false
+         */
+        "muted": boolean;
+        /**
+          * @default ''
+         */
+        "poster": string;
+        /**
+          * @default ''
+         */
+        "src": string;
+        /**
+          * @default ''
+         */
+        "type": string;
+        /**
+          * @default '100%'
+         */
+        "width": string;
+    }
+    interface BcViewerYoutube {
+        /**
+          * @default false
+         */
+        "autoplay": boolean;
+        /**
+          * @default true
+         */
+        "controls": boolean;
+        /**
+          * @default 'auto'
+         */
+        "height": string;
+        /**
+          * @default ''
+         */
+        "src": string;
+        /**
+          * @default 0
+         */
+        "start": number;
+        /**
+          * @default '100%'
+         */
+        "width": string;
     }
     interface BcWidgetBadge {
         /**
@@ -3243,6 +3487,54 @@ declare global {
         prototype: HTMLBcViewTreeElement;
         new (): HTMLBcViewTreeElement;
     };
+    interface HTMLBcViewerAudioElement extends Components.BcViewerAudio, HTMLStencilElement {
+    }
+    var HTMLBcViewerAudioElement: {
+        prototype: HTMLBcViewerAudioElement;
+        new (): HTMLBcViewerAudioElement;
+    };
+    interface HTMLBcViewerDocumentElement extends Components.BcViewerDocument, HTMLStencilElement {
+    }
+    var HTMLBcViewerDocumentElement: {
+        prototype: HTMLBcViewerDocumentElement;
+        new (): HTMLBcViewerDocumentElement;
+    };
+    interface HTMLBcViewerImageElement extends Components.BcViewerImage, HTMLStencilElement {
+    }
+    var HTMLBcViewerImageElement: {
+        prototype: HTMLBcViewerImageElement;
+        new (): HTMLBcViewerImageElement;
+    };
+    interface HTMLBcViewerInstagramElement extends Components.BcViewerInstagram, HTMLStencilElement {
+    }
+    var HTMLBcViewerInstagramElement: {
+        prototype: HTMLBcViewerInstagramElement;
+        new (): HTMLBcViewerInstagramElement;
+    };
+    interface HTMLBcViewerPdfElement extends Components.BcViewerPdf, HTMLStencilElement {
+    }
+    var HTMLBcViewerPdfElement: {
+        prototype: HTMLBcViewerPdfElement;
+        new (): HTMLBcViewerPdfElement;
+    };
+    interface HTMLBcViewerTiktokElement extends Components.BcViewerTiktok, HTMLStencilElement {
+    }
+    var HTMLBcViewerTiktokElement: {
+        prototype: HTMLBcViewerTiktokElement;
+        new (): HTMLBcViewerTiktokElement;
+    };
+    interface HTMLBcViewerVideoElement extends Components.BcViewerVideo, HTMLStencilElement {
+    }
+    var HTMLBcViewerVideoElement: {
+        prototype: HTMLBcViewerVideoElement;
+        new (): HTMLBcViewerVideoElement;
+    };
+    interface HTMLBcViewerYoutubeElement extends Components.BcViewerYoutube, HTMLStencilElement {
+    }
+    var HTMLBcViewerYoutubeElement: {
+        prototype: HTMLBcViewerYoutubeElement;
+        new (): HTMLBcViewerYoutubeElement;
+    };
     interface HTMLBcWidgetBadgeElement extends Components.BcWidgetBadge, HTMLStencilElement {
     }
     var HTMLBcWidgetBadgeElement: {
@@ -3400,6 +3692,14 @@ declare global {
         "bc-view-map": HTMLBcViewMapElement;
         "bc-view-report": HTMLBcViewReportElement;
         "bc-view-tree": HTMLBcViewTreeElement;
+        "bc-viewer-audio": HTMLBcViewerAudioElement;
+        "bc-viewer-document": HTMLBcViewerDocumentElement;
+        "bc-viewer-image": HTMLBcViewerImageElement;
+        "bc-viewer-instagram": HTMLBcViewerInstagramElement;
+        "bc-viewer-pdf": HTMLBcViewerPdfElement;
+        "bc-viewer-tiktok": HTMLBcViewerTiktokElement;
+        "bc-viewer-video": HTMLBcViewerVideoElement;
+        "bc-viewer-youtube": HTMLBcViewerYoutubeElement;
         "bc-widget-badge": HTMLBcWidgetBadgeElement;
         "bc-widget-copy": HTMLBcWidgetCopyElement;
         "bc-widget-domain": HTMLBcWidgetDomainElement;
@@ -4064,9 +4364,17 @@ declare namespace LocalJSX {
          */
         "accept"?: string;
         /**
+          * @default '/api'
+         */
+        "apiBase"?: string;
+        /**
           * @default false
          */
         "disabled"?: boolean;
+        /**
+          * @default ''
+         */
+        "fieldName"?: string;
         /**
           * @default ''
          */
@@ -4078,12 +4386,40 @@ declare namespace LocalJSX {
         /**
           * @default ''
          */
+        "model"?: string;
+        /**
+          * @default false
+         */
+        "multiple"?: boolean;
+        /**
+          * @default ''
+         */
         "name"?: string;
+        /**
+          * @default ''
+         */
+        "nameFormat"?: string;
         "onLcFieldChange"?: (event: BcFieldFileCustomEvent<FieldChangeEvent>) => void;
+        /**
+          * @default ''
+         */
+        "pathFormat"?: string;
+        /**
+          * @default false
+         */
+        "preview"?: boolean;
+        /**
+          * @default ''
+         */
+        "recordId"?: string;
         /**
           * @default false
          */
         "required"?: boolean;
+        /**
+          * @default true
+         */
+        "showDownload"?: boolean;
         /**
           * @default ''
          */
@@ -4202,6 +4538,10 @@ declare namespace LocalJSX {
         /**
           * @default ''
          */
+        "fieldName"?: string;
+        /**
+          * @default ''
+         */
         "label"?: string;
         /**
           * @default '10MB'
@@ -4210,12 +4550,28 @@ declare namespace LocalJSX {
         /**
           * @default ''
          */
+        "model"?: string;
+        /**
+          * @default ''
+         */
         "name"?: string;
         "onLcFieldChange"?: (event: BcFieldImageCustomEvent<FieldChangeEvent>) => void;
+        /**
+          * @default true
+         */
+        "preview"?: boolean;
+        /**
+          * @default ''
+         */
+        "recordId"?: string;
         /**
           * @default false
          */
         "required"?: boolean;
+        /**
+          * @default false
+         */
+        "showDownload"?: boolean;
         /**
           * @default ''
          */
@@ -4706,6 +5062,10 @@ declare namespace LocalJSX {
           * @default ''
          */
         "value"?: string;
+        /**
+          * @default ''
+         */
+        "widget"?: string;
     }
     interface BcFieldTableselect {
         /**
@@ -5296,6 +5656,190 @@ declare namespace LocalJSX {
          */
         "viewTitle"?: string;
     }
+    interface BcViewerAudio {
+        /**
+          * @default false
+         */
+        "autoplay"?: boolean;
+        /**
+          * @default true
+         */
+        "controls"?: boolean;
+        /**
+          * @default true
+         */
+        "download"?: boolean;
+        /**
+          * @default false
+         */
+        "loop"?: boolean;
+        /**
+          * @default ''
+         */
+        "src"?: string;
+        /**
+          * @default ''
+         */
+        "type"?: string;
+    }
+    interface BcViewerDocument {
+        /**
+          * @default true
+         */
+        "download"?: boolean;
+        /**
+          * @default '600px'
+         */
+        "height"?: string;
+        /**
+          * @default 'microsoft'
+         */
+        "provider"?: 'microsoft' | 'google';
+        /**
+          * @default ''
+         */
+        "src"?: string;
+    }
+    interface BcViewerImage {
+        /**
+          * @default ''
+         */
+        "alt"?: string;
+        /**
+          * @default false
+         */
+        "download"?: boolean;
+        /**
+          * @default 'auto'
+         */
+        "height"?: string;
+        /**
+          * @default true
+         */
+        "lightbox"?: boolean;
+        /**
+          * @default ''
+         */
+        "src"?: string;
+        /**
+          * @default '100%'
+         */
+        "width"?: string;
+        /**
+          * @default true
+         */
+        "zoomable"?: boolean;
+    }
+    interface BcViewerInstagram {
+        /**
+          * @default true
+         */
+        "captioned"?: boolean;
+        /**
+          * @default ''
+         */
+        "src"?: string;
+        /**
+          * @default '400px'
+         */
+        "width"?: string;
+    }
+    interface BcViewerPdf {
+        /**
+          * @default true
+         */
+        "download"?: boolean;
+        /**
+          * @default '600px'
+         */
+        "height"?: string;
+        /**
+          * @default ''
+         */
+        "src"?: string;
+        /**
+          * @default true
+         */
+        "toolbar"?: boolean;
+    }
+    interface BcViewerTiktok {
+        /**
+          * @default ''
+         */
+        "src"?: string;
+        /**
+          * @default '325px'
+         */
+        "width"?: string;
+    }
+    interface BcViewerVideo {
+        /**
+          * @default false
+         */
+        "autoplay"?: boolean;
+        /**
+          * @default true
+         */
+        "controls"?: boolean;
+        /**
+          * @default true
+         */
+        "download"?: boolean;
+        /**
+          * @default 'auto'
+         */
+        "height"?: string;
+        /**
+          * @default false
+         */
+        "loop"?: boolean;
+        /**
+          * @default false
+         */
+        "muted"?: boolean;
+        /**
+          * @default ''
+         */
+        "poster"?: string;
+        /**
+          * @default ''
+         */
+        "src"?: string;
+        /**
+          * @default ''
+         */
+        "type"?: string;
+        /**
+          * @default '100%'
+         */
+        "width"?: string;
+    }
+    interface BcViewerYoutube {
+        /**
+          * @default false
+         */
+        "autoplay"?: boolean;
+        /**
+          * @default true
+         */
+        "controls"?: boolean;
+        /**
+          * @default 'auto'
+         */
+        "height"?: string;
+        /**
+          * @default ''
+         */
+        "src"?: string;
+        /**
+          * @default 0
+         */
+        "start"?: number;
+        /**
+          * @default '100%'
+         */
+        "width"?: string;
+    }
     interface BcWidgetBadge {
         /**
           * @default ''
@@ -5589,8 +6133,17 @@ declare namespace LocalJSX {
         "value": string;
         "accept": string;
         "maxSize": string;
+        "multiple": boolean;
         "required": boolean;
         "disabled": boolean;
+        "pathFormat": string;
+        "nameFormat": string;
+        "apiBase": string;
+        "model": string;
+        "recordId": string;
+        "fieldName": string;
+        "preview": boolean;
+        "showDownload": boolean;
     }
     interface BcFieldFloatAttributes {
         "name": string;
@@ -5629,6 +6182,11 @@ declare namespace LocalJSX {
         "maxSize": string;
         "required": boolean;
         "disabled": boolean;
+        "preview": boolean;
+        "showDownload": boolean;
+        "model": string;
+        "recordId": string;
+        "fieldName": string;
     }
     interface BcFieldIntegerAttributes {
         "name": string;
@@ -5768,6 +6326,7 @@ declare namespace LocalJSX {
         "readonly": boolean;
         "disabled": boolean;
         "max": number;
+        "widget": string;
     }
     interface BcFieldTableselectAttributes {
         "name": string;
@@ -5957,6 +6516,64 @@ declare namespace LocalJSX {
         "config": string;
         "parentField": string;
     }
+    interface BcViewerAudioAttributes {
+        "src": string;
+        "type": string;
+        "controls": boolean;
+        "autoplay": boolean;
+        "loop": boolean;
+        "download": boolean;
+    }
+    interface BcViewerDocumentAttributes {
+        "src": string;
+        "height": string;
+        "provider": 'microsoft' | 'google';
+        "download": boolean;
+    }
+    interface BcViewerImageAttributes {
+        "src": string;
+        "alt": string;
+        "width": string;
+        "height": string;
+        "zoomable": boolean;
+        "lightbox": boolean;
+        "download": boolean;
+    }
+    interface BcViewerInstagramAttributes {
+        "src": string;
+        "width": string;
+        "captioned": boolean;
+    }
+    interface BcViewerPdfAttributes {
+        "src": string;
+        "height": string;
+        "toolbar": boolean;
+        "download": boolean;
+    }
+    interface BcViewerTiktokAttributes {
+        "src": string;
+        "width": string;
+    }
+    interface BcViewerVideoAttributes {
+        "src": string;
+        "type": string;
+        "poster": string;
+        "controls": boolean;
+        "autoplay": boolean;
+        "loop": boolean;
+        "muted": boolean;
+        "width": string;
+        "height": string;
+        "download": boolean;
+    }
+    interface BcViewerYoutubeAttributes {
+        "src": string;
+        "width": string;
+        "height": string;
+        "autoplay": boolean;
+        "controls": boolean;
+        "start": number;
+    }
     interface BcWidgetBadgeAttributes {
         "value": string;
         "variant": string;
@@ -6077,6 +6694,14 @@ declare namespace LocalJSX {
         "bc-view-map": Omit<BcViewMap, keyof BcViewMapAttributes> & { [K in keyof BcViewMap & keyof BcViewMapAttributes]?: BcViewMap[K] } & { [K in keyof BcViewMap & keyof BcViewMapAttributes as `attr:${K}`]?: BcViewMapAttributes[K] } & { [K in keyof BcViewMap & keyof BcViewMapAttributes as `prop:${K}`]?: BcViewMap[K] };
         "bc-view-report": Omit<BcViewReport, keyof BcViewReportAttributes> & { [K in keyof BcViewReport & keyof BcViewReportAttributes]?: BcViewReport[K] } & { [K in keyof BcViewReport & keyof BcViewReportAttributes as `attr:${K}`]?: BcViewReportAttributes[K] } & { [K in keyof BcViewReport & keyof BcViewReportAttributes as `prop:${K}`]?: BcViewReport[K] };
         "bc-view-tree": Omit<BcViewTree, keyof BcViewTreeAttributes> & { [K in keyof BcViewTree & keyof BcViewTreeAttributes]?: BcViewTree[K] } & { [K in keyof BcViewTree & keyof BcViewTreeAttributes as `attr:${K}`]?: BcViewTreeAttributes[K] } & { [K in keyof BcViewTree & keyof BcViewTreeAttributes as `prop:${K}`]?: BcViewTree[K] };
+        "bc-viewer-audio": Omit<BcViewerAudio, keyof BcViewerAudioAttributes> & { [K in keyof BcViewerAudio & keyof BcViewerAudioAttributes]?: BcViewerAudio[K] } & { [K in keyof BcViewerAudio & keyof BcViewerAudioAttributes as `attr:${K}`]?: BcViewerAudioAttributes[K] } & { [K in keyof BcViewerAudio & keyof BcViewerAudioAttributes as `prop:${K}`]?: BcViewerAudio[K] };
+        "bc-viewer-document": Omit<BcViewerDocument, keyof BcViewerDocumentAttributes> & { [K in keyof BcViewerDocument & keyof BcViewerDocumentAttributes]?: BcViewerDocument[K] } & { [K in keyof BcViewerDocument & keyof BcViewerDocumentAttributes as `attr:${K}`]?: BcViewerDocumentAttributes[K] } & { [K in keyof BcViewerDocument & keyof BcViewerDocumentAttributes as `prop:${K}`]?: BcViewerDocument[K] };
+        "bc-viewer-image": Omit<BcViewerImage, keyof BcViewerImageAttributes> & { [K in keyof BcViewerImage & keyof BcViewerImageAttributes]?: BcViewerImage[K] } & { [K in keyof BcViewerImage & keyof BcViewerImageAttributes as `attr:${K}`]?: BcViewerImageAttributes[K] } & { [K in keyof BcViewerImage & keyof BcViewerImageAttributes as `prop:${K}`]?: BcViewerImage[K] };
+        "bc-viewer-instagram": Omit<BcViewerInstagram, keyof BcViewerInstagramAttributes> & { [K in keyof BcViewerInstagram & keyof BcViewerInstagramAttributes]?: BcViewerInstagram[K] } & { [K in keyof BcViewerInstagram & keyof BcViewerInstagramAttributes as `attr:${K}`]?: BcViewerInstagramAttributes[K] } & { [K in keyof BcViewerInstagram & keyof BcViewerInstagramAttributes as `prop:${K}`]?: BcViewerInstagram[K] };
+        "bc-viewer-pdf": Omit<BcViewerPdf, keyof BcViewerPdfAttributes> & { [K in keyof BcViewerPdf & keyof BcViewerPdfAttributes]?: BcViewerPdf[K] } & { [K in keyof BcViewerPdf & keyof BcViewerPdfAttributes as `attr:${K}`]?: BcViewerPdfAttributes[K] } & { [K in keyof BcViewerPdf & keyof BcViewerPdfAttributes as `prop:${K}`]?: BcViewerPdf[K] };
+        "bc-viewer-tiktok": Omit<BcViewerTiktok, keyof BcViewerTiktokAttributes> & { [K in keyof BcViewerTiktok & keyof BcViewerTiktokAttributes]?: BcViewerTiktok[K] } & { [K in keyof BcViewerTiktok & keyof BcViewerTiktokAttributes as `attr:${K}`]?: BcViewerTiktokAttributes[K] } & { [K in keyof BcViewerTiktok & keyof BcViewerTiktokAttributes as `prop:${K}`]?: BcViewerTiktok[K] };
+        "bc-viewer-video": Omit<BcViewerVideo, keyof BcViewerVideoAttributes> & { [K in keyof BcViewerVideo & keyof BcViewerVideoAttributes]?: BcViewerVideo[K] } & { [K in keyof BcViewerVideo & keyof BcViewerVideoAttributes as `attr:${K}`]?: BcViewerVideoAttributes[K] } & { [K in keyof BcViewerVideo & keyof BcViewerVideoAttributes as `prop:${K}`]?: BcViewerVideo[K] };
+        "bc-viewer-youtube": Omit<BcViewerYoutube, keyof BcViewerYoutubeAttributes> & { [K in keyof BcViewerYoutube & keyof BcViewerYoutubeAttributes]?: BcViewerYoutube[K] } & { [K in keyof BcViewerYoutube & keyof BcViewerYoutubeAttributes as `attr:${K}`]?: BcViewerYoutubeAttributes[K] } & { [K in keyof BcViewerYoutube & keyof BcViewerYoutubeAttributes as `prop:${K}`]?: BcViewerYoutube[K] };
         "bc-widget-badge": Omit<BcWidgetBadge, keyof BcWidgetBadgeAttributes> & { [K in keyof BcWidgetBadge & keyof BcWidgetBadgeAttributes]?: BcWidgetBadge[K] } & { [K in keyof BcWidgetBadge & keyof BcWidgetBadgeAttributes as `attr:${K}`]?: BcWidgetBadgeAttributes[K] } & { [K in keyof BcWidgetBadge & keyof BcWidgetBadgeAttributes as `prop:${K}`]?: BcWidgetBadge[K] };
         "bc-widget-copy": Omit<BcWidgetCopy, keyof BcWidgetCopyAttributes> & { [K in keyof BcWidgetCopy & keyof BcWidgetCopyAttributes]?: BcWidgetCopy[K] } & { [K in keyof BcWidgetCopy & keyof BcWidgetCopyAttributes as `attr:${K}`]?: BcWidgetCopyAttributes[K] } & { [K in keyof BcWidgetCopy & keyof BcWidgetCopyAttributes as `prop:${K}`]?: BcWidgetCopy[K] };
         "bc-widget-domain": Omit<BcWidgetDomain, keyof BcWidgetDomainAttributes> & { [K in keyof BcWidgetDomain & keyof BcWidgetDomainAttributes]?: BcWidgetDomain[K] } & { [K in keyof BcWidgetDomain & keyof BcWidgetDomainAttributes as `attr:${K}`]?: BcWidgetDomainAttributes[K] } & { [K in keyof BcWidgetDomain & keyof BcWidgetDomainAttributes as `prop:${K}`]?: BcWidgetDomain[K] };
@@ -6178,6 +6803,14 @@ declare module "@stencil/core" {
             "bc-view-map": LocalJSX.IntrinsicElements["bc-view-map"] & JSXBase.HTMLAttributes<HTMLBcViewMapElement>;
             "bc-view-report": LocalJSX.IntrinsicElements["bc-view-report"] & JSXBase.HTMLAttributes<HTMLBcViewReportElement>;
             "bc-view-tree": LocalJSX.IntrinsicElements["bc-view-tree"] & JSXBase.HTMLAttributes<HTMLBcViewTreeElement>;
+            "bc-viewer-audio": LocalJSX.IntrinsicElements["bc-viewer-audio"] & JSXBase.HTMLAttributes<HTMLBcViewerAudioElement>;
+            "bc-viewer-document": LocalJSX.IntrinsicElements["bc-viewer-document"] & JSXBase.HTMLAttributes<HTMLBcViewerDocumentElement>;
+            "bc-viewer-image": LocalJSX.IntrinsicElements["bc-viewer-image"] & JSXBase.HTMLAttributes<HTMLBcViewerImageElement>;
+            "bc-viewer-instagram": LocalJSX.IntrinsicElements["bc-viewer-instagram"] & JSXBase.HTMLAttributes<HTMLBcViewerInstagramElement>;
+            "bc-viewer-pdf": LocalJSX.IntrinsicElements["bc-viewer-pdf"] & JSXBase.HTMLAttributes<HTMLBcViewerPdfElement>;
+            "bc-viewer-tiktok": LocalJSX.IntrinsicElements["bc-viewer-tiktok"] & JSXBase.HTMLAttributes<HTMLBcViewerTiktokElement>;
+            "bc-viewer-video": LocalJSX.IntrinsicElements["bc-viewer-video"] & JSXBase.HTMLAttributes<HTMLBcViewerVideoElement>;
+            "bc-viewer-youtube": LocalJSX.IntrinsicElements["bc-viewer-youtube"] & JSXBase.HTMLAttributes<HTMLBcViewerYoutubeElement>;
             "bc-widget-badge": LocalJSX.IntrinsicElements["bc-widget-badge"] & JSXBase.HTMLAttributes<HTMLBcWidgetBadgeElement>;
             "bc-widget-copy": LocalJSX.IntrinsicElements["bc-widget-copy"] & JSXBase.HTMLAttributes<HTMLBcWidgetCopyElement>;
             "bc-widget-domain": LocalJSX.IntrinsicElements["bc-widget-domain"] & JSXBase.HTMLAttributes<HTMLBcWidgetDomainElement>;

@@ -34,9 +34,12 @@ export class BcFieldFile {
   @Prop() model: string = '';
   @Prop() recordId: string = '';
   @Prop() fieldName: string = '';
+  @Prop() preview: boolean = false;
+  @Prop() showDownload: boolean = true;
 
   @State() files: UploadedFile[] = [];
   @State() isDragging: boolean = false;
+  @State() previewFile: UploadedFile | null = null;
 
   @Event() lcFieldChange!: EventEmitter<FieldChangeEvent>;
 
@@ -135,10 +138,15 @@ export class BcFieldFile {
         id: result.id,
         url: result.url,
         thumbnailUrl: result.thumbnail_url || undefined,
+        mimeType: result.mime_type || updated[idx].mimeType,
         progress: 100,
         status: 'done',
       };
       this.files = updated;
+
+      if (this.preview && !this.multiple) {
+        this.previewFile = updated[idx];
+      }
 
       this.emitChange();
     } catch (err) {
@@ -154,7 +162,11 @@ export class BcFieldFile {
   }
 
   private removeFile(index: number) {
+    const removed = this.files[index];
     this.files = this.files.filter((_, i) => i !== index);
+    if (this.previewFile && removed && this.previewFile.id === removed.id) {
+      this.previewFile = null;
+    }
     this.emitChange();
   }
 
@@ -167,6 +179,58 @@ export class BcFieldFile {
 
   private isImage(mimeType: string): boolean {
     return mimeType.startsWith('image/') && !mimeType.includes('svg');
+  }
+
+  private handleDownload(file: UploadedFile) {
+    const a = document.createElement('a');
+    a.href = file.url;
+    a.download = file.name;
+    a.target = '_blank';
+    a.click();
+  }
+
+  private togglePreview(file: UploadedFile) {
+    if (this.previewFile && this.previewFile.id === file.id) {
+      this.previewFile = null;
+    } else {
+      this.previewFile = file;
+    }
+  }
+
+  private getViewerType(mimeType: string): string {
+    if (mimeType.startsWith('image/')) return 'image';
+    if (mimeType === 'application/pdf') return 'pdf';
+    if (mimeType.startsWith('video/')) return 'video';
+    if (mimeType.startsWith('audio/')) return 'audio';
+    if (
+      mimeType.includes('msword') ||
+      mimeType.includes('wordprocessingml') ||
+      mimeType.includes('spreadsheetml') ||
+      mimeType.includes('presentationml') ||
+      mimeType.includes('ms-excel') ||
+      mimeType.includes('ms-powerpoint') ||
+      mimeType.includes('opendocument')
+    ) return 'document';
+    return 'none';
+  }
+
+  private renderPreview(file: UploadedFile) {
+    const viewerType = this.getViewerType(file.mimeType);
+
+    switch (viewerType) {
+      case 'image':
+        return <bc-viewer-image src={file.url} alt={file.name} lightbox={true} download={this.showDownload} />;
+      case 'pdf':
+        return <bc-viewer-pdf src={file.url} height="400px" download={this.showDownload} />;
+      case 'video':
+        return <bc-viewer-video src={file.url} download={this.showDownload} />;
+      case 'audio':
+        return <bc-viewer-audio src={file.url} download={this.showDownload} />;
+      case 'document':
+        return <bc-viewer-document src={file.url} height="400px" download={this.showDownload} />;
+      default:
+        return null;
+    }
   }
 
   render() {
@@ -240,15 +304,40 @@ export class BcFieldFile {
                     <div class="bc-file-progress-bar" style={{ width: '100%' }}></div>
                   </div>
                 )}
-                {!this.disabled && (
-                  <button class="bc-file-remove" onClick={(e) => { e.stopPropagation(); this.removeFile(index); }}>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-                    </svg>
-                  </button>
-                )}
+                <div class="bc-file-item-actions">
+                  {file.status === 'done' && this.preview && this.getViewerType(file.mimeType) !== 'none' && (
+                    <button class="bc-file-action-btn" onClick={(e) => { e.stopPropagation(); this.togglePreview(file); }} title="Preview">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                        <circle cx="12" cy="12" r="3" />
+                      </svg>
+                    </button>
+                  )}
+                  {file.status === 'done' && this.showDownload && (
+                    <button class="bc-file-action-btn" onClick={(e) => { e.stopPropagation(); this.handleDownload(file); }} title="Download">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
+                      </svg>
+                    </button>
+                  )}
+                  {!this.disabled && (
+                    <button class="bc-file-remove" onClick={(e) => { e.stopPropagation(); this.removeFile(index); }}>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {this.preview && this.previewFile && (
+          <div class="bc-file-preview-container">
+            {this.renderPreview(this.previewFile)}
           </div>
         )}
       </div>

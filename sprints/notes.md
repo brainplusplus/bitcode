@@ -10,7 +10,7 @@ cron
 repository => can used by another process
 datasources
 field model/form bisa dependent, misal province, city, dll
-pdf viewer, image viewer, doc/xls/ppt viewer utk file upload atau file tertentu, youtube viewer
+
 create components stencil
 agent => coder tools, models tools, form tools, report tools
 email template
@@ -24,7 +24,7 @@ rest api, websocket, graphql
 website
 i18n utk semua label di json
 di model json, ada event2 seperti di laravel yakni before, on, after utk insert, update, delete yang bisa mengacu ke process
-ada version di field model json, buat menangani race condition
+
 khusus database lain selain main (external), modelnya menggunakan namespace di jsonnya, creadential ada di .toml, dan ada opsi utk auto migrate dan auto generate model json, semisal external [database.ext1], namespace = "ext1"
 mcp server buat vibe coding bitcode
 
@@ -35,3 +35,5 @@ query builder, can used process atau ts python || done
 mongodb support || done
 update namespace bitcode-engine menjadi bitcode-framework || done
 go install di run.bat || done
+ada version di field model json, buat menangani race condition || done
+pdf viewer, image viewer, doc/xls/ppt viewer utk file upload atau file tertentu, youtube viewer || done

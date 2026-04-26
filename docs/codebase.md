@@ -14,7 +14,8 @@ bitcode/
 │       ├── 2026-04-22-fix-process-engine-design.md
 │       ├── 2026-04-22-i18n-implementation-plan.md
 │       ├── 2026-04-22-i18n-stencil-components-design.md
-│       └── 2026-04-25-model-options-design.md
+        │       ├── 2026-04-25-model-options-design.md
+        │       └── 2026-04-26-media-viewers-design.md
 │
 ├── engine/                                     # Go runtime (the core)
 ├── packages/                                   # Shared libraries
@@ -426,7 +427,15 @@ packages/components/
         │   ├── bc-widget-statusbar/            # Status bar (workflow states)
         │   ├── bc-widget-priority/             # Priority indicator
         │   ├── bc-widget-handle/               # Drag handle
-        │   └── bc-widget-domain/               # Domain filter widget
+        │   ├── bc-widget-domain/               # Domain filter widget
+        │   ├── bc-viewer-pdf/                  # PDF viewer (iframe + object fallback)
+        │   ├── bc-viewer-image/                # Image viewer (zoom, lightbox)
+        │   ├── bc-viewer-document/             # Office doc viewer (Microsoft/Google iframe)
+        │   ├── bc-viewer-youtube/              # YouTube embed (full video + shorts)
+        │   ├── bc-viewer-instagram/            # Instagram post embed (oEmbed)
+        │   ├── bc-viewer-tiktok/               # TikTok video embed (oEmbed)
+        │   ├── bc-viewer-video/                # HTML5 video player (mp4, webm, ogg)
+        │   └── bc-viewer-audio/                # HTML5 audio player (mp3, m4a, aac, ogg, webm)
         │
         ├── table/                              # Table components
         │   └── bc-child-table/                 # Inline child table (one2many)

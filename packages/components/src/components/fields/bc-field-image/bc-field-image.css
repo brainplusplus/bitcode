@@ -1,12 +1,150 @@
 @import '../field-base.css';
 
-.bc-file-wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: var(--bc-spacing-xs);
+.bc-image-dropzone {
+  border: 2px dashed var(--bc-border-color, #d1d5db);
+  border-radius: 8px;
+  padding: 2rem 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: var(--bc-bg-secondary, #f9fafb);
 }
 
-.bc-file-name {
-  font-size: var(--bc-font-size-sm);
-  color: var(--bc-text-secondary);
+.bc-image-dropzone:hover {
+  border-color: var(--bc-primary, #3b82f6);
+  background: var(--bc-bg-hover, #eff6ff);
+}
+
+.bc-image-dropzone.dragging {
+  border-color: var(--bc-primary, #3b82f6);
+  background: var(--bc-bg-hover, #eff6ff);
+  border-style: solid;
+}
+
+.bc-image-dropzone.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.bc-image-dropzone-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.bc-image-dropzone-content svg {
+  width: 2.5rem;
+  height: 2.5rem;
+  color: var(--bc-text-secondary, #9ca3af);
+}
+
+.bc-image-dropzone-text {
+  font-size: var(--bc-font-size-sm, 0.875rem);
+  color: var(--bc-text-primary, #374151);
+  font-weight: 500;
+}
+
+.bc-image-dropzone-hint {
+  font-size: var(--bc-font-size-xs, 0.75rem);
+  color: var(--bc-text-secondary, #9ca3af);
+}
+
+.bc-image-uploading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--bc-text-secondary, #6b7280);
+  font-size: 0.875rem;
+}
+
+.bc-image-spinner {
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 2px solid var(--bc-border-color, #e5e7eb);
+  border-top-color: var(--bc-primary, #3b82f6);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.bc-image-preview-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.bc-image-preview {
+  position: relative;
+  display: inline-block;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--bc-border-color, #e5e7eb);
+  max-width: 300px;
+}
+
+.bc-image-preview-img {
+  display: block;
+  max-width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+}
+
+.bc-image-preview-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.bc-image-preview:hover .bc-image-preview-overlay {
+  opacity: 1;
+}
+
+.bc-image-overlay-btn {
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.bc-image-overlay-btn:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.bc-image-overlay-btn-danger:hover {
+  background: rgba(239, 68, 68, 0.7);
+}
+
+.bc-image-overlay-btn svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.bc-image-name {
+  font-size: var(--bc-font-size-xs, 0.75rem);
+  color: var(--bc-text-secondary, #9ca3af);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 300px;
 }

@@ -62,7 +62,7 @@ Before the gap list — what's already **production-solid**:
 5. **Workflow engine** — State machines with permission-gated transitions, initial state on create, process linking.
 6. **Plugin system** — Dual runtime (TypeScript + Python), JSON-RPC over stdin/stdout, health monitoring, auto-restart.
 7. **View system** — 6 view types (list, form, kanban, calendar, chart, custom) with SSR rendering + layout system.
-8. **Web Components** — 94 Stencil.js components: 30+ field types, layout, views, charts, dialogs, widgets, search, social, print.
+8. **Web Components** — 102 Stencil.js components: 30+ field types, layout, views, charts, dialogs, widgets (incl. 8 media viewers/players), search, social, print.
 9. **Multi-database** — SQLite (zero-config default), PostgreSQL, MySQL, MongoDB. Auto-migration from JSON definitions. Per-module table prefix, Postgres schema support. Comprehensive query builder with JSON DSL, OQL (Object Query Language — 3 syntax styles), JOINs, OR/AND/NOT groups, HAVING, DISTINCT, aggregates (COUNT/SUM/AVG/MIN/MAX), subqueries, UNION, raw expressions, scopes, eager loading (WITH/preload), locking, soft delete scopes, transactions.
 10. **Real-time** — WebSocket hub broadcasting domain events to connected clients.
 11. **File Storage** — Local + S3 storage with attachments table, path/name formatting, thumbnails, versioning, duplicate detection.
@@ -130,7 +130,7 @@ Before the gap list — what's already **production-solid**:
 
 | # | Feature | Status | Effort | What Exists | What's Missing |
 |---|---------|--------|--------|-------------|----------------|
-| 30 | Form Builder (Visual) | ⚠️ | L | JSON-based form layout (rows, fields, widths, tabs). SSR rendering. 94 Stencil.js components. | Visual drag-and-drop form designer in browser. |
+| 30 | Form Builder (Visual) | ⚠️ | L | JSON-based form layout (rows, fields, widths, tabs). SSR rendering. 102 Stencil.js components. | Visual drag-and-drop form designer in browser. |
 | 31 | Conditional Field Logic | ✅ | — | `"visible": "expression"`, `"readonly": true`. Component compiler evaluates conditions. Stencil components support `behavior.dependsOn`, `readonlyIf`, `mandatoryIf`. | — |
 | 32 | Custom Validation Rules | ✅ | — | Process `validate` step with eq, neq, required operators. | — |
 | 33 | Multi-Step Form / Wizard | ❌ | M | — | No wizard component. Need wizard JSON definition (steps + fields per step) + `bc-dialog-wizard` exists in Stencil but not wired to engine. |
@@ -223,6 +223,7 @@ The `@bitcode/components` Stencil library (94 components) provides rich UI widge
 | Dialogs | modal, confirm, quick-entry, wizard, toast | 5 | ❌ Not wired |
 | Search | search, filter-bar, filter-panel, favorites | 4 | ❌ Not wired |
 | Widgets | badge, copy, phone, email, url, progress, statusbar, priority, handle, domain | 10 | ⚠️ Some via component compiler |
+| Viewers | pdf, image, document, youtube, instagram, tiktok, video, audio | 8 | ✅ Standalone viewer/player components |
 | Table | child-table | 1 | ❌ Not wired |
 | Print | export, print, report-link | 3 | ❌ Not wired |
 | Social | activity, chatter, timeline | 3 | ❌ Not wired |

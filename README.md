@@ -156,7 +156,7 @@ docker-compose up -d
 - **Template engine** — Go html/template with helpers and partials
 - **File storage** — Local + S3 with attachments table, thumbnails, versioning, path formatting
 - **View system** — List, form, kanban, calendar, chart, custom views (SSR)
-- **Web Components** — 94 Stencil.js components (fields, layout, views, charts, dialogs, widgets)
+- **Web Components** — 102 Stencil.js components (fields, layout, views, charts, dialogs, widgets, media viewers/players)
 - **Event bus** — Domain events with agent handlers
 - **Cron scheduler** — Scheduled background jobs
 - **Multi-database** — SQLite (default), PostgreSQL, MySQL, MongoDB
