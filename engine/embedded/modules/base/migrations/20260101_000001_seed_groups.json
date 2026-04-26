@@ -1,0 +1,17 @@
+{
+  "name": "seed_groups",
+  "model": "group",
+  "description": "Seed default groups",
+  "source": {
+    "type": "json",
+    "file": "data/default_group.json"
+  },
+  "options": {
+    "on_conflict": "skip",
+    "unique_fields": ["name"],
+    "noupdate": true
+  },
+  "down": {
+    "strategy": "delete_seeded"
+  }
+}

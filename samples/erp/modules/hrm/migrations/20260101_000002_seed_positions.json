@@ -1,0 +1,21 @@
+{
+  "name": "seed_positions",
+  "model": "job_position",
+  "description": "Seed demo job positions",
+  "depends_on": ["seed_departments"],
+  "source": {
+    "type": "json",
+    "file": "data/demo.json",
+    "options": {
+      "root_element": "job_position"
+    }
+  },
+  "options": {
+    "on_conflict": "skip",
+    "unique_fields": ["title"],
+    "noupdate": true
+  },
+  "down": {
+    "strategy": "delete_seeded"
+  }
+}

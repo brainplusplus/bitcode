@@ -1,0 +1,21 @@
+{
+  "name": "seed_employees",
+  "model": "employee",
+  "description": "Seed demo employees",
+  "depends_on": ["seed_departments", "seed_positions"],
+  "source": {
+    "type": "json",
+    "file": "data/demo.json",
+    "options": {
+      "root_element": "employee"
+    }
+  },
+  "options": {
+    "on_conflict": "skip",
+    "unique_fields": ["employee_id"],
+    "noupdate": true
+  },
+  "down": {
+    "strategy": "delete_seeded"
+  }
+}

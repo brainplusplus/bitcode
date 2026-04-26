@@ -1,0 +1,21 @@
+{
+  "name": "seed_demo",
+  "model": "lead",
+  "description": "Seed demo leads",
+  "depends_on": ["seed_contacts"],
+  "source": {
+    "type": "json",
+    "file": "data/demo.json",
+    "options": {
+      "root_element": "lead"
+    }
+  },
+  "options": {
+    "on_conflict": "skip",
+    "unique_fields": ["email"],
+    "noupdate": true
+  },
+  "down": {
+    "strategy": "delete_seeded"
+  }
+}

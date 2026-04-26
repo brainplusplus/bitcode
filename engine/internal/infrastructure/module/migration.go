@@ -17,6 +17,17 @@ import (
 	"gorm.io/gorm"
 )
 
+type TableNameResolver interface {
+	TableName(modelName string) string
+}
+
+func resolveSeederTable(modelName string, resolver TableNameResolver) string {
+	if resolver != nil {
+		return resolver.TableName(modelName)
+	}
+	return modelName
+}
+
 type ProcessRunner interface {
 	RunProcess(ctx context.Context, processName string, input map[string]any) (any, error)
 }
@@ -68,7 +79,7 @@ func (g *GormDataInserter) Delete(ctx context.Context, table string, ids []strin
 	if len(ids) == 0 {
 		return nil
 	}
-	return g.db.WithContext(ctx).Table(table).Where("id IN ?", ids).Delete(nil).Error
+	return g.db.WithContext(ctx).Exec(fmt.Sprintf("DELETE FROM %s WHERE id IN ?", table), ids).Error
 }
 
 func (g *GormDataInserter) DeleteAll(ctx context.Context, table string) error {
@@ -90,39 +101,41 @@ func NewMongoDataInserter(conn *persistence.MongoConnection) *MongoDataInserter 
 }
 
 func (m *MongoDataInserter) Insert(ctx context.Context, table string, record map[string]any) error {
-	if id, ok := record["id"]; ok {
-		record["_id"] = id
-		delete(record, "id")
+	doc := make(map[string]any, len(record))
+	for k, v := range record {
+		doc[k] = v
 	}
-	_, err := m.conn.Collection(table).InsertOne(ctx, record)
+	if id, ok := doc["id"]; ok {
+		doc["_id"] = id
+		delete(doc, "id")
+	}
+	_, err := m.conn.Collection(table).InsertOne(ctx, doc)
 	return err
 }
 
 func (m *MongoDataInserter) Exists(ctx context.Context, table string, fields map[string]any) (bool, error) {
-	import_bson := make(map[string]any)
+	filter := make(map[string]any, len(fields))
 	for k, v := range fields {
 		if k == "id" {
-			import_bson["_id"] = v
+			filter["_id"] = v
 		} else {
-			import_bson[k] = v
+			filter[k] = v
 		}
 	}
-	count, err := m.conn.Collection(table).CountDocuments(ctx, import_bson)
+	count, err := m.conn.Collection(table).CountDocuments(ctx, filter)
 	return count > 0, err
 }
 
 func (m *MongoDataInserter) Update(ctx context.Context, table string, fields map[string]any, updates map[string]any) error {
-	import_bson := make(map[string]any)
+	filter := make(map[string]any, len(fields))
 	for k, v := range fields {
 		if k == "id" {
-			import_bson["_id"] = v
+			filter["_id"] = v
 		} else {
-			import_bson[k] = v
+			filter[k] = v
 		}
 	}
-	import_set := make(map[string]any)
-	import_set["$set"] = updates
-	_, err := m.conn.Collection(table).UpdateOne(ctx, import_bson, import_set)
+	_, err := m.conn.Collection(table).UpdateOne(ctx, filter, map[string]any{"$set": updates})
 	return err
 }
 
@@ -130,9 +143,7 @@ func (m *MongoDataInserter) Delete(ctx context.Context, table string, ids []stri
 	if len(ids) == 0 {
 		return nil
 	}
-	import_in := make(map[string]any)
-	import_in["$in"] = ids
-	filter := map[string]any{"_id": import_in}
+	filter := map[string]any{"_id": map[string]any{"$in": ids}}
 	_, err := m.conn.Collection(table).DeleteMany(ctx, filter)
 	return err
 }
@@ -482,12 +493,17 @@ func (e *MigrationEngine) insertRecords(ctx context.Context, inserter DataInsert
 	totalInserted := 0
 	var insertedIDs []string
 
+	const maxTrackedIDs = 10000
+
 	for _, record := range records {
 		switch conflictMode {
 		case parser.ConflictSkip:
 			uniqueWhere := buildUniqueWhere(record, def.Options.UniqueFields)
 			if len(uniqueWhere) > 0 {
-				exists, _ := inserter.Exists(ctx, table, uniqueWhere)
+				exists, err := inserter.Exists(ctx, table, uniqueWhere)
+				if err != nil {
+					return totalInserted, insertedIDs, fmt.Errorf("exists check failed for %s: %w", table, err)
+				}
 				if exists {
 					continue
 				}
@@ -497,7 +513,7 @@ func (e *MigrationEngine) insertRecords(ctx context.Context, inserter DataInsert
 				continue
 			}
 			totalInserted++
-			if id, ok := record["id"]; ok {
+			if id, ok := record["id"]; ok && len(insertedIDs) < maxTrackedIDs {
 				insertedIDs = append(insertedIDs, fmt.Sprintf("%v", id))
 			}
 
@@ -507,21 +523,26 @@ func (e *MigrationEngine) insertRecords(ctx context.Context, inserter DataInsert
 				return totalInserted, insertedIDs, fmt.Errorf("upsert requires unique_fields")
 			}
 
-			exists, _ := inserter.Exists(ctx, table, uniqueWhere)
+			exists, err := inserter.Exists(ctx, table, uniqueWhere)
+			if err != nil {
+				return totalInserted, insertedIDs, fmt.Errorf("exists check failed for %s: %w", table, err)
+			}
 			if exists {
 				if noupdate {
 					continue
 				}
 				updates := buildUpdateFields(record, def)
 				if len(updates) > 0 {
-					inserter.Update(ctx, table, uniqueWhere, updates)
+					if err := inserter.Update(ctx, table, uniqueWhere, updates); err != nil {
+						log.Printf("[MIGRATION] upsert update error for %s: %v", table, err)
+					}
 				}
 			} else {
 				if err := inserter.Insert(ctx, table, record); err != nil {
 					log.Printf("[MIGRATION] upsert insert error for %s: %v", table, err)
 					continue
 				}
-				if id, ok := record["id"]; ok {
+				if id, ok := record["id"]; ok && len(insertedIDs) < maxTrackedIDs {
 					insertedIDs = append(insertedIDs, fmt.Sprintf("%v", id))
 				}
 			}
@@ -532,7 +553,7 @@ func (e *MigrationEngine) insertRecords(ctx context.Context, inserter DataInsert
 				return totalInserted, insertedIDs, fmt.Errorf("insert failed for %s: %w", table, err)
 			}
 			totalInserted++
-			if id, ok := record["id"]; ok {
+			if id, ok := record["id"]; ok && len(insertedIDs) < maxTrackedIDs {
 				insertedIDs = append(insertedIDs, fmt.Sprintf("%v", id))
 			}
 		}
@@ -634,11 +655,17 @@ func coerceType(val any, typ string) any {
 		return s
 	case "int", "integer":
 		var i int64
-		fmt.Sscanf(s, "%d", &i)
+		if n, _ := fmt.Sscanf(s, "%d", &i); n == 0 {
+			log.Printf("[MIGRATION] warning: cannot coerce %q to int, keeping as string", s)
+			return s
+		}
 		return i
 	case "float", "decimal", "number":
 		var f float64
-		fmt.Sscanf(s, "%f", &f)
+		if n, _ := fmt.Sscanf(s, "%f", &f); n == 0 {
+			log.Printf("[MIGRATION] warning: cannot coerce %q to float, keeping as string", s)
+			return s
+		}
 		return f
 	case "bool", "boolean":
 		return s == "true" || s == "1" || s == "yes"
@@ -701,43 +728,11 @@ func CollectAllModuleMigrationsOrdered(moduleDir string, moduleOrder []string) (
 	return result, nil
 }
 
-func CollectAllModuleMigrations(moduleDir string) (map[string][]*parser.MigrationFile, error) {
-	result := make(map[string][]*parser.MigrationFile)
-
-	entries, err := os.ReadDir(moduleDir)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, entry := range entries {
-		if !entry.IsDir() {
-			continue
-		}
-		modPath := filepath.Join(moduleDir, entry.Name())
-		modFile := filepath.Join(modPath, "module.json")
-		if _, err := os.Stat(modFile); err != nil {
-			continue
-		}
-
-		modDef, err := parser.ParseModuleFile(modFile)
-		if err != nil {
-			continue
-		}
-
-		patterns := modDef.Migrations
-		if len(patterns) == 0 {
-			patterns = []string{"migrations/*.json"}
-		}
-
-		migrations, err := parser.DiscoverMigrations(modPath, patterns)
-		if err != nil {
-			continue
-		}
-
-		if len(migrations) > 0 {
-			result[modDef.Name] = migrations
+func findUniqueField(record map[string]any) string {
+	for _, field := range []string{"username", "name", "email", "employee_id", "code", "key", "title"} {
+		if _, ok := record[field]; ok {
+			return field
 		}
 	}
-
-	return result, nil
+	return ""
 }

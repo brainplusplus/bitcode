@@ -179,10 +179,9 @@ engine/
 │   │   │   ├── loader.go                       # LoadModule() — parse module dir, collect models + APIs
 │   │   │   ├── fs.go                           # DiskFS, EmbedFS, LayeredFS — module filesystem abstraction
 │   │   │   ├── fs_test.go                      # FS tests
-│   │   │   ├── seeder.go                       # SeedModule() — load data/*.json, insert records
 │   │   │   ├── reader.go                       # Multi-format data readers (JSON, CSV, XLSX, XML)
-│   │   │   ├── migration.go                    # MigrationEngine — RunUp/RunDown/RollbackBatch, processor support
-│   │   │   ├── migration_test.go               # 18 tests (JSON/CSV/XML readers, upsert, field mapping, defaults, tracker)
+│   │   │   ├── migration.go                    # MigrationEngine, DataInserter (GORM+Mongo), RunUp/RunDown, processors, depends_on topo sort
+│   │   │   ├── migration_test.go               # 26 tests (readers, upsert, field mapping, defaults, tracker, topo sort, circular detection)
 │   │   │   ├── module_test.go                  # 7 tests (registry, dependencies, parse)
 │   │   │   └── integration_test.go             # Integration tests
 │   │   ├── i18n/

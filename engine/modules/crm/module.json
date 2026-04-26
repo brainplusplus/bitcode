@@ -8,7 +8,7 @@
   "models": ["models/*.json"],
   "apis": ["apis/*.json"],
   "views": ["views/*.json"],
-  "data": ["data/*.json"],
+  "migrations": ["migrations/*.json"],
   "permissions": {
     "crm.contact.read": "View contacts",
     "crm.contact.create": "Create contacts",

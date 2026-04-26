@@ -47,7 +47,6 @@ type ModuleDefinition struct {
 	Views       []string                     `json:"views,omitempty"`
 	Templates   []string                     `json:"templates,omitempty"`
 	Scripts     []string                     `json:"scripts,omitempty"`
-	Data        []string                     `json:"data,omitempty"`
 	Migrations  []string                     `json:"migrations,omitempty"`
 	I18n        []string                     `json:"i18n,omitempty"`
 	Permissions map[string]string            `json:"permissions,omitempty"`

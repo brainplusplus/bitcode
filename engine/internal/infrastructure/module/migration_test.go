@@ -559,6 +559,64 @@ func TestInferType(t *testing.T) {
 	}
 }
 
+func TestDependsOn_TopologicalSort(t *testing.T) {
+	tmpDir := t.TempDir()
+	os.MkdirAll(filepath.Join(tmpDir, "migrations"), 0755)
+
+	writeMigration(t, filepath.Join(tmpDir, "migrations"), "20260101_000003_seed_employees.json", map[string]any{
+		"name": "seed_employees", "model": "employee",
+		"depends_on": []string{"seed_departments", "seed_positions"},
+		"source":     map[string]any{"type": "json", "file": "data/e.json"},
+	})
+	writeMigration(t, filepath.Join(tmpDir, "migrations"), "20260101_000001_seed_departments.json", map[string]any{
+		"name": "seed_departments", "model": "department",
+		"source": map[string]any{"type": "json", "file": "data/d.json"},
+	})
+	writeMigration(t, filepath.Join(tmpDir, "migrations"), "20260101_000002_seed_positions.json", map[string]any{
+		"name": "seed_positions", "model": "job_position",
+		"depends_on": []string{"seed_departments"},
+		"source":     map[string]any{"type": "json", "file": "data/p.json"},
+	})
+
+	migrations, err := CollectModuleMigrations(tmpDir, []string{"migrations/*.json"})
+	if err != nil {
+		t.Fatalf("discover failed: %v", err)
+	}
+
+	if len(migrations) != 3 {
+		t.Fatalf("expected 3, got %d", len(migrations))
+	}
+
+	if migrations[0].Name != "seed_departments" {
+		t.Errorf("expected seed_departments first, got %s", migrations[0].Name)
+	}
+	if migrations[1].Name != "seed_positions" {
+		t.Errorf("expected seed_positions second, got %s", migrations[1].Name)
+	}
+	if migrations[2].Name != "seed_employees" {
+		t.Errorf("expected seed_employees third, got %s", migrations[2].Name)
+	}
+}
+
+func TestDependsOn_CircularDetection(t *testing.T) {
+	tmpDir := t.TempDir()
+	os.MkdirAll(filepath.Join(tmpDir, "migrations"), 0755)
+
+	writeMigration(t, filepath.Join(tmpDir, "migrations"), "20260101_000001_a.json", map[string]any{
+		"name": "a", "model": "x", "depends_on": []string{"b"},
+		"source": map[string]any{"type": "json", "file": "data/a.json"},
+	})
+	writeMigration(t, filepath.Join(tmpDir, "migrations"), "20260101_000002_b.json", map[string]any{
+		"name": "b", "model": "x", "depends_on": []string{"a"},
+		"source": map[string]any{"type": "json", "file": "data/b.json"},
+	})
+
+	_, err := CollectModuleMigrations(tmpDir, []string{"migrations/*.json"})
+	if err == nil {
+		t.Error("expected circular dependency error")
+	}
+}
+
 func TestCoerceType(t *testing.T) {
 	if coerceType(int64(123), "string") != "123" {
 		t.Error("coerce int to string failed")

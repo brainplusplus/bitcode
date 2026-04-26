@@ -10,7 +10,7 @@
   "processes": ["processes/*.json"],
   "views": ["views/*.json"],
   "templates": ["templates/**/*.html"],
-  "data": ["data/*.json"],
+  "migrations": ["migrations/*.json"],
   "permissions": {
     "base.user.read": "View users",
     "base.user.create": "Create users",

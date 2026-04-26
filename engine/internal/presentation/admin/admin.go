@@ -730,7 +730,7 @@ func (a *AdminPanel) renderModuleOverview(html *strings.Builder, mod *parser.Mod
 	html.WriteString(fmt.Sprintf(`<tr><td class="fw-500">Views</td><td>%d patterns</td></tr>`, len(mod.Views)))
 	html.WriteString(fmt.Sprintf(`<tr><td class="fw-500">Templates</td><td>%d patterns</td></tr>`, len(mod.Templates)))
 	html.WriteString(fmt.Sprintf(`<tr><td class="fw-500">Scripts</td><td>%d patterns</td></tr>`, len(mod.Scripts)))
-	html.WriteString(fmt.Sprintf(`<tr><td class="fw-500">Data</td><td>%d patterns</td></tr>`, len(mod.Data)))
+	html.WriteString(fmt.Sprintf(`<tr><td class="fw-500">Migrations</td><td>%d patterns</td></tr>`, len(mod.Migrations)))
 	html.WriteString(fmt.Sprintf(`<tr><td class="fw-500">i18n</td><td>%d patterns</td></tr>`, len(mod.I18n)))
 	html.WriteString(`</table></div>`)
 

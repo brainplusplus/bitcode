@@ -238,6 +238,73 @@ func DiscoverMigrations(basePath string, patterns []string) ([]*MigrationFile, e
 		}
 	}
 
+	sorted, err := topoSortMigrations(files)
+	if err != nil {
+		return nil, err
+	}
+
+	return sorted, nil
+}
+
+func topoSortMigrations(files []*MigrationFile) ([]*MigrationFile, error) {
+	hasDeps := false
+	for _, f := range files {
+		if len(f.Def.DependsOn) > 0 {
+			hasDeps = true
+			break
+		}
+	}
+
+	if !hasDeps {
+		sort.Slice(files, func(i, j int) bool {
+			if files[i].Timestamp != files[j].Timestamp {
+				return files[i].Timestamp < files[j].Timestamp
+			}
+			if files[i].Def.Priority != files[j].Def.Priority {
+				return files[i].Def.Priority < files[j].Def.Priority
+			}
+			return files[i].Name < files[j].Name
+		})
+		return files, nil
+	}
+
+	byName := make(map[string]*MigrationFile, len(files))
+	for _, f := range files {
+		byName[f.Name] = f
+	}
+
+	visited := make(map[string]bool)
+	inStack := make(map[string]bool)
+	var result []*MigrationFile
+
+	var visit func(name string) error
+	visit = func(name string) error {
+		if inStack[name] {
+			return fmt.Errorf("circular dependency detected: %s", name)
+		}
+		if visited[name] {
+			return nil
+		}
+		inStack[name] = true
+
+		f, ok := byName[name]
+		if !ok {
+			inStack[name] = false
+			return nil
+		}
+
+		for _, dep := range f.Def.DependsOn {
+			if err := visit(dep); err != nil {
+				return err
+			}
+		}
+
+		visited[name] = true
+		inStack[name] = false
+		result = append(result, f)
+		return nil
+	}
+
 	sort.Slice(files, func(i, j int) bool {
 		if files[i].Timestamp != files[j].Timestamp {
 			return files[i].Timestamp < files[j].Timestamp
@@ -248,5 +315,11 @@ func DiscoverMigrations(basePath string, patterns []string) ([]*MigrationFile, e
 		return files[i].Name < files[j].Name
 	})
 
-	return files, nil
+	for _, f := range files {
+		if err := visit(f.Name); err != nil {
+			return nil, err
+		}
+	}
+
+	return result, nil
 }

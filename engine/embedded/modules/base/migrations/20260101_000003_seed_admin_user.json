@@ -1,0 +1,21 @@
+{
+  "name": "seed_admin_user",
+  "model": "user",
+  "description": "Seed default admin user",
+  "depends_on": ["seed_roles"],
+  "source": {
+    "type": "json",
+    "file": "data/default_user.json",
+    "options": {
+      "root_element": "user"
+    }
+  },
+  "options": {
+    "on_conflict": "skip",
+    "unique_fields": ["username"],
+    "noupdate": true
+  },
+  "down": {
+    "strategy": "delete_seeded"
+  }
+}

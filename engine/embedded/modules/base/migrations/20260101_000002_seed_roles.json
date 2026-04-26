@@ -1,0 +1,18 @@
+{
+  "name": "seed_roles",
+  "model": "role",
+  "description": "Seed default roles",
+  "depends_on": ["seed_groups"],
+  "source": {
+    "type": "json",
+    "file": "data/default_role.json"
+  },
+  "options": {
+    "on_conflict": "skip",
+    "unique_fields": ["name"],
+    "noupdate": true
+  },
+  "down": {
+    "strategy": "delete_seeded"
+  }
+}

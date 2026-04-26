@@ -1,0 +1,20 @@
+{
+  "name": "seed_departments",
+  "model": "department",
+  "description": "Seed demo departments",
+  "source": {
+    "type": "json",
+    "file": "data/demo.json",
+    "options": {
+      "root_element": "department"
+    }
+  },
+  "options": {
+    "on_conflict": "skip",
+    "unique_fields": ["code"],
+    "noupdate": true
+  },
+  "down": {
+    "strategy": "delete_seeded"
+  }
+}

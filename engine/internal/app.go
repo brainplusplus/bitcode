@@ -369,15 +369,18 @@ func NewApp(cfg AppConfig) (*App, error) {
 	if db != nil {
 		gormStore := persistence.NewGormMigrationStore(db)
 		gormInserter := module.NewGormDataInserter(db)
-		migEngine := module.NewMigrationEngine(gormStore, gormInserter, modelReg)
-		migEngine.SetScriptRunner(pluginMgr)
-		app.MigrationEngine = migEngine
+		app.MigrationEngine = module.NewMigrationEngine(gormStore, gormInserter, modelReg)
 	} else if mongoConn != nil {
 		mongoStore := persistence.NewMongoMigrationStore(mongoConn)
 		mongoInserter := module.NewMongoDataInserter(mongoConn)
-		migEngine := module.NewMigrationEngine(mongoStore, mongoInserter, modelReg)
-		migEngine.SetScriptRunner(pluginMgr)
-		app.MigrationEngine = migEngine
+		app.MigrationEngine = module.NewMigrationEngine(mongoStore, mongoInserter, modelReg)
+	}
+	if app.MigrationEngine != nil {
+		app.MigrationEngine.SetScriptRunner(pluginMgr)
+		app.MigrationEngine.SetProcessRunner(&appProcessRunner{
+			executor: app.Executor,
+			registry: processReg,
+		})
 	}
 
 	app.registerStepHandlers()
@@ -1539,32 +1542,6 @@ func (a *App) installModule(modPath string) error {
 	} else {
 		a.TemplateEngine.LoadDirectoryWithPrefix(templateDir, "templates/"+modName)
 		a.TemplateEngine.LoadDirectoryWithPrefix(templateDir, "templates")
-	}
-
-	hasMigrations := len(loaded.Definition.Migrations) > 0
-	if a.MigrationEngine != nil {
-		a.MigrationEngine.SetProcessRunner(&appProcessRunner{
-			executor: a.Executor,
-			registry: a.ProcessRegistry,
-		})
-	}
-
-	if !hasMigrations {
-		if a.DB != nil {
-			if err := module.SeedModule(a.DB, modPath, loaded.Definition.Data, a.ModelRegistry); err != nil {
-				log.Printf("[WARN] seeding failed for %s: %v", modName, err)
-			}
-		}
-	} else {
-		legacySeedName := "_legacy_seed"
-		if a.MigrationEngine != nil && !a.MigrationEngine.Tracker().HasRun(modName, legacySeedName) {
-			if a.DB != nil {
-				if err := module.SeedModule(a.DB, modPath, loaded.Definition.Data, a.ModelRegistry); err != nil {
-					log.Printf("[WARN] seeding failed for %s: %v", modName, err)
-				}
-			}
-			a.MigrationEngine.Tracker().Record(modName, legacySeedName, "", "json", 0, 0, 0, nil, nil)
-		}
 	}
 
 	if a.MigrationEngine != nil {
