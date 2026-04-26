@@ -20,6 +20,7 @@ type CronDefinition struct {
 
 type RetryConfig struct {
 	Max     int    `json:"max"`
+	Delay   string `json:"delay,omitempty"`
 	Backoff string `json:"backoff,omitempty"`
 }
 

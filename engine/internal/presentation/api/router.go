@@ -19,6 +19,10 @@ type Router struct {
 	encryptor         *security.FieldEncryptor
 	modelRegistry     interface{ Get(string) (*parser.ModelDefinition, error) }
 	tableNameResolver interface{ TableName(string) string }
+	hookDispatcher    persistence.HookDispatcher
+	validator         persistence.FieldValidator
+	sanitizer         persistence.FieldSanitizer
+	eventBus          persistence.EventPublisher
 }
 
 func NewRouter(app *fiber.App, db *gorm.DB, wfEngine *workflow.Engine) *Router {
@@ -43,6 +47,22 @@ func (r *Router) SetModelRegistry(reg interface{ Get(string) (*parser.ModelDefin
 
 func (r *Router) SetTableNameResolver(resolver interface{ TableName(string) string }) {
 	r.tableNameResolver = resolver
+}
+
+func (r *Router) SetHookDispatcher(d persistence.HookDispatcher) {
+	r.hookDispatcher = d
+}
+
+func (r *Router) SetValidator(v persistence.FieldValidator) {
+	r.validator = v
+}
+
+func (r *Router) SetSanitizer(s persistence.FieldSanitizer) {
+	r.sanitizer = s
+}
+
+func (r *Router) SetEventBus(bus persistence.EventPublisher) {
+	r.eventBus = bus
 }
 
 func (r *Router) RegisterAPI(apiDef *parser.APIDefinition) {
@@ -80,6 +100,18 @@ func (r *Router) RegisterAPI(apiDef *parser.APIDefinition) {
 			if tnr, ok := r.tableNameResolver.(persistence.TableNameResolver); ok {
 				repo.SetTableNameResolver(tnr)
 			}
+		}
+		if r.hookDispatcher != nil {
+			repo.SetHookDispatcher(r.hookDispatcher)
+		}
+		if r.validator != nil {
+			repo.SetValidator(r.validator)
+		}
+		if r.sanitizer != nil {
+			repo.SetSanitizer(r.sanitizer)
+		}
+		if r.eventBus != nil {
+			repo.SetEventBus(r.eventBus)
 		}
 		crud := NewCRUDHandler(repo, apiDef, r.workflowEngine)
 

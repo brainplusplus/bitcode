@@ -74,3 +74,7 @@ type SequenceEngine interface {
 type MigrationEngine interface {
 	MigrateModel(model *parser.ModelDefinition, resolver TableNameResolver) error
 }
+
+type EventPublisher interface {
+	Publish(ctx context.Context, eventName string, data map[string]any) error
+}

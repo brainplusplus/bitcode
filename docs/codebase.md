@@ -101,6 +101,21 @@ engine/
 │   │   │   ├── evaluator.go                    # Expression evaluator — lexer, parser, AST, arithmetic/comparison/boolean/functions
 │   │   │   ├── evaluator_test.go               # 17 tests (arithmetic, fields, aggregates, comparisons, functions)
 │   │   │   └── hydrator.go                     # Computed field hydrator — loads one2many children, evaluates computed/formula fields
+│   │   ├── validation/
+│   │   │   ├── validator.go                    # Field validation engine — ValidateCreate, ValidateUpdate, auto-map, short-circuit
+│   │   │   ├── rules.go                        # Built-in validation rules — email, phone, regex, date, etc.
+│   │   │   ├── conditional.go                  # Conditional validators — required_if, when, expression evaluator
+│   │   │   ├── sanitizer.go                    # Sanitization engine — trim, lowercase, slugify, strip_tags, etc.
+│   │   │   ├── errors.go                       # ValidationErrors — per-field error accumulation
+│   │   │   ├── adapter.go                      # ValidatorAdapter — implements persistence.FieldValidator interface
+│   │   │   ├── validator_test.go               # 18 tests
+│   │   │   └── sanitizer_test.go               # 10 tests
+│   │   ├── hook/
+│   │   │   ├── dispatcher.go                   # Event dispatcher — priority sort, condition eval, sync/async, retry, timeout
+│   │   │   ├── context.go                      # EventContext — model, data, old_data, changes, session, bulk info
+│   │   │   ├── model_hooks.go                  # ModelHookDispatcher — bridges repository interface with dispatcher
+│   │   │   ├── expr.go                         # Expression evaluator for handler conditions
+│   │   │   └── dispatcher_test.go              # 10 tests
 │   │   ├── agent/
 │   │   │   ├── worker.go                       # Agent worker — subscribe to events, execute with retry
 │   │   │   └── cron.go                         # Cron scheduler — periodic job execution
@@ -525,8 +540,10 @@ samples/erp/
 | `presentation/view` | — | Component compiler tests |
 | `runtime/executor` | 3+ | Step dispatch, unknown type, step error, DAG |
 | `runtime/executor/steps` | 9 | Validate (eq/fail/required), emit, assign, if, process parse |
+| `runtime/validation` | 28 | Field validators (required, email, regex, conditional, etc.), sanitizers, model-level validators, update merge |
+| `runtime/hook` | 10 | Event dispatcher (priority, condition, sync/async, retry, on_change cascade), context, expression eval |
 | `embedded` | — | Embed FS tests |
-| **Total** | **93+** | |
+| **Total** | **131+** | |
 
 Run all tests: `cd engine && go test ./... -v`
 

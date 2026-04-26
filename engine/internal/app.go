@@ -34,8 +34,10 @@ import (
 	"github.com/bitcode-framework/bitcode/internal/runtime/executor/steps"
 	"github.com/bitcode-framework/bitcode/internal/runtime/expression"
 	"github.com/bitcode-framework/bitcode/internal/runtime/format"
+	"github.com/bitcode-framework/bitcode/internal/runtime/hook"
 	"github.com/bitcode-framework/bitcode/internal/runtime/pkgen"
 	"github.com/bitcode-framework/bitcode/internal/runtime/plugin"
+	"github.com/bitcode-framework/bitcode/internal/runtime/validation"
 	wfEngine "github.com/bitcode-framework/bitcode/internal/runtime/workflow"
 	"github.com/bitcode-framework/bitcode/pkg/security"
 	"gorm.io/gorm"
@@ -104,6 +106,9 @@ type App struct {
 	DBDriver        string
 	FieldEncryptor  *security.FieldEncryptor
 	SettingStore    *setting.Store
+	HookDispatcher  *hook.ModelHookDispatcher
+	Validator       *validation.ValidatorAdapter
+	Sanitizer       *validation.Sanitizer
 	viewDefs        map[string]*viewEntry
 	moduleMenus     map[string][]parser.MenuItemDefinition
 	moduleOrder     []string
@@ -236,6 +241,27 @@ func NewApp(cfg AppConfig) (*App, error) {
 	app.ViewRenderer.SetHydrator(app.Hydrator)
 	app.ViewRenderer.SetTableNameResolver(app.ModelRegistry)
 	app.Hydrator.SetTableNameResolver(app.ModelRegistry)
+
+	v := validation.NewValidator()
+	v.SetTranslator(func(locale, key string) string {
+		return translator.Translate(locale, key)
+	})
+	app.Validator = validation.NewValidatorAdapter(v)
+	app.Sanitizer = validation.NewSanitizer()
+
+	hookDispatcher := hook.NewDispatcher(processReg, pluginMgr)
+	hook.SetProcessExecutor(func(ctx context.Context, proc *parser.ProcessDefinition, input map[string]any, userID string) (any, error) {
+		execCtx, err := app.Executor.Execute(ctx, proc, input, userID)
+		if err != nil {
+			return nil, err
+		}
+		if execCtx != nil {
+			return execCtx.Result, nil
+		}
+		return nil, nil
+	})
+	app.HookDispatcher = hook.NewModelHookDispatcher(hookDispatcher)
+
 	app.registerStepHandlers()
 	app.setupMiddleware()
 	app.setupRoutes()
@@ -1360,6 +1386,16 @@ func (a *App) installModule(modPath string) error {
 	}
 	router.SetModelRegistry(a.ModelRegistry)
 	router.SetTableNameResolver(a.ModelRegistry)
+	if a.HookDispatcher != nil {
+		router.SetHookDispatcher(a.HookDispatcher)
+	}
+	if a.Validator != nil {
+		router.SetValidator(a.Validator)
+	}
+	if a.Sanitizer != nil {
+		router.SetSanitizer(a.Sanitizer)
+	}
+	router.SetEventBus(a.EventBus)
 	for _, apiDef := range loaded.APIs {
 		if apiDef.Auth {
 			basePath := apiDef.GetBasePath()

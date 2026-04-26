@@ -15,6 +15,25 @@ import (
 	"gorm.io/gorm/clause"
 )
 
+type HookDispatcher interface {
+	DispatchCreate(ctx context.Context, modelDef *parser.ModelDefinition, data map[string]any, session map[string]any) error
+	DispatchAfterCreate(ctx context.Context, modelDef *parser.ModelDefinition, data map[string]any, session map[string]any)
+	DispatchBeforeUpdate(ctx context.Context, modelDef *parser.ModelDefinition, data map[string]any, oldData map[string]any, changes map[string]any, session map[string]any) error
+	DispatchAfterUpdate(ctx context.Context, modelDef *parser.ModelDefinition, data map[string]any, oldData map[string]any, changes map[string]any, session map[string]any)
+	DispatchBeforeDelete(ctx context.Context, modelDef *parser.ModelDefinition, record map[string]any, isSoft bool, session map[string]any) error
+	DispatchAfterDelete(ctx context.Context, modelDef *parser.ModelDefinition, record map[string]any, isSoft bool, session map[string]any)
+}
+
+type FieldValidator interface {
+	ValidateCreate(modelDef *parser.ModelDefinition, data map[string]any, locale string) error
+	ValidateUpdate(modelDef *parser.ModelDefinition, mergedData map[string]any, changes map[string]any, locale string) error
+}
+
+type FieldSanitizer interface {
+	SanitizeRecord(modelDef *parser.ModelDefinition, data map[string]any)
+	SanitizeChangedFields(modelDef *parser.ModelDefinition, data map[string]any, changes map[string]any)
+}
+
 type GenericRepository struct {
 	db                *gorm.DB
 	tableName         string
@@ -27,6 +46,11 @@ type GenericRepository struct {
 	currentUser       string
 	encryptor         *security.FieldEncryptor
 	tableNameResolver TableNameResolver
+	hookDispatcher    HookDispatcher
+	validator         FieldValidator
+	sanitizer         FieldSanitizer
+	eventBus          EventPublisher
+	locale            string
 }
 
 func NewGenericRepository(db *gorm.DB, tableName string) *GenericRepository {
@@ -75,6 +99,26 @@ func (r *GenericRepository) SetEncryptor(enc *security.FieldEncryptor) {
 
 func (r *GenericRepository) SetTableNameResolver(resolver TableNameResolver) {
 	r.tableNameResolver = resolver
+}
+
+func (r *GenericRepository) SetHookDispatcher(d HookDispatcher) {
+	r.hookDispatcher = d
+}
+
+func (r *GenericRepository) SetValidator(v FieldValidator) {
+	r.validator = v
+}
+
+func (r *GenericRepository) SetSanitizer(s FieldSanitizer) {
+	r.sanitizer = s
+}
+
+func (r *GenericRepository) SetEventBus(bus EventPublisher) {
+	r.eventBus = bus
+}
+
+func (r *GenericRepository) SetLocale(locale string) {
+	r.locale = locale
 }
 
 func (r *GenericRepository) resolveTableName(modelName string) string {
@@ -166,12 +210,41 @@ func (r *GenericRepository) Create(ctx context.Context, record map[string]any) (
 	if r.tenantID != "" {
 		record["tenant_id"] = r.tenantID
 	}
+
+	if r.modelDef != nil {
+		if r.sanitizer != nil {
+			r.sanitizer.SanitizeRecord(r.modelDef, record)
+		}
+		if r.validator != nil {
+			if err := r.validator.ValidateCreate(r.modelDef, record, r.locale); err != nil {
+				return nil, err
+			}
+		}
+		session := r.buildSession()
+		if r.hookDispatcher != nil {
+			if err := r.hookDispatcher.DispatchCreate(ctx, r.modelDef, record, session); err != nil {
+				return nil, err
+			}
+		}
+	}
+
 	r.encryptFields(record)
 	if err := r.db.WithContext(ctx).Table(r.tableName).Create(&record).Error; err != nil {
 		return nil, fmt.Errorf("failed to create record in %s: %w", r.tableName, err)
 	}
 	r.saveRevision("create", r.resolveRecordID(record), nil, record)
 	r.decryptFields(record)
+
+	if r.modelDef != nil {
+		session := r.buildSession()
+		if r.hookDispatcher != nil {
+			r.hookDispatcher.DispatchAfterCreate(ctx, r.modelDef, record, session)
+		}
+		if r.eventBus != nil {
+			r.eventBus.Publish(ctx, "model."+r.modelName+".created", record)
+		}
+	}
+
 	return record, nil
 }
 
@@ -675,8 +748,43 @@ func (r *GenericRepository) applySoftDeleteScope(q *gorm.DB, query *Query) *gorm
 
 func (r *GenericRepository) Update(ctx context.Context, id string, data map[string]any) error {
 	var before map[string]any
-	if r.revisionRepo != nil {
+	needsBefore := r.revisionRepo != nil || r.modelDef != nil
+	if needsBefore {
 		r.db.WithContext(ctx).Table(r.tableName).Where(fmt.Sprintf("%s = ?", r.pkCol), id).Take(&before)
+	}
+
+	if r.modelDef != nil && before != nil {
+		changes := data
+		merged := r.mergeForValidation(before, data)
+
+		if r.sanitizer != nil {
+			r.sanitizer.SanitizeChangedFields(r.modelDef, merged, changes)
+			for k := range changes {
+				if v, ok := merged[k]; ok {
+					data[k] = v
+				}
+			}
+		}
+
+		if r.validator != nil {
+			merged["__old"] = before
+			if err := r.validator.ValidateUpdate(r.modelDef, merged, changes, r.locale); err != nil {
+				return err
+			}
+			delete(merged, "__old")
+		}
+
+		session := r.buildSession()
+		if r.hookDispatcher != nil {
+			if err := r.hookDispatcher.DispatchBeforeUpdate(ctx, r.modelDef, merged, before, changes, session); err != nil {
+				return err
+			}
+			for k := range changes {
+				if v, ok := merged[k]; ok {
+					data[k] = v
+				}
+			}
+		}
 	}
 
 	r.encryptFields(data)
@@ -688,11 +796,23 @@ func (r *GenericRepository) Update(ctx context.Context, id string, data map[stri
 		return fmt.Errorf("record not found in %s with id %s", r.tableName, id)
 	}
 
-	if before != nil {
+	if before != nil && r.revisionRepo != nil {
 		var after map[string]any
 		r.db.WithContext(ctx).Table(r.tableName).Where(fmt.Sprintf("%s = ?", r.pkCol), id).Take(&after)
 		r.saveRevision("update", id, before, after)
 	}
+
+	if r.modelDef != nil && before != nil {
+		session := r.buildSession()
+		if r.hookDispatcher != nil {
+			r.hookDispatcher.DispatchAfterUpdate(ctx, r.modelDef, data, before, data, session)
+		}
+		if r.eventBus != nil {
+			eventData := map[string]any{"record": data, "old_data": before, "changes": data}
+			r.eventBus.Publish(ctx, "model."+r.modelName+".updated", eventData)
+		}
+	}
+
 	return nil
 }
 
@@ -733,8 +853,15 @@ func (r *GenericRepository) UpdateByCompositePK(ctx context.Context, keys map[st
 
 func (r *GenericRepository) Delete(ctx context.Context, id string) error {
 	var before map[string]any
-	if r.revisionRepo != nil {
-		r.db.WithContext(ctx).Table(r.tableName).Where(fmt.Sprintf("%s = ?", r.pkCol), id).Take(&before)
+	r.db.WithContext(ctx).Table(r.tableName).Where(fmt.Sprintf("%s = ?", r.pkCol), id).Take(&before)
+
+	if r.modelDef != nil && before != nil {
+		session := r.buildSession()
+		if r.hookDispatcher != nil {
+			if err := r.hookDispatcher.DispatchBeforeDelete(ctx, r.modelDef, before, true, session); err != nil {
+				return err
+			}
+		}
 	}
 
 	result := r.db.WithContext(ctx).Table(r.tableName).Where(fmt.Sprintf("%s = ?", r.pkCol), id).Update("active", false)
@@ -746,13 +873,31 @@ func (r *GenericRepository) Delete(ctx context.Context, id string) error {
 	}
 
 	r.saveRevision("delete", id, before, nil)
+
+	if r.modelDef != nil && before != nil {
+		session := r.buildSession()
+		if r.hookDispatcher != nil {
+			r.hookDispatcher.DispatchAfterDelete(ctx, r.modelDef, before, true, session)
+		}
+		if r.eventBus != nil {
+			r.eventBus.Publish(ctx, "model."+r.modelName+".deleted", before)
+		}
+	}
+
 	return nil
 }
 
 func (r *GenericRepository) HardDelete(ctx context.Context, id string) error {
 	var before map[string]any
-	if r.revisionRepo != nil {
-		r.db.WithContext(ctx).Table(r.tableName).Where(fmt.Sprintf("%s = ?", r.pkCol), id).Take(&before)
+	r.db.WithContext(ctx).Table(r.tableName).Where(fmt.Sprintf("%s = ?", r.pkCol), id).Take(&before)
+
+	if r.modelDef != nil && before != nil {
+		session := r.buildSession()
+		if r.hookDispatcher != nil {
+			if err := r.hookDispatcher.DispatchBeforeDelete(ctx, r.modelDef, before, false, session); err != nil {
+				return err
+			}
+		}
 	}
 
 	result := r.db.WithContext(ctx).Table(r.tableName).Where(fmt.Sprintf("%s = ?", r.pkCol), id).Delete(nil)
@@ -761,6 +906,17 @@ func (r *GenericRepository) HardDelete(ctx context.Context, id string) error {
 	}
 
 	r.saveRevision("delete", id, before, nil)
+
+	if r.modelDef != nil && before != nil {
+		session := r.buildSession()
+		if r.hookDispatcher != nil {
+			r.hookDispatcher.DispatchAfterDelete(ctx, r.modelDef, before, false, session)
+		}
+		if r.eventBus != nil {
+			r.eventBus.Publish(ctx, "model."+r.modelName+".deleted", before)
+		}
+	}
+
 	return nil
 }
 
@@ -792,8 +948,15 @@ func (r *GenericRepository) UpdateWithVersion(ctx context.Context, id string, da
 
 func (r *GenericRepository) SoftDeleteWithTimestamp(ctx context.Context, id string, deletedAt time.Time, deletedBy string) error {
 	var before map[string]any
-	if r.revisionRepo != nil {
-		r.db.WithContext(ctx).Table(r.tableName).Where(fmt.Sprintf("%s = ?", r.pkCol), id).Take(&before)
+	r.db.WithContext(ctx).Table(r.tableName).Where(fmt.Sprintf("%s = ?", r.pkCol), id).Take(&before)
+
+	if r.modelDef != nil && before != nil {
+		session := r.buildSession()
+		if r.hookDispatcher != nil {
+			if err := r.hookDispatcher.DispatchBeforeDelete(ctx, r.modelDef, before, true, session); err != nil {
+				return err
+			}
+		}
 	}
 
 	updates := map[string]any{"active": false, "deleted_at": deletedAt}
@@ -812,6 +975,17 @@ func (r *GenericRepository) SoftDeleteWithTimestamp(ctx context.Context, id stri
 	}
 
 	r.saveRevision("delete", id, before, nil)
+
+	if r.modelDef != nil && before != nil {
+		session := r.buildSession()
+		if r.hookDispatcher != nil {
+			r.hookDispatcher.DispatchAfterDelete(ctx, r.modelDef, before, true, session)
+		}
+		if r.eventBus != nil {
+			r.eventBus.Publish(ctx, "model."+r.modelName+".deleted", before)
+		}
+	}
+
 	return nil
 }
 
@@ -1418,4 +1592,26 @@ func (r *GenericRepository) resolveRecordID(record map[string]any) string {
 		return fmt.Sprintf("%v", v)
 	}
 	return ""
+}
+
+func (r *GenericRepository) buildSession() map[string]any {
+	session := make(map[string]any)
+	if r.currentUser != "" {
+		session["user_id"] = r.currentUser
+	}
+	if r.tenantID != "" {
+		session["tenant_id"] = r.tenantID
+	}
+	return session
+}
+
+func (r *GenericRepository) mergeForValidation(old map[string]any, incoming map[string]any) map[string]any {
+	merged := make(map[string]any, len(old))
+	for k, v := range old {
+		merged[k] = v
+	}
+	for k, v := range incoming {
+		merged[k] = v
+	}
+	return merged
 }

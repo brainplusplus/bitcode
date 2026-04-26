@@ -174,6 +174,9 @@ All 11 locale files must be provided for every module that has user-facing text.
 ### Remaining (Engine)
 
 - [x] Computed field evaluation — Expression evaluator for `sum(lines.subtotal)` at query time
+- [x] Model lifecycle events — `events` in model JSON: 16 event types (before/after validate, create, update, delete, save, soft_delete, hard_delete, restore + on_change). Process/script handlers with condition, sync/async, retry, priority, bulk_mode. Repository-layer injection. Auto event bus publish.
+- [x] Field validation — `validation` in model JSON: 40+ built-in validators, conditional (required_if, when, on), custom (process/script), model-level cross-field validators. 422 error response. Auto-maps existing required/max/min.
+- [x] Field sanitization — `sanitize` in model JSON: 14 built-in sanitizers (trim, lowercase, slugify, etc.). Model-level `_all_strings` shorthand.
 - [ ] Redis cache wiring — Wire into permission checker and query result cache
 - [ ] GraphQL API — Alternative to REST
 - [ ] Marketplace — Community module sharing
@@ -190,7 +193,7 @@ go test ./pkg/ddd/        # Specific package
 go test ./... -count=1    # No cache
 ```
 
-Current: 343 tests, 0 failures. Build: OK.
+Current: 381 tests, 0 failures. Build: OK.
 
 ## Build
 

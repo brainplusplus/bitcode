@@ -11,6 +11,7 @@ import (
 	"github.com/bitcode-framework/bitcode/internal/compiler/parser"
 	"github.com/bitcode-framework/bitcode/internal/infrastructure/persistence"
 	"github.com/bitcode-framework/bitcode/internal/runtime/pkgen"
+	"github.com/bitcode-framework/bitcode/internal/runtime/validation"
 	"github.com/bitcode-framework/bitcode/internal/runtime/workflow"
 )
 
@@ -165,7 +166,7 @@ func (h *CRUDHandler) Create(c *fiber.Ctx) error {
 
 	result, err := h.repo.Create(c.Context(), body)
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+		return handleError(c, err, 500)
 	}
 
 	return c.Status(201).JSON(fiber.Map{"data": result})
@@ -242,7 +243,7 @@ func (h *CRUDHandler) Update(c *fiber.Ctx) error {
 	}
 
 	if err := h.repo.Update(c.Context(), id, body); err != nil {
-		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+		return handleError(c, err, 500)
 	}
 
 	return c.JSON(fiber.Map{"message": "updated"})
@@ -351,4 +352,15 @@ func (h *CRUDHandler) extractSession(c *fiber.Ctx) map[string]any {
 
 func generateUUID() string {
 	return uuid.New().String()
+}
+
+func handleError(c *fiber.Ctx, err error, statusCode int) error {
+	if ve, ok := err.(*validation.ValidationErrors); ok {
+		return c.Status(422).JSON(fiber.Map{
+			"error":  "Validation failed",
+			"code":   "VALIDATION_ERROR",
+			"errors": ve.Errors,
+		})
+	}
+	return c.Status(statusCode).JSON(fiber.Map{"error": err.Error()})
 }

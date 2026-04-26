@@ -86,6 +86,257 @@ type AutoFormatConfig struct {
 	Sequence *SequenceConfig `json:"sequence,omitempty"`
 }
 
+type ScriptRef struct {
+	Lang string `json:"lang"`
+	File string `json:"file"`
+}
+
+type EventHandler struct {
+	Process    string       `json:"process,omitempty"`
+	Script     *ScriptRef   `json:"script,omitempty"`
+	Condition  string       `json:"condition,omitempty"`
+	Sync       *bool        `json:"sync,omitempty"`
+	OnError    string       `json:"on_error,omitempty"`
+	Retry      *RetryConfig `json:"retry,omitempty"`
+	Timeout    string       `json:"timeout,omitempty"`
+	ServerOnly bool         `json:"server_only,omitempty"`
+	Priority   int          `json:"priority,omitempty"`
+	BulkMode   string       `json:"bulk_mode,omitempty"`
+}
+
+func (h *EventHandler) IsSync(eventName string) bool {
+	if h.Sync != nil {
+		return *h.Sync
+	}
+	return IsBeforeEvent(eventName)
+}
+
+func (h *EventHandler) GetOnError(eventName string) string {
+	if h.OnError != "" {
+		return h.OnError
+	}
+	if IsBeforeEvent(eventName) {
+		return "fail"
+	}
+	return "log"
+}
+
+func (h *EventHandler) GetTimeout(eventName string) string {
+	if h.Timeout != "" {
+		return h.Timeout
+	}
+	if IsBeforeEvent(eventName) {
+		return "30s"
+	}
+	return "60s"
+}
+
+func (h *EventHandler) GetBulkMode() string {
+	if h.BulkMode != "" {
+		return h.BulkMode
+	}
+	return "each"
+}
+
+func IsBeforeEvent(name string) bool {
+	switch name {
+	case "before_validate", "after_validate",
+		"before_create", "before_update", "before_delete",
+		"before_save", "before_soft_delete", "before_hard_delete",
+		"before_restore", "on_change":
+		return true
+	}
+	return false
+}
+
+type EventsDefinition struct {
+	BeforeValidate   []EventHandler              `json:"before_validate,omitempty"`
+	AfterValidate    []EventHandler              `json:"after_validate,omitempty"`
+	BeforeCreate     []EventHandler              `json:"before_create,omitempty"`
+	AfterCreate      []EventHandler              `json:"after_create,omitempty"`
+	BeforeUpdate     []EventHandler              `json:"before_update,omitempty"`
+	AfterUpdate      []EventHandler              `json:"after_update,omitempty"`
+	BeforeDelete     []EventHandler              `json:"before_delete,omitempty"`
+	AfterDelete      []EventHandler              `json:"after_delete,omitempty"`
+	BeforeSave       []EventHandler              `json:"before_save,omitempty"`
+	AfterSave        []EventHandler              `json:"after_save,omitempty"`
+	BeforeSoftDelete []EventHandler              `json:"before_soft_delete,omitempty"`
+	AfterSoftDelete  []EventHandler              `json:"after_soft_delete,omitempty"`
+	BeforeHardDelete []EventHandler              `json:"before_hard_delete,omitempty"`
+	AfterHardDelete  []EventHandler              `json:"after_hard_delete,omitempty"`
+	BeforeRestore    []EventHandler              `json:"before_restore,omitempty"`
+	AfterRestore     []EventHandler              `json:"after_restore,omitempty"`
+	OnChange         map[string][]EventHandler   `json:"on_change,omitempty"`
+}
+
+func (e *EventsDefinition) GetHandlers(eventName string) []EventHandler {
+	if e == nil {
+		return nil
+	}
+	switch eventName {
+	case "before_validate":
+		return e.BeforeValidate
+	case "after_validate":
+		return e.AfterValidate
+	case "before_create":
+		return e.BeforeCreate
+	case "after_create":
+		return e.AfterCreate
+	case "before_update":
+		return e.BeforeUpdate
+	case "after_update":
+		return e.AfterUpdate
+	case "before_delete":
+		return e.BeforeDelete
+	case "after_delete":
+		return e.AfterDelete
+	case "before_save":
+		return e.BeforeSave
+	case "after_save":
+		return e.AfterSave
+	case "before_soft_delete":
+		return e.BeforeSoftDelete
+	case "after_soft_delete":
+		return e.AfterSoftDelete
+	case "before_hard_delete":
+		return e.BeforeHardDelete
+	case "after_hard_delete":
+		return e.AfterHardDelete
+	case "before_restore":
+		return e.BeforeRestore
+	case "after_restore":
+		return e.AfterRestore
+	}
+	return nil
+}
+
+type UniqueConfig struct {
+	Scope           []string `json:"scope,omitempty"`
+	CaseInsensitive bool     `json:"case_insensitive,omitempty"`
+	IncludeTrashed  bool     `json:"include_trashed,omitempty"`
+}
+
+type ImmutableAfterConfig struct {
+	Field  string   `json:"-"`
+	Values []string `json:"-"`
+}
+
+type CustomValidator struct {
+	Process string     `json:"process,omitempty"`
+	Script  *ScriptRef `json:"script,omitempty"`
+	Message string     `json:"message,omitempty"`
+}
+
+type ValidationRule struct {
+	Regex        string `json:"regex,omitempty"`
+	RegexMessage string `json:"regex_message,omitempty"`
+	Min          *int   `json:"min,omitempty"`
+	Max          *int   `json:"max,omitempty"`
+	MinLength    *int   `json:"min_length,omitempty"`
+	MaxLength    *int   `json:"max_length,omitempty"`
+	When         any    `json:"when,omitempty"`
+}
+
+type FieldValidation struct {
+	Required        any  `json:"required,omitempty"`
+	Email           bool `json:"email,omitempty"`
+	URL             bool `json:"url,omitempty"`
+	Phone           bool `json:"phone,omitempty"`
+	IP              bool `json:"ip,omitempty"`
+	IPv4            bool `json:"ipv4,omitempty"`
+	IPv6            bool `json:"ipv6,omitempty"`
+	UUID            bool `json:"uuid,omitempty"`
+	JSON            bool `json:"json,omitempty"`
+
+	Alpha        bool   `json:"alpha,omitempty"`
+	AlphaNum     bool   `json:"alpha_num,omitempty"`
+	AlphaDash    bool   `json:"alpha_dash,omitempty"`
+	Numeric      bool   `json:"numeric,omitempty"`
+	Regex        string `json:"regex,omitempty"`
+	RegexMessage string `json:"regex_message,omitempty"`
+	StartsWith   any    `json:"starts_with,omitempty"`
+	EndsWith     any    `json:"ends_with,omitempty"`
+	Contains     string `json:"contains,omitempty"`
+	NotContains  string `json:"not_contains,omitempty"`
+	Lowercase    bool   `json:"lowercase,omitempty"`
+	Uppercase    bool   `json:"uppercase,omitempty"`
+
+	Min           *float64   `json:"min,omitempty"`
+	Max           *float64   `json:"max,omitempty"`
+	MinLength     *int       `json:"min_length,omitempty"`
+	MaxLength     *int       `json:"max_length,omitempty"`
+	Between       []float64  `json:"between,omitempty"`
+	LengthBetween []int      `json:"length_between,omitempty"`
+	Size          *int       `json:"size,omitempty"`
+
+	In        []any  `json:"in,omitempty"`
+	NotIn     []any  `json:"not_in,omitempty"`
+	Confirmed string `json:"confirmed,omitempty"`
+	Different string `json:"different,omitempty"`
+	Gt        string `json:"gt,omitempty"`
+	Gte       string `json:"gte,omitempty"`
+	Lt        string `json:"lt,omitempty"`
+	Lte       string `json:"lte,omitempty"`
+
+	DateBefore        string `json:"date_before,omitempty"`
+	DateAfter         string `json:"date_after,omitempty"`
+	DateBeforeOrEqual string `json:"date_before_or_equal,omitempty"`
+	DateAfterOrEqual  string `json:"date_after_or_equal,omitempty"`
+
+	UniqueSimple bool          `json:"-"`
+	UniqueConfig *UniqueConfig `json:"-"`
+	UniqueRaw    any           `json:"unique,omitempty"`
+
+	Exists      bool           `json:"exists,omitempty"`
+	ExistsWhere map[string]any `json:"exists_where,omitempty"`
+	MinItems    any            `json:"min_items,omitempty"`
+	MaxItems    any            `json:"max_items,omitempty"`
+
+	FileSize string   `json:"file_size,omitempty"`
+	FileType []string `json:"file_type,omitempty"`
+
+	Immutable      bool `json:"immutable,omitempty"`
+	ImmutableAfter any  `json:"immutable_after,omitempty"`
+
+	RequiredIf         map[string]any `json:"required_if,omitempty"`
+	RequiredUnless     map[string]any `json:"required_unless,omitempty"`
+	RequiredWith       []string       `json:"required_with,omitempty"`
+	RequiredWithAll    []string       `json:"required_with_all,omitempty"`
+	RequiredWithout    []string       `json:"required_without,omitempty"`
+	RequiredWithoutAll []string       `json:"required_without_all,omitempty"`
+	ExcludeIf          map[string]any `json:"exclude_if,omitempty"`
+	ExcludeUnless      map[string]any `json:"exclude_unless,omitempty"`
+
+	When any `json:"when,omitempty"`
+
+	Rules []ValidationRule `json:"rules,omitempty"`
+
+	Custom []CustomValidator `json:"custom,omitempty"`
+
+	Messages map[string]string `json:"messages,omitempty"`
+}
+
+type ModelValidator struct {
+	Name       string     `json:"name"`
+	Expression string     `json:"expression,omitempty"`
+	Process    string     `json:"process,omitempty"`
+	Script     *ScriptRef `json:"script,omitempty"`
+	Message    string     `json:"message,omitempty"`
+	Condition  string     `json:"condition,omitempty"`
+	On         string     `json:"on,omitempty"`
+}
+
+func (v *ModelValidator) GetOn() string {
+	if v.On != "" {
+		return v.On
+	}
+	return "always"
+}
+
+type SanitizeConfig struct {
+	AllStrings []string `json:"_all_strings,omitempty"`
+}
+
 type FieldDefinition struct {
 	Type      FieldType `json:"type"`
 	Label     string    `json:"label,omitempty"`
@@ -128,6 +379,9 @@ type FieldDefinition struct {
 	NameFormat   string `json:"name_format,omitempty"`
 	AutoFormat   *AutoFormatConfig `json:"auto_format,omitempty"`
 	Encrypted    bool              `json:"encrypted,omitempty"`
+
+	Validation *FieldValidation `json:"validation,omitempty"`
+	Sanitize   []string         `json:"sanitize,omitempty"`
 }
 
 type FileConfig struct {
@@ -164,6 +418,10 @@ type ModelDefinition struct {
 	TimestampsBy  *bool                      `json:"timestamps_by,omitempty"`
 	SoftDeletes   *bool                      `json:"soft_deletes,omitempty"`
 	SoftDeletesBy *bool                      `json:"soft_deletes_by,omitempty"`
+
+	Events     *EventsDefinition `json:"events,omitempty"`
+	Validators []ModelValidator  `json:"validators,omitempty"`
+	Sanitize   *SanitizeConfig   `json:"sanitize,omitempty"`
 }
 
 func (m *ModelDefinition) IsVersion() bool {
@@ -256,7 +514,39 @@ func ParseModel(data []byte) (*ModelDefinition, error) {
 			}
 		}
 	}
+	resolveFieldValidation(&model)
 	return &model, nil
+}
+
+func resolveFieldValidation(model *ModelDefinition) {
+	for name, field := range model.Fields {
+		if field.Validation == nil {
+			continue
+		}
+		v := field.Validation
+		switch raw := v.UniqueRaw.(type) {
+		case bool:
+			v.UniqueSimple = raw
+		case map[string]any:
+			cfg := &UniqueConfig{}
+			if scope, ok := raw["scope"].([]any); ok {
+				for _, s := range scope {
+					if str, ok := s.(string); ok {
+						cfg.Scope = append(cfg.Scope, str)
+					}
+				}
+			}
+			if ci, ok := raw["case_insensitive"].(bool); ok {
+				cfg.CaseInsensitive = ci
+			}
+			if it, ok := raw["include_trashed"].(bool); ok {
+				cfg.IncludeTrashed = it
+			}
+			v.UniqueConfig = cfg
+		}
+		field.Validation = v
+		model.Fields[name] = field
+	}
 }
 
 func validatePrimaryKey(model *ModelDefinition) error {
