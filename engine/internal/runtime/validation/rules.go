@@ -275,17 +275,20 @@ func anyInList(val any, list []any) bool {
 
 func parseFileSize(size string) int64 {
 	size = strings.TrimSpace(strings.ToUpper(size))
-	multipliers := map[string]int64{
-		"B":  1,
-		"KB": 1024,
-		"MB": 1024 * 1024,
-		"GB": 1024 * 1024 * 1024,
+	orderedSuffixes := []struct {
+		suffix string
+		mult   int64
+	}{
+		{"GB", 1024 * 1024 * 1024},
+		{"MB", 1024 * 1024},
+		{"KB", 1024},
+		{"B", 1},
 	}
-	for suffix, mult := range multipliers {
-		if strings.HasSuffix(size, suffix) {
-			numStr := strings.TrimSpace(strings.TrimSuffix(size, suffix))
+	for _, entry := range orderedSuffixes {
+		if strings.HasSuffix(size, entry.suffix) {
+			numStr := strings.TrimSpace(strings.TrimSuffix(size, entry.suffix))
 			if n, err := strconv.ParseFloat(numStr, 64); err == nil {
-				return int64(n * float64(mult))
+				return int64(n * float64(entry.mult))
 			}
 		}
 	}

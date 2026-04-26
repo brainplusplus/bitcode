@@ -128,6 +128,65 @@ func (v *Validator) shouldValidateOnUpdate(fieldName string, fieldDef *parser.Fi
 			}
 		}
 	}
+	if len(val.RequiredWith) > 0 {
+		for _, depField := range val.RequiredWith {
+			if _, changed := changes[depField]; changed {
+				return true
+			}
+		}
+	}
+	if len(val.RequiredWithAll) > 0 {
+		for _, depField := range val.RequiredWithAll {
+			if _, changed := changes[depField]; changed {
+				return true
+			}
+		}
+	}
+	if len(val.RequiredWithout) > 0 {
+		for _, depField := range val.RequiredWithout {
+			if _, changed := changes[depField]; changed {
+				return true
+			}
+		}
+	}
+	if len(val.RequiredWithoutAll) > 0 {
+		for _, depField := range val.RequiredWithoutAll {
+			if _, changed := changes[depField]; changed {
+				return true
+			}
+		}
+	}
+
+	if val.When != nil {
+		if whenMap, ok := val.When.(map[string]any); ok {
+			for depField := range whenMap {
+				if _, changed := changes[depField]; changed {
+					return true
+				}
+			}
+		}
+	}
+
+	if len(val.ExcludeIf) > 0 {
+		for depField := range val.ExcludeIf {
+			if _, changed := changes[depField]; changed {
+				return true
+			}
+		}
+	}
+	if len(val.ExcludeUnless) > 0 {
+		for depField := range val.ExcludeUnless {
+			if _, changed := changes[depField]; changed {
+				return true
+			}
+		}
+	}
+
+	if val.ImmutableAfter != nil {
+		if _, changed := changes[fieldName]; changed {
+			return true
+		}
+	}
 
 	return false
 }

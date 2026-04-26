@@ -155,3 +155,25 @@ func TestSanitize_SkipNonString(t *testing.T) {
 		t.Fatalf("expected 42, got '%v'", data["count"])
 	}
 }
+
+func TestParseFileSize(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected int64
+	}{
+		{"5MB", 5 * 1024 * 1024},
+		{"5mb", 5 * 1024 * 1024},
+		{"10KB", 10 * 1024},
+		{"1GB", 1024 * 1024 * 1024},
+		{"100B", 100},
+		{"2.5MB", int64(2.5 * 1024 * 1024)},
+		{"1024", 1024},
+		{"", 0},
+	}
+	for _, tt := range tests {
+		result := parseFileSize(tt.input)
+		if result != tt.expected {
+			t.Errorf("parseFileSize(%q) = %d, want %d", tt.input, result, tt.expected)
+		}
+	}
+}
