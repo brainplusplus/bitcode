@@ -114,6 +114,7 @@ func (r *Router) RegisterAPI(apiDef *parser.APIDefinition) {
 			repo.SetEventBus(r.eventBus)
 		}
 		crud := NewCRUDHandler(repo, apiDef, r.workflowEngine)
+		crud.modelDef = modelDef
 		crud.hookDispatcher = r.hookDispatcher
 
 		if apiDef.Model != "" && crud.modelDef != nil && crud.modelDef.Events != nil && len(crud.modelDef.Events.OnChange) > 0 {

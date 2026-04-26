@@ -18,18 +18,16 @@ type RelationCounter func(ctx context.Context, tableName string, foreignKey stri
 type CustomValidatorRunner func(ctx context.Context, cv parser.CustomValidator, fieldName string, fieldValue any, data map[string]any) error
 
 type Validator struct {
-	translator          func(locale, key string) string
-	uniqueChecker       UniqueChecker
-	existsChecker       ExistsChecker
-	relationCounter     RelationCounter
-	customRunner        CustomValidatorRunner
-	tableNameResolver   func(modelName string) string
-	ctx                 context.Context
-	currentRecordID     string
+	translator        func(locale, key string) string
+	uniqueChecker     UniqueChecker
+	existsChecker     ExistsChecker
+	relationCounter   RelationCounter
+	customRunner      CustomValidatorRunner
+	tableNameResolver func(modelName string) string
 }
 
 func NewValidator() *Validator {
-	return &Validator{ctx: context.Background()}
+	return &Validator{}
 }
 
 func (v *Validator) SetTranslator(fn func(locale, key string) string) {
@@ -56,23 +54,35 @@ func (v *Validator) SetTableNameResolver(fn func(string) string) {
 	v.tableNameResolver = fn
 }
 
-func (v *Validator) SetContext(ctx context.Context) {
-	v.ctx = ctx
-}
-
-func (v *Validator) SetCurrentRecordID(id string) {
-	v.currentRecordID = id
-}
-
 func (v *Validator) ValidateCreate(modelDef *parser.ModelDefinition, data map[string]any, locale string) *ValidationErrors {
-	return v.validate(modelDef, data, nil, "create", locale)
+	return v.validate(context.Background(), modelDef, data, nil, "create", "", locale)
+}
+
+func (v *Validator) ValidateCreateWithContext(ctx context.Context, modelDef *parser.ModelDefinition, data map[string]any, locale string) *ValidationErrors {
+	return v.validate(ctx, modelDef, data, nil, "create", "", locale)
 }
 
 func (v *Validator) ValidateUpdate(modelDef *parser.ModelDefinition, mergedData map[string]any, changes map[string]any, locale string) *ValidationErrors {
-	return v.validate(modelDef, mergedData, changes, "update", locale)
+	recordID := ""
+	if old, ok := mergedData["__old"].(map[string]any); ok {
+		if id, ok := old["id"].(string); ok {
+			recordID = id
+		}
+	}
+	return v.validate(context.Background(), modelDef, mergedData, changes, "update", recordID, locale)
 }
 
-func (v *Validator) validate(modelDef *parser.ModelDefinition, data map[string]any, changes map[string]any, operation string, locale string) *ValidationErrors {
+func (v *Validator) ValidateUpdateWithContext(ctx context.Context, modelDef *parser.ModelDefinition, mergedData map[string]any, changes map[string]any, locale string) *ValidationErrors {
+	recordID := ""
+	if old, ok := mergedData["__old"].(map[string]any); ok {
+		if id, ok := old["id"].(string); ok {
+			recordID = id
+		}
+	}
+	return v.validate(ctx, modelDef, mergedData, changes, "update", recordID, locale)
+}
+
+func (v *Validator) validate(ctx context.Context, modelDef *parser.ModelDefinition, data map[string]any, changes map[string]any, operation string, currentRecordID string, locale string) *ValidationErrors {
 	errs := NewValidationErrors()
 
 	for fieldName, fieldDef := range modelDef.Fields {
@@ -86,10 +96,10 @@ func (v *Validator) validate(modelDef *parser.ModelDefinition, data map[string]a
 			}
 		}
 
-		v.validateField(fieldName, &fieldDef, modelDef, data, operation, locale, errs)
+		v.validateField(ctx, fieldName, &fieldDef, modelDef, data, operation, currentRecordID, locale, errs)
 	}
 
-	v.validateModelLevel(modelDef, data, operation, locale, errs)
+	v.validateModelLevel(ctx, modelDef, data, operation, locale, errs)
 
 	return errs
 }
@@ -122,7 +132,7 @@ func (v *Validator) shouldValidateOnUpdate(fieldName string, fieldDef *parser.Fi
 	return false
 }
 
-func (v *Validator) validateField(fieldName string, fieldDef *parser.FieldDefinition, modelDef *parser.ModelDefinition, data map[string]any, operation string, locale string, errs *ValidationErrors) {
+func (v *Validator) validateField(ctx context.Context, fieldName string, fieldDef *parser.FieldDefinition, modelDef *parser.ModelDefinition, data map[string]any, operation string, currentRecordID string, locale string, errs *ValidationErrors) {
 	val := data[fieldName]
 	validation := fieldDef.Validation
 
@@ -421,13 +431,13 @@ func (v *Validator) validateField(fieldName string, fieldDef *parser.FieldDefini
 		return
 	}
 
-	v.validateUnique(fieldName, fieldDef, modelDef, val, data, operation, label, locale, validation, errs)
-	v.validateExists(fieldName, fieldDef, val, label, locale, validation, errs)
-	v.validateRelationItems(fieldName, fieldDef, modelDef, data, operation, label, locale, validation, errs)
-	v.validateCustom(fieldName, val, data, label, locale, validation, errs)
+	v.validateUnique(ctx, fieldName, fieldDef, modelDef, val, data, operation, currentRecordID, label, locale, validation, errs)
+	v.validateExists(ctx, fieldName, fieldDef, val, label, locale, validation, errs)
+	v.validateRelationItems(ctx, fieldName, fieldDef, modelDef, data, operation, label, locale, validation, errs)
+	v.validateCustom(ctx, fieldName, val, data, label, locale, validation, errs)
 }
 
-func (v *Validator) validateUnique(fieldName string, fieldDef *parser.FieldDefinition, modelDef *parser.ModelDefinition, val any, data map[string]any, operation string, label string, locale string, validation *parser.FieldValidation, errs *ValidationErrors) {
+func (v *Validator) validateUnique(ctx context.Context, fieldName string, fieldDef *parser.FieldDefinition, modelDef *parser.ModelDefinition, val any, data map[string]any, operation string, currentRecordID string, label string, locale string, validation *parser.FieldValidation, errs *ValidationErrors) {
 	if !validation.UniqueSimple && validation.UniqueConfig == nil {
 		return
 	}
@@ -442,12 +452,12 @@ func (v *Validator) validateUnique(fieldName string, fieldDef *parser.FieldDefin
 
 	excludeID := ""
 	if operation == "update" {
-		excludeID = v.currentRecordID
+		excludeID = currentRecordID
 	}
 
 	isSoftDelete := modelDef.IsSoftDeletes()
 
-	exists, err := v.uniqueChecker(v.ctx, tableName, fieldName, val, excludeID, validation.UniqueConfig, isSoftDelete, data)
+	exists, err := v.uniqueChecker(ctx, tableName, fieldName, val, excludeID, validation.UniqueConfig, isSoftDelete, data)
 	if err != nil {
 		log.Printf("[VALIDATION] unique check error for %s.%s: %v", modelDef.Name, fieldName, err)
 		return
@@ -457,7 +467,7 @@ func (v *Validator) validateUnique(fieldName string, fieldDef *parser.FieldDefin
 	}
 }
 
-func (v *Validator) validateExists(fieldName string, fieldDef *parser.FieldDefinition, val any, label string, locale string, validation *parser.FieldValidation, errs *ValidationErrors) {
+func (v *Validator) validateExists(ctx context.Context, fieldName string, fieldDef *parser.FieldDefinition, val any, label string, locale string, validation *parser.FieldValidation, errs *ValidationErrors) {
 	if !validation.Exists && len(validation.ExistsWhere) == 0 {
 		return
 	}
@@ -473,7 +483,7 @@ func (v *Validator) validateExists(fieldName string, fieldDef *parser.FieldDefin
 		tableName = v.tableNameResolver(fieldDef.Model)
 	}
 
-	exists, err := v.existsChecker(v.ctx, tableName, val, validation.ExistsWhere)
+	exists, err := v.existsChecker(ctx, tableName, val, validation.ExistsWhere)
 	if err != nil {
 		log.Printf("[VALIDATION] exists check error for %s: %v", fieldName, err)
 		return
@@ -483,7 +493,7 @@ func (v *Validator) validateExists(fieldName string, fieldDef *parser.FieldDefin
 	}
 }
 
-func (v *Validator) validateRelationItems(fieldName string, fieldDef *parser.FieldDefinition, modelDef *parser.ModelDefinition, data map[string]any, operation string, label string, locale string, validation *parser.FieldValidation, errs *ValidationErrors) {
+func (v *Validator) validateRelationItems(ctx context.Context, fieldName string, fieldDef *parser.FieldDefinition, modelDef *parser.ModelDefinition, data map[string]any, operation string, label string, locale string, validation *parser.FieldValidation, errs *ValidationErrors) {
 	if validation.MinItems == nil && validation.MaxItems == nil {
 		return
 	}
@@ -513,7 +523,7 @@ func (v *Validator) validateRelationItems(fieldName string, fieldDef *parser.Fie
 		foreignKey = modelDef.Name + "_id"
 	}
 
-	count, err := v.relationCounter(v.ctx, relTable, foreignKey, parentID)
+	count, err := v.relationCounter(ctx, relTable, foreignKey, parentID)
 	if err != nil {
 		log.Printf("[VALIDATION] relation count error for %s: %v", fieldName, err)
 		return
@@ -547,7 +557,7 @@ func resolveIntValue(val any) int {
 	return 0
 }
 
-func (v *Validator) validateCustom(fieldName string, val any, data map[string]any, label string, locale string, validation *parser.FieldValidation, errs *ValidationErrors) {
+func (v *Validator) validateCustom(ctx context.Context, fieldName string, val any, data map[string]any, label string, locale string, validation *parser.FieldValidation, errs *ValidationErrors) {
 	if len(validation.Custom) == 0 {
 		return
 	}
@@ -556,7 +566,7 @@ func (v *Validator) validateCustom(fieldName string, val any, data map[string]an
 	}
 
 	for _, cv := range validation.Custom {
-		if err := v.customRunner(v.ctx, cv, fieldName, val, data); err != nil {
+		if err := v.customRunner(ctx, cv, fieldName, val, data); err != nil {
 			msg := cv.Message
 			if msg == "" {
 				msg = err.Error()
@@ -663,7 +673,7 @@ func (v *Validator) isRequiredActive(required any, operation string) bool {
 	return false
 }
 
-func (v *Validator) validateModelLevel(modelDef *parser.ModelDefinition, data map[string]any, operation string, locale string, errs *ValidationErrors) {
+func (v *Validator) validateModelLevel(ctx context.Context, modelDef *parser.ModelDefinition, data map[string]any, operation string, locale string, errs *ValidationErrors) {
 	for _, mv := range modelDef.Validators {
 		on := mv.GetOn()
 		if on != "always" && on != operation {
@@ -692,7 +702,7 @@ func (v *Validator) validateModelLevel(modelDef *parser.ModelDefinition, data ma
 				Script:  mv.Script,
 				Message: mv.Message,
 			}
-			if err := v.customRunner(v.ctx, cv, "_model", nil, data); err != nil {
+			if err := v.customRunner(ctx, cv, "_model", nil, data); err != nil {
 				msg := mv.Message
 				if msg == "" {
 					msg = err.Error()

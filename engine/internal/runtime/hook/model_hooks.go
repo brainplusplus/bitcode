@@ -20,11 +20,12 @@ func (m *ModelHookDispatcher) DispatchCreate(ctx context.Context, modelDef *pars
 	}
 
 	eventCtx := &EventContext{
-		Model:     modelDef.Name,
-		Module:    modelDef.Module,
-		Operation: "create",
-		Data:      data,
-		Session:   session,
+		Model:      modelDef.Name,
+		Module:     modelDef.Module,
+		ModulePath: modelDef.ModulePath,
+		Operation:  "create",
+		Data:       data,
+		Session:    session,
 	}
 	if uid, ok := session["user_id"].(string); ok {
 		eventCtx.UserID = uid
@@ -62,11 +63,12 @@ func (m *ModelHookDispatcher) DispatchAfterCreate(ctx context.Context, modelDef 
 	}
 
 	eventCtx := &EventContext{
-		Model:     modelDef.Name,
-		Module:    modelDef.Module,
-		Operation: "create",
-		Data:      data,
-		Session:   session,
+		Model:      modelDef.Name,
+		Module:     modelDef.Module,
+		ModulePath: modelDef.ModulePath,
+		Operation:  "create",
+		Data:       data,
+		Session:    session,
 	}
 	if uid, ok := session["user_id"].(string); ok {
 		eventCtx.UserID = uid
@@ -85,13 +87,14 @@ func (m *ModelHookDispatcher) DispatchBeforeUpdate(ctx context.Context, modelDef
 	}
 
 	eventCtx := &EventContext{
-		Model:     modelDef.Name,
-		Module:    modelDef.Module,
-		Operation: "update",
-		Data:      data,
-		OldData:   oldData,
-		Changes:   changes,
-		Session:   session,
+		Model:      modelDef.Name,
+		Module:     modelDef.Module,
+		ModulePath: modelDef.ModulePath,
+		Operation:  "update",
+		Data:       data,
+		OldData:    oldData,
+		Changes:    changes,
+		Session:    session,
 	}
 	if uid, ok := session["user_id"].(string); ok {
 		eventCtx.UserID = uid
@@ -133,13 +136,14 @@ func (m *ModelHookDispatcher) DispatchAfterUpdate(ctx context.Context, modelDef 
 	}
 
 	eventCtx := &EventContext{
-		Model:     modelDef.Name,
-		Module:    modelDef.Module,
-		Operation: "update",
-		Data:      data,
-		OldData:   oldData,
-		Changes:   changes,
-		Session:   session,
+		Model:      modelDef.Name,
+		Module:     modelDef.Module,
+		ModulePath: modelDef.ModulePath,
+		Operation:  "update",
+		Data:       data,
+		OldData:    oldData,
+		Changes:    changes,
+		Session:    session,
 	}
 	if uid, ok := session["user_id"].(string); ok {
 		eventCtx.UserID = uid
@@ -158,12 +162,13 @@ func (m *ModelHookDispatcher) DispatchBeforeDelete(ctx context.Context, modelDef
 	}
 
 	eventCtx := &EventContext{
-		Model:     modelDef.Name,
-		Module:    modelDef.Module,
-		Operation: "delete",
-		Data:      record,
-		OldData:   record,
-		Session:   session,
+		Model:      modelDef.Name,
+		Module:     modelDef.Module,
+		ModulePath: modelDef.ModulePath,
+		Operation:  "delete",
+		Data:       record,
+		OldData:    record,
+		Session:    session,
 	}
 	if uid, ok := session["user_id"].(string); ok {
 		eventCtx.UserID = uid
@@ -195,12 +200,13 @@ func (m *ModelHookDispatcher) DispatchAfterDelete(ctx context.Context, modelDef 
 	}
 
 	eventCtx := &EventContext{
-		Model:     modelDef.Name,
-		Module:    modelDef.Module,
-		Operation: "delete",
-		Data:      record,
-		OldData:   record,
-		Session:   session,
+		Model:      modelDef.Name,
+		Module:     modelDef.Module,
+		ModulePath: modelDef.ModulePath,
+		Operation:  "delete",
+		Data:       record,
+		OldData:    record,
+		Session:    session,
 	}
 	if uid, ok := session["user_id"].(string); ok {
 		eventCtx.UserID = uid
@@ -224,12 +230,13 @@ func (m *ModelHookDispatcher) DispatchOnChangeOnly(ctx context.Context, modelDef
 	}
 
 	eventCtx := &EventContext{
-		Model:     modelDef.Name,
-		Module:    modelDef.Module,
-		Operation: "update",
-		Data:      data,
-		Changes:   changes,
-		Session:   session,
+		Model:      modelDef.Name,
+		Module:     modelDef.Module,
+		ModulePath: modelDef.ModulePath,
+		Operation:  "update",
+		Data:       data,
+		Changes:    changes,
+		Session:    session,
 	}
 	if uid, ok := session["user_id"].(string); ok {
 		eventCtx.UserID = uid

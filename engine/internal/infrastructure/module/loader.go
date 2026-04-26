@@ -22,6 +22,9 @@ func LoadModule(modulePath string) (*LoadedModule, error) {
 		return nil, err
 	}
 	loaded.Path = modulePath
+	for _, model := range loaded.Models {
+		model.ModulePath = modulePath
+	}
 	return loaded, nil
 }
 

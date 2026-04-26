@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
+	"path/filepath"
 	"sort"
 	"time"
 
@@ -291,6 +293,8 @@ func (d *Dispatcher) runScript(ctx context.Context, script *parser.ScriptRef, ev
 		return nil, fmt.Errorf("no script runner configured")
 	}
 
+	scriptPath := d.resolveScriptPath(script.File, eventCtx.ModulePath)
+
 	params := map[string]any{
 		"model":     eventCtx.Model,
 		"module":    eventCtx.Module,
@@ -304,7 +308,20 @@ func (d *Dispatcher) runScript(ctx context.Context, script *parser.ScriptRef, ev
 		"session":   eventCtx.Session,
 	}
 
-	return d.scriptRunner.Run(ctx, script.File, params)
+	return d.scriptRunner.Run(ctx, scriptPath, params)
+}
+
+func (d *Dispatcher) resolveScriptPath(file string, modulePath string) string {
+	if filepath.IsAbs(file) {
+		return file
+	}
+	if modulePath != "" {
+		resolved := filepath.Join(modulePath, file)
+		if _, err := os.Stat(resolved); err == nil {
+			return resolved
+		}
+	}
+	return file
 }
 
 func (d *Dispatcher) buildConditionData(eventCtx *EventContext) map[string]any {

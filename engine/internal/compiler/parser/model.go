@@ -422,6 +422,8 @@ type ModelDefinition struct {
 	Events     *EventsDefinition `json:"events,omitempty"`
 	Validators []ModelValidator  `json:"validators,omitempty"`
 	Sanitize   *SanitizeConfig   `json:"sanitize,omitempty"`
+
+	ModulePath string `json:"-"`
 }
 
 func (m *ModelDefinition) IsVersion() bool {

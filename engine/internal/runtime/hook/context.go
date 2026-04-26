@@ -1,32 +1,34 @@
 package hook
 
 type EventContext struct {
-	Model     string
-	Module    string
-	Event     string
-	Operation string
-	Data      map[string]any
-	OldData   map[string]any
-	Changes   map[string]any
-	UserID    string
-	TenantID  string
-	Session   map[string]any
-	IsBulk    bool
-	BulkIndex int
-	BulkTotal int
+	Model      string
+	Module     string
+	ModulePath string
+	Event      string
+	Operation  string
+	Data       map[string]any
+	OldData    map[string]any
+	Changes    map[string]any
+	UserID     string
+	TenantID   string
+	Session    map[string]any
+	IsBulk     bool
+	BulkIndex  int
+	BulkTotal  int
 }
 
 func (ec *EventContext) Clone() *EventContext {
 	clone := &EventContext{
-		Model:     ec.Model,
-		Module:    ec.Module,
-		Event:     ec.Event,
-		Operation: ec.Operation,
-		UserID:    ec.UserID,
-		TenantID:  ec.TenantID,
-		IsBulk:    ec.IsBulk,
-		BulkIndex: ec.BulkIndex,
-		BulkTotal: ec.BulkTotal,
+		Model:      ec.Model,
+		Module:     ec.Module,
+		ModulePath: ec.ModulePath,
+		Event:      ec.Event,
+		Operation:  ec.Operation,
+		UserID:     ec.UserID,
+		TenantID:   ec.TenantID,
+		IsBulk:     ec.IsBulk,
+		BulkIndex:  ec.BulkIndex,
+		BulkTotal:  ec.BulkTotal,
 	}
 	if ec.Data != nil {
 		clone.Data = copyMap(ec.Data)
