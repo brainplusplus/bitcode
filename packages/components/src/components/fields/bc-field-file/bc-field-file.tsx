@@ -1,5 +1,6 @@
-import { Component, Prop, State, Event, EventEmitter, h } from '@stencil/core';
-import { FieldChangeEvent } from '../../../core/types';
+import { Component, Prop, State, Event, EventEmitter, Method, Element, h } from '@stencil/core';
+import { FieldChangeEvent, FieldFocusEvent, FieldBlurEvent, FieldClearEvent, FieldValidationEvent, FieldValidEvent, ValidationResult, ValidateOn } from '../../../core/types';
+import { FieldState, createFieldState, markDirty, getFieldClasses, validateFieldValue } from '../../../core/field-utils';
 import { getApiClient } from '../../../core/api-client';
 
 interface UploadedFile {
@@ -17,9 +18,10 @@ interface UploadedFile {
 @Component({
   tag: 'bc-field-file',
   styleUrl: 'bc-field-file.css',
-  shadow: true,
+  shadow: false,
 })
 export class BcFieldFile {
+  @Element() el!: HTMLElement;
   @Prop() name: string = '';
   @Prop() label: string = '';
   @Prop({ mutable: true }) value: string = '';
@@ -37,11 +39,50 @@ export class BcFieldFile {
   @Prop() preview: boolean = false;
   @Prop() showDownload: boolean = true;
 
+  @Prop({ mutable: true }) validationStatus: 'none' | 'validating' | 'valid' | 'invalid' = 'none';
+  @Prop({ mutable: true }) validationMessage: string = '';
+  @Prop() hint: string = '';
+  @Prop() size: 'sm' | 'md' | 'lg' = 'md';
+  @Prop() tooltip: string = '';
+  @Prop() loading: boolean = false;
+  @Prop() defaultValue: string = '';
+  @Prop() validateOn: ValidateOn | '' = '';
+
   @State() files: UploadedFile[] = [];
   @State() isDragging: boolean = false;
   @State() previewFile: UploadedFile | null = null;
+  @State() private _fieldState: FieldState = createFieldState('');
+
+  customValidator?: (value: unknown) => string | null | Promise<string | null>;
 
   @Event() lcFieldChange!: EventEmitter<FieldChangeEvent>;
+  @Event() lcFieldFocus!: EventEmitter<FieldFocusEvent>;
+  @Event() lcFieldBlur!: EventEmitter<FieldBlurEvent>;
+  @Event() lcFieldClear!: EventEmitter<FieldClearEvent>;
+  @Event() lcFieldInvalid!: EventEmitter<FieldValidationEvent>;
+  @Event() lcFieldValid!: EventEmitter<FieldValidEvent>;
+
+  componentWillLoad() { this._fieldState = createFieldState(this.value || this.defaultValue); }
+
+  private async _runValidation(): Promise<ValidationResult> {
+    this.validationStatus = 'validating';
+    const result = await validateFieldValue(this.value, { required: this.required }, { customValidator: this.customValidator });
+    if (result.valid) { this.validationStatus = 'valid'; this.validationMessage = ''; this.lcFieldValid.emit({ name: this.name, value: this.value }); }
+    else { this.validationStatus = 'invalid'; this.validationMessage = result.errors[0] || ''; this.lcFieldInvalid.emit({ name: this.name, value: this.value, errors: result.errors }); }
+    return result;
+  }
+
+  @Method() async validate(): Promise<ValidationResult> { return this._runValidation(); }
+  @Method() async reset(): Promise<void> { this.value = this._fieldState.initialValue as string || this.defaultValue || ''; this.files = []; this.previewFile = null; this._fieldState = createFieldState(this.value); this.validationStatus = 'none'; this.validationMessage = ''; }
+  @Method() async clear(): Promise<void> { const old = this.value; this.value = ''; this.files = []; this.previewFile = null; this._fieldState = markDirty(this._fieldState, ''); this.lcFieldClear.emit({ name: this.name, oldValue: old }); this.lcFieldChange.emit({ name: this.name, value: '', oldValue: old }); }
+  @Method() async setValue(value: string, emit: boolean = true): Promise<void> { const old = this.value; this.value = value; this._fieldState = markDirty(this._fieldState, value); if (emit) this.lcFieldChange.emit({ name: this.name, value, oldValue: old }); }
+  @Method() async getValue(): Promise<string> { return this.value; }
+  @Method() async focusField(): Promise<void> { (this.el.querySelector('.bc-file-dropzone') as HTMLElement)?.focus(); }
+  @Method() async blurField(): Promise<void> { (document.activeElement as HTMLElement)?.blur(); }
+  @Method() async isDirty(): Promise<boolean> { return this._fieldState.dirty; }
+  @Method() async isTouched(): Promise<boolean> { return this._fieldState.touched; }
+  @Method() async setError(message: string): Promise<void> { this.validationStatus = 'invalid'; this.validationMessage = message; }
+  @Method() async clearError(): Promise<void> { this.validationStatus = 'none'; this.validationMessage = ''; }
 
   private fileInput!: HTMLInputElement;
 
@@ -174,6 +215,7 @@ export class BcFieldFile {
     const ids = this.files.filter(f => f.status === 'done').map(f => f.id);
     const oldValue = this.value;
     this.value = this.multiple ? JSON.stringify(ids) : (ids[0] || '');
+    this._fieldState = markDirty(this._fieldState, this.value);
     this.lcFieldChange.emit({ name: this.name, value: this.value, oldValue });
   }
 
@@ -234,12 +276,17 @@ export class BcFieldFile {
   }
 
   render() {
+    const fieldClasses = getFieldClasses({ size: this.size, validationStatus: this.validationStatus, disabled: this.disabled, loading: this.loading, dirty: this._fieldState.dirty, touched: this._fieldState.touched });
+    const showError = this.validationStatus === 'invalid' && this.validationMessage;
+    const showHint = this.hint && !showError;
+
     return (
-      <div class="bc-field">
+      <div class={fieldClasses}>
         {this.label && (
           <label class="bc-field-label">
             {this.label}
             {this.required && <span class="required">*</span>}
+            {this.tooltip && <span class="bc-field-tooltip" title={this.tooltip}>?</span>}
           </label>
         )}
 
@@ -340,6 +387,11 @@ export class BcFieldFile {
             {this.renderPreview(this.previewFile)}
           </div>
         )}
+
+        <div class="bc-field-footer">
+          {showError && <div class="bc-field-error" role="alert">{this.validationMessage}</div>}
+          {showHint && <div class="bc-field-hint">{this.hint}</div>}
+        </div>
       </div>
     );
   }

@@ -1,13 +1,15 @@
-import { Component, Prop, State, Event, EventEmitter, h } from '@stencil/core';
-import { FieldChangeEvent } from '../../../core/types';
+import { Component, Prop, State, Event, EventEmitter, Method, Element, h } from '@stencil/core';
+import { FieldChangeEvent, FieldFocusEvent, FieldBlurEvent, FieldClearEvent, FieldValidationEvent, FieldValidEvent, ValidationResult, ValidateOn } from '../../../core/types';
+import { FieldState, createFieldState, markDirty, getFieldClasses, validateFieldValue } from '../../../core/field-utils';
 import { getApiClient } from '../../../core/api-client';
 
 @Component({
   tag: 'bc-field-image',
   styleUrl: 'bc-field-image.css',
-  shadow: true,
+  shadow: false,
 })
 export class BcFieldImage {
+  @Element() el!: HTMLElement;
   @Prop() name: string = '';
   @Prop() label: string = '';
   @Prop({ mutable: true }) value: string = '';
@@ -15,19 +17,59 @@ export class BcFieldImage {
   @Prop() maxSize: string = '10MB';
   @Prop() required: boolean = false;
   @Prop() disabled: boolean = false;
+  @Prop() readonly: boolean = false;
   @Prop() preview: boolean = true;
   @Prop() showDownload: boolean = false;
   @Prop() model: string = '';
   @Prop() recordId: string = '';
   @Prop() fieldName: string = '';
 
+  @Prop({ mutable: true }) validationStatus: 'none' | 'validating' | 'valid' | 'invalid' = 'none';
+  @Prop({ mutable: true }) validationMessage: string = '';
+  @Prop() hint: string = '';
+  @Prop() size: 'sm' | 'md' | 'lg' = 'md';
+  @Prop() tooltip: string = '';
+  @Prop() loading: boolean = false;
+  @Prop() defaultValue: string = '';
+  @Prop() validateOn: ValidateOn | '' = '';
+
   @State() imageUrl: string = '';
   @State() imageName: string = '';
   @State() uploading: boolean = false;
   @State() uploadError: string = '';
   @State() isDragging: boolean = false;
+  @State() private _fieldState: FieldState = createFieldState('');
+
+  customValidator?: (value: unknown) => string | null | Promise<string | null>;
 
   @Event() lcFieldChange!: EventEmitter<FieldChangeEvent>;
+  @Event() lcFieldFocus!: EventEmitter<FieldFocusEvent>;
+  @Event() lcFieldBlur!: EventEmitter<FieldBlurEvent>;
+  @Event() lcFieldClear!: EventEmitter<FieldClearEvent>;
+  @Event() lcFieldInvalid!: EventEmitter<FieldValidationEvent>;
+  @Event() lcFieldValid!: EventEmitter<FieldValidEvent>;
+
+  componentWillLoad() { this._fieldState = createFieldState(this.value || this.defaultValue); }
+
+  private async _runValidation(): Promise<ValidationResult> {
+    this.validationStatus = 'validating';
+    const result = await validateFieldValue(this.value, { required: this.required }, { customValidator: this.customValidator });
+    if (result.valid) { this.validationStatus = 'valid'; this.validationMessage = ''; this.lcFieldValid.emit({ name: this.name, value: this.value }); }
+    else { this.validationStatus = 'invalid'; this.validationMessage = result.errors[0] || ''; this.lcFieldInvalid.emit({ name: this.name, value: this.value, errors: result.errors }); }
+    return result;
+  }
+
+  @Method() async validate(): Promise<ValidationResult> { return this._runValidation(); }
+  @Method() async reset(): Promise<void> { this.value = this._fieldState.initialValue as string || this.defaultValue || ''; this.imageUrl = ''; this.imageName = ''; this._fieldState = createFieldState(this.value); this.validationStatus = 'none'; this.validationMessage = ''; this.uploadError = ''; }
+  @Method() async clear(): Promise<void> { this.removeImage(); }
+  @Method() async setValue(value: string, emit: boolean = true): Promise<void> { const old = this.value; this.value = value; this._fieldState = markDirty(this._fieldState, value); if (emit) this.lcFieldChange.emit({ name: this.name, value, oldValue: old }); }
+  @Method() async getValue(): Promise<string> { return this.value; }
+  @Method() async focusField(): Promise<void> { (this.el.querySelector('.bc-image-dropzone') as HTMLElement)?.focus(); }
+  @Method() async blurField(): Promise<void> { (document.activeElement as HTMLElement)?.blur(); }
+  @Method() async isDirty(): Promise<boolean> { return this._fieldState.dirty; }
+  @Method() async isTouched(): Promise<boolean> { return this._fieldState.touched; }
+  @Method() async setError(message: string): Promise<void> { this.validationStatus = 'invalid'; this.validationMessage = message; }
+  @Method() async clearError(): Promise<void> { this.validationStatus = 'none'; this.validationMessage = ''; this.uploadError = ''; }
 
   private fileInput!: HTMLInputElement;
 
@@ -103,6 +145,7 @@ export class BcFieldImage {
       this.value = result.id;
       this.imageUrl = result.thumbnail_url || result.url;
       this.imageName = result.name;
+      this._fieldState = markDirty(this._fieldState, this.value);
       this.lcFieldChange.emit({ name: this.name, value: this.value, oldValue });
     } catch (err) {
       this.uploadError = err instanceof Error ? err.message : 'Upload failed';
@@ -116,6 +159,8 @@ export class BcFieldImage {
     this.value = '';
     this.imageUrl = '';
     this.imageName = '';
+    this._fieldState = markDirty(this._fieldState, '');
+    this.lcFieldClear.emit({ name: this.name, oldValue });
     this.lcFieldChange.emit({ name: this.name, value: '', oldValue });
   }
 
@@ -129,12 +174,17 @@ export class BcFieldImage {
   }
 
   render() {
+    const fieldClasses = getFieldClasses({ size: this.size, validationStatus: this.validationStatus, disabled: this.disabled, readonly: this.readonly, loading: this.loading, dirty: this._fieldState.dirty, touched: this._fieldState.touched });
+    const showError = (this.validationStatus === 'invalid' && this.validationMessage) || this.uploadError;
+    const showHint = this.hint && !showError;
+
     return (
-      <div class="bc-field">
+      <div class={fieldClasses}>
         {this.label && (
           <label class="bc-field-label">
             {this.label}
             {this.required && <span class="required">*</span>}
+            {this.tooltip && <span class="bc-field-tooltip" title={this.tooltip}>?</span>}
           </label>
         )}
 
@@ -207,7 +257,11 @@ export class BcFieldImage {
           style={{ display: 'none' }}
         />
 
-        {this.uploadError && <span class="bc-field-error">{this.uploadError}</span>}
+        <div class="bc-field-footer">
+          {this.uploadError && <div class="bc-field-error" role="alert">{this.uploadError}</div>}
+          {!this.uploadError && showError && <div class="bc-field-error" role="alert">{this.validationMessage}</div>}
+          {showHint && <div class="bc-field-hint">{this.hint}</div>}
+        </div>
       </div>
     );
   }
