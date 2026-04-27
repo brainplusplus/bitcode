@@ -18,10 +18,25 @@ interface ColumnDef {
   frozen?: boolean;
 }
 
+interface Permissions {
+  can_select?: boolean;
+  can_read?: boolean;
+  can_write?: boolean;
+  can_create?: boolean;
+  can_delete?: boolean;
+  can_print?: boolean;
+  can_email?: boolean;
+  can_report?: boolean;
+  can_export?: boolean;
+  can_import?: boolean;
+  can_mask?: boolean;
+  can_clone?: boolean;
+}
+
 interface SortDef { field: string; direction: 'asc' | 'desc'; }
 interface FilterCondition { field: string; operator: string; value: any; }
 interface FilterGroup { logic: 'AND' | 'OR'; filters: Array<FilterCondition | FilterGroup>; }
-interface BulkAction { label: string; action: string; variant?: string; confirm?: string; }
+interface BulkAction { label: string; action: string; variant?: string; confirm?: string; permission?: string; }
 
 @Component({ tag: 'bc-datatable', styleUrl: 'bc-datatable.css', shadow: false })
 export class BcDatatable {
@@ -40,6 +55,15 @@ export class BcDatatable {
   @Prop() serverSide: boolean = true;
   @Prop() savedPresets: string = '[]';
 
+  @Prop() permissions: string = '{}';
+  @Prop() createUrl: string = '';
+  @Prop() editUrl: string = '';
+  @Prop() detailUrl: string = '';
+  @Prop() moduleName: string = '';
+  @Prop() modalMode: boolean = false;
+  @Prop() formFields: string = '[]';
+  @Prop() viewTitle: string = '';
+
   @State() data: Array<Record<string, unknown>> = [];
   @State() total: number = 0;
   @State() page: number = 1;
@@ -57,6 +81,10 @@ export class BcDatatable {
   @State() colWidths: Record<string, number> = {};
   @State() columnFilterValues: Record<string, string[]> = {};
   @State() showColumnFilter: string = '';
+  @State() perms: Permissions = {};
+  @State() modalOpen: boolean = false;
+  @State() modalRecord: Record<string, unknown> = {};
+  @State() modalIsNew: boolean = false;
 
   @Event() lcRowClick!: EventEmitter<{ record: Record<string, unknown> }>;
   @Event() lcSelectionChange!: EventEmitter<{ ids: string[] }>;
@@ -64,6 +92,12 @@ export class BcDatatable {
 
   private getCols(): ColumnDef[] { try { return JSON.parse(this.columns); } catch { return []; } }
   private getActions(): BulkAction[] { try { return JSON.parse(this.actions); } catch { return []; } }
+  private getPerms(): Permissions { try { return JSON.parse(this.permissions); } catch { return {}; } }
+
+  private can(op: string): boolean {
+    const key = `can_${op}` as keyof Permissions;
+    return this.perms[key] !== false;
+  }
 
   componentWillRender() {
     this.el.dir = i18n.dir;
@@ -73,6 +107,7 @@ export class BcDatatable {
     this.limit = this.pageSize;
     this.colDefs = this.getCols();
     this.visibleCols = new Set(this.colDefs.filter(c => c.visible !== false).map(c => c.field));
+    this.perms = this.getPerms();
     try { this.presets = JSON.parse(this.savedPresets); } catch { this.presets = []; }
   }
 
@@ -111,10 +146,16 @@ export class BcDatatable {
         });
         this.data = listRes.data;
         this.total = listRes.total;
+        if ((listRes as any).permissions) {
+          this.perms = { ...this.perms, ...(listRes as any).permissions };
+        }
       } else {
         const json = await res.json();
         this.data = json.data || [];
         this.total = json.total || 0;
+        if (json.permissions) {
+          this.perms = { ...this.perms, ...json.permissions };
+        }
       }
     } catch {
       try {
@@ -229,6 +270,16 @@ export class BcDatatable {
       await this.fetchData();
       return;
     }
+    if (action.action === 'clone') {
+      for (const id of ids) {
+        try {
+          await fetch(`${this.getApiUrl()}/${id}/clone`, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+        } catch { /* skip */ }
+      }
+      this.selected = new Set();
+      await this.fetchData();
+      return;
+    }
     this.lcBulkAction.emit({ action: action.action, ids });
   }
 
@@ -252,7 +303,7 @@ export class BcDatatable {
       Sortable.create(headerRow as HTMLElement, {
         animation: 150,
         ghostClass: 'bc-dt-col-ghost',
-        filter: '.bc-dt-check-col',
+        filter: '.bc-dt-check-col,.bc-dt-actions-col',
         onEnd: (evt) => {
           const offset = this.selectable ? 1 : 0;
           const from = evt.oldIndex! - offset;
@@ -273,20 +324,114 @@ export class BcDatatable {
     return Array.from(vals).sort();
   }
 
+  private handleRowClick(row: Record<string, unknown>) {
+    const id = String(row['id'] || '');
+    if (this.modalMode) {
+      this.modalRecord = { ...row };
+      this.modalIsNew = false;
+      this.modalOpen = true;
+    } else if (this.detailUrl && id) {
+      window.location.href = this.detailUrl.replace(':id', id);
+    }
+    this.lcRowClick.emit({ record: row });
+  }
+
+  private handleCreate() {
+    if (this.modalMode) {
+      this.modalRecord = {};
+      this.modalIsNew = true;
+      this.modalOpen = true;
+    } else if (this.createUrl) {
+      window.location.href = this.createUrl;
+    }
+  }
+
+  private handleEdit(row: Record<string, unknown>, e: MouseEvent) {
+    e.stopPropagation();
+    const id = String(row['id'] || '');
+    if (this.modalMode) {
+      this.modalRecord = { ...row };
+      this.modalIsNew = false;
+      this.modalOpen = true;
+    } else if (this.editUrl && id) {
+      window.location.href = this.editUrl.replace(':id', id);
+    }
+  }
+
+  private async handleRowDelete(row: Record<string, unknown>, e: MouseEvent) {
+    e.stopPropagation();
+    const id = String(row['id'] || '');
+    if (!id || !confirm(i18n.t('confirm.message'))) return;
+    try {
+      const api = getApiClient();
+      await api.remove(this.model, id);
+      await this.fetchData();
+    } catch { /* skip */ }
+  }
+
+  private async handleRowClone(row: Record<string, unknown>, e: MouseEvent) {
+    e.stopPropagation();
+    const id = String(row['id'] || '');
+    if (!id) return;
+    try {
+      await fetch(`${this.getApiUrl()}/${id}/clone`, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+      await this.fetchData();
+    } catch { /* skip */ }
+  }
+
+  private async handleModalSave(data: Record<string, unknown>) {
+    const api = getApiClient();
+    try {
+      if (this.modalIsNew) {
+        await api.create(this.model, data);
+      } else {
+        const id = String(data['id'] || '');
+        if (id) await api.update(this.model, id, data);
+      }
+      this.modalOpen = false;
+      await this.fetchData();
+    } catch (err) {
+      console.error('Modal save failed:', err);
+    }
+  }
+
+  private hasRowActions(): boolean {
+    return this.can('write') || this.can('delete') || this.can('clone');
+  }
+
   render() {
     const visibleDefs = this.colDefs.filter(c => this.visibleCols.has(c.field));
     const totalPages = Math.ceil(this.total / this.limit);
-    const allActions: BulkAction[] = [
-      ...(this.exportXls ? [{ label: i18n.t('datatable.exportXls'), action: 'export' }] : []),
-      { label: i18n.t('datatable.deleteSelected'), action: 'delete', variant: 'danger', confirm: i18n.t('confirm.message') },
-      ...this.getActions(),
-    ];
+    const showRowActions = this.hasRowActions();
+
+    const bulkActions: BulkAction[] = [];
+    if (this.can('export') && this.exportXls) {
+      bulkActions.push({ label: i18n.t('datatable.exportXls'), action: 'export' });
+    }
+    if (this.can('clone')) {
+      bulkActions.push({ label: i18n.t('datatable.clone') || 'Clone', action: 'clone' });
+    }
+    if (this.can('delete')) {
+      bulkActions.push({ label: i18n.t('datatable.deleteSelected'), action: 'delete', variant: 'danger', confirm: i18n.t('confirm.message') });
+    }
+    for (const a of this.getActions()) {
+      if (!a.permission || this.can(a.permission)) {
+        bulkActions.push(a);
+      }
+    }
+
     const fields = this.colDefs.map(c => ({ field: c.field, label: c.label || c.field, type: c.type }));
+    const colSpan = visibleDefs.length + (this.selectable ? 1 : 0) + (showRowActions ? 1 : 0);
 
     return (
       <div class="bc-datatable">
         <div class="bc-dt-toolbar">
           <div class="bc-dt-toolbar-left">
+            {this.can('create') && (
+              <button type="button" class="bc-dt-btn bc-dt-btn-primary" onClick={() => this.handleCreate()}>
+                + {i18n.t('common.create') || 'New'}
+              </button>
+            )}
             {this.showFilterBuilder && (
               <button type="button" class={'bc-dt-btn ' + (this.showFilterPanel ? 'active' : '')} onClick={() => { this.showFilterPanel = !this.showFilterPanel; }}>
                 {'\uD83D\uDD0D'} {i18n.t('common.filter')} {this.filter.filters.length > 0 ? '(' + this.filter.filters.length + ')' : ''}
@@ -304,7 +449,8 @@ export class BcDatatable {
           </div>
           <div class="bc-dt-toolbar-right">
             <span class="bc-dt-count">{i18n.plural('common.records', this.total)}</span>
-            {this.exportXls && <button type="button" class="bc-dt-btn" onClick={() => this.exportToXls()}>{i18n.t('datatable.exportXls')}</button>}
+            {this.can('export') && this.exportXls && <button type="button" class="bc-dt-btn" onClick={() => this.exportToXls()}>{i18n.t('datatable.exportXls')}</button>}
+            {this.can('import') && <button type="button" class="bc-dt-btn">{i18n.t('datatable.import') || 'Import'}</button>}
           </div>
         </div>
 
@@ -338,10 +484,10 @@ export class BcDatatable {
           </div>
         )}
 
-        {this.selected.size > 0 && (
+        {this.selected.size > 0 && bulkActions.length > 0 && (
           <div class="bc-dt-bulk-bar">
             <span class="bc-dt-bulk-count">{this.selected.size} {i18n.t('common.records_other', { count: this.selected.size })}</span>
-            {allActions.map(a => (
+            {bulkActions.map(a => (
               <button type="button" class={'bc-dt-btn ' + (a.variant === 'danger' ? 'bc-dt-btn-danger' : '')} onClick={() => this.handleBulkAction(a)}>
                 {a.label}
               </button>
@@ -393,13 +539,14 @@ export class BcDatatable {
                     )}
                   </th>
                 ))}
+                {showRowActions && <th class="bc-dt-actions-col">{i18n.t('common.actions') || 'Actions'}</th>}
               </tr>
             </thead>
             <tbody>
               {this.data.map(row => {
                 const id = String(row['id'] || '');
                 return (
-                  <tr class={'bc-dt-row ' + (this.selected.has(id) ? 'selected' : '')} onClick={() => this.lcRowClick.emit({ record: row })}>
+                  <tr class={'bc-dt-row ' + (this.selected.has(id) ? 'selected' : '')} onClick={() => this.handleRowClick(row)}>
                     {this.selectable && (
                       <td class="bc-dt-check-col" onClick={(e) => e.stopPropagation()}>
                         <input type="checkbox" checked={this.selected.has(id)} onChange={() => this.toggleSelect(id)} />
@@ -410,11 +557,24 @@ export class BcDatatable {
                         {this.formatCell(row[col.field], col)}
                       </td>
                     ))}
+                    {showRowActions && (
+                      <td class="bc-dt-td bc-dt-row-actions" onClick={(e) => e.stopPropagation()}>
+                        {this.can('write') && (
+                          <button type="button" class="bc-dt-row-btn" title={i18n.t('common.edit') || 'Edit'} onClick={(e) => this.handleEdit(row, e)}>&#9998;</button>
+                        )}
+                        {this.can('clone') && (
+                          <button type="button" class="bc-dt-row-btn" title={i18n.t('datatable.clone') || 'Clone'} onClick={(e) => this.handleRowClone(row, e)}>&#10697;</button>
+                        )}
+                        {this.can('delete') && (
+                          <button type="button" class="bc-dt-row-btn bc-dt-row-btn-danger" title={i18n.t('common.delete') || 'Delete'} onClick={(e) => this.handleRowDelete(row, e)}>&#10005;</button>
+                        )}
+                      </td>
+                    )}
                   </tr>
                 );
               })}
               {this.data.length === 0 && !this.loading && (
-                <tr><td colSpan={visibleDefs.length + (this.selectable ? 1 : 0)} class="bc-dt-empty">{i18n.t('datatable.noRecords')}</td></tr>
+                <tr><td colSpan={colSpan} class="bc-dt-empty">{i18n.t('datatable.noRecords')}</td></tr>
               )}
             </tbody>
           </table>
@@ -436,6 +596,18 @@ export class BcDatatable {
           </div>
           <div class="bc-dt-total">{i18n.t('common.total')}: {i18n.tf.number(this.total)}</div>
         </div>
+
+        {this.modalMode && (
+          <bc-dialog-modal open={this.modalOpen} dialogTitle={this.modalIsNew ? (i18n.t('common.create') || 'New') : (i18n.t('common.edit') || 'Edit')} onLcDialogClose={() => { this.modalOpen = false; }}>
+            <bc-view-form
+              model={this.model}
+              recordId={this.modalIsNew ? '' : String(this.modalRecord['id'] || '')}
+              fields={this.formFields}
+              permissions={this.permissions}
+              onLcFormSubmit={(e: CustomEvent) => this.handleModalSave(e.detail.data)}
+            ></bc-view-form>
+          </bc-dialog-modal>
+        )}
       </div>
     );
   }

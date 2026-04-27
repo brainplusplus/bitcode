@@ -1,0 +1,25 @@
+{
+  "name": "crm.manager",
+  "label": "CRM / Manager",
+  "category": "CRM",
+  "implies": ["crm.user"],
+  "access": {
+    "contact": "all",
+    "lead":    "all"
+  },
+  "rules": [
+    {
+      "name": "crm_manager_all_contacts",
+      "model": "contact",
+      "domain": []
+    },
+    {
+      "name": "crm_manager_all_leads",
+      "model": "lead",
+      "domain": []
+    }
+  ],
+  "menus": ["crm/contacts", "crm/leads", "crm/settings"],
+  "pages": ["contact_list", "contact_form", "lead_list", "lead_form", "crm_dashboard", "crm_settings"],
+  "comment": "Full CRM access including settings and all records."
+}

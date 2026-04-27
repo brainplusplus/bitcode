@@ -303,21 +303,54 @@ Every table automatically includes:
 
 ## Security
 
+### Architecture: Odoo-style Group-Based Permissions
+
+**Group** is the sole security concept (replaces Role+Permission). Each group has:
+- **ModelAccess** (ACL): 12 ERPNext-style permissions per model (select/read/write/create/delete/print/email/report/export/import/mask/clone)
+- **RecordRules** (RLS): Row-level domain filters with Global∩Group composition
+- **Implied Groups**: Additive inheritance chain (Manager implies User)
+- **Menu/Page visibility**: Per-group UI access control
+- **Share flag**: Portal/external user groups
+
+### Permission Check Logic
+
+- **Additive**: User in Group A (read) + Group B (write) = can read + write
+- **Default-deny**: No matching ACL = access denied
+- **Superuser bypass**: `is_superuser=true` bypasses all ACL + record rules
+- **Field-level**: `groups` property hides field from non-members; `mask`/`mask_length` masks values server-side
+
 ### Middleware Chain
 
 ```
-Tenant → Auth → Permission → RecordRule → Audit → Handler
+Tenant → Auth → Permission (ModelAccess) → RecordRule (RLS + interpolation) → Audit → Handler
 ```
 
 1. **Tenant**: Extract tenant ID from header/subdomain/path, scope all queries
-2. **Auth**: Validate JWT token, load user context (user_id, roles, groups)
-3. **Permission**: Check RBAC — user has required permission (auto-derived: `model.action`)
-4. **RecordRule**: Apply row-level security filters based on user's groups
+2. **Auth**: Validate JWT token, load user context (user_id, groups)
+3. **Permission**: Check ModelAccess via PermissionService — resolve group chain (implied, recursive BFS), query model_access table, additive union
+4. **RecordRule**: Apply row-level filters via RecordRuleService — global rules INTERSECT, group rules UNION, `{{user.id}}` interpolation
 5. **Audit**: Log all write operations (POST/PUT/DELETE)
+6. **Handler**: CRUD handler applies field masking + field groups filtering before response, injects permissions in response metadata
+
+### Security Definition Files
+
+```
+modules/{module}/securities/*.json  →  One file per group
+                                       Synced to DB on module install
+                                       Bi-directional: JSON↔DB with conflict detection
+                                       Admin UI for editing (7-tab Odoo-style group form)
+```
+
+### Multi-Protocol Security
+
+All three protocols (REST, GraphQL, WebSocket) share the same permission enforcement:
+- REST: PermissionMiddleware + RecordRuleMiddleware per endpoint
+- GraphQL: Resolver checks PermissionService + RecordRuleService per query/mutation
+- WebSocket: CRUDHandler checks PermissionService + RecordRuleService per message
 
 ### Key Principle
 
-`auth: true` on an API enables the **entire security chain** — JWT + RBAC + RLS. No separate flags needed. Record rules are defined on the model, not the API.
+`auth: true` on an API enables the **entire security chain** — JWT + Group-based ACL + RLS. Model `"api": true` auto-generates CRUD with permission enforcement. Security definitions in `securities/*.json` are synced to DB and editable from admin UI.
 
 ---
 

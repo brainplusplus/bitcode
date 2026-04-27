@@ -8,10 +8,14 @@ import (
 
 type Group struct {
 	ddd.BaseEntity
-	Name          string  `json:"name" gorm:"uniqueIndex;size:100"`
-	DisplayName   string  `json:"display_name" gorm:"size:200"`
-	Category      string  `json:"category" gorm:"size:100"`
-	ImpliedGroups []Group `json:"implied_groups" gorm:"many2many:group_implies;"`
+	Name           string  `json:"name" gorm:"uniqueIndex;size:100"`
+	DisplayName    string  `json:"display_name" gorm:"size:200"`
+	Category       string  `json:"category" gorm:"size:100"`
+	ImpliedGroups  []Group `json:"implied_groups" gorm:"many2many:group_implies;"`
+	Share          bool    `json:"share" gorm:"default:false"`
+	Comment        string  `json:"comment" gorm:"type:text"`
+	Module         string  `json:"module" gorm:"size:100;index"`
+	ModifiedSource string  `json:"modified_source" gorm:"size:20;default:'json'"`
 }
 
 func NewGroup(id string, name string, displayName string, category string) *Group {

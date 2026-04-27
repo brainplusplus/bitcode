@@ -2,16 +2,20 @@
   "name": "contact",
   "module": "crm",
   "label": "Contact",
+  "api": {
+    "auto_crud": true,
+    "auth": true,
+    "auto_pages": true,
+    "protocols": { "rest": true }
+  },
   "fields": {
     "name":    { "type": "string", "required": true, "max": 200 },
     "email":   { "type": "email" },
-    "phone":   { "type": "string", "max": 20 },
+    "phone":   { "type": "string", "max": 20, "mask": true, "mask_length": 4 },
     "company": { "type": "string", "max": 200 },
     "notes":   { "type": "text" },
     "tags":    { "type": "many2many", "model": "tag" }
   },
-  "record_rules": [
-    { "groups": ["crm.user"], "domain": [["created_by", "=", "{{user.id}}"]] },
-    { "groups": ["crm.manager"], "domain": [] }
-  ]
+  "title_field": "name",
+  "search_field": ["name", "email", "company"]
 }

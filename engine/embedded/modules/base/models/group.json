@@ -3,8 +3,12 @@
   "module": "base",
   "label": "Group",
   "fields": {
-    "name":         { "type": "string", "required": true, "unique": true, "max": 100 },
-    "display_name": { "type": "string", "max": 200 },
-    "category":     { "type": "string", "max": 100 }
+    "name":            { "type": "string", "required": true, "unique": true, "max": 100 },
+    "display_name":    { "type": "string", "max": 200 },
+    "category":        { "type": "string", "max": 100 },
+    "share":           { "type": "boolean", "default": false },
+    "comment":         { "type": "text" },
+    "module":          { "type": "string", "max": 100 },
+    "modified_source": { "type": "string", "max": 20, "default": "json" }
   }
 }

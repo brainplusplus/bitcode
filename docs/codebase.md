@@ -36,8 +36,10 @@ The Go backend that reads JSON definitions and runs the application.
 engine/
 ├── cmd/                                        # Entry points
 │   └── bitcode/
-│       ├── main.go                             # CLI — serve, dev, init, validate, module, user, db, seed, version, publish
-│       ├── publish.go                          # Module publish command
+│       ├── main.go                             # CLI — serve, dev, init, validate, module, user, db, seed, version, publish, security
+│       ├── publish.go                          # Module publish command (extract embedded modules)
+│       ├── publish_crud.go                     # publish:crud command — generate API/page override files from auto-generated CRUD
+│       ├── security.go                         # security CLI — load/export/diff/validate/history (JSON↔DB sync)
 │       ├── backup.go                           # db backup/restore commands (SQLite/Postgres/MySQL)
 │       └── seed.go                             # Data migration CLI — seed run/rollback/status/fresh/create
 │
@@ -48,30 +50,36 @@ engine/
 │   ├── config.go                               # Viper-based config — env vars + TOML/YAML file
 │   │
 │   ├── compiler/parser/                        # JSON → Go struct parsers
-│   │   ├── model.go                            # ModelDefinition, FieldDefinition, field types, validation rules
-│   │   ├── model_test.go                       # 10 tests (valid, inheritance, missing fields, relationships)
+│   │   ├── model.go                            # ModelDefinition, FieldDefinition, field types, validation rules, APIConfig, ProtocolConfig, mask/mask_length/groups on fields
+│   │   ├── model_test.go                       # 13 tests (valid, inheritance, missing fields, relationships, API config, field mask/groups)
 │   │   ├── api.go                              # APIDefinition, ExpandAutoCRUD(), GetBasePath()
 │   │   ├── api_test.go                         # 8 tests (auto_crud, workflow, custom, RLS)
+│   │   ├── security.go                         # SecurityDefinition, SecurityACL (with "all" shorthand), SecurityRuleDefinition, ParseSecurity/ParseSecurityFile
+│   │   ├── security_test.go                    # 4 tests (basic group, all shorthand, validation errors, rule defaults)
 │   │   ├── process.go                          # ProcessDefinition, StepDefinition, 14 step type constants
 │   │   ├── view.go                             # ViewDefinition, 6 view types (list/form/kanban/calendar/chart/custom)
 │   │   ├── view_test.go                        # 6 tests
 │   │   ├── agent.go                            # AgentDefinition, triggers, cron expressions, retry config
 │   │   ├── migration.go                        # MigrationDefinition, source types (JSON/CSV/XLSX/XML), processors, conflict modes
-│   │   ├── module.go                           # ModuleDefinition, permissions, groups, menu, settings, migrations, i18n patterns
+│   │   ├── module.go                           # ModuleDefinition, permissions, groups, securities, pages, menu (with groups), settings, migrations, i18n patterns
 │   │   ├── workflow.go                         # WorkflowDefinition, states, transitions, CanTransition()
 │   │   └── workflow_test.go                    # 3 tests (parse, transitions, multi-from)
 │   │
-│   ├── domain/                                 # Business logic (no DB imports)
+│   │   ├── domain/                                 # Business logic (no DB imports)
 │   │   ├── model/
 │   │   │   ├── registry.go                     # Register/Get/List/Has models, TableName()
 │   │   │   └── registry_test.go                # 6 tests
 │   │   ├── security/
-│   │   │   ├── user.go                         # User aggregate — NewUser, CheckPassword, Activate/Deactivate, HasPermission
-│   │   │   ├── role.go                         # Role aggregate — HasPermission (with inheritance), AllPermissions
-│   │   │   ├── group.go                        # Group aggregate — AllGroupNames (with implied groups)
-│   │   │   ├── permission.go                   # Permission value object
-│   │   │   ├── record_rule.go                  # RecordRule — AppliesToGroup, AppliesToOperation, InterpolateDomain
-│   │   │   └── security_test.go                # 9 tests (user, role inheritance, groups, record rules)
+│   │   │   ├── user.go                         # User aggregate — NewUser, CheckPassword, IsSuperuser, AllGroupNames
+│   │   │   ├── role.go                         # Role aggregate — HasPermission (with inheritance) [DEPRECATED — being replaced by Group]
+│   │   │   ├── group.go                        # Group aggregate — AllGroupNames (with implied groups), share, comment, module, modified_source
+│   │   │   ├── permission.go                   # Permission value object [DEPRECATED — replaced by ModelAccess]
+│   │   │   ├── model_access.go                 # ModelAccess entity — 12 ERPNext-style permissions per model per group (select/read/write/create/delete/print/email/report/export/import/mask/clone)
+│   │   │   ├── model_access_test.go            # 4 tests (HasPermission, AllPermissions, SetFromList, IsGlobal)
+│   │   │   ├── security_history.go             # SecurityHistory entity — audit trail for group/ACL/rule changes with snapshot + rollback
+│   │   │   ├── security_history_test.go        # 2 tests (create, update)
+│   │   │   ├── record_rule.go                  # RecordRule — m2m Groups, AppliesToGroupNames, IsGlobal, module, modified_source
+│   │   │   └── security_test.go                # 14 tests (user, role inheritance, groups, record rules, superuser, AllGroupNames, share, m2m)
 │   │   ├── event/
 │   │   │   ├── bus.go                          # In-process event bus — Subscribe, SubscribeAll, Publish
 │   │   │   └── bus_test.go                     # 4 tests
@@ -166,6 +174,10 @@ engine/
 │   │   │   │                                   #   FindByRecord, FindByUser, FindLoginHistory, FindRequests
 │   │   │   │                                   #   ImpersonatedBy field, AutoMigrateAuditLog()
 │   │   │   ├── audit_log_test.go               # 5 tests (write, find by record, requests, user, login history)
+│   │   │   ├── permission_checker.go            # PermissionService — resolves 12 permissions per model per user via ModelAccess + Group chain (additive, default-deny, superuser bypass)
+│   │   │   ├── permission_checker_test.go      # 14 tests (superuser, default-deny, single group, additive, global ACL, implied groups)
+│   │   │   ├── record_rule_service.go          # RecordRuleService — Odoo-compatible rule composition: global INTERSECT, group UNION. Domain interpolation.
+│   │   │   ├── record_rule_service_test.go     # 11 tests (superuser, no rules, global, group in/out, operation filter, implied, legacy, inactive, interpolation)
 │   │   │   ├── migration_tracker.go            # MigrationTracker — ir_migration table, batch tracking, status
 │   │   │   └── backup.go                       # Backup/Restore — driver-aware (SQLite copy, pg_dump, mysqldump)
 │   │   ├── cache/
@@ -176,7 +188,11 @@ engine/
 │   │   ├── module/
 │   │   │   ├── registry.go                     # Module registry — Register/Get/IsInstalled/InstalledNames
 │   │   │   ├── dependency.go                   # ResolveDependencies() — topological sort, circular detection
-│   │   │   ├── loader.go                       # LoadModule() — parse module dir, collect models + APIs
+│   │   │   ├── loader.go                       # LoadModule() — parse module dir, collect models + APIs + securities
+│   │   │   ├── auto_api.go                     # GenerateAPIFromModel() — auto-creates APIDefinition from model "api" config. MergeAPIs() — merge auto-generated + override APIs. pluralize()
+│   │   │   ├── auto_api_test.go                # 6 tests (basic, no-api, override endpoints, custom API, workflow override, pluralize)
+│   │   │   ├── security_loader.go              # SecurityLoader — loads securities/*.json, syncs groups/ACL/rules/menus/pages to DB. Respects modified_source="ui" (noupdate). Idempotent.
+│   │   │   ├── security_loader_test.go         # 6 tests (basic sync, implies, record rules, UI-modified preservation, all 12 permissions, idempotent)
 │   │   │   ├── fs.go                           # DiskFS, EmbedFS, LayeredFS — module filesystem abstraction
 │   │   │   ├── fs_test.go                      # FS tests
 │   │   │   ├── reader.go                       # Multi-format data readers (JSON, CSV, XLSX, XML)
@@ -201,37 +217,51 @@ engine/
 │   │
 │   └── presentation/                           # HTTP layer
 │       ├── api/
-│       │   ├── router.go                       # Dynamic route registration from API definitions
-│       │   ├── crud_handler.go                 # Auto-CRUD handler — List/Read/Create/Update/Delete with pagination
+│       │   ├── router.go                       # Dynamic route registration — auto-CRUD from model + override merge, permission + record rule middleware wiring
+│       │   ├── crud_handler.go                 # Auto-CRUD handler — List/Read/Create/Update/Delete with pagination, field masking, field groups filtering, permission injection in response
+│       │   ├── field_filter.go                 # Server-side field filtering — field groups (hide), field masking (****1234), per-response
+│       │   ├── field_filter_test.go            # 11 tests (masking, field groups, nil model, unknown fields, list filtering)
+│       │   ├── swagger.go                      # SwaggerGenerator — auto-generates OpenAPI 3.0 spec from model + API definitions. Swagger UI at /api/v1/docs
 │       │   ├── auth_handler.go                 # POST /auth/login, /register, /logout, /2fa/enable, /2fa/disable, /2fa/validate
 │       │   ├── upload_handler.go               # Legacy upload handler (replaced by file_handler)
 │       │   └── file_handler.go                 # FileHandler — upload, download, list, delete, versions, resize, thumbnail
-│       │                                       #   Single + multiple upload, duplicate detection, versioning
 │       ├── middleware/
 │       │   ├── auth.go                         # JWT validation, user context injection, impersonated_by extraction
-│       │   ├── permission.go                   # RBAC permission checking
-│       │   ├── record_rule.go                  # RLS filter injection
+│       │   ├── permission.go                   # Permission checking via PermissionChecker interface (ModelAccess-based)
+│       │   ├── record_rule.go                  # RLS filter injection with {{user.id}} interpolation
 │       │   ├── audit.go                        # Audit logging for write operations (includes impersonated_by)
 │       │   ├── ratelimit.go                    # Rate limiting middleware (Fiber limiter, tiered: global + auth)
 │       │   ├── ipwhitelist.go                  # IP whitelist middleware (exact IP + CIDR, admin-only or global)
 │       │   └── tenant.go                       # Multi-tenancy middleware (header/subdomain/path)
+│       ├── graphql/
+│       │   ├── schema.go                       # SchemaBuilder — auto-generates GraphQL schema from model definitions (types, queries, mutations)
+│       │   ├── resolver.go                     # Resolver — CRUD resolvers with permission + record rule enforcement, context-based user ID
+│       │   ├── handler.go                      # Fiber HTTP handler for GraphQL at POST /api/v1/graphql
+│       │   └── schema_test.go                  # 5 tests (empty schema, model fields, skip non-graphql, mutations, field type mapping)
 │       ├── template/
 │       │   ├── engine.go                       # Go html/template engine — LoadDirectory, Render, RenderWithLayout
-│       │   │                                   #   Helpers: formatDate, formatCurrency, truncate, dict, eq, json
-│       │   │                                   #   Shared partials support
 │       │   └── engine_test.go                  # 5 tests
 │       ├── view/
 │       │   ├── renderer.go                     # View renderer — list, form, kanban, calendar, chart, custom (SSR)
-│       │   │                                   #   Layout wrapping, menu building, pagination
-│       │   └── component_compiler.go           # Compiles view JSON into Stencil Web Component HTML
+│       │   ├── auto_page_generator.go          # GenerateListView/GenerateFormView — auto-generates pages from model fields
+│       │   ├── auto_page_generator_test.go     # 6 tests (list generation, form with tabs, auto_pages detection)
+│       │   ├── component_compiler.go           # Compiles view JSON into Stencil Web Component HTML. CompileListDatatable() emits bc-datatable with permissions
 │       │   └── component_compiler_test.go      # Component compiler tests
-│       ├── admin/
-│       │   └── admin.go                        # Built-in admin panel at /admin (dashboard, models, modules, views)
-│       │                                       #   Impersonation: POST /admin/api/impersonate/:user_id, /stop-impersonate
+│       ├── admin/                              # Split into 7 files for maintainability
+│       │   ├── admin.go                        # Core: types, constructor, RegisterRoutes, dashboard, sidebar (with Security section), CSS, helpers
+│       │   ├── admin_models.go                 # Model pages: list, view (5 tabs: Form/Fields/Connections/Schema/API), data. Fields tab with MASK/GROUPS columns. API tab with config + generated endpoints preview
+│       │   ├── admin_modules.go                # Module pages: list, view (3 tabs: Overview/Permissions/Menu)
+│       │   ├── admin_views.go                  # View pages: list, detail (4 tabs: Info/Preview/Editor/Revisions)
+│       │   ├── admin_audit.go                  # Health, login history, request log, impersonate/stop-impersonate
+│       │   ├── admin_groups.go                 # Group pages: list + detail with 7 Odoo-style tabs (Users/Inherited/Menus/Pages/Access Rights/Record Rules/Notes). Group CRUD API
+│       │   ├── admin_security.go               # Security sync page: Load/Export/Upload/Download buttons, history table with rollback. API handlers
+│       │   └── admin_api.go                    # View API handlers, data revision handlers
 │       ├── assets/
 │       │   └── handler.go                      # Static asset serving
 │       └── websocket/
-│           └── hub.go                          # WebSocket hub — connect to EventBus, broadcast domain events
+│           ├── hub.go                          # WebSocket hub — connect to EventBus, broadcast domain events, route CRUD messages
+│           ├── crud.go                         # CRUDHandler — CRUD over WebSocket with request/reply protocol, permission + record rule enforcement
+│           └── crud_test.go                    # 7 tests (create, list, read, update, delete, model enable, permission denied)
 │
 ├── pkg/                                        # Public packages (reusable outside engine)
 │   ├── ddd/                                    # Domain-Driven Design building blocks
@@ -262,9 +292,9 @@ engine/
 │       └── auth/                               # Auth module — login, register, forgot, reset, 2FA (i18n x11)
 │
 ├── modules/                                    # Built-in modules (on disk)
-│   ├── base/                                   # Core module — users, roles, groups, permissions, settings
+│   ├── base/                                   # Core module — users, groups, model_access, security_history, record_rules, settings
 │   │   ├── module.json                         # 11 permissions, 2 groups (user, manager), menu
-│   │   ├── models/                             # user, role, group, permission, record_rule, audit_log, setting
+│   │   ├── models/                             # user (is_superuser), role, group (share, comment, module), permission, model_access (12 ERPNext permissions), security_history (ir_security_histories), record_rule (module, modified_source), audit_log, setting
 │   │   ├── apis/                               # auth_api, user_api, group_api, role_api, permission_api, etc.
 │   │   ├── views/                              # CRUD views for all base models
 │   │   ├── data/                               # default_roles, default_groups, default_users
@@ -274,9 +304,10 @@ engine/
 │   │       ├── partials/                       # Reusable: sidebar, navbar, pagination, status_badge, actions
 │   │       └── views/                          # View templates: list, form, kanban, calendar, chart, login, home
 │   ├── crm/                                    # CRM module — contacts, leads
-│   │   ├── module.json
-│   │   ├── models/                             # contact, lead
-│   │   ├── apis/                               # contact_api, lead_api
+│   │   ├── module.json                         # securities glob, menu with groups
+│   │   ├── models/                             # contact (api config, mask on phone), lead (api config)
+│   │   ├── securities/                         # crm_user.json (ACL + rules), crm_manager.json (full access)
+│   │   ├── apis/                               # contact_api, lead_api (override auto-generated)
 │   │   └── views/                              # contact_list, lead_list
 │   └── sales/                                  # Sales module — orders
 │       ├── module.json

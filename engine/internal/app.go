@@ -28,6 +28,7 @@ import (
 	"github.com/bitcode-framework/bitcode/internal/presentation/middleware"
 	tmpl "github.com/bitcode-framework/bitcode/internal/presentation/template"
 	"github.com/bitcode-framework/bitcode/internal/presentation/view"
+	gqlPkg "github.com/bitcode-framework/bitcode/internal/presentation/graphql"
 	ws "github.com/bitcode-framework/bitcode/internal/presentation/websocket"
 	"github.com/bitcode-framework/bitcode/pkg/email"
 	"github.com/bitcode-framework/bitcode/internal/runtime/executor"
@@ -1454,7 +1455,55 @@ func (a *App) LoadModules() error {
 		return nil
 	})
 
+	a.wireMultiProtocol()
+
 	return nil
+}
+
+func (a *App) wireMultiProtocol() {
+	if a.DB == nil {
+		return
+	}
+
+	permSvc := persistence.NewPermissionService(a.DB)
+	rrSvc := persistence.NewRecordRuleService(a.DB)
+
+	swaggerGen := api.NewSwaggerGenerator()
+	gqlBuilder := gqlPkg.NewSchemaBuilder(gqlPkg.NewResolver(a.DB, a.ModelRegistry, permSvc, rrSvc))
+	wsCRUD := ws.NewCRUDHandler(a.DB, a.ModelRegistry, permSvc, rrSvc)
+
+	for _, model := range a.ModelRegistry.List() {
+		if model.API == nil {
+			continue
+		}
+		swaggerGen.AddModel(model)
+
+		apiDef := module.GenerateAPIFromModel(model, model.Module)
+		if apiDef != nil {
+			swaggerGen.AddAPI(apiDef)
+		}
+
+		if model.API.Protocols.GraphQL {
+			gqlBuilder.AddModel(model)
+		}
+		if model.API.Protocols.WebSocket {
+			wsCRUD.EnableModel(model.Name)
+		}
+	}
+
+	api.RegisterSwaggerRoutes(a.Fiber, swaggerGen)
+
+	gqlSchema, err := gqlBuilder.Build()
+	if err != nil {
+		log.Printf("[WARN] failed to build GraphQL schema: %v", err)
+	} else {
+		gqlHandler := gqlPkg.NewHandler(gqlSchema)
+		gqlHandler.RegisterRoutes(a.Fiber)
+		log.Printf("[GRAPHQL] endpoint registered at /api/v1/graphql")
+	}
+
+	a.WSHub.SetCRUDHandler(wsCRUD)
+	log.Printf("[WS] CRUD handler registered")
 }
 
 func (a *App) resolveModuleDiskPath(modName string) string {
@@ -1507,6 +1556,26 @@ func (a *App) installModule(modPath string) error {
 		}
 	}
 
+	// Security sync: groups + ACL + record rules → DB
+	if a.DB != nil {
+		secDir := filepath.Join(modPath, "securities")
+		secLoader := module.NewSecurityLoader(a.DB)
+		if err := secLoader.LoadFromDirectory(secDir, modName); err != nil {
+			log.Printf("[WARN] failed to load securities for %s: %v", modName, err)
+		}
+	}
+
+	// Auto-generate APIs from models with "api" config
+	var autoAPIs []*parser.APIDefinition
+	for _, m := range loaded.Models {
+		if apiDef := module.GenerateAPIFromModel(m, modName); apiDef != nil {
+			autoAPIs = append(autoAPIs, apiDef)
+		}
+	}
+
+	// Merge: auto-generated + explicit apis/*.json (override wins)
+	allAPIs := module.MergeAPIs(autoAPIs, loaded.APIs)
+
 	revisionRepo := persistence.NewDataRevisionRepository(a.DB)
 	router := api.NewRouterFull(a.Fiber, a.DB, a.WorkflowEngine, a.Hydrator, revisionRepo)
 	if a.FieldEncryptor != nil {
@@ -1524,7 +1593,11 @@ func (a *App) installModule(modPath string) error {
 		router.SetSanitizer(a.Sanitizer)
 	}
 	router.SetEventBus(a.EventBus)
-	for _, apiDef := range loaded.APIs {
+	if a.DB != nil {
+		router.SetPermissionService(persistence.NewPermissionService(a.DB))
+		router.SetRecordRuleService(persistence.NewRecordRuleService(a.DB))
+	}
+	for _, apiDef := range allAPIs {
 		if apiDef.Auth {
 			basePath := apiDef.GetBasePath()
 			a.Fiber.Use(basePath, middleware.AuthMiddleware(a.JWTConfig))

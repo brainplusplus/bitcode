@@ -581,6 +581,60 @@ func TestModelDefinition_OptionsExplicit(t *testing.T) {
 	}
 }
 
+func TestParseModel_WithAPITrue(t *testing.T) {
+	data := []byte(`{"name":"tag","module":"crm","fields":{"name":{"type":"string"}},"api":true}`)
+	model, err := ParseModel(data)
+	if err != nil {
+		t.Fatalf("parse error: %v", err)
+	}
+	if model.API == nil {
+		t.Fatal("expected API config from shorthand")
+	}
+	if !model.API.AutoCRUD {
+		t.Error("expected auto_crud=true")
+	}
+	if !model.API.Auth {
+		t.Error("expected auth=true")
+	}
+	if !model.API.Protocols.REST {
+		t.Error("expected rest=true")
+	}
+}
+
+func TestParseModel_WithAPIObject(t *testing.T) {
+	data := []byte(`{"name":"contact","module":"crm","fields":{"name":{"type":"string"}},"api":{"auto_crud":true,"auth":true,"modal":true,"protocols":{"rest":true,"graphql":true,"websocket":false}}}`)
+	model, err := ParseModel(data)
+	if err != nil {
+		t.Fatalf("parse error: %v", err)
+	}
+	if model.API == nil {
+		t.Fatal("expected API config")
+	}
+	if !model.API.Modal {
+		t.Error("expected modal=true")
+	}
+	if !model.API.Protocols.GraphQL {
+		t.Error("expected graphql=true")
+	}
+}
+
+func TestParseModel_WithFieldMaskAndGroups(t *testing.T) {
+	data := []byte(`{"name":"emp","module":"hrm","fields":{"phone":{"type":"string","mask":true,"mask_length":4},"salary":{"type":"decimal","groups":["hr.manager"]}}}`)
+	model, err := ParseModel(data)
+	if err != nil {
+		t.Fatalf("parse error: %v", err)
+	}
+	if !model.Fields["phone"].Mask {
+		t.Error("expected mask=true")
+	}
+	if model.Fields["phone"].MaskLength != 4 {
+		t.Error("expected mask_length=4")
+	}
+	if len(model.Fields["salary"].Groups) != 1 {
+		t.Error("expected 1 group")
+	}
+}
+
 func TestModelDefinition_OptionsPartial(t *testing.T) {
 	data := []byte(`{
 		"name": "product",

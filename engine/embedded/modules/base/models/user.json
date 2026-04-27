@@ -6,6 +6,7 @@
     "username":      { "type": "string", "required": true, "unique": true, "max": 100 },
     "email":         { "type": "email", "required": true, "unique": true },
     "password_hash": { "type": "string", "max": 255 },
+    "is_superuser":  { "type": "boolean", "default": false },
     "last_login":    { "type": "datetime" }
   },
   "record_rules": [

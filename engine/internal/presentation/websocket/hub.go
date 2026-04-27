@@ -36,10 +36,11 @@ func (c *Client) Send(msg Message) {
 }
 
 type Hub struct {
-	clients    map[*Client]bool
-	register   chan *Client
-	unregister chan *Client
-	mu         sync.RWMutex
+	clients     map[*Client]bool
+	register    chan *Client
+	unregister  chan *Client
+	mu          sync.RWMutex
+	crudHandler *CRUDHandler
 }
 
 func NewHub() *Hub {
@@ -48,6 +49,10 @@ func NewHub() *Hub {
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
 	}
+}
+
+func (h *Hub) SetCRUDHandler(handler *CRUDHandler) {
+	h.crudHandler = handler
 }
 
 func (h *Hub) Run() {
@@ -132,16 +137,20 @@ func (h *Hub) RegisterRoutes(app *fiber.App) {
 				continue
 			}
 
-			switch msg.Type {
-			case "subscribe":
-				client.Channels[msg.Channel] = true
-				client.Send(Message{Type: "subscribed", Channel: msg.Channel})
-			case "unsubscribe":
-				delete(client.Channels, msg.Channel)
-				client.Send(Message{Type: "unsubscribed", Channel: msg.Channel})
-			case "ping":
-				client.Send(Message{Type: "pong"})
+		switch msg.Type {
+		case "subscribe":
+			client.Channels[msg.Channel] = true
+			client.Send(Message{Type: "subscribed", Channel: msg.Channel})
+		case "unsubscribe":
+			delete(client.Channels, msg.Channel)
+			client.Send(Message{Type: "unsubscribed", Channel: msg.Channel})
+		case "ping":
+			client.Send(Message{Type: "pong"})
+		case "crud":
+			if h.crudHandler != nil {
+				go h.crudHandler.HandleMessage(client, msgBytes)
 			}
+		}
 		}
 	}))
 }

@@ -8,6 +8,7 @@
   "models": ["models/*.json"],
   "apis": ["apis/*.json"],
   "views": ["views/*.json"],
+  "securities": ["securities/*.json"],
   "migrations": ["migrations/*.json"],
   "permissions": {
     "crm.contact.read": "View contacts",
@@ -24,8 +25,8 @@
   },
   "menu": [
     { "label": "CRM", "icon": "users", "children": [
-      { "label": "Contacts", "view": "contact_list" },
-      { "label": "Leads", "view": "lead_list" }
+      { "label": "Contacts", "view": "contact_list", "page": "contact_list", "groups": ["crm.user"] },
+      { "label": "Leads", "view": "lead_list", "page": "lead_list", "groups": ["crm.user"] }
     ]}
   ]
 }

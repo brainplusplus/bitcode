@@ -139,3 +139,63 @@ func TestInterpolateDomain(t *testing.T) {
 		t.Errorf("expected %s, got %s", expected, result)
 	}
 }
+
+func TestGroup_ShareField(t *testing.T) {
+	g := NewGroup("g-1", "portal.user", "Portal User", "Portal")
+	g.Share = true
+	if !g.Share {
+		t.Error("expected share=true")
+	}
+}
+
+func TestUser_IsSuperuser(t *testing.T) {
+	u, _ := NewUser("u-1", "admin", "admin@test.com", "password")
+	u.IsSuperuser = true
+	if !u.IsSuperuser {
+		t.Error("expected superuser")
+	}
+}
+
+func TestUser_AllGroupNames(t *testing.T) {
+	base := NewGroup("g-1", "base.user", "Base User", "Base")
+	crm := NewGroup("g-2", "crm.user", "CRM User", "CRM")
+	crm.ImpliedGroups = []Group{*base}
+
+	u, _ := NewUser("u-1", "john", "john@test.com", "password")
+	u.Groups = []Group{*crm}
+
+	names := u.AllGroupNames()
+	if len(names) != 2 {
+		t.Errorf("expected 2 groups (crm.user + base.user), got %d: %v", len(names), names)
+	}
+}
+
+func TestRecordRule_AppliesToGroupNamesM2M(t *testing.T) {
+	g1 := NewGroup("g-1", "crm.user", "CRM User", "CRM")
+	rule := &RecordRule{
+		Name:      "own_contacts",
+		ModelName: "contact",
+		Groups:    []Group{*g1},
+		CanRead:   true,
+		Active:    true,
+	}
+
+	if !rule.AppliesToGroupNames([]string{"crm.user"}) {
+		t.Error("expected rule to apply to crm.user")
+	}
+	if rule.AppliesToGroupNames([]string{"sales.user"}) {
+		t.Error("expected rule NOT to apply to sales.user")
+	}
+}
+
+func TestRecordRule_IsGlobalNew(t *testing.T) {
+	rule := &RecordRule{
+		Name:      "global_rule",
+		ModelName: "contact",
+		CanRead:   true,
+		Active:    true,
+	}
+	if !rule.IsGlobal() {
+		t.Error("expected global when no groups")
+	}
+}

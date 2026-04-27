@@ -39,6 +39,8 @@ func main() {
 	root.AddCommand(dbCmd())
 	root.AddCommand(seedCmd())
 	root.AddCommand(publishCmd())
+	root.AddCommand(publishCrudCmd())
+	root.AddCommand(securityCmd())
 
 	if err := root.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)

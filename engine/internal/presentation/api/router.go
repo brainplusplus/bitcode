@@ -4,6 +4,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/bitcode-framework/bitcode/internal/compiler/parser"
 	"github.com/bitcode-framework/bitcode/internal/infrastructure/persistence"
+	"github.com/bitcode-framework/bitcode/internal/presentation/middleware"
 	"github.com/bitcode-framework/bitcode/internal/runtime/expression"
 	"github.com/bitcode-framework/bitcode/internal/runtime/workflow"
 	"github.com/bitcode-framework/bitcode/pkg/security"
@@ -23,6 +24,8 @@ type Router struct {
 	validator         persistence.FieldValidator
 	sanitizer         persistence.FieldSanitizer
 	eventBus          persistence.EventPublisher
+	permissionService *persistence.PermissionService
+	recordRuleService *persistence.RecordRuleService
 }
 
 func NewRouter(app *fiber.App, db *gorm.DB, wfEngine *workflow.Engine) *Router {
@@ -63,6 +66,14 @@ func (r *Router) SetSanitizer(s persistence.FieldSanitizer) {
 
 func (r *Router) SetEventBus(bus persistence.EventPublisher) {
 	r.eventBus = bus
+}
+
+func (r *Router) SetPermissionService(svc *persistence.PermissionService) {
+	r.permissionService = svc
+}
+
+func (r *Router) SetRecordRuleService(svc *persistence.RecordRuleService) {
+	r.recordRuleService = svc
 }
 
 func (r *Router) RegisterAPI(apiDef *parser.APIDefinition) {
@@ -116,6 +127,9 @@ func (r *Router) RegisterAPI(apiDef *parser.APIDefinition) {
 		crud := NewCRUDHandler(repo, apiDef, r.workflowEngine)
 		crud.modelDef = modelDef
 		crud.hookDispatcher = r.hookDispatcher
+		if r.permissionService != nil {
+			crud.permissionService = r.permissionService
+		}
 
 		if apiDef.Model != "" && crud.modelDef != nil && crud.modelDef.Events != nil && len(crud.modelDef.Events.OnChange) > 0 {
 			group.Post("/onchange", crud.OnChange)
@@ -123,17 +137,32 @@ func (r *Router) RegisterAPI(apiDef *parser.APIDefinition) {
 
 		for _, ep := range endpoints {
 			handler := r.resolveHandler(crud, ep)
+			var handlers []fiber.Handler
+
+			if r.permissionService != nil && len(ep.Permissions) > 0 {
+				handlers = append(handlers, middleware.PermissionMiddleware(r.permissionService, ep.Permissions))
+			}
+
+			if r.recordRuleService != nil && apiDef.Model != "" {
+				op := actionToOperation(ep.Action)
+				if op == "read" || op == "write" || op == "create" || op == "delete" {
+					handlers = append(handlers, middleware.RecordRuleMiddleware(r.recordRuleService, apiDef.Model, op))
+				}
+			}
+
+			handlers = append(handlers, handler)
+
 			switch ep.Method {
 			case "GET":
-				group.Get(ep.Path, handler)
+				group.Get(ep.Path, handlers...)
 			case "POST":
-				group.Post(ep.Path, handler)
+				group.Post(ep.Path, handlers...)
 			case "PUT":
-				group.Put(ep.Path, handler)
+				group.Put(ep.Path, handlers...)
 			case "DELETE":
-				group.Delete(ep.Path, handler)
+				group.Delete(ep.Path, handlers...)
 			case "PATCH":
-				group.Patch(ep.Path, handler)
+				group.Patch(ep.Path, handlers...)
 			}
 		}
 		return
@@ -149,6 +178,21 @@ func (r *Router) RegisterAPI(apiDef *parser.APIDefinition) {
 		case "POST":
 			group.Post(ep.Path, handler)
 		}
+	}
+}
+
+func actionToOperation(action string) string {
+	switch action {
+	case "list", "read":
+		return "read"
+	case "create":
+		return "create"
+	case "update":
+		return "write"
+	case "delete":
+		return "delete"
+	default:
+		return "write"
 	}
 }
 

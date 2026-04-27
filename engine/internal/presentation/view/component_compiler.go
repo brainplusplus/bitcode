@@ -1,6 +1,7 @@
 package view
 
 import (
+	"encoding/json"
 	"fmt"
 	"html"
 	"strings"
@@ -576,6 +577,88 @@ func (c *ComponentCompiler) CompileList(viewDef *parser.ViewDefinition) string {
 	fieldsJSON := toJSONArray(viewDef.Fields)
 	b.WriteString(fmt.Sprintf(`<bc-view-list model="%s" view-title="%s" fields='%s'></bc-view-list>`, esc(viewDef.Model), esc(viewDef.Title), fieldsJSON))
 	return b.String()
+}
+
+type DatatableOptions struct {
+	Permissions map[string]bool
+	ModuleName  string
+	CreateUrl   string
+	EditUrl     string
+	DetailUrl   string
+	ModalMode   bool
+}
+
+func (c *ComponentCompiler) CompileListDatatable(viewDef *parser.ViewDefinition, opts *DatatableOptions) string {
+	columns := c.fieldsToColumnDefs(viewDef)
+	columnsJSON, _ := json.Marshal(columns)
+
+	attrs := fmt.Sprintf(`model="%s" view-title="%s" columns='%s'`, esc(viewDef.Model), esc(viewDef.Title), string(columnsJSON))
+
+	if opts != nil {
+		if len(opts.Permissions) > 0 {
+			permsJSON, _ := json.Marshal(opts.Permissions)
+			attrs += fmt.Sprintf(` permissions='%s'`, string(permsJSON))
+		}
+		if opts.ModuleName != "" {
+			attrs += fmt.Sprintf(` module-name="%s"`, esc(opts.ModuleName))
+		}
+		if opts.CreateUrl != "" {
+			attrs += fmt.Sprintf(` create-url="%s"`, esc(opts.CreateUrl))
+		}
+		if opts.EditUrl != "" {
+			attrs += fmt.Sprintf(` edit-url="%s"`, esc(opts.EditUrl))
+		}
+		if opts.DetailUrl != "" {
+			attrs += fmt.Sprintf(` detail-url="%s"`, esc(opts.DetailUrl))
+		}
+		if opts.ModalMode {
+			attrs += ` modal-mode="true"`
+		}
+	}
+
+	return fmt.Sprintf(`<bc-datatable %s></bc-datatable>`, attrs)
+}
+
+func (c *ComponentCompiler) fieldsToColumnDefs(viewDef *parser.ViewDefinition) []map[string]any {
+	var columns []map[string]any
+	for _, fieldName := range viewDef.Fields {
+		col := map[string]any{
+			"field": fieldName,
+			"label": fieldName,
+		}
+
+		if c.modelLookup != nil {
+			if modelDef, err := c.modelLookup.Get(viewDef.Model); err == nil {
+				if fieldDef, ok := modelDef.Fields[fieldName]; ok {
+					if fieldDef.Label != "" {
+						col["label"] = fieldDef.Label
+					}
+					col["type"] = mapFieldTypeToColumnType(fieldDef.Type)
+					if fieldDef.Type == parser.FieldCurrency {
+						col["format"] = fieldDef.CurrencyCode
+					}
+				}
+			}
+		}
+
+		columns = append(columns, col)
+	}
+	return columns
+}
+
+func mapFieldTypeToColumnType(ft parser.FieldType) string {
+	switch ft {
+	case parser.FieldInteger, parser.FieldFloat, parser.FieldDecimal, parser.FieldPercent:
+		return "number"
+	case parser.FieldCurrency:
+		return "currency"
+	case parser.FieldDate, parser.FieldDatetime:
+		return "date"
+	case parser.FieldBoolean, parser.FieldToggle:
+		return "boolean"
+	default:
+		return "string"
+	}
 }
 
 func (c *ComponentCompiler) CompileKanban(viewDef *parser.ViewDefinition) string {

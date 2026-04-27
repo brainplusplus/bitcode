@@ -14,8 +14,9 @@ type User struct {
 	PasswordHash string    `json:"-" gorm:"size:255"`
 	Active       bool      `json:"active" gorm:"default:true"`
 	LastLogin    time.Time `json:"last_login,omitempty"`
-	Roles        []Role    `json:"roles" gorm:"many2many:user_roles;"`
-	Groups       []Group   `json:"groups" gorm:"many2many:user_groups;"`
+	Roles       []Role  `json:"roles" gorm:"many2many:user_roles;"`
+	Groups      []Group `json:"groups" gorm:"many2many:user_groups;"`
+	IsSuperuser bool    `json:"is_superuser" gorm:"default:false"`
 }
 
 func NewUser(id string, username string, email string, password string) (*User, error) {
@@ -70,6 +71,18 @@ func (u *User) HasPermission(permission string) bool {
 		}
 	}
 	return false
+}
+
+func (u *User) AllGroupNames() []string {
+	seen := make(map[string]bool)
+	for _, g := range u.Groups {
+		g.collectGroups(seen)
+	}
+	result := make([]string, 0, len(seen))
+	for name := range seen {
+		result = append(result, name)
+	}
+	return result
 }
 
 func (u *User) InGroup(groupName string) bool {

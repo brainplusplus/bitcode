@@ -1,0 +1,23 @@
+{
+  "name": "security_history",
+  "module": "base",
+  "label": "Security History",
+  "table": { "name": "ir_security_histories" },
+  "fields": {
+    "entity_type":  { "type": "string", "required": true, "max": 50 },
+    "entity_id":    { "type": "string", "required": true, "max": 100 },
+    "entity_name":  { "type": "string", "required": true, "max": 200 },
+    "action":       { "type": "string", "required": true, "max": 20 },
+    "changes":      { "type": "json" },
+    "snapshot":     { "type": "json" },
+    "user_id":      { "type": "many2one", "model": "user" },
+    "source":       { "type": "string", "required": true, "max": 50 },
+    "module":       { "type": "string", "max": 100 }
+  },
+  "indexes": [
+    ["entity_type", "entity_id"],
+    ["entity_type", "entity_name"]
+  ],
+  "timestamps": true,
+  "soft_deletes": false
+}

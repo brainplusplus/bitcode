@@ -2,6 +2,12 @@
   "name": "lead",
   "module": "crm",
   "label": "Lead",
+  "api": {
+    "auto_crud": true,
+    "auth": true,
+    "auto_pages": true,
+    "protocols": { "rest": true }
+  },
   "fields": {
     "name":       { "type": "string", "required": true, "max": 200 },
     "contact_id": { "type": "many2one", "model": "contact" },
@@ -12,8 +18,6 @@
     "expected_revenue": { "type": "decimal", "precision": 2 },
     "notes":      { "type": "text" }
   },
-  "record_rules": [
-    { "groups": ["crm.user"], "domain": [["created_by", "=", "{{user.id}}"]] },
-    { "groups": ["crm.manager"], "domain": [] }
-  ]
+  "title_field": "name",
+  "search_field": ["name", "email", "source", "status"]
 }

@@ -18,8 +18,11 @@ type RecordRule struct {
 	CanCreate    bool   `json:"can_create" gorm:"default:true"`
 	CanWrite     bool   `json:"can_write" gorm:"default:true"`
 	CanDelete    bool   `json:"can_delete" gorm:"default:false"`
-	Global       bool   `json:"global" gorm:"default:false"`
-	Active       bool   `json:"active" gorm:"default:true"`
+	Global         bool    `json:"global" gorm:"default:false"`
+	Active         bool    `json:"active" gorm:"default:true"`
+	Groups         []Group `json:"groups" gorm:"many2many:record_rule_groups;"`
+	Module         string  `json:"module" gorm:"size:100"`
+	ModifiedSource string  `json:"modified_source" gorm:"size:20;default:'json'"`
 }
 
 func NewRecordRule(id string, name string, modelName string, groups []string) *RecordRule {
@@ -56,6 +59,24 @@ func (r *RecordRule) AppliesToGroup(userGroups []string) bool {
 		}
 	}
 	return false
+}
+
+func (r *RecordRule) AppliesToGroupNames(userGroups []string) bool {
+	if r.IsGlobal() {
+		return true
+	}
+	for _, rg := range r.Groups {
+		for _, ug := range userGroups {
+			if rg.Name == ug {
+				return true
+			}
+		}
+	}
+	return r.AppliesToGroup(userGroups)
+}
+
+func (r *RecordRule) IsGlobal() bool {
+	return len(r.Groups) == 0 && r.GroupNames == ""
 }
 
 func (r *RecordRule) AppliesToOperation(operation string) bool {

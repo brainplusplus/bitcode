@@ -1,0 +1,34 @@
+{
+  "name": "crm.user",
+  "label": "CRM / User",
+  "category": "CRM",
+  "implies": ["base.user"],
+  "share": false,
+  "access": {
+    "contact": ["select", "read", "write", "create", "print", "email", "report", "export", "clone"],
+    "lead":    ["select", "read", "write", "create", "print", "email", "report", "export", "clone"]
+  },
+  "rules": [
+    {
+      "name": "crm_user_own_contacts",
+      "model": "contact",
+      "domain": [["created_by", "=", "{{user.id}}"]],
+      "perm_read": true,
+      "perm_write": true,
+      "perm_create": true,
+      "perm_delete": false
+    },
+    {
+      "name": "crm_user_own_leads",
+      "model": "lead",
+      "domain": [["created_by", "=", "{{user.id}}"]],
+      "perm_read": true,
+      "perm_write": true,
+      "perm_create": true,
+      "perm_delete": false
+    }
+  ],
+  "menus": ["crm/contacts", "crm/leads"],
+  "pages": ["contact_list", "contact_form", "lead_list", "lead_form"],
+  "comment": "Basic CRM access for sales agents. Can only see own contacts and leads."
+}

@@ -16,12 +16,13 @@ import (
 )
 
 type CRUDHandler struct {
-	repo           *persistence.GenericRepository
-	apiDef         *parser.APIDefinition
-	workflowEngine *workflow.Engine
-	modelDef       *parser.ModelDefinition
-	pkGenerator    *pkgen.Generator
-	hookDispatcher persistence.HookDispatcher
+	repo              *persistence.GenericRepository
+	apiDef            *parser.APIDefinition
+	workflowEngine    *workflow.Engine
+	modelDef          *parser.ModelDefinition
+	pkGenerator       *pkgen.Generator
+	hookDispatcher    persistence.HookDispatcher
+	permissionService *persistence.PermissionService
 }
 
 func NewCRUDHandler(repo *persistence.GenericRepository, apiDef *parser.APIDefinition, wfEngine *workflow.Engine) *CRUDHandler {
@@ -78,13 +79,21 @@ func (h *CRUDHandler) List(c *fiber.Ctx) error {
 
 	totalPages := (total + int64(pageSize) - 1) / int64(pageSize)
 
-	return c.JSON(fiber.Map{
-		"data":        results,
+	filteredResults := h.applyFieldFilters(c, results)
+
+	response := fiber.Map{
+		"data":        filteredResults,
 		"total":       total,
 		"page":        page,
 		"page_size":   pageSize,
 		"total_pages": totalPages,
-	})
+	}
+
+	if perms := h.getPermissionsForResponse(c); perms != nil {
+		response["permissions"] = perms
+	}
+
+	return c.JSON(response)
 }
 
 func (h *CRUDHandler) Read(c *fiber.Ctx) error {
@@ -99,14 +108,16 @@ func (h *CRUDHandler) Read(c *fiber.Ctx) error {
 		if err != nil {
 			return c.Status(404).JSON(fiber.Map{"error": "record not found"})
 		}
-		return c.JSON(fiber.Map{"data": result})
+		filteredResult := h.applyFieldFilter(c, result)
+		return c.JSON(fiber.Map{"data": filteredResult})
 	}
 
 	result, err := h.repo.FindByID(c.Context(), id)
 	if err != nil {
 		return c.Status(404).JSON(fiber.Map{"error": "record not found"})
 	}
-	return c.JSON(fiber.Map{"data": result})
+	filteredResult := h.applyFieldFilter(c, result)
+	return c.JSON(fiber.Map{"data": filteredResult})
 }
 
 func (h *CRUDHandler) Create(c *fiber.Ctx) error {
@@ -329,6 +340,64 @@ func (h *CRUDHandler) WorkflowAction(actionName string) fiber.Handler {
 			"id":         id,
 		})
 	}
+}
+
+func (h *CRUDHandler) applyFieldFilters(c *fiber.Ctx, records []map[string]any) []map[string]any {
+	if h.modelDef == nil || h.permissionService == nil {
+		return records
+	}
+	userID, _ := c.Locals("user_id").(string)
+	if userID == "" {
+		return records
+	}
+	perms, err := h.permissionService.GetModelPermissions(userID, h.modelDef.Name)
+	if err != nil {
+		return records
+	}
+	userGroups := h.getUserGroups(userID)
+	return filterResponseList(records, h.modelDef, userGroups, perms)
+}
+
+func (h *CRUDHandler) applyFieldFilter(c *fiber.Ctx, record map[string]any) map[string]any {
+	if h.modelDef == nil || h.permissionService == nil {
+		return record
+	}
+	userID, _ := c.Locals("user_id").(string)
+	if userID == "" {
+		return record
+	}
+	perms, err := h.permissionService.GetModelPermissions(userID, h.modelDef.Name)
+	if err != nil {
+		return record
+	}
+	userGroups := h.getUserGroups(userID)
+	return filterResponseFields(record, h.modelDef, userGroups, perms)
+}
+
+func (h *CRUDHandler) getPermissionsForResponse(c *fiber.Ctx) map[string]bool {
+	if h.permissionService == nil || h.modelDef == nil {
+		return nil
+	}
+	userID, _ := c.Locals("user_id").(string)
+	if userID == "" {
+		return nil
+	}
+	perms, err := h.permissionService.GetModelPermissions(userID, h.modelDef.Name)
+	if err != nil {
+		return nil
+	}
+	return perms.ToMap()
+}
+
+func (h *CRUDHandler) getUserGroups(userID string) []string {
+	if h.permissionService == nil {
+		return nil
+	}
+	groupIDs, err := h.permissionService.ResolveUserGroupIDs(userID)
+	if err != nil {
+		return nil
+	}
+	return groupIDs
 }
 
 func (h *CRUDHandler) extractSession(c *fiber.Ctx) map[string]any {

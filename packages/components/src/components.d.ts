@@ -234,21 +234,49 @@ export namespace Components {
          */
         "columns": string;
         /**
+          * @default ''
+         */
+        "createUrl": string;
+        /**
+          * @default ''
+         */
+        "detailUrl": string;
+        /**
           * @default true
          */
         "draggableColumns": boolean;
+        /**
+          * @default ''
+         */
+        "editUrl": string;
         /**
           * @default true
          */
         "exportXls": boolean;
         /**
+          * @default '[]'
+         */
+        "formFields": string;
+        /**
+          * @default false
+         */
+        "modalMode": boolean;
+        /**
           * @default ''
          */
         "model": string;
         /**
+          * @default ''
+         */
+        "moduleName": string;
+        /**
           * @default 20
          */
         "pageSize": number;
+        /**
+          * @default '{}'
+         */
+        "permissions": string;
         /**
           * @default '[]'
          */
@@ -269,6 +297,10 @@ export namespace Components {
           * @default false
          */
         "showJsonFilter": boolean;
+        /**
+          * @default ''
+         */
+        "viewTitle": string;
     }
     interface BcDialogConfirm {
         /**
@@ -1761,6 +1793,14 @@ export namespace Components {
           * @default ''
          */
         "model": string;
+        /**
+          * @default ''
+         */
+        "moduleName": string;
+        /**
+          * @default '{}'
+         */
+        "permissions": string;
         /**
           * @default ''
          */
@@ -3942,17 +3982,41 @@ declare namespace LocalJSX {
          */
         "columns"?: string;
         /**
+          * @default ''
+         */
+        "createUrl"?: string;
+        /**
+          * @default ''
+         */
+        "detailUrl"?: string;
+        /**
           * @default true
          */
         "draggableColumns"?: boolean;
+        /**
+          * @default ''
+         */
+        "editUrl"?: string;
         /**
           * @default true
          */
         "exportXls"?: boolean;
         /**
+          * @default '[]'
+         */
+        "formFields"?: string;
+        /**
+          * @default false
+         */
+        "modalMode"?: boolean;
+        /**
           * @default ''
          */
         "model"?: string;
+        /**
+          * @default ''
+         */
+        "moduleName"?: string;
         "onLcBulkAction"?: (event: BcDatatableCustomEvent<{ action: string; ids: string[] }>) => void;
         "onLcRowClick"?: (event: BcDatatableCustomEvent<{ record: Record<string, unknown> }>) => void;
         "onLcSelectionChange"?: (event: BcDatatableCustomEvent<{ ids: string[] }>) => void;
@@ -3960,6 +4024,10 @@ declare namespace LocalJSX {
           * @default 20
          */
         "pageSize"?: number;
+        /**
+          * @default '{}'
+         */
+        "permissions"?: string;
         /**
           * @default '[]'
          */
@@ -3980,6 +4048,10 @@ declare namespace LocalJSX {
           * @default false
          */
         "showJsonFilter"?: boolean;
+        /**
+          * @default ''
+         */
+        "viewTitle"?: string;
     }
     interface BcDialogConfirm {
         /**
@@ -5524,7 +5596,15 @@ declare namespace LocalJSX {
           * @default ''
          */
         "model"?: string;
+        /**
+          * @default ''
+         */
+        "moduleName"?: string;
         "onLcFormSubmit"?: (event: BcViewFormCustomEvent<{model: string; data: Record<string, unknown>; id?: string}>) => void;
+        /**
+          * @default '{}'
+         */
+        "permissions"?: string;
         /**
           * @default ''
          */
@@ -6012,6 +6092,14 @@ declare namespace LocalJSX {
         "actions": string;
         "serverSide": boolean;
         "savedPresets": string;
+        "permissions": string;
+        "createUrl": string;
+        "editUrl": string;
+        "detailUrl": string;
+        "moduleName": string;
+        "modalMode": boolean;
+        "formFields": string;
+        "viewTitle": string;
     }
     interface BcDialogConfirmAttributes {
         "open": boolean;
@@ -6476,6 +6564,8 @@ declare namespace LocalJSX {
         "recordId": string;
         "fields": string;
         "config": string;
+        "permissions": string;
+        "moduleName": string;
     }
     interface BcViewGanttAttributes {
         "model": string;

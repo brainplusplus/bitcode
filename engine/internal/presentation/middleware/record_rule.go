@@ -20,7 +20,28 @@ func RecordRuleMiddleware(engine RecordRuleEngine, modelName string, operation s
 			return c.Status(500).JSON(fiber.Map{"error": "record rule evaluation failed"})
 		}
 
+		if len(filters) > 0 {
+			filters = interpolateFilters(filters, userID)
+		}
+
 		c.Locals("rls_filters", filters)
 		return c.Next()
 	}
+}
+
+func interpolateFilters(filters [][]any, userID string) [][]any {
+	result := make([][]any, len(filters))
+	for i, f := range filters {
+		newF := make([]any, len(f))
+		copy(newF, f)
+		for j, v := range newF {
+			if s, ok := v.(string); ok {
+				if s == "{{user.id}}" {
+					newF[j] = userID
+				}
+			}
+		}
+		result[i] = newF
+	}
+	return result
 }

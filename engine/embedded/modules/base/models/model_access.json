@@ -1,0 +1,27 @@
+{
+  "name": "model_access",
+  "module": "base",
+  "label": "Model Access",
+  "fields": {
+    "name":            { "type": "string", "required": true, "max": 200 },
+    "model_name":      { "type": "string", "required": true, "max": 100 },
+    "group_id":        { "type": "many2one", "model": "group" },
+    "can_select":      { "type": "boolean", "default": false },
+    "can_read":        { "type": "boolean", "default": false },
+    "can_write":       { "type": "boolean", "default": false },
+    "can_create":      { "type": "boolean", "default": false },
+    "can_delete":      { "type": "boolean", "default": false },
+    "can_print":       { "type": "boolean", "default": false },
+    "can_email":       { "type": "boolean", "default": false },
+    "can_report":      { "type": "boolean", "default": false },
+    "can_export":      { "type": "boolean", "default": false },
+    "can_import":      { "type": "boolean", "default": false },
+    "can_mask":        { "type": "boolean", "default": false },
+    "can_clone":       { "type": "boolean", "default": false },
+    "module":          { "type": "string", "max": 100 },
+    "modified_source": { "type": "string", "max": 20, "default": "json" }
+  },
+  "indexes": [
+    ["model_name", "group_id"]
+  ]
+}

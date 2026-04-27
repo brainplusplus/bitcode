@@ -12,6 +12,7 @@ type LoadedModule struct {
 	Definition *parser.ModuleDefinition
 	Models     []*parser.ModelDefinition
 	APIs       []*parser.APIDefinition
+	Securities []*parser.SecurityDefinition
 	Path       string
 }
 
@@ -55,6 +56,13 @@ func LoadModuleFromFS(mfs ModuleFS) (*LoadedModule, error) {
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to load APIs for %s: %w", modDef.Name, err)
+	}
+
+	loaded.Securities, err = loadGlobParsedFromFS(mfs, modDef.Securities, func(data []byte) (*parser.SecurityDefinition, error) {
+		return parser.ParseSecurity(data)
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to load securities for %s: %w", modDef.Name, err)
 	}
 
 	return loaded, nil

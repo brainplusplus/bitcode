@@ -15,6 +15,8 @@ type MenuItemDefinition struct {
 	Label    string               `json:"label"`
 	Icon     string               `json:"icon,omitempty"`
 	View     string               `json:"view,omitempty"`
+	Page     string               `json:"page,omitempty"`
+	Groups   []string             `json:"groups,omitempty"`
 	Children []MenuItemDefinition `json:"children,omitempty"`
 }
 
@@ -55,6 +57,8 @@ type ModuleDefinition struct {
 	MenuVisibility string                       `json:"menu_visibility,omitempty"`
 	IncludeMenus   []IncludeMenuDefinition      `json:"include_menus,omitempty"`
 	Settings       map[string]SettingDefinition  `json:"settings,omitempty"`
+	Securities []string `json:"securities,omitempty"`
+	Pages      []string `json:"pages,omitempty"`
 }
 
 func (m *ModuleDefinition) RequiresAuth() bool {

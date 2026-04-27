@@ -325,7 +325,11 @@ func (a *AdminPanel) apiModelSave(c *fiber.Ctx) error {
 		prettyJSON = []byte(body.Content)
 	}
 
-	modelPath := a.findModelFile(name)
+	modelDef, err := a.modelRegistry.Get(name)
+	if err != nil {
+		return c.Status(404).JSON(fiber.Map{"error": "model not found"})
+	}
+	modelPath := a.findModelFile(modelDef)
 	if modelPath == "" {
 		return c.Status(404).JSON(fiber.Map{"error": "model file not found on disk"})
 	}

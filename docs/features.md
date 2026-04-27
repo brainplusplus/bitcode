@@ -91,11 +91,11 @@ Before the gap list — what's already **production-solid**:
 
 | # | Feature | Status | Effort | What Exists | What's Missing |
 |---|---------|--------|--------|-------------|----------------|
-| 8 | Role Management | ✅ | — | `role` model, domain logic in `security/role.go`, admin UI. CRUD via API. | — |
-| 9 | Permission Matrix | ✅ | — | Pattern `module.model.action` (read/create/write/delete). Defined in `module.json`. Middleware enforcement. Auto-derived for `auto_crud`. | — |
-| 10 | Record Rules (RLS) | ✅ | — | `record_rules` in model JSON. Domain filter with operators + `{{user.id}}` interpolation. Middleware injects WHERE clauses. | — |
-| 11 | Field-Level Permission | ❌ | M | — | Can't hide/readonly specific fields per role. Need field-level permission config in model JSON + filter in API response and form renderer. |
-| 12 | Menu Access Control | ✅ | — | Menu defined per module in `module.json`. Only visible if module installed. | — |
+| 8 | Group-Based Permission (Odoo-style) | ✅ | — | Single Group concept replaces Role+Permission. `ModelAccess` table with 12 ERPNext-style permissions (select/read/write/create/delete/print/email/report/export/import/mask/clone). Additive across groups, default-deny. Superuser bypass. `securities/*.json` per module. Admin UI with 7-tab group form. Bi-directional JSON↔DB sync. | — |
+| 9 | Permission Matrix (12 permissions) | ✅ | — | `model_access` table: 12 boolean columns per model per group. `PermissionService` resolves via group chain (implied groups, recursive BFS). Middleware enforcement. Auto-derived for `auto_crud`. | — |
+| 10 | Record Rules (RLS) | ✅ | — | `record_rules` with m2m groups. Domain filter with operators + `{{user.id}}` interpolation. Odoo-compatible composition: global rules INTERSECT, group rules UNION. `RecordRuleService` injects WHERE clauses. | — |
+| 11 | Field-Level Permission | ✅ | — | `groups` field property: field hidden from users not in listed groups (server-side strip). `mask`/`mask_length` field property: value masked server-side for users without `can_mask` permission. Both enforced in CRUD handler before response. | — |
+| 12 | Menu Access Control | ✅ | — | Menu items have `groups` field for per-group visibility. `group_menus` table. Admin UI tab. | — |
 | 13 | UI Visibility Rules | ✅ | — | View actions have `"visible": "status == 'draft'"`. Form fields have `"readonly": true`. Component compiler evaluates conditions. | — |
 | 14 | IP Whitelist / Session Policy | ✅ | — | IP whitelist middleware (exact IP + CIDR support, admin-only or global). Session policy: configurable JWT duration (`security.session_duration`), cookie `Secure`/`SameSite` flags. All via `security.*` config. | — |
 | 15 | Plugin Permission | ⚠️ | S | Permission per module exists. Plugin scripts run in module context. | No granular per-plugin/script permission. Extend pattern to `module.plugin.script_name`. |
@@ -162,12 +162,15 @@ Before the gap list — what's already **production-solid**:
 
 | # | Feature | Status | Effort | What Exists | What's Missing |
 |---|---------|--------|--------|-------------|----------------|
-| 44 | REST API (Auto-Generated) | ✅ | — | `auto_crud: true` → GET (list+detail), POST, PUT, DELETE. Pagination, search, soft delete, auth, RLS. | — |
+| 44 | REST API (Convention-Driven) | ✅ | — | Model `"api": true` → auto-generates REST CRUD at `/api/v1/{module}/{model_plural}`. No separate api.json needed. Override via `apis/*.json` (merge by method+path). Multi-protocol ready (REST/GraphQL/WS config). `PermissionService` + `RecordRuleService` enforced per endpoint. Field masking + field groups filtering server-side. Permissions injected in API response metadata. | — |
+| 44b | Auto Swagger/OpenAPI | ✅ | — | Auto-generated OpenAPI 3.0 spec from model definitions + API definitions. Swagger UI at `/api/v1/docs`. JSON spec at `/api/v1/docs/openapi.json`. Field types mapped to OpenAPI schemas. | — |
+| 44c | Convention-Driven Pages | ✅ | — | Model `"api.auto_pages": true` → auto-generates list + form pages. `bc-datatable` for lists (permission-aware). Override via `pages/*.json`. Modal mode (`"modal": true`) for simple models. Cross-module reference via `"module"` field. | — |
 | 45 | OAuth2 / SSO | ❌ | L | — | Only JWT login (username/password). No OAuth2, SSO, or LDAP. |
 | 46 | API Key Management | ❌ | S | — | No API key system for M2M integration. Need api_key model + auth middleware. |
 | 47 | Data Import / Export | ❌ | L | Data seeding via `data/*.json` (module install only, not user-facing). | CSV/Excel import wizard with field mapping + validation. |
 | 48 | Third-Party Connectors | ⚠️ | XL | Process `http` step + plugin scripts for integration. | No pre-built connectors (Slack, WhatsApp, payment gateways). Need connector framework. |
-| 49 | GraphQL API | ❌ | L | — | Listed in AGENTS.md as "Remaining". Need schema generator from model definitions + resolver layer. |
+| 49 | GraphQL API | ✅ | — | Model `"api.protocols.graphql": true` → auto-generates GraphQL schema (types, queries, mutations) from model fields. Single endpoint at `POST /api/v1/graphql`. Resolvers reuse CRUD logic with permission enforcement. Supports: list (paginated), read, create, update, delete. Introspection enabled. | — |
+| 49b | WebSocket CRUD | ✅ | — | Model `"api.protocols.websocket": true` → enables CRUD over WebSocket at `/ws`. Request/reply protocol: `{type:"crud", model:"contact", action:"list/read/create/update/delete"}`. Permission + record rule enforcement. Extends existing event broadcast hub. | — |
 
 ---
 

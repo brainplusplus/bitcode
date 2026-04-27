@@ -179,8 +179,13 @@ All 11 locale files must be provided for every module that has user-facing text.
 - [x] Field sanitization — `sanitize` in model JSON: 14 built-in sanitizers (trim, lowercase, slugify, etc.). Model-level `_all_strings` shorthand.
 - [x] Client-side onchange API — `POST /api/{model}/onchange` endpoint for real-time field change handling in forms.
 - [x] Data Migration System — Laravel-style data migration/seeder. Multi-format (JSON, CSV, XLSX, XML). `migrations/` folder per module, timestamped files, `ir_migration` tracking table, batch support, up/down rollback, custom processors (script/process), field mapping, defaults, upsert/skip/error conflict modes, composite unique keys, `noupdate` (Odoo-style), `field_types` override, transaction-wrapped, tracked inserted IDs for clean rollback. MongoDB full parity via `MigrationStore` interface. Legacy `data/` seeder coordination. CLI: `bitcode seed run/rollback/status/fresh/create` with dependency-ordered execution. Auto-runs on module install. 29 tests.
+- [x] Group-Based Permission System — Odoo-style single Group concept with 12 ERPNext-style permissions (select/read/write/create/delete/print/email/report/export/import/mask/clone). ModelAccess table, additive across groups, default-deny, superuser bypass. `securities/*.json` per module. Admin UI with 7-tab Odoo-style group form. Bi-directional JSON↔DB sync with history + rollback. Field-level: `groups` (hide field) + `mask`/`mask_length` (mask value). PermissionService + RecordRuleService with Global∩Group composition.
+- [x] Convention-Driven CRUD — Model `"api": true` auto-generates REST CRUD at `/api/v1/{module}/{model_plural}`. No separate api.json needed. Override via `apis/*.json` (merge by method+path). Auto-generate pages from model fields. `bc-datatable` for lists (permission-aware, modal mode). `bitcode publish:crud` CLI to generate override files.
+- [x] Auto Swagger/OpenAPI — Auto-generated OpenAPI 3.0 spec from model + API definitions. Swagger UI at `/api/v1/docs`. JSON spec at `/api/v1/docs/openapi.json`.
+- [x] GraphQL API — Auto-generated schema from model definitions. Single endpoint at `POST /api/v1/graphql`. Queries: list (paginated) + read. Mutations: create, update, delete. Permission + record rule enforcement. Enabled per model via `"api.protocols.graphql": true`.
+- [x] WebSocket CRUD — CRUD over WebSocket at `/ws`. Request/reply protocol: `{type:"crud", model, action, record_id, data}`. Permission + record rule enforcement. Enabled per model via `"api.protocols.websocket": true`. Extends existing event broadcast hub.
+- [x] Security CLI — `bitcode security load/export/diff/validate/history`. JSON↔DB sync from command line.
 - [ ] Redis cache wiring — Wire into permission checker and query result cache
-- [ ] GraphQL API — Alternative to REST
 - [ ] Marketplace — Community module sharing
 - [ ] NATS event bus — Replace in-process bus for distributed deployments
 
@@ -195,7 +200,7 @@ go test ./pkg/ddd/        # Specific package
 go test ./... -count=1    # No cache
 ```
 
-Current: 410 tests, 0 failures. Build: OK.
+Current: 497 tests, 0 failures. Build: OK.
 
 ## Build
 

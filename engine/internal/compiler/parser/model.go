@@ -382,6 +382,10 @@ type FieldDefinition struct {
 
 	Validation *FieldValidation `json:"validation,omitempty"`
 	Sanitize   []string         `json:"sanitize,omitempty"`
+
+	Mask       bool     `json:"mask,omitempty"`
+	MaskLength int      `json:"mask_length,omitempty"`
+	Groups     []string `json:"groups,omitempty"`
 }
 
 type FileConfig struct {
@@ -396,6 +400,40 @@ type RecordRuleDefinition struct {
 
 type ModelTableConfig struct {
 	Prefix string `json:"prefix"`
+}
+
+type APIConfig struct {
+	AutoCRUD   bool            `json:"auto_crud"`
+	Auth       bool            `json:"auth"`
+	AutoPages  json.RawMessage `json:"auto_pages,omitempty"`
+	Modal      bool            `json:"modal,omitempty"`
+	Protocols  ProtocolConfig  `json:"protocols,omitempty"`
+	Search     []string        `json:"search,omitempty"`
+	SoftDelete *bool           `json:"soft_delete,omitempty"`
+}
+
+type ProtocolConfig struct {
+	REST      bool `json:"rest"`
+	GraphQL   bool `json:"graphql"`
+	WebSocket bool `json:"websocket"`
+}
+
+func (a *APIConfig) IsAutoPages() bool {
+	if a.AutoPages == nil {
+		return true
+	}
+	var b bool
+	if err := json.Unmarshal(a.AutoPages, &b); err == nil {
+		return b
+	}
+	return true
+}
+
+func (a *APIConfig) IsSoftDelete() bool {
+	if a.SoftDelete == nil {
+		return true
+	}
+	return *a.SoftDelete
 }
 
 type ModelDefinition struct {
@@ -422,6 +460,9 @@ type ModelDefinition struct {
 	Events     *EventsDefinition `json:"events,omitempty"`
 	Validators []ModelValidator  `json:"validators,omitempty"`
 	Sanitize   *SanitizeConfig   `json:"sanitize,omitempty"`
+
+	APIRaw json.RawMessage `json:"api,omitempty"`
+	API    *APIConfig      `json:"-"`
 
 	ModulePath string `json:"-"`
 }
@@ -517,6 +558,25 @@ func ParseModel(data []byte) (*ModelDefinition, error) {
 		}
 	}
 	resolveFieldValidation(&model)
+
+	if model.APIRaw != nil {
+		var apiBool bool
+		if err := json.Unmarshal(model.APIRaw, &apiBool); err == nil {
+			if apiBool {
+				model.API = &APIConfig{
+					AutoCRUD: true,
+					Auth:     true,
+					Protocols: ProtocolConfig{REST: true},
+				}
+			}
+		} else {
+			var apiConfig APIConfig
+			if err := json.Unmarshal(model.APIRaw, &apiConfig); err == nil {
+				model.API = &apiConfig
+			}
+		}
+	}
+
 	return &model, nil
 }
 
