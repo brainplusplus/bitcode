@@ -28,7 +28,7 @@ func GenerateAPIFromModel(model *parser.ModelDefinition, moduleName string) *par
 	}
 
 	if moduleName != "" {
-		apiDef.BasePath = "/api/v1/" + moduleName + "/" + pluralize(model.Name)
+		apiDef.BasePath = "/api/v1/" + moduleName + "/" + model.Name
 	}
 
 	return apiDef

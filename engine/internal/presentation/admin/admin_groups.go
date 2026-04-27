@@ -8,9 +8,11 @@ import (
 )
 
 func (a *AdminPanel) listGroups(c *fiber.Ctx) error {
+	gt := a.modelRegistry.TableName("group")
+	ugt := a.modelRegistry.TableName("user") + "_" + gt
 	var groups []map[string]any
-	a.db.Table("groups").
-		Select("groups.id, groups.name, groups.display_name, groups.category, groups.share, groups.module, groups.modified_source, (SELECT COUNT(*) FROM user_groups WHERE user_groups.group_id = groups.id) as user_count").
+	a.db.Table(gt).
+		Select(gt+".id, "+gt+".name, "+gt+".display_name, "+gt+".category, "+gt+".share, "+gt+".module, "+gt+".modified_source, (SELECT COUNT(*) FROM "+ugt+" WHERE "+ugt+".group_id = "+gt+".id) as user_count").
 		Order("category, name").
 		Find(&groups)
 
@@ -54,8 +56,9 @@ func (a *AdminPanel) viewGroup(c *fiber.Ctx) error {
 	groupName := c.Params("name")
 	tab := c.Query("tab", "users")
 
+	gt := a.modelRegistry.TableName("group")
 	var group map[string]any
-	if err := a.db.Table("groups").Where("name = ?", groupName).First(&group).Error; err != nil {
+	if err := a.db.Table(gt).Where("name = ?", groupName).First(&group).Error; err != nil {
 		return c.Status(404).SendString("Group not found")
 	}
 
@@ -117,11 +120,14 @@ func (a *AdminPanel) viewGroup(c *fiber.Ctx) error {
 }
 
 func (a *AdminPanel) renderGroupUsers(html *strings.Builder, groupID string) {
+	ut := a.modelRegistry.TableName("user")
+	gt := a.modelRegistry.TableName("group")
+	ugt := ut + "_" + gt
 	var users []map[string]any
-	a.db.Table("users").
-		Select("users.id, users.username, users.email, users.active").
-		Joins("INNER JOIN user_groups ON user_groups.user_id = users.id").
-		Where("user_groups.group_id = ?", groupID).
+	a.db.Table(ut).
+		Select(ut+".id, "+ut+".username, "+ut+".email, "+ut+".active").
+		Joins("INNER JOIN "+ugt+" ON "+ugt+".user_id = "+ut+".id").
+		Where(ugt+".group_id = ?", groupID).
 		Find(&users)
 
 	html.WriteString(`<div class="card"><div class="card-title">Users</div>`)
@@ -140,11 +146,13 @@ func (a *AdminPanel) renderGroupUsers(html *strings.Builder, groupID string) {
 }
 
 func (a *AdminPanel) renderGroupInherited(html *strings.Builder, groupID string) {
+	gt := a.modelRegistry.TableName("group")
+	git := gt + "_implies"
 	var implied []map[string]any
-	a.db.Table("groups").
-		Select("groups.name, groups.display_name").
-		Joins("INNER JOIN group_implies ON group_implies.implied_group_id = groups.id").
-		Where("group_implies.group_id = ?", groupID).
+	a.db.Table(gt).
+		Select(gt+".name, "+gt+".display_name").
+		Joins("INNER JOIN "+git+" ON "+git+".implied_group_id = "+gt+".id").
+		Where(git+".group_id = ?", groupID).
 		Find(&implied)
 
 	html.WriteString(`<div class="card"><div class="card-title">Inherited Groups</div><p style="padding:8px 16px;font-size:12px;color:var(--text-muted)">Users added to this group are automatically added to the following groups.</p>`)
@@ -159,8 +167,9 @@ func (a *AdminPanel) renderGroupInherited(html *strings.Builder, groupID string)
 }
 
 func (a *AdminPanel) renderGroupMenus(html *strings.Builder, groupID string) {
+	gmt := a.modelRegistry.TableName("group") + "_menus"
 	var menus []map[string]any
-	a.db.Table("group_menus").Where("group_id = ?", groupID).Find(&menus)
+	a.db.Table(gmt).Where("group_id = ?", groupID).Find(&menus)
 
 	html.WriteString(`<div class="card"><div class="card-title">Menus</div>`)
 	html.WriteString(`<table><thead><tr><th>Menu Item</th><th>Module</th></tr></thead><tbody>`)
@@ -174,8 +183,9 @@ func (a *AdminPanel) renderGroupMenus(html *strings.Builder, groupID string) {
 }
 
 func (a *AdminPanel) renderGroupPages(html *strings.Builder, groupID string) {
+	gpt := a.modelRegistry.TableName("group") + "_pages"
 	var pages []map[string]any
-	a.db.Table("group_pages").Where("group_id = ?", groupID).Find(&pages)
+	a.db.Table(gpt).Where("group_id = ?", groupID).Find(&pages)
 
 	html.WriteString(`<div class="card"><div class="card-title">Pages</div>`)
 	html.WriteString(`<table><thead><tr><th>Page Name</th><th>Module</th></tr></thead><tbody>`)
@@ -189,8 +199,9 @@ func (a *AdminPanel) renderGroupPages(html *strings.Builder, groupID string) {
 }
 
 func (a *AdminPanel) renderGroupAccess(html *strings.Builder, groupID string) {
+	mat := a.modelRegistry.TableName("model_access")
 	var acls []map[string]any
-	a.db.Table("model_accesses").Where("group_id = ?", groupID).Order("model_name").Find(&acls)
+	a.db.Table(mat).Where("group_id = ?", groupID).Order("model_name").Find(&acls)
 
 	check := func(v any) string {
 		if v == true || v == int64(1) || v == "1" {
@@ -216,11 +227,13 @@ func (a *AdminPanel) renderGroupAccess(html *strings.Builder, groupID string) {
 }
 
 func (a *AdminPanel) renderGroupRules(html *strings.Builder, groupID string) {
+	rrt := a.modelRegistry.TableName("record_rule")
+	rrgt := rrt + "_groups"
 	var rules []map[string]any
-	a.db.Table("record_rules").
-		Select("record_rules.name, record_rules.model_name, record_rules.domain_filter, record_rules.can_read, record_rules.can_write, record_rules.can_create, record_rules.can_delete").
-		Joins("INNER JOIN record_rule_groups ON record_rule_groups.record_rule_id = record_rules.id").
-		Where("record_rule_groups.group_id = ?", groupID).
+	a.db.Table(rrt).
+		Select(rrt+".name, "+rrt+".model_name, "+rrt+".domain_filter, "+rrt+".can_read, "+rrt+".can_write, "+rrt+".can_create, "+rrt+".can_delete").
+		Joins("INNER JOIN "+rrgt+" ON "+rrgt+".record_rule_id = "+rrt+".id").
+		Where(rrgt+".group_id = ?", groupID).
 		Find(&rules)
 
 	check := func(v any) string {
@@ -248,54 +261,62 @@ func (a *AdminPanel) renderGroupRules(html *strings.Builder, groupID string) {
 }
 
 func (a *AdminPanel) apiListGroups(c *fiber.Ctx) error {
+	gt := a.modelRegistry.TableName("group")
 	var groups []map[string]any
-	a.db.Table("groups").Order("category, name").Find(&groups)
+	a.db.Table(gt).Order("category, name").Find(&groups)
 	return c.JSON(fiber.Map{"data": groups})
 }
 
 func (a *AdminPanel) apiGetGroup(c *fiber.Ctx) error {
+	gt := a.modelRegistry.TableName("group")
 	id := c.Params("id")
 	var group map[string]any
-	if err := a.db.Table("groups").Where("id = ?", id).First(&group).Error; err != nil {
+	if err := a.db.Table(gt).Where("id = ?", id).First(&group).Error; err != nil {
 		return c.Status(404).JSON(fiber.Map{"error": "group not found"})
 	}
 	return c.JSON(fiber.Map{"data": group})
 }
 
 func (a *AdminPanel) apiCreateGroup(c *fiber.Ctx) error {
+	gt := a.modelRegistry.TableName("group")
 	var body map[string]any
 	if err := c.BodyParser(&body); err != nil {
 		return c.Status(400).JSON(fiber.Map{"error": "invalid body"})
 	}
 	body["modified_source"] = "ui"
-	if err := a.db.Table("groups").Create(body).Error; err != nil {
+	if err := a.db.Table(gt).Create(body).Error; err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
 	}
 	return c.Status(201).JSON(fiber.Map{"ok": true, "data": body})
 }
 
 func (a *AdminPanel) apiUpdateGroup(c *fiber.Ctx) error {
+	gt := a.modelRegistry.TableName("group")
 	id := c.Params("id")
 	var body map[string]any
 	if err := c.BodyParser(&body); err != nil {
 		return c.Status(400).JSON(fiber.Map{"error": "invalid body"})
 	}
 	body["modified_source"] = "ui"
-	if err := a.db.Table("groups").Where("id = ?", id).Updates(body).Error; err != nil {
+	if err := a.db.Table(gt).Where("id = ?", id).Updates(body).Error; err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
 	}
 	return c.JSON(fiber.Map{"ok": true})
 }
 
 func (a *AdminPanel) apiDeleteGroup(c *fiber.Ctx) error {
+	gt := a.modelRegistry.TableName("group")
+	ut := a.modelRegistry.TableName("user")
+	mat := a.modelRegistry.TableName("model_access")
+	rrt := a.modelRegistry.TableName("record_rule")
 	id := c.Params("id")
-	a.db.Table("group_implies").Where("group_id = ? OR implied_group_id = ?", id, id).Delete(nil)
-	a.db.Table("user_groups").Where("group_id = ?", id).Delete(nil)
-	a.db.Table("model_accesses").Where("group_id = ?", id).Delete(nil)
-	a.db.Table("record_rule_groups").Where("group_id = ?", id).Delete(nil)
-	a.db.Table("group_menus").Where("group_id = ?", id).Delete(nil)
-	a.db.Table("group_pages").Where("group_id = ?", id).Delete(nil)
-	if err := a.db.Table("groups").Where("id = ?", id).Delete(nil).Error; err != nil {
+	a.db.Table(gt + "_implies").Where("group_id = ? OR implied_group_id = ?", id, id).Delete(nil)
+	a.db.Table(ut + "_" + gt).Where("group_id = ?", id).Delete(nil)
+	a.db.Table(mat).Where("group_id = ?", id).Delete(nil)
+	a.db.Table(rrt + "_groups").Where("group_id = ?", id).Delete(nil)
+	a.db.Table(gt + "_menus").Where("group_id = ?", id).Delete(nil)
+	a.db.Table(gt + "_pages").Where("group_id = ?", id).Delete(nil)
+	if err := a.db.Table(gt).Where("id = ?", id).Delete(nil).Error; err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
 	}
 	return c.JSON(fiber.Map{"ok": true})

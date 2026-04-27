@@ -31,8 +31,8 @@ func TestGenerateAPIFromModel_Basic(t *testing.T) {
 	if !api.AutoCRUD {
 		t.Error("expected auto_crud=true")
 	}
-	if api.BasePath != "/api/v1/crm/contacts" {
-		t.Errorf("expected base_path '/api/v1/crm/contacts', got %q", api.BasePath)
+	if api.BasePath != "/api/v1/crm/contact" {
+		t.Errorf("expected base_path '/api/v1/crm/contact', got %q", api.BasePath)
 	}
 	if len(api.Search) != 2 {
 		t.Errorf("expected 2 search fields, got %d", len(api.Search))

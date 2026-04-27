@@ -17,7 +17,7 @@ func setupSecurityLoaderDB(t *testing.T) *gorm.DB {
 	}
 
 	sqlDB, _ := db.DB()
-	sqlDB.Exec(`CREATE TABLE groups (
+	sqlDB.Exec(`CREATE TABLE "group" (
 		id TEXT PRIMARY KEY, name TEXT UNIQUE, display_name TEXT, category TEXT,
 		share INTEGER DEFAULT 0, comment TEXT, module TEXT,
 		modified_source TEXT DEFAULT 'json', created_at DATETIME, updated_at DATETIME
@@ -25,7 +25,7 @@ func setupSecurityLoaderDB(t *testing.T) *gorm.DB {
 	sqlDB.Exec(`CREATE TABLE group_implies (
 		group_id TEXT, implied_group_id TEXT, PRIMARY KEY (group_id, implied_group_id)
 	)`)
-	sqlDB.Exec(`CREATE TABLE model_accesses (
+	sqlDB.Exec(`CREATE TABLE model_access (
 		id TEXT PRIMARY KEY, name TEXT, model_name TEXT, group_id TEXT,
 		can_select INTEGER DEFAULT 0, can_read INTEGER DEFAULT 0,
 		can_write INTEGER DEFAULT 0, can_create INTEGER DEFAULT 0,
@@ -36,7 +36,7 @@ func setupSecurityLoaderDB(t *testing.T) *gorm.DB {
 		module TEXT, modified_source TEXT DEFAULT 'json',
 		created_at DATETIME, updated_at DATETIME
 	)`)
-	sqlDB.Exec(`CREATE TABLE record_rules (
+	sqlDB.Exec(`CREATE TABLE record_rule (
 		id TEXT PRIMARY KEY, name TEXT UNIQUE, model_name TEXT, group_names TEXT DEFAULT '',
 		domain_filter TEXT, can_read INTEGER DEFAULT 1, can_create INTEGER DEFAULT 1,
 		can_write INTEGER DEFAULT 1, can_delete INTEGER DEFAULT 0,
@@ -77,37 +77,39 @@ func TestSecurityLoader_SyncBasicGroup(t *testing.T) {
 	}
 
 	var count int64
-	db.Table("groups").Where("name = ?", "crm.user").Count(&count)
+	db.Table("group").Where("name = ?", "crm.user").Count(&count)
 	if count != 1 {
 		t.Errorf("expected 1 group, got %d", count)
 	}
 
 	var aclCount int64
-	db.Table("model_accesses").Where("model_name = ?", "contact").Count(&aclCount)
+	db.Table("model_access").Where("model_name = ?", "contact").Count(&aclCount)
 	if aclCount != 1 {
 		t.Errorf("expected 1 model_access, got %d", aclCount)
 	}
 
 	var canRead bool
-	db.Table("model_accesses").Select("can_read").Where("model_name = ?", "contact").Pluck("can_read", &canRead)
+	db.Table("model_access").Select("can_read").Where("model_name = ?", "contact").Pluck("can_read", &canRead)
 	if !canRead {
 		t.Error("expected can_read=true for contact")
 	}
 
 	var canDelete bool
-	db.Table("model_accesses").Select("can_delete").Where("model_name = ?", "contact").Pluck("can_delete", &canDelete)
+	db.Table("model_access").Select("can_delete").Where("model_name = ?", "contact").Pluck("can_delete", &canDelete)
 	if canDelete {
 		t.Error("expected can_delete=false for contact")
 	}
 
 	var menuCount int64
 	db.Table("group_menus").Count(&menuCount)
+
 	if menuCount != 1 {
 		t.Errorf("expected 1 menu, got %d", menuCount)
 	}
 
 	var pageCount int64
 	db.Table("group_pages").Count(&pageCount)
+
 	if pageCount != 1 {
 		t.Errorf("expected 1 page, got %d", pageCount)
 	}
@@ -138,6 +140,7 @@ func TestSecurityLoader_SyncWithImplies(t *testing.T) {
 
 	var impliesCount int64
 	db.Table("group_implies").Count(&impliesCount)
+
 	if impliesCount != 1 {
 		t.Errorf("expected 1 implied group, got %d", impliesCount)
 	}
@@ -167,25 +170,26 @@ func TestSecurityLoader_SyncRecordRules(t *testing.T) {
 	}
 
 	var ruleCount int64
-	db.Table("record_rules").Count(&ruleCount)
+	db.Table("record_rule").Count(&ruleCount)
 	if ruleCount != 1 {
 		t.Errorf("expected 1 record rule, got %d", ruleCount)
 	}
 
 	var canDelete bool
-	db.Table("record_rules").Select("can_delete").Where("name = ?", "crm_user_own_contacts").Pluck("can_delete", &canDelete)
+	db.Table("record_rule").Select("can_delete").Where("name = ?", "crm_user_own_contacts").Pluck("can_delete", &canDelete)
 	if canDelete {
 		t.Error("expected can_delete=false")
 	}
 
 	var canRead bool
-	db.Table("record_rules").Select("can_read").Where("name = ?", "crm_user_own_contacts").Pluck("can_read", &canRead)
+	db.Table("record_rule").Select("can_read").Where("name = ?", "crm_user_own_contacts").Pluck("can_read", &canRead)
 	if !canRead {
 		t.Error("expected can_read=true (default)")
 	}
 
 	var rrGroupCount int64
 	db.Table("record_rule_groups").Count(&rrGroupCount)
+
 	if rrGroupCount != 1 {
 		t.Errorf("expected 1 record_rule_group, got %d", rrGroupCount)
 	}
@@ -204,8 +208,8 @@ func TestSecurityLoader_UIModifiedNotOverwritten(t *testing.T) {
 		t.Fatalf("first sync error: %v", err)
 	}
 
-	db.Table("groups").Where("name = ?", "crm.user").Update("modified_source", "ui")
-	db.Table("groups").Where("name = ?", "crm.user").Update("display_name", "CRM / User (Custom)")
+	db.Table("group").Where("name = ?", "crm.user").Update("modified_source", "ui")
+	db.Table("group").Where("name = ?", "crm.user").Update("display_name", "CRM / User (Custom)")
 
 	secDef.Label = "CRM / User (Overwritten)"
 	if err := loader.SyncToDB(secDef, "crm"); err != nil {
@@ -213,7 +217,7 @@ func TestSecurityLoader_UIModifiedNotOverwritten(t *testing.T) {
 	}
 
 	var displayName string
-	db.Table("groups").Select("display_name").Where("name = ?", "crm.user").Pluck("display_name", &displayName)
+	db.Table("group").Select("display_name").Where("name = ?", "crm.user").Pluck("display_name", &displayName)
 	if displayName != "CRM / User (Custom)" {
 		t.Errorf("expected UI-modified name preserved, got %q", displayName)
 	}
@@ -241,7 +245,7 @@ func TestSecurityLoader_AllPermissions(t *testing.T) {
 		CanPrint, CanEmail, CanReport                      bool
 		CanExport, CanImport, CanMask, CanClone            bool
 	}
-	db.Table("model_accesses").
+	db.Table("model_access").
 		Select("can_select, can_read, can_write, can_create, can_delete, can_print, can_email, can_report, can_export, can_import, can_mask, can_clone").
 		Where("model_name = ?", "contact").
 		First(&row)
@@ -274,7 +278,7 @@ func TestSecurityLoader_IdempotentSync(t *testing.T) {
 	}
 
 	var groupCount int64
-	db.Table("groups").Where("name = ?", "crm.user").Count(&groupCount)
+	db.Table("group").Where("name = ?", "crm.user").Count(&groupCount)
 	if groupCount != 1 {
 		t.Errorf("expected 1 group after idempotent sync, got %d", groupCount)
 	}

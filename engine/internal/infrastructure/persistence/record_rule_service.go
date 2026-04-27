@@ -13,16 +13,25 @@ import (
 //   - Group rules UNION (OR)
 //   - Final = AND(global) AND OR(group)
 type RecordRuleService struct {
-	db *gorm.DB
+	db        *gorm.DB
+	tableName func(string) string
 }
 
 func NewRecordRuleService(db *gorm.DB) *RecordRuleService {
-	return &RecordRuleService{db: db}
+	return &RecordRuleService{db: db, tableName: func(n string) string { return n }}
+}
+
+func (s *RecordRuleService) SetTableNameResolver(fn func(string) string) {
+	s.tableName = fn
+}
+
+func (s *RecordRuleService) tn(model string) string {
+	return s.tableName(model)
 }
 
 func (s *RecordRuleService) GetFilters(userID string, modelName string, operation string) ([][]any, error) {
 	var superCount int64
-	if err := s.db.Table("users").Where("id = ? AND is_superuser = ?", userID, true).Count(&superCount).Error; err != nil {
+	if err := s.db.Table(s.tn("user")).Where("id = ? AND is_superuser = ?", userID, true).Count(&superCount).Error; err != nil {
 		return nil, nil
 	}
 	if superCount > 0 {
@@ -45,7 +54,7 @@ func (s *RecordRuleService) GetFilters(userID string, modelName string, operatio
 	}
 
 	var rules []ruleRow
-	if err := s.db.Table("record_rules").
+	if err := s.db.Table(s.tn("record_rule")).
 		Select("id, domain_filter, can_read, can_create, can_write, can_delete, group_names").
 		Where("model_name = ? AND active = ?", modelName, true).
 		Find(&rules).Error; err != nil {
@@ -91,7 +100,7 @@ func (s *RecordRuleService) GetFilters(userID string, modelName string, operatio
 
 func (s *RecordRuleService) getRuleGroupIDs(ruleID string, legacyGroupNames string) []string {
 	var groupIDs []string
-	s.db.Table("record_rule_groups").
+	s.db.Table(s.tn("record_rule") + "_groups").
 		Select("group_id").
 		Where("record_rule_id = ?", ruleID).
 		Pluck("group_id", &groupIDs)
@@ -117,7 +126,7 @@ func (s *RecordRuleService) getRuleGroupIDs(ruleID string, legacyGroupNames stri
 	}
 
 	var resolvedIDs []string
-	s.db.Table("groups").
+	s.db.Table(s.tn("group")).
 		Select("id").
 		Where("name IN ?", trimmedNames).
 		Pluck("id", &resolvedIDs)
@@ -127,7 +136,7 @@ func (s *RecordRuleService) getRuleGroupIDs(ruleID string, legacyGroupNames stri
 
 func (s *RecordRuleService) resolveUserGroupIDs(userID string) ([]string, error) {
 	var directGroupIDs []string
-	if err := s.db.Table("user_groups").
+	if err := s.db.Table(s.tn("user") + "_" + s.tn("group")).
 		Select("group_id").
 		Where("user_id = ?", userID).
 		Pluck("group_id", &directGroupIDs).Error; err != nil {
@@ -152,7 +161,7 @@ func (s *RecordRuleService) resolveUserGroupIDs(userID string) ([]string, error)
 		allGroupIDs[current] = true
 
 		var impliedIDs []string
-		if err := s.db.Table("group_implies").
+		if err := s.db.Table(s.tn("group") + "_implies").
 			Select("implied_group_id").
 			Where("group_id = ?", current).
 			Pluck("implied_group_id", &impliedIDs).Error; err != nil {

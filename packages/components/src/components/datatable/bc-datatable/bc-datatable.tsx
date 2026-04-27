@@ -118,7 +118,8 @@ export class BcDatatable {
 
   private getApiUrl(): string {
     if (this.apiUrl) return this.apiUrl;
-    if (this.model) return '/api/' + this.model + 's';
+    if (this.moduleName && this.model) return '/api/v1/' + this.moduleName + '/' + this.model;
+    if (this.model) return '/api/' + this.model;
     return '';
   }
 

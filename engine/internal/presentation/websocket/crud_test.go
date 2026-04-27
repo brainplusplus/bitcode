@@ -210,11 +210,11 @@ func TestCRUDHandler_ModelNotEnabled(t *testing.T) {
 func TestCRUDHandler_PermissionDenied(t *testing.T) {
 	db := setupWSTestDB(t)
 	sqlDB, _ := db.DB()
-	sqlDB.Exec(`CREATE TABLE users (id TEXT PRIMARY KEY, username TEXT, is_superuser INTEGER DEFAULT 0)`)
-	sqlDB.Exec(`INSERT INTO users (id, username) VALUES ('user-1', 'john')`)
-	sqlDB.Exec(`CREATE TABLE user_groups (user_id TEXT, group_id TEXT)`)
+	sqlDB.Exec(`CREATE TABLE "user" (id TEXT PRIMARY KEY, username TEXT, is_superuser INTEGER DEFAULT 0)`)
+	sqlDB.Exec(`INSERT INTO "user" (id, username) VALUES ('user-1', 'john')`)
+	sqlDB.Exec(`CREATE TABLE user_group (user_id TEXT, group_id TEXT)`)
 	sqlDB.Exec(`CREATE TABLE group_implies (group_id TEXT, implied_group_id TEXT)`)
-	sqlDB.Exec(`CREATE TABLE model_accesses (id TEXT PRIMARY KEY, name TEXT, model_name TEXT, group_id TEXT, can_read INTEGER DEFAULT 0, can_select INTEGER DEFAULT 0, can_write INTEGER DEFAULT 0, can_create INTEGER DEFAULT 0, can_delete INTEGER DEFAULT 0, can_print INTEGER DEFAULT 0, can_email INTEGER DEFAULT 0, can_report INTEGER DEFAULT 0, can_export INTEGER DEFAULT 0, can_import INTEGER DEFAULT 0, can_mask INTEGER DEFAULT 0, can_clone INTEGER DEFAULT 0, module TEXT, modified_source TEXT)`)
+	sqlDB.Exec(`CREATE TABLE model_access (id TEXT PRIMARY KEY, name TEXT, model_name TEXT, group_id TEXT, can_read INTEGER DEFAULT 0, can_select INTEGER DEFAULT 0, can_write INTEGER DEFAULT 0, can_create INTEGER DEFAULT 0, can_delete INTEGER DEFAULT 0, can_print INTEGER DEFAULT 0, can_email INTEGER DEFAULT 0, can_report INTEGER DEFAULT 0, can_export INTEGER DEFAULT 0, can_import INTEGER DEFAULT 0, can_mask INTEGER DEFAULT 0, can_clone INTEGER DEFAULT 0, module TEXT, modified_source TEXT)`)
 
 	reg := &mockModelRegistry{models: map[string]*parser.ModelDefinition{
 		"contact": {Name: "contact", Module: "crm"},

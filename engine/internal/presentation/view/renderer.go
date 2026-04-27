@@ -346,10 +346,9 @@ func (r *Renderer) defaultListHTML(viewDef *parser.ViewDefinition, records []map
 		ModuleName: moduleName,
 	}
 	if moduleName != "" && viewDef.Model != "" {
-		plural := viewDef.Model + "s"
-		opts.CreateUrl = "/" + moduleName + "/" + plural + "/new"
-		opts.DetailUrl = "/" + moduleName + "/" + plural + "/:id"
-		opts.EditUrl = "/" + moduleName + "/" + plural + "/:id/edit"
+		opts.CreateUrl = "/" + moduleName + "/" + viewDef.Model + "/new"
+		opts.DetailUrl = "/" + moduleName + "/" + viewDef.Model + "/:id"
+		opts.EditUrl = "/" + moduleName + "/" + viewDef.Model + "/:id/edit"
 	}
 
 	return r.componentCompiler.CompileListDatatable(viewDef, opts)

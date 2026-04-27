@@ -22,8 +22,9 @@ func (a *AdminPanel) securitySyncPage(c *fiber.Ctx) error {
 	html.WriteString(`<div id="sync-status" class="text-muted"></div>`)
 	html.WriteString(`</div></div>`)
 
+	sht := a.modelRegistry.TableName("security_history")
 	var history []map[string]any
-	a.db.Table("ir_security_histories").Order("created_at DESC").Limit(50).Find(&history)
+	a.db.Table(sht).Order("created_at DESC").Limit(50).Find(&history)
 
 	html.WriteString(`<div class="card"><div class="card-title">Security History</div>`)
 	html.WriteString(`<table><thead><tr><th>Date</th><th>Entity</th><th>Action</th><th>Changes</th><th>Source</th><th></th></tr></thead><tbody>`)
@@ -130,16 +131,18 @@ func (a *AdminPanel) apiSecurityDiff(c *fiber.Ctx) error {
 }
 
 func (a *AdminPanel) apiSecurityHistory(c *fiber.Ctx) error {
+	sht := a.modelRegistry.TableName("security_history")
 	var history []map[string]any
-	a.db.Table("ir_security_histories").Order("created_at DESC").Limit(100).Find(&history)
+	a.db.Table(sht).Order("created_at DESC").Limit(100).Find(&history)
 	return c.JSON(fiber.Map{"data": history})
 }
 
 func (a *AdminPanel) apiSecurityRollback(c *fiber.Ctx) error {
 	historyID := c.Params("id")
 
+	sht := a.modelRegistry.TableName("security_history")
 	var entry map[string]any
-	if err := a.db.Table("ir_security_histories").Where("id = ?", historyID).First(&entry).Error; err != nil {
+	if err := a.db.Table(sht).Where("id = ?", historyID).First(&entry).Error; err != nil {
 		return c.Status(404).JSON(fiber.Map{"error": "history entry not found"})
 	}
 

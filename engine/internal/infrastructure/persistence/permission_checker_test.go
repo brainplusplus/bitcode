@@ -16,7 +16,7 @@ func setupPermissionTestDB(t *testing.T) *gorm.DB {
 	}
 
 	sqlDB, _ := db.DB()
-	sqlDB.Exec(`CREATE TABLE users (
+	sqlDB.Exec(`CREATE TABLE "user" (
 		id TEXT PRIMARY KEY,
 		username TEXT,
 		email TEXT,
@@ -24,13 +24,13 @@ func setupPermissionTestDB(t *testing.T) *gorm.DB {
 		active INTEGER DEFAULT 1,
 		is_superuser INTEGER DEFAULT 0
 	)`)
-	sqlDB.Exec(`CREATE TABLE groups (
+	sqlDB.Exec(`CREATE TABLE "group" (
 		id TEXT PRIMARY KEY,
 		name TEXT UNIQUE,
 		display_name TEXT,
 		category TEXT
 	)`)
-	sqlDB.Exec(`CREATE TABLE user_groups (
+	sqlDB.Exec(`CREATE TABLE user_group (
 		user_id TEXT,
 		group_id TEXT,
 		PRIMARY KEY (user_id, group_id)
@@ -40,7 +40,7 @@ func setupPermissionTestDB(t *testing.T) *gorm.DB {
 		implied_group_id TEXT,
 		PRIMARY KEY (group_id, implied_group_id)
 	)`)
-	sqlDB.Exec(`CREATE TABLE model_accesses (
+	sqlDB.Exec(`CREATE TABLE model_access (
 		id TEXT PRIMARY KEY,
 		name TEXT,
 		model_name TEXT,
@@ -67,7 +67,7 @@ func TestPermissionService_SuperuserBypass(t *testing.T) {
 	db := setupPermissionTestDB(t)
 	svc := NewPermissionService(db)
 
-	db.Exec("INSERT INTO users (id, username, email, is_superuser) VALUES (?, ?, ?, ?)", "u1", "admin", "admin@test.com", true)
+	db.Exec("INSERT INTO `user` (id, username, email, is_superuser) VALUES (?, ?, ?, ?)", "u1", "admin", "admin@test.com", true)
 
 	perms, err := svc.GetModelPermissions("u1", "contact")
 	if err != nil {
@@ -86,7 +86,7 @@ func TestPermissionService_NoACL_DefaultDeny(t *testing.T) {
 	db := setupPermissionTestDB(t)
 	svc := NewPermissionService(db)
 
-	db.Exec("INSERT INTO users (id, username, email, is_superuser) VALUES (?, ?, ?, ?)", "u1", "user1", "user1@test.com", false)
+	db.Exec("INSERT INTO `user` (id, username, email, is_superuser) VALUES (?, ?, ?, ?)", "u1", "user1", "user1@test.com", false)
 
 	perms, err := svc.GetModelPermissions("u1", "contact")
 	if err != nil {
@@ -105,10 +105,10 @@ func TestPermissionService_SingleGroupAccess(t *testing.T) {
 	db := setupPermissionTestDB(t)
 	svc := NewPermissionService(db)
 
-	db.Exec("INSERT INTO users (id, username, email, is_superuser) VALUES (?, ?, ?, ?)", "u1", "user1", "user1@test.com", false)
-	db.Exec("INSERT INTO groups (id, name) VALUES (?, ?)", "g1", "CRM/User")
-	db.Exec("INSERT INTO user_groups (user_id, group_id) VALUES (?, ?)", "u1", "g1")
-	db.Exec("INSERT INTO model_accesses (id, name, model_name, group_id, can_read, can_write) VALUES (?, ?, ?, ?, ?, ?)",
+	db.Exec("INSERT INTO `user` (id, username, email, is_superuser) VALUES (?, ?, ?, ?)", "u1", "user1", "user1@test.com", false)
+	db.Exec("INSERT INTO `group` (id, name) VALUES (?, ?)", "g1", "CRM/User")
+	db.Exec("INSERT INTO user_group (user_id, group_id) VALUES (?, ?)", "u1", "g1")
+	db.Exec("INSERT INTO model_access (id, name, model_name, group_id, can_read, can_write) VALUES (?, ?, ?, ?, ?, ?)",
 		"ma1", "contact_crm_user", "contact", "g1", true, true)
 
 	perms, err := svc.GetModelPermissions("u1", "contact")
@@ -134,14 +134,14 @@ func TestPermissionService_AdditiveAcrossGroups(t *testing.T) {
 	db := setupPermissionTestDB(t)
 	svc := NewPermissionService(db)
 
-	db.Exec("INSERT INTO users (id, username, email, is_superuser) VALUES (?, ?, ?, ?)", "u1", "user1", "user1@test.com", false)
-	db.Exec("INSERT INTO groups (id, name) VALUES (?, ?)", "g1", "CRM/Reader")
-	db.Exec("INSERT INTO groups (id, name) VALUES (?, ?)", "g2", "CRM/Writer")
-	db.Exec("INSERT INTO user_groups (user_id, group_id) VALUES (?, ?)", "u1", "g1")
-	db.Exec("INSERT INTO user_groups (user_id, group_id) VALUES (?, ?)", "u1", "g2")
-	db.Exec("INSERT INTO model_accesses (id, name, model_name, group_id, can_read) VALUES (?, ?, ?, ?, ?)",
+	db.Exec("INSERT INTO `user` (id, username, email, is_superuser) VALUES (?, ?, ?, ?)", "u1", "user1", "user1@test.com", false)
+	db.Exec("INSERT INTO `group` (id, name) VALUES (?, ?)", "g1", "CRM/Reader")
+	db.Exec("INSERT INTO `group` (id, name) VALUES (?, ?)", "g2", "CRM/Writer")
+	db.Exec("INSERT INTO user_group (user_id, group_id) VALUES (?, ?)", "u1", "g1")
+	db.Exec("INSERT INTO user_group (user_id, group_id) VALUES (?, ?)", "u1", "g2")
+	db.Exec("INSERT INTO model_access (id, name, model_name, group_id, can_read) VALUES (?, ?, ?, ?, ?)",
 		"ma1", "contact_reader", "contact", "g1", true)
-	db.Exec("INSERT INTO model_accesses (id, name, model_name, group_id, can_write) VALUES (?, ?, ?, ?, ?)",
+	db.Exec("INSERT INTO model_access (id, name, model_name, group_id, can_write) VALUES (?, ?, ?, ?, ?)",
 		"ma2", "contact_writer", "contact", "g2", true)
 
 	perms, err := svc.GetModelPermissions("u1", "contact")
@@ -164,9 +164,9 @@ func TestPermissionService_GlobalACL(t *testing.T) {
 	db := setupPermissionTestDB(t)
 	svc := NewPermissionService(db)
 
-	db.Exec("INSERT INTO users (id, username, email, is_superuser) VALUES (?, ?, ?, ?)", "u1", "user1", "user1@test.com", false)
+	db.Exec("INSERT INTO `user` (id, username, email, is_superuser) VALUES (?, ?, ?, ?)", "u1", "user1", "user1@test.com", false)
 	// Global ACL: group_id = '' applies to all users
-	db.Exec("INSERT INTO model_accesses (id, name, model_name, group_id, can_read, can_select) VALUES (?, ?, ?, ?, ?, ?)",
+	db.Exec("INSERT INTO model_access (id, name, model_name, group_id, can_read, can_select) VALUES (?, ?, ?, ?, ?, ?)",
 		"ma1", "contact_global", "contact", "", true, true)
 
 	perms, err := svc.GetModelPermissions("u1", "contact")
@@ -189,18 +189,18 @@ func TestPermissionService_ImpliedGroups(t *testing.T) {
 	db := setupPermissionTestDB(t)
 	svc := NewPermissionService(db)
 
-	db.Exec("INSERT INTO users (id, username, email, is_superuser) VALUES (?, ?, ?, ?)", "u1", "manager", "mgr@test.com", false)
-	db.Exec("INSERT INTO groups (id, name) VALUES (?, ?)", "g_mgr", "CRM/Manager")
-	db.Exec("INSERT INTO groups (id, name) VALUES (?, ?)", "g_user", "CRM/User")
+	db.Exec("INSERT INTO `user` (id, username, email, is_superuser) VALUES (?, ?, ?, ?)", "u1", "manager", "mgr@test.com", false)
+	db.Exec("INSERT INTO `group` (id, name) VALUES (?, ?)", "g_mgr", "CRM/Manager")
+	db.Exec("INSERT INTO `group` (id, name) VALUES (?, ?)", "g_user", "CRM/User")
 	// CRM/Manager implies CRM/User
 	db.Exec("INSERT INTO group_implies (group_id, implied_group_id) VALUES (?, ?)", "g_mgr", "g_user")
 	// User is only directly in CRM/Manager
-	db.Exec("INSERT INTO user_groups (user_id, group_id) VALUES (?, ?)", "u1", "g_mgr")
+	db.Exec("INSERT INTO user_group (user_id, group_id) VALUES (?, ?)", "u1", "g_mgr")
 	// CRM/User has read on contact
-	db.Exec("INSERT INTO model_accesses (id, name, model_name, group_id, can_read) VALUES (?, ?, ?, ?, ?)",
+	db.Exec("INSERT INTO model_access (id, name, model_name, group_id, can_read) VALUES (?, ?, ?, ?, ?)",
 		"ma1", "contact_user", "contact", "g_user", true)
 	// CRM/Manager has delete on contact
-	db.Exec("INSERT INTO model_accesses (id, name, model_name, group_id, can_delete) VALUES (?, ?, ?, ?, ?)",
+	db.Exec("INSERT INTO model_access (id, name, model_name, group_id, can_delete) VALUES (?, ?, ?, ?, ?)",
 		"ma2", "contact_mgr", "contact", "g_mgr", true)
 
 	perms, err := svc.GetModelPermissions("u1", "contact")
@@ -223,10 +223,10 @@ func TestPermissionService_UserHasPermission(t *testing.T) {
 	db := setupPermissionTestDB(t)
 	svc := NewPermissionService(db)
 
-	db.Exec("INSERT INTO users (id, username, email, is_superuser) VALUES (?, ?, ?, ?)", "u1", "user1", "user1@test.com", false)
-	db.Exec("INSERT INTO groups (id, name) VALUES (?, ?)", "g1", "Sales")
-	db.Exec("INSERT INTO user_groups (user_id, group_id) VALUES (?, ?)", "u1", "g1")
-	db.Exec("INSERT INTO model_accesses (id, name, model_name, group_id, can_read, can_create) VALUES (?, ?, ?, ?, ?, ?)",
+	db.Exec("INSERT INTO `user` (id, username, email, is_superuser) VALUES (?, ?, ?, ?)", "u1", "user1", "user1@test.com", false)
+	db.Exec("INSERT INTO `group` (id, name) VALUES (?, ?)", "g1", "Sales")
+	db.Exec("INSERT INTO user_group (user_id, group_id) VALUES (?, ?)", "u1", "g1")
+	db.Exec("INSERT INTO model_access (id, name, model_name, group_id, can_read, can_create) VALUES (?, ?, ?, ?, ?, ?)",
 		"ma1", "contact_sales", "contact", "g1", true, true)
 
 	tests := []struct {

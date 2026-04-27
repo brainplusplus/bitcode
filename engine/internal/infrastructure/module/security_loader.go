@@ -15,12 +15,23 @@ import (
 	"github.com/bitcode-framework/bitcode/internal/compiler/parser"
 )
 
+type TableNameFunc func(modelName string) string
+
 type SecurityLoader struct {
-	db *gorm.DB
+	db        *gorm.DB
+	tableName TableNameFunc
 }
 
 func NewSecurityLoader(db *gorm.DB) *SecurityLoader {
-	return &SecurityLoader{db: db}
+	return &SecurityLoader{db: db, tableName: func(name string) string { return name }}
+}
+
+func (l *SecurityLoader) SetTableNameResolver(fn TableNameFunc) {
+	l.tableName = fn
+}
+
+func (l *SecurityLoader) tn(model string) string {
+	return l.tableName(model)
 }
 
 func (l *SecurityLoader) LoadFromDirectory(secDir string, moduleName string) error {
@@ -86,12 +97,12 @@ func (l *SecurityLoader) SyncToDB(secDef *parser.SecurityDefinition, moduleName 
 
 func (l *SecurityLoader) syncGroup(secDef *parser.SecurityDefinition, moduleName string) (string, error) {
 	var existingID string
-	err := l.db.Table("groups").Select("id").Where("name = ?", secDef.Name).Pluck("id", &existingID).Error
+	err := l.db.Table(l.tn("group")).Select("id").Where("name = ?", secDef.Name).Pluck("id", &existingID).Error
 
 	if err != nil || existingID == "" {
 		groupID := uuid.New().String()
 		now := time.Now()
-		return groupID, l.db.Table("groups").Create(map[string]any{
+		return groupID, l.db.Table(l.tn("group")).Create(map[string]any{
 			"id":              groupID,
 			"name":            secDef.Name,
 			"display_name":    secDef.Label,
@@ -106,14 +117,14 @@ func (l *SecurityLoader) syncGroup(secDef *parser.SecurityDefinition, moduleName
 	}
 
 	var modifiedSource string
-	l.db.Table("groups").Select("modified_source").Where("id = ?", existingID).Pluck("modified_source", &modifiedSource)
+	l.db.Table(l.tn("group")).Select("modified_source").Where("id = ?", existingID).Pluck("modified_source", &modifiedSource)
 
 	if modifiedSource == "ui" {
 		log.Printf("[SECURITY] skipping group %s (modified via UI)", secDef.Name)
 		return existingID, nil
 	}
 
-	return existingID, l.db.Table("groups").Where("id = ?", existingID).Updates(map[string]any{
+	return existingID, l.db.Table(l.tn("group")).Where("id = ?", existingID).Updates(map[string]any{
 		"display_name":    secDef.Label,
 		"category":        secDef.Category,
 		"share":           secDef.Share,
@@ -125,16 +136,16 @@ func (l *SecurityLoader) syncGroup(secDef *parser.SecurityDefinition, moduleName
 }
 
 func (l *SecurityLoader) syncImpliedGroups(groupID string, implies []string) error {
-	l.db.Table("group_implies").Where("group_id = ?", groupID).Delete(nil)
+	l.db.Table(l.tn("group") + "_implies").Where("group_id = ?", groupID).Delete(nil)
 
 	for _, impliedName := range implies {
 		var impliedID string
-		l.db.Table("groups").Select("id").Where("name = ?", impliedName).Pluck("id", &impliedID)
+		l.db.Table(l.tn("group")).Select("id").Where("name = ?", impliedName).Pluck("id", &impliedID)
 		if impliedID == "" {
 			log.Printf("[WARN] implied group %q not found, skipping", impliedName)
 			continue
 		}
-		l.db.Table("group_implies").Create(map[string]any{
+		l.db.Table(l.tn("group") + "_implies").Create(map[string]any{
 			"group_id":         groupID,
 			"implied_group_id": impliedID,
 		})
@@ -143,7 +154,7 @@ func (l *SecurityLoader) syncImpliedGroups(groupID string, implies []string) err
 }
 
 func (l *SecurityLoader) syncModelAccess(groupID string, access map[string]parser.SecurityACL, moduleName string) error {
-	l.db.Table("model_accesses").Where("group_id = ? AND module = ? AND modified_source = ?", groupID, moduleName, "json").Delete(nil)
+	l.db.Table(l.tn("model_access")).Where("group_id = ? AND module = ? AND modified_source = ?", groupID, moduleName, "json").Delete(nil)
 
 	allPerms := []string{"select", "read", "write", "create", "delete", "print", "email", "report", "export", "import", "mask", "clone"}
 
@@ -167,7 +178,7 @@ func (l *SecurityLoader) syncModelAccess(groupID string, access map[string]parse
 			row["can_"+p] = permSet[p]
 		}
 
-		if err := l.db.Table("model_accesses").Create(row).Error; err != nil {
+		if err := l.db.Table(l.tn("model_access")).Create(row).Error; err != nil {
 			return err
 		}
 	}
@@ -184,13 +195,13 @@ func (l *SecurityLoader) syncRecordRules(groupID string, rules []parser.Security
 		}
 
 		var existingID string
-		l.db.Table("record_rules").Select("id").Where("name = ?", rule.Name).Pluck("id", &existingID)
+		l.db.Table(l.tn("record_rule")).Select("id").Where("name = ?", rule.Name).Pluck("id", &existingID)
 
 		ruleID := existingID
 		if ruleID == "" {
 			ruleID = uuid.New().String()
 			now := time.Now()
-			l.db.Table("record_rules").Create(map[string]any{
+			l.db.Table(l.tn("record_rule")).Create(map[string]any{
 				"id":              ruleID,
 				"name":            rule.Name,
 				"model_name":      rule.Model,
@@ -208,9 +219,9 @@ func (l *SecurityLoader) syncRecordRules(groupID string, rules []parser.Security
 			})
 		} else {
 			var modSrc string
-			l.db.Table("record_rules").Select("modified_source").Where("id = ?", ruleID).Pluck("modified_source", &modSrc)
+			l.db.Table(l.tn("record_rule")).Select("modified_source").Where("id = ?", ruleID).Pluck("modified_source", &modSrc)
 			if modSrc != "ui" {
-				l.db.Table("record_rules").Where("id = ?", ruleID).Updates(map[string]any{
+				l.db.Table(l.tn("record_rule")).Where("id = ?", ruleID).Updates(map[string]any{
 					"model_name":      rule.Model,
 					"domain_filter":   domainJSON,
 					"can_read":        rule.IsPermRead(),
@@ -226,8 +237,8 @@ func (l *SecurityLoader) syncRecordRules(groupID string, rules []parser.Security
 			}
 		}
 
-		l.db.Table("record_rule_groups").Where("record_rule_id = ?", ruleID).Delete(nil)
-		l.db.Table("record_rule_groups").Create(map[string]any{
+		l.db.Table(l.tn("record_rule") + "_groups").Where("record_rule_id = ?", ruleID).Delete(nil)
+		l.db.Table(l.tn("record_rule") + "_groups").Create(map[string]any{
 			"record_rule_id": ruleID,
 			"group_id":       groupID,
 		})
@@ -236,9 +247,9 @@ func (l *SecurityLoader) syncRecordRules(groupID string, rules []parser.Security
 }
 
 func (l *SecurityLoader) syncGroupMenus(groupID string, menus []string, moduleName string) error {
-	l.db.Table("group_menus").Where("group_id = ? AND module = ?", groupID, moduleName).Delete(nil)
+	l.db.Table(l.tn("group") + "_menus").Where("group_id = ? AND module = ?", groupID, moduleName).Delete(nil)
 	for _, menu := range menus {
-		l.db.Table("group_menus").Create(map[string]any{
+		l.db.Table(l.tn("group") + "_menus").Create(map[string]any{
 			"group_id":     groupID,
 			"menu_item_id": menu,
 			"module":       moduleName,
@@ -248,9 +259,9 @@ func (l *SecurityLoader) syncGroupMenus(groupID string, menus []string, moduleNa
 }
 
 func (l *SecurityLoader) syncGroupPages(groupID string, pages []string, moduleName string) error {
-	l.db.Table("group_pages").Where("group_id = ? AND module = ?", groupID, moduleName).Delete(nil)
+	l.db.Table(l.tn("group") + "_pages").Where("group_id = ? AND module = ?", groupID, moduleName).Delete(nil)
 	for _, page := range pages {
-		l.db.Table("group_pages").Create(map[string]any{
+		l.db.Table(l.tn("group") + "_pages").Create(map[string]any{
 			"group_id":  groupID,
 			"page_name": page,
 			"module":    moduleName,

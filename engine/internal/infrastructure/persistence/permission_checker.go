@@ -54,11 +54,20 @@ func (p *ModelPermissions) Has(operation string) bool {
 }
 
 type PermissionService struct {
-	db *gorm.DB
+	db        *gorm.DB
+	tableName func(string) string
 }
 
 func NewPermissionService(db *gorm.DB) *PermissionService {
-	return &PermissionService{db: db}
+	return &PermissionService{db: db, tableName: func(n string) string { return n }}
+}
+
+func (s *PermissionService) SetTableNameResolver(fn func(string) string) {
+	s.tableName = fn
+}
+
+func (s *PermissionService) tn(model string) string {
+	return s.tableName(model)
 }
 
 func (s *PermissionService) UserHasPermission(userID string, permission string) (bool, error) {
@@ -97,7 +106,7 @@ func (s *PermissionService) GetModelPermissions(userID string, modelName string)
 	var user struct {
 		IsSuperuser bool
 	}
-	if err := s.db.Table("users").Select("is_superuser").Where("id = ?", userID).First(&user).Error; err != nil {
+	if err := s.db.Table(s.tn("user")).Select("is_superuser").Where("id = ?", userID).First(&user).Error; err != nil {
 		return &ModelPermissions{}, nil
 	}
 	if user.IsSuperuser {
@@ -128,7 +137,7 @@ func (s *PermissionService) GetModelPermissions(userID string, modelName string)
 		CanClone  bool
 	}
 
-	query := s.db.Table("model_accesses").
+	query := s.db.Table(s.tn("model_access")).
 		Select("can_select, can_read, can_write, can_create, can_delete, can_print, can_email, can_report, can_export, can_import, can_mask, can_clone").
 		Where("model_name = ?", modelName)
 
@@ -187,7 +196,7 @@ func (s *PermissionService) GetModelPermissions(userID string, modelName string)
 
 func (s *PermissionService) ResolveUserGroupIDs(userID string) ([]string, error) {
 	var directGroupIDs []string
-	if err := s.db.Table("user_groups").
+	if err := s.db.Table(s.tn("user") + "_" + s.tn("group")).
 		Select("group_id").
 		Where("user_id = ?", userID).
 		Pluck("group_id", &directGroupIDs).Error; err != nil {
@@ -212,7 +221,7 @@ func (s *PermissionService) ResolveUserGroupIDs(userID string) ([]string, error)
 		allGroupIDs[current] = true
 
 		var impliedIDs []string
-		if err := s.db.Table("group_implies").
+		if err := s.db.Table(s.tn("group") + "_implies").
 			Select("implied_group_id").
 			Where("group_id = ?", current).
 			Pluck("implied_group_id", &impliedIDs).Error; err != nil {

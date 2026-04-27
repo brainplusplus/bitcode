@@ -323,17 +323,15 @@ func (a *AdminPanel) renderAPITab(html *strings.Builder, model *parser.ModelDefi
 		if moduleName == "" {
 			moduleName = "base"
 		}
-		plural := model.Name + "s"
-
 		html.WriteString(`<div class="card"><div class="card-title">Generated Endpoints</div><table><thead><tr><th>Method</th><th>Path</th><th>Action</th></tr></thead><tbody>`)
 		endpoints := []struct{ method, path, action string }{
-			{"GET", fmt.Sprintf("/api/v1/%s/%s", moduleName, plural), "list"},
-			{"GET", fmt.Sprintf("/api/v1/%s/%s/:id", moduleName, plural), "read"},
-			{"POST", fmt.Sprintf("/api/v1/%s/%s", moduleName, plural), "create"},
-			{"PUT", fmt.Sprintf("/api/v1/%s/%s/:id", moduleName, plural), "update"},
-			{"DELETE", fmt.Sprintf("/api/v1/%s/%s/:id", moduleName, plural), "delete"},
-			{"POST", fmt.Sprintf("/api/v1/%s/%s/:id/clone", moduleName, plural), "clone"},
-			{"POST", fmt.Sprintf("/api/v1/%s/%s/onchange", moduleName, plural), "onchange"},
+			{"GET", fmt.Sprintf("/api/v1/%s/%s", moduleName, model.Name), "list"},
+			{"GET", fmt.Sprintf("/api/v1/%s/%s/:id", moduleName, model.Name), "read"},
+			{"POST", fmt.Sprintf("/api/v1/%s/%s", moduleName, model.Name), "create"},
+			{"PUT", fmt.Sprintf("/api/v1/%s/%s/:id", moduleName, model.Name), "update"},
+			{"DELETE", fmt.Sprintf("/api/v1/%s/%s/:id", moduleName, model.Name), "delete"},
+			{"POST", fmt.Sprintf("/api/v1/%s/%s/:id/clone", moduleName, model.Name), "clone"},
+			{"POST", fmt.Sprintf("/api/v1/%s/%s/onchange", moduleName, model.Name), "onchange"},
 		}
 		methodColors := map[string]string{"GET": "blue", "POST": "green", "PUT": "yellow", "DELETE": "red"}
 		for _, ep := range endpoints {
@@ -348,14 +346,14 @@ func (a *AdminPanel) renderAPITab(html *strings.Builder, model *parser.ModelDefi
 		if autoPages {
 			html.WriteString(`<div class="card"><div class="card-title">Generated Pages</div><table><thead><tr><th>URL</th><th>Type</th></tr></thead><tbody>`)
 			pages := []struct{ url, typ string }{
-				{fmt.Sprintf("/%s/%s", moduleName, plural), "list"},
-				{fmt.Sprintf("/%s/%s/new", moduleName, plural), "create"},
-				{fmt.Sprintf("/%s/%s/:id", moduleName, plural), "detail"},
-				{fmt.Sprintf("/%s/%s/:id/edit", moduleName, plural), "edit"},
+				{fmt.Sprintf("/%s/%s", moduleName, model.Name), "list"},
+				{fmt.Sprintf("/%s/%s/new", moduleName, model.Name), "create"},
+				{fmt.Sprintf("/%s/%s/:id", moduleName, model.Name), "detail"},
+				{fmt.Sprintf("/%s/%s/:id/edit", moduleName, model.Name), "edit"},
 			}
 			if modal {
 				pages = []struct{ url, typ string }{
-					{fmt.Sprintf("/%s/%s", moduleName, plural), "list (with modal CRUD)"},
+					{fmt.Sprintf("/%s/%s", moduleName, model.Name), "list (with modal CRUD)"},
 				}
 			}
 			for _, p := range pages {

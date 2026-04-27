@@ -16,18 +16,18 @@ func setupRecordRuleTestDB(t *testing.T) *gorm.DB {
 	}
 
 	sqlDB, _ := db.DB()
-	sqlDB.Exec(`CREATE TABLE users (
+	sqlDB.Exec(`CREATE TABLE "user" (
 		id TEXT PRIMARY KEY,
 		username TEXT,
 		is_superuser INTEGER DEFAULT 0
 	)`)
-	sqlDB.Exec(`CREATE TABLE groups (
+	sqlDB.Exec(`CREATE TABLE "group" (
 		id TEXT PRIMARY KEY,
 		name TEXT UNIQUE,
 		display_name TEXT,
 		category TEXT
 	)`)
-	sqlDB.Exec(`CREATE TABLE user_groups (
+	sqlDB.Exec(`CREATE TABLE user_group (
 		user_id TEXT,
 		group_id TEXT,
 		PRIMARY KEY (user_id, group_id)
@@ -37,7 +37,7 @@ func setupRecordRuleTestDB(t *testing.T) *gorm.DB {
 		implied_group_id TEXT,
 		PRIMARY KEY (group_id, implied_group_id)
 	)`)
-	sqlDB.Exec(`CREATE TABLE record_rules (
+	sqlDB.Exec(`CREATE TABLE record_rule (
 		id TEXT PRIMARY KEY,
 		name TEXT,
 		model_name TEXT,
@@ -64,8 +64,8 @@ func setupRecordRuleTestDB(t *testing.T) *gorm.DB {
 func TestRecordRuleService_SuperuserBypass(t *testing.T) {
 	db := setupRecordRuleTestDB(t)
 	sqlDB, _ := db.DB()
-	sqlDB.Exec(`INSERT INTO users (id, username, is_superuser) VALUES ('u-1', 'admin', 1)`)
-	sqlDB.Exec(`INSERT INTO record_rules (id, name, model_name, domain_filter, active) VALUES ('r-1', 'strict_rule', 'contact', '[["id","=","impossible"]]', 1)`)
+	sqlDB.Exec(`INSERT INTO "user" (id, username, is_superuser) VALUES ('u-1', 'admin', 1)`)
+	sqlDB.Exec(`INSERT INTO record_rule (id, name, model_name, domain_filter, active) VALUES ('r-1', 'strict_rule', 'contact', '[["id","=","impossible"]]', 1)`)
 
 	svc := NewRecordRuleService(db)
 	filters, err := svc.GetFilters("u-1", "contact", "read")
@@ -80,7 +80,7 @@ func TestRecordRuleService_SuperuserBypass(t *testing.T) {
 func TestRecordRuleService_NoRules_DefaultAllow(t *testing.T) {
 	db := setupRecordRuleTestDB(t)
 	sqlDB, _ := db.DB()
-	sqlDB.Exec(`INSERT INTO users (id, username, is_superuser) VALUES ('u-1', 'john', 0)`)
+	sqlDB.Exec(`INSERT INTO "user" (id, username, is_superuser) VALUES ('u-1', 'john', 0)`)
 
 	svc := NewRecordRuleService(db)
 	filters, err := svc.GetFilters("u-1", "contact", "read")
@@ -95,8 +95,8 @@ func TestRecordRuleService_NoRules_DefaultAllow(t *testing.T) {
 func TestRecordRuleService_GlobalRule(t *testing.T) {
 	db := setupRecordRuleTestDB(t)
 	sqlDB, _ := db.DB()
-	sqlDB.Exec(`INSERT INTO users (id, username, is_superuser) VALUES ('u-1', 'john', 0)`)
-	sqlDB.Exec(`INSERT INTO record_rules (id, name, model_name, domain_filter, can_read, active) VALUES ('r-1', 'active_only', 'contact', '[["active","=",true]]', 1, 1)`)
+	sqlDB.Exec(`INSERT INTO "user" (id, username, is_superuser) VALUES ('u-1', 'john', 0)`)
+	sqlDB.Exec(`INSERT INTO record_rule (id, name, model_name, domain_filter, can_read, active) VALUES ('r-1', 'active_only', 'contact', '[["active","=",true]]', 1, 1)`)
 
 	svc := NewRecordRuleService(db)
 	filters, err := svc.GetFilters("u-1", "contact", "read")
@@ -114,10 +114,10 @@ func TestRecordRuleService_GlobalRule(t *testing.T) {
 func TestRecordRuleService_GroupRule_UserInGroup(t *testing.T) {
 	db := setupRecordRuleTestDB(t)
 	sqlDB, _ := db.DB()
-	sqlDB.Exec(`INSERT INTO users (id, username, is_superuser) VALUES ('u-1', 'john', 0)`)
-	sqlDB.Exec(`INSERT INTO groups (id, name) VALUES ('g-1', 'crm.user')`)
-	sqlDB.Exec(`INSERT INTO user_groups (user_id, group_id) VALUES ('u-1', 'g-1')`)
-	sqlDB.Exec(`INSERT INTO record_rules (id, name, model_name, domain_filter, can_read, active) VALUES ('r-1', 'own_contacts', 'contact', '[["created_by","=","{{user.id}}"]]', 1, 1)`)
+	sqlDB.Exec(`INSERT INTO "user" (id, username, is_superuser) VALUES ('u-1', 'john', 0)`)
+	sqlDB.Exec(`INSERT INTO "group" (id, name) VALUES ('g-1', 'crm.user')`)
+	sqlDB.Exec(`INSERT INTO user_group (user_id, group_id) VALUES ('u-1', 'g-1')`)
+	sqlDB.Exec(`INSERT INTO record_rule (id, name, model_name, domain_filter, can_read, active) VALUES ('r-1', 'own_contacts', 'contact', '[["created_by","=","{{user.id}}"]]', 1, 1)`)
 	sqlDB.Exec(`INSERT INTO record_rule_groups (record_rule_id, group_id) VALUES ('r-1', 'g-1')`)
 
 	svc := NewRecordRuleService(db)
@@ -136,10 +136,10 @@ func TestRecordRuleService_GroupRule_UserInGroup(t *testing.T) {
 func TestRecordRuleService_GroupRule_UserNotInGroup(t *testing.T) {
 	db := setupRecordRuleTestDB(t)
 	sqlDB, _ := db.DB()
-	sqlDB.Exec(`INSERT INTO users (id, username, is_superuser) VALUES ('u-1', 'john', 0)`)
-	sqlDB.Exec(`INSERT INTO groups (id, name) VALUES ('g-1', 'crm.user'), ('g-2', 'sales.user')`)
-	sqlDB.Exec(`INSERT INTO user_groups (user_id, group_id) VALUES ('u-1', 'g-2')`)
-	sqlDB.Exec(`INSERT INTO record_rules (id, name, model_name, domain_filter, can_read, active) VALUES ('r-1', 'crm_only', 'contact', '[["created_by","=","{{user.id}}"]]', 1, 1)`)
+	sqlDB.Exec(`INSERT INTO "user" (id, username, is_superuser) VALUES ('u-1', 'john', 0)`)
+	sqlDB.Exec(`INSERT INTO "group" (id, name) VALUES ('g-1', 'crm.user'), ('g-2', 'sales.user')`)
+	sqlDB.Exec(`INSERT INTO user_group (user_id, group_id) VALUES ('u-1', 'g-2')`)
+	sqlDB.Exec(`INSERT INTO record_rule (id, name, model_name, domain_filter, can_read, active) VALUES ('r-1', 'crm_only', 'contact', '[["created_by","=","{{user.id}}"]]', 1, 1)`)
 	sqlDB.Exec(`INSERT INTO record_rule_groups (record_rule_id, group_id) VALUES ('r-1', 'g-1')`)
 
 	svc := NewRecordRuleService(db)
@@ -155,8 +155,8 @@ func TestRecordRuleService_GroupRule_UserNotInGroup(t *testing.T) {
 func TestRecordRuleService_OperationFiltering(t *testing.T) {
 	db := setupRecordRuleTestDB(t)
 	sqlDB, _ := db.DB()
-	sqlDB.Exec(`INSERT INTO users (id, username, is_superuser) VALUES ('u-1', 'john', 0)`)
-	sqlDB.Exec(`INSERT INTO record_rules (id, name, model_name, domain_filter, can_read, can_write, can_create, can_delete, active) VALUES ('r-1', 'read_only_rule', 'contact', '[["active","=",true]]', 1, 0, 0, 0, 1)`)
+	sqlDB.Exec(`INSERT INTO "user" (id, username, is_superuser) VALUES ('u-1', 'john', 0)`)
+	sqlDB.Exec(`INSERT INTO record_rule (id, name, model_name, domain_filter, can_read, can_write, can_create, can_delete, active) VALUES ('r-1', 'read_only_rule', 'contact', '[["active","=",true]]', 1, 0, 0, 0, 1)`)
 
 	svc := NewRecordRuleService(db)
 
@@ -179,11 +179,11 @@ func TestRecordRuleService_OperationFiltering(t *testing.T) {
 func TestRecordRuleService_ImpliedGroups(t *testing.T) {
 	db := setupRecordRuleTestDB(t)
 	sqlDB, _ := db.DB()
-	sqlDB.Exec(`INSERT INTO users (id, username, is_superuser) VALUES ('u-1', 'john', 0)`)
-	sqlDB.Exec(`INSERT INTO groups (id, name) VALUES ('g-1', 'base.user'), ('g-2', 'crm.user')`)
+	sqlDB.Exec(`INSERT INTO "user" (id, username, is_superuser) VALUES ('u-1', 'john', 0)`)
+	sqlDB.Exec(`INSERT INTO "group" (id, name) VALUES ('g-1', 'base.user'), ('g-2', 'crm.user')`)
 	sqlDB.Exec(`INSERT INTO group_implies (group_id, implied_group_id) VALUES ('g-2', 'g-1')`)
-	sqlDB.Exec(`INSERT INTO user_groups (user_id, group_id) VALUES ('u-1', 'g-2')`)
-	sqlDB.Exec(`INSERT INTO record_rules (id, name, model_name, domain_filter, can_read, active) VALUES ('r-1', 'base_rule', 'user', '[["active","=",true]]', 1, 1)`)
+	sqlDB.Exec(`INSERT INTO user_group (user_id, group_id) VALUES ('u-1', 'g-2')`)
+	sqlDB.Exec(`INSERT INTO record_rule (id, name, model_name, domain_filter, can_read, active) VALUES ('r-1', 'base_rule', 'user', '[["active","=",true]]', 1, 1)`)
 	sqlDB.Exec(`INSERT INTO record_rule_groups (record_rule_id, group_id) VALUES ('r-1', 'g-1')`)
 
 	svc := NewRecordRuleService(db)
@@ -199,10 +199,10 @@ func TestRecordRuleService_ImpliedGroups(t *testing.T) {
 func TestRecordRuleService_LegacyGroupNames(t *testing.T) {
 	db := setupRecordRuleTestDB(t)
 	sqlDB, _ := db.DB()
-	sqlDB.Exec(`INSERT INTO users (id, username, is_superuser) VALUES ('u-1', 'john', 0)`)
-	sqlDB.Exec(`INSERT INTO groups (id, name) VALUES ('g-1', 'crm.user')`)
-	sqlDB.Exec(`INSERT INTO user_groups (user_id, group_id) VALUES ('u-1', 'g-1')`)
-	sqlDB.Exec(`INSERT INTO record_rules (id, name, model_name, group_names, domain_filter, can_read, active) VALUES ('r-1', 'legacy_rule', 'contact', 'crm.user', '[["created_by","=","{{user.id}}"]]', 1, 1)`)
+	sqlDB.Exec(`INSERT INTO "user" (id, username, is_superuser) VALUES ('u-1', 'john', 0)`)
+	sqlDB.Exec(`INSERT INTO "group" (id, name) VALUES ('g-1', 'crm.user')`)
+	sqlDB.Exec(`INSERT INTO user_group (user_id, group_id) VALUES ('u-1', 'g-1')`)
+	sqlDB.Exec(`INSERT INTO record_rule (id, name, model_name, group_names, domain_filter, can_read, active) VALUES ('r-1', 'legacy_rule', 'contact', 'crm.user', '[["created_by","=","{{user.id}}"]]', 1, 1)`)
 
 	svc := NewRecordRuleService(db)
 	filters, err := svc.GetFilters("u-1", "contact", "read")
@@ -217,8 +217,8 @@ func TestRecordRuleService_LegacyGroupNames(t *testing.T) {
 func TestRecordRuleService_InactiveRuleIgnored(t *testing.T) {
 	db := setupRecordRuleTestDB(t)
 	sqlDB, _ := db.DB()
-	sqlDB.Exec(`INSERT INTO users (id, username, is_superuser) VALUES ('u-1', 'john', 0)`)
-	sqlDB.Exec(`INSERT INTO record_rules (id, name, model_name, domain_filter, can_read, active) VALUES ('r-1', 'inactive', 'contact', '[["id","=","1"]]', 1, 0)`)
+	sqlDB.Exec(`INSERT INTO "user" (id, username, is_superuser) VALUES ('u-1', 'john', 0)`)
+	sqlDB.Exec(`INSERT INTO record_rule (id, name, model_name, domain_filter, can_read, active) VALUES ('r-1', 'inactive', 'contact', '[["id","=","1"]]', 1, 0)`)
 
 	svc := NewRecordRuleService(db)
 	filters, _ := svc.GetFilters("u-1", "contact", "read")

@@ -1466,7 +1466,9 @@ func (a *App) wireMultiProtocol() {
 	}
 
 	permSvc := persistence.NewPermissionService(a.DB)
+	permSvc.SetTableNameResolver(func(name string) string { return a.ModelRegistry.TableName(name) })
 	rrSvc := persistence.NewRecordRuleService(a.DB)
+	rrSvc.SetTableNameResolver(func(name string) string { return a.ModelRegistry.TableName(name) })
 
 	swaggerGen := api.NewSwaggerGenerator()
 	gqlBuilder := gqlPkg.NewSchemaBuilder(gqlPkg.NewResolver(a.DB, a.ModelRegistry, permSvc, rrSvc))
@@ -1559,6 +1561,9 @@ func (a *App) installModule(modPath string) error {
 	if a.DB != nil {
 		secDir := filepath.Join(modPath, "securities")
 		secLoader := module.NewSecurityLoader(a.DB)
+		secLoader.SetTableNameResolver(func(name string) string {
+			return a.ModelRegistry.TableName(name)
+		})
 		if _, statErr := os.Stat(secDir); statErr == nil {
 			if err := secLoader.LoadFromDirectory(secDir, modName); err != nil {
 				log.Printf("[WARN] failed to load securities for %s: %v", modName, err)
@@ -1606,8 +1611,12 @@ func (a *App) installModule(modPath string) error {
 	}
 	router.SetEventBus(a.EventBus)
 	if a.DB != nil {
-		router.SetPermissionService(persistence.NewPermissionService(a.DB))
-		router.SetRecordRuleService(persistence.NewRecordRuleService(a.DB))
+		routerPermSvc := persistence.NewPermissionService(a.DB)
+		routerPermSvc.SetTableNameResolver(func(name string) string { return a.ModelRegistry.TableName(name) })
+		routerRRSvc := persistence.NewRecordRuleService(a.DB)
+		routerRRSvc.SetTableNameResolver(func(name string) string { return a.ModelRegistry.TableName(name) })
+		router.SetPermissionService(routerPermSvc)
+		router.SetRecordRuleService(routerRRSvc)
 	}
 	for _, apiDef := range allAPIs {
 		if apiDef.Auth {
