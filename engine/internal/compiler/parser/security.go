@@ -7,8 +7,9 @@ import (
 )
 
 var allPermissions = []string{
-	"select", "read", "write", "create", "delete", "export",
-	"import", "print", "email", "share", "report", "submit",
+	"select", "read", "write", "create", "delete",
+	"print", "email", "report",
+	"export", "import", "mask", "clone",
 }
 
 type SecurityACL []string

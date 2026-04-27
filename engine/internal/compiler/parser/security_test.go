@@ -109,7 +109,7 @@ func TestParseSecurity_AllShorthand(t *testing.T) {
 	expected := map[string]bool{
 		"select": true, "read": true, "write": true, "create": true,
 		"delete": true, "export": true, "import": true, "print": true,
-		"email": true, "share": true, "report": true, "submit": true,
+		"email": true, "report": true, "mask": true, "clone": true,
 	}
 	for _, p := range perms {
 		if !expected[p] {
