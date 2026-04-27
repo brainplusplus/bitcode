@@ -8,44 +8,22 @@ import (
 )
 
 func (a *AdminPanel) listGroups(c *fiber.Ctx) error {
-	gt := a.modelRegistry.TableName("group")
-	ugt := a.modelRegistry.TableName("user") + "_" + gt
-	var groups []map[string]any
-	a.db.Table(gt).
-		Select(gt+".id, "+gt+".name, "+gt+".display_name, "+gt+".category, "+gt+".share, "+gt+".module, "+gt+".modified_source, (SELECT COUNT(*) FROM "+ugt+" WHERE "+ugt+".group_id = "+gt+".id) as user_count").
-		Order("category, name").
-		Find(&groups)
-
 	var html strings.Builder
 	html.WriteString(a.pageHeader("Groups", "groups"))
 
-	html.WriteString(fmt.Sprintf(`<div class="list-toolbar"><div class="list-count text-muted">%d groups</div></div>`, len(groups)))
-
-	html.WriteString(`<div class="card"><table><thead><tr><th>Name</th><th>Label</th><th>Category</th><th>Share</th><th>Module</th><th>Users</th><th>Source</th></tr></thead><tbody>`)
-	for _, g := range groups {
-		name := fmt.Sprintf("%v", g["name"])
-		displayName := fmt.Sprintf("%v", g["display_name"])
-		category := fmt.Sprintf("%v", g["category"])
-		module := fmt.Sprintf("%v", g["module"])
-		source := fmt.Sprintf("%v", g["modified_source"])
-		userCount := fmt.Sprintf("%v", g["user_count"])
-		share := g["share"]
-		shareBadge := `<span class="text-muted">No</span>`
-		if share == true || share == int64(1) || share == "1" {
-			shareBadge = `<span class="badge blue">Yes</span>`
-		}
-		sourceBadge := fmt.Sprintf(`<span class="badge muted">%s</span>`, source)
-		if source == "ui" {
-			sourceBadge = `<span class="badge green">ui</span>`
-		}
-
-		html.WriteString(fmt.Sprintf(`<tr><td><a href="/admin/groups/%s" class="fw-500">%s</a></td><td>%s</td><td><span class="badge muted">%s</span></td><td>%s</td><td><span class="badge muted">%s</span></td><td>%s</td><td>%s</td></tr>`,
-			name, name, displayName, category, shareBadge, module, userCount, sourceBadge))
+	columns := []map[string]any{
+		{"field": "name", "label": "Name", "sortable": true, "filterable": true},
+		{"field": "label", "label": "Label", "sortable": true},
+		{"field": "category", "label": "Category", "sortable": true, "filterable": true},
+		{"field": "share", "label": "Share", "type": "boolean"},
+		{"field": "module", "label": "Module", "sortable": true, "filterable": true},
+		{"field": "users", "label": "Users", "type": "number"},
+		{"field": "source", "label": "Source", "filterable": true},
 	}
-	if len(groups) == 0 {
-		html.WriteString(`<tr><td colspan="7" class="empty-state">No groups defined. Load modules with securities/*.json.</td></tr>`)
-	}
-	html.WriteString(`</tbody></table></div>`)
+
+	html.WriteString(adminDatatable(columns, "/admin/api/list/groups", map[string]string{
+		"detail-url": "/admin/groups/:id",
+	}))
 	html.WriteString(pageFooter())
 
 	c.Set("Content-Type", "text/html; charset=utf-8")

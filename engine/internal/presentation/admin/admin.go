@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"encoding/json"
 	"fmt"
 	"sort"
 	"strings"
@@ -115,6 +116,11 @@ func (a *AdminPanel) RegisterRoutes(app *fiber.App) {
 	api.Get("/securities/diff", a.apiSecurityDiff)
 	api.Get("/securities/history", a.apiSecurityHistory)
 	api.Post("/securities/rollback/:id", a.apiSecurityRollback)
+
+	api.Get("/list/models", a.apiListModelsData)
+	api.Get("/list/modules", a.apiListModulesData)
+	api.Get("/list/views", a.apiListViewsData)
+	api.Get("/list/groups", a.apiListGroupsData)
 }
 
 func (a *AdminPanel) dashboard(c *fiber.Ctx) error {
@@ -216,7 +222,10 @@ func activeClass(current, tab string) string {
 }
 
 func pageFooter() string {
-	return `</div></div></div></body></html>`
+	return `</div></div></div>
+<script type="module" src="/assets/components/bc-components.esm.js"></script>
+<script nomodule src="/assets/components/bc-components.js"></script>
+</body></html>`
 }
 
 func statCard(label, value, color string) string {
@@ -258,6 +267,15 @@ func sortedFieldNames(fields map[string]parser.FieldDefinition) []string {
 	}
 	sort.Strings(names)
 	return names
+}
+
+func adminDatatable(columns []map[string]any, apiUrl string, opts map[string]string) string {
+	colJSON, _ := json.Marshal(columns)
+	attrs := fmt.Sprintf(`columns='%s' api-url="%s" server-side="false"`, string(colJSON), apiUrl)
+	for k, v := range opts {
+		attrs += fmt.Sprintf(` %s="%s"`, k, v)
+	}
+	return fmt.Sprintf(`<bc-datatable %s></bc-datatable>`, attrs)
 }
 
 func cssBlock() string {

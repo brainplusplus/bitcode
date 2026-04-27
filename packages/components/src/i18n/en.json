@@ -38,6 +38,8 @@
   "datatable.presets": "Presets",
   "datatable.saveFilter": "Save Filter",
   "datatable.deleteSelected": "Delete Selected",
+  "datatable.clone": "Clone",
+  "datatable.import": "Import",
   "datatable.columns": "Columns",
 
   "filter.addCondition": "+ Condition",

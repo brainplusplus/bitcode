@@ -10,27 +10,21 @@ import (
 )
 
 func (a *AdminPanel) listModules(c *fiber.Ctx) error {
-	modules := a.moduleRegistry.List()
-
 	var html strings.Builder
 	html.WriteString(a.pageHeader("Modules", "modules"))
 
-	html.WriteString(fmt.Sprintf(`<div class="list-toolbar"><div class="list-count text-muted">%d modules installed</div></div>`, len(modules)))
-
-	html.WriteString(`<div class="card"><table><thead><tr><th>Name</th><th>Version</th><th>Label</th><th>Category</th><th>Dependencies</th><th>Status</th></tr></thead><tbody>`)
-	for _, m := range modules {
-		deps := strings.Join(m.Definition.Depends, ", ")
-		if deps == "" {
-			deps = `<span class="text-muted">&mdash;</span>`
-		}
-		label := m.Definition.Label
-		if label == "" {
-			label = m.Definition.Name
-		}
-		html.WriteString(fmt.Sprintf(`<tr><td><a href="/admin/modules/%s" class="fw-500">%s</a></td><td>%s</td><td class="text-muted">%s</td><td class="text-muted">%s</td><td>%s</td><td><span class="badge green">%s</span></td></tr>`,
-			m.Definition.Name, m.Definition.Name, m.Definition.Version, label, m.Definition.Category, deps, m.State))
+	columns := []map[string]any{
+		{"field": "name", "label": "Name", "sortable": true},
+		{"field": "version", "label": "Version"},
+		{"field": "label", "label": "Label", "sortable": true},
+		{"field": "category", "label": "Category", "sortable": true, "filterable": true},
+		{"field": "dependencies", "label": "Dependencies"},
+		{"field": "status", "label": "Status"},
 	}
-	html.WriteString(`</tbody></table></div>`)
+
+	html.WriteString(adminDatatable(columns, "/admin/api/list/modules", map[string]string{
+		"detail-url": "/admin/modules/:id",
+	}))
 	html.WriteString(pageFooter())
 
 	c.Set("Content-Type", "text/html; charset=utf-8")

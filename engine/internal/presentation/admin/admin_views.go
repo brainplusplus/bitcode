@@ -5,73 +5,27 @@ import (
 	"fmt"
 	"html/template"
 	"os"
-	"sort"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 func (a *AdminPanel) listViews(c *fiber.Ctx) error {
-	filterModule := c.Query("module")
-	views := a.views()
-
-	modules := make(map[string]bool)
-	for _, v := range views {
-		modules[v.Module] = true
-	}
-	modOrder := make([]string, 0, len(modules))
-	for m := range modules {
-		modOrder = append(modOrder, m)
-	}
-	sort.Strings(modOrder)
-
 	var html strings.Builder
 	html.WriteString(a.pageHeader("Views", "views"))
 
-	html.WriteString(`<div class="list-toolbar"><div class="list-filters">`)
-	activeAll := ""
-	if filterModule == "" {
-		activeAll = " active"
+	columns := []map[string]any{
+		{"field": "name", "label": "Name", "sortable": true, "filterable": true},
+		{"field": "type", "label": "Type", "sortable": true, "filterable": true},
+		{"field": "model", "label": "Model", "sortable": true, "filterable": true},
+		{"field": "title", "label": "Title", "sortable": true},
+		{"field": "module", "label": "Module", "sortable": true, "filterable": true},
+		{"field": "status", "label": "Status", "filterable": true},
 	}
-	html.WriteString(fmt.Sprintf(`<a href="/admin/views" class="filter-pill%s">All</a>`, activeAll))
-	for _, m := range modOrder {
-		active := ""
-		if filterModule == m {
-			active = " active"
-		}
-		html.WriteString(fmt.Sprintf(`<a href="/admin/views?module=%s" class="filter-pill%s">%s</a>`, m, active, m))
-	}
-	count := 0
-	for _, v := range views {
-		if filterModule == "" || v.Module == filterModule {
-			count++
-		}
-	}
-	html.WriteString(fmt.Sprintf(`</div><div class="list-count text-muted">%d of %d</div></div>`, count, len(views)))
 
-	keys := make([]string, 0, len(views))
-	for k := range views {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-
-	html.WriteString(`<div class="card"><table><thead><tr><th>Name</th><th>Type</th><th>Model</th><th>Title</th><th>Module</th><th>Status</th></tr></thead><tbody>`)
-	for _, key := range keys {
-		v := views[key]
-		if filterModule != "" && v.Module != filterModule {
-			continue
-		}
-		editBadge := `<span class="badge green">editable</span>`
-		if !v.Editable {
-			editBadge = `<span class="badge muted">embedded</span>`
-		}
-		html.WriteString(fmt.Sprintf(`<tr><td><a href="/admin/views/%s" class="fw-500">%s</a></td><td><span class="badge blue">%s</span></td><td>%s</td><td>%s</td><td><span class="badge muted">%s</span></td><td>%s</td></tr>`,
-			key, v.Def.Name, v.Def.Type, v.Def.Model, v.Def.Title, v.Module, editBadge))
-	}
-	if len(views) == 0 {
-		html.WriteString(`<tr><td colspan="6" class="empty-state">No views registered. Load modules first.</td></tr>`)
-	}
-	html.WriteString(`</tbody></table></div>`)
+	html.WriteString(adminDatatable(columns, "/admin/api/list/views", map[string]string{
+		"detail-url": "/admin/views/:id",
+	}))
 	html.WriteString(pageFooter())
 
 	c.Set("Content-Type", "text/html; charset=utf-8")

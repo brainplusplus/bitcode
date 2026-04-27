@@ -14,60 +14,20 @@ import (
 )
 
 func (a *AdminPanel) listModels(c *fiber.Ctx) error {
-	filterModule := c.Query("module")
-	grouped := a.modelsByModule()
-
 	var html strings.Builder
 	html.WriteString(a.pageHeader("Models", "models"))
 
-	allModels := a.modelRegistry.List()
-	html.WriteString(`<div class="list-toolbar"><div class="list-filters">`)
-	activeAll := ""
-	if filterModule == "" {
-		activeAll = " active"
+	columns := []map[string]any{
+		{"field": "name", "label": "Name", "sortable": true, "filterable": true},
+		{"field": "module", "label": "Module", "sortable": true, "filterable": true},
+		{"field": "label", "label": "Label", "sortable": true},
+		{"field": "fields", "label": "Fields", "type": "number", "sortable": true},
+		{"field": "inherit", "label": "Inherit"},
 	}
-	html.WriteString(fmt.Sprintf(`<a href="/admin/models" class="filter-pill%s">All</a>`, activeAll))
-	for _, mod := range grouped.order {
-		active := ""
-		if filterModule == mod {
-			active = " active"
-		}
-		html.WriteString(fmt.Sprintf(`<a href="/admin/models?module=%s" class="filter-pill%s">%s</a>`, mod, active, mod))
-	}
-	count := 0
-	for _, m := range allModels {
-		if filterModule == "" || m.Module == filterModule {
-			count++
-		}
-	}
-	html.WriteString(fmt.Sprintf(`</div><div class="list-count text-muted">%d of %d</div></div>`, count, len(allModels)))
 
-	html.WriteString(`<div class="card"><table><thead><tr><th>Name</th><th>Module</th><th>Label</th><th>Fields</th><th>Inherit</th></tr></thead><tbody>`)
-	for _, mod := range grouped.order {
-		if filterModule != "" && mod != filterModule {
-			continue
-		}
-		for _, m := range grouped.models[mod] {
-			label := m.Label
-			if label == "" {
-				label = `<span class="text-muted">&mdash;</span>`
-			}
-			inherit := `<span class="text-muted">&mdash;</span>`
-			if m.Inherit != "" {
-				inherit = fmt.Sprintf(`<a href="/admin/models/%s/%s">%s</a>`, m.Module, m.Inherit, m.Inherit)
-			}
-			moduleName := m.Module
-			if moduleName == "" {
-				moduleName = "base"
-			}
-			html.WriteString(fmt.Sprintf(`<tr><td><a href="/admin/models/%s/%s" class="fw-500">%s</a></td><td><span class="badge muted">%s</span></td><td>%s</td><td>%d</td><td>%s</td></tr>`,
-				moduleName, m.Name, m.Name, moduleName, label, len(m.Fields), inherit))
-		}
-	}
-	if len(allModels) == 0 {
-		html.WriteString(`<tr><td colspan="5" class="empty-state">No models registered. Load modules first.</td></tr>`)
-	}
-	html.WriteString(`</tbody></table></div>`)
+	html.WriteString(adminDatatable(columns, "/admin/api/list/models", map[string]string{
+		"detail-url": "/admin/models/:id",
+	}))
 	html.WriteString(pageFooter())
 
 	c.Set("Content-Type", "text/html; charset=utf-8")
