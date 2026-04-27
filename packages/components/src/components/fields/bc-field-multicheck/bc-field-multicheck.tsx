@@ -1,12 +1,11 @@
-import { Component, Prop, Event, EventEmitter, h } from '@stencil/core';
-import { FieldChangeEvent } from '../../../core/types';
+import { Component, Prop, State, Event, EventEmitter, Method, Element, h } from '@stencil/core';
+import { FieldChangeEvent, FieldFocusEvent, FieldBlurEvent, FieldClearEvent, FieldValidationEvent, FieldValidEvent, ValidationResult, ValidateOn } from '../../../core/types';
+import { FieldState, createFieldState, markDirty, markTouched, getFieldClasses, validateFieldValue } from '../../../core/field-utils';
+import { BcSetup } from '../../../core/bc-setup';
 
-@Component({
-  tag: 'bc-field-multicheck',
-  styleUrl: 'bc-field-multicheck.css',
-  shadow: false,
-})
+@Component({ tag: 'bc-field-multicheck', styleUrl: 'bc-field-multicheck.css', shadow: false })
 export class BcFieldMulticheck {
+  @Element() el!: HTMLElement;
   @Prop() name: string = '';
   @Prop() label: string = '';
   @Prop({ mutable: true }) value: string = '[]';
@@ -15,35 +14,93 @@ export class BcFieldMulticheck {
   @Prop() readonly: boolean = false;
   @Prop() disabled: boolean = false;
 
+  @Prop({ mutable: true }) validationStatus: 'none' | 'validating' | 'valid' | 'invalid' = 'none';
+  @Prop({ mutable: true }) validationMessage: string = '';
+  @Prop() hint: string = '';
+  @Prop() size: 'sm' | 'md' | 'lg' = 'md';
+  @Prop() clearable: boolean = false;
+  @Prop() tooltip: string = '';
+  @Prop() defaultValue: string = '[]';
+  @Prop() validateOn: ValidateOn | '' = '';
+
+  @State() private _fieldState: FieldState = createFieldState('[]');
+  customValidator?: (value: unknown) => string | null | Promise<string | null>;
+
   @Event() lcFieldChange!: EventEmitter<FieldChangeEvent>;
+  @Event() lcFieldFocus!: EventEmitter<FieldFocusEvent>;
+  @Event() lcFieldBlur!: EventEmitter<FieldBlurEvent>;
+  @Event() lcFieldClear!: EventEmitter<FieldClearEvent>;
+  @Event() lcFieldInvalid!: EventEmitter<FieldValidationEvent>;
+  @Event() lcFieldValid!: EventEmitter<FieldValidEvent>;
 
-  private getOptions(): string[] { try { return JSON.parse(this.options); } catch { return []; } }
+  componentWillLoad() { this._fieldState = createFieldState(this.value || this.defaultValue); }
+  private _getValidateOn(): ValidateOn { return (this.validateOn as ValidateOn) || BcSetup.getConfig().validateOn || 'blur'; }
+  private getOptions(): Array<string | { label: string; value: string }> { try { return JSON.parse(this.options); } catch { return []; } }
   private getValues(): string[] { try { return JSON.parse(this.value); } catch { return []; } }
+  private getOptLabel(opt: string | { label: string; value: string }): string { return typeof opt === 'string' ? opt : opt.label; }
+  private getOptValue(opt: string | { label: string; value: string }): string { return typeof opt === 'string' ? opt : opt.value; }
 
-  private toggle(opt: string) {
+  private toggle(optValue: string) {
     if (this.readonly || this.disabled) return;
     const old = this.value;
     const vals = this.getValues();
-    const idx = vals.indexOf(opt);
-    if (idx >= 0) vals.splice(idx, 1); else vals.push(opt);
+    const idx = vals.indexOf(optValue);
+    if (idx >= 0) vals.splice(idx, 1); else vals.push(optValue);
     this.value = JSON.stringify(vals);
+    this._fieldState = markDirty(this._fieldState, this.value);
     this.lcFieldChange.emit({ name: this.name, value: this.value, oldValue: old });
+    if (this._getValidateOn() === 'change') this._runValidation();
+  }
+  private handleFocus() { this.lcFieldFocus.emit({ name: this.name, value: this.value }); }
+  private handleBlur() { this._fieldState = markTouched(this._fieldState); this.lcFieldBlur.emit({ name: this.name, value: this.value, dirty: this._fieldState.dirty, touched: true }); if (this._getValidateOn() === 'blur') this._runValidation(); }
+  private handleClear() { const old = this.value; this.value = '[]'; this._fieldState = markDirty(this._fieldState, '[]'); this.lcFieldClear.emit({ name: this.name, oldValue: old }); this.lcFieldChange.emit({ name: this.name, value: '[]', oldValue: old }); }
+
+  private async _runValidation(): Promise<ValidationResult> {
+    this.validationStatus = 'validating';
+    const vals = this.getValues();
+    const result = await validateFieldValue(vals.length > 0 ? this.value : '', { required: this.required }, { customValidator: this.customValidator });
+    if (result.valid) { this.validationStatus = 'valid'; this.validationMessage = ''; this.lcFieldValid.emit({ name: this.name, value: this.value }); }
+    else { this.validationStatus = 'invalid'; this.validationMessage = result.errors[0] || ''; this.lcFieldInvalid.emit({ name: this.name, value: this.value, errors: result.errors }); }
+    return result;
   }
 
+  @Method() async validate(): Promise<ValidationResult> { return this._runValidation(); }
+  @Method() async reset(): Promise<void> { this.value = this._fieldState.initialValue as string || this.defaultValue || '[]'; this._fieldState = createFieldState(this.value); this.validationStatus = 'none'; this.validationMessage = ''; }
+  @Method() async clear(): Promise<void> { this.handleClear(); }
+  @Method() async setValue(value: string, emit: boolean = true): Promise<void> { const old = this.value; this.value = value; this._fieldState = markDirty(this._fieldState, value); if (emit) this.lcFieldChange.emit({ name: this.name, value, oldValue: old }); }
+  @Method() async getValue(): Promise<string> { return this.value; }
+  @Method() async focusField(): Promise<void> { this.el.querySelector('input')?.focus(); }
+  @Method() async blurField(): Promise<void> { this.el.querySelector('input')?.blur(); }
+  @Method() async isDirty(): Promise<boolean> { return this._fieldState.dirty; }
+  @Method() async isTouched(): Promise<boolean> { return this._fieldState.touched; }
+  @Method() async setError(message: string): Promise<void> { this.validationStatus = 'invalid'; this.validationMessage = message; }
+  @Method() async clearError(): Promise<void> { this.validationStatus = 'none'; this.validationMessage = ''; }
+
   render() {
+    const fieldClasses = getFieldClasses({ size: this.size, validationStatus: this.validationStatus, disabled: this.disabled, readonly: this.readonly, dirty: this._fieldState.dirty, touched: this._fieldState.touched });
     const opts = this.getOptions();
     const vals = this.getValues();
+    const showError = this.validationStatus === 'invalid' && this.validationMessage;
+    const showHint = this.hint && !showError;
+
     return (
-      <div class="bc-field bc-multicheck-wrap">
-        {this.label && <label class="bc-field-label">{this.label}{this.required && <span class="required">*</span>}</label>}
+      <div class={{ ...fieldClasses, 'bc-multicheck-wrap': true }}>
+        {this.label && <label class="bc-field-label">{this.label}{this.required && <span class="required">*</span>}{this.tooltip && <span class="bc-field-tooltip" title={this.tooltip}>?</span>}</label>}
         <div class="bc-multicheck-list">
           {opts.map(opt => (
             <label class="bc-multicheck-item">
-              <input type="checkbox" checked={vals.includes(opt)} disabled={this.disabled} onChange={() => this.toggle(opt)} />
-              <span>{opt}</span>
+              <input type="checkbox" checked={vals.includes(this.getOptValue(opt))} disabled={this.disabled || this.readonly} onChange={() => this.toggle(this.getOptValue(opt))} onFocus={() => this.handleFocus()} onBlur={() => this.handleBlur()} />
+              <span>{this.getOptLabel(opt)}</span>
             </label>
           ))}
         </div>
+        {this.clearable && vals.length > 0 && !this.disabled && !this.readonly && <button type="button" class="bc-field-clear-btn" onClick={() => this.handleClear()} tabIndex={-1}>&times; Clear all</button>}
+        {(showError || showHint) && (
+          <div class="bc-field-footer">
+            {showError && <div class="bc-field-error" role="alert">{this.validationMessage}</div>}
+            {showHint && <div class="bc-field-hint">{this.hint}</div>}
+          </div>
+        )}
       </div>
     );
   }
