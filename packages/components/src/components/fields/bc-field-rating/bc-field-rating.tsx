@@ -1,6 +1,6 @@
 import { Component, Prop, State, Event, EventEmitter, Method, Element, h } from '@stencil/core';
 import { FieldChangeEvent, FieldFocusEvent, FieldBlurEvent, FieldClearEvent, FieldValidationEvent, FieldValidEvent, ValidationResult, ValidateOn } from '../../../core/types';
-import { FieldState, createFieldState, markDirty, markTouched, getFieldClasses, validateFieldValue } from '../../../core/field-utils';
+import { FieldState, createFieldState, markDirty, getFieldClasses, validateFieldValue } from '../../../core/field-utils';
 import { BcSetup } from '../../../core/bc-setup';
 
 @Component({ tag: 'bc-field-rating', styleUrl: 'bc-field-rating.css', shadow: false })
