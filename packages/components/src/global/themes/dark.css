@@ -1,0 +1,37 @@
+[data-bc-theme="dark"] {
+  --bc-primary: #818cf8;
+  --bc-primary-hover: #a5b4fc;
+  --bc-primary-light: rgba(129, 140, 248, 0.15);
+  --bc-primary-text: #ffffff;
+
+  --bc-success: #34d399;
+  --bc-success-light: rgba(52, 211, 153, 0.15);
+  --bc-warning: #fbbf24;
+  --bc-warning-light: rgba(251, 191, 36, 0.15);
+  --bc-danger: #f87171;
+  --bc-danger-light: rgba(248, 113, 113, 0.15);
+  --bc-info: #60a5fa;
+  --bc-info-light: rgba(96, 165, 250, 0.15);
+  --bc-muted: #9ca3af;
+
+  --bc-bg: #0f172a;
+  --bc-bg-secondary: #1e293b;
+  --bc-bg-tertiary: #334155;
+  --bc-bg-hover: #1e293b;
+
+  --bc-border-color: #334155;
+  --bc-border-color-focus: #818cf8;
+
+  --bc-text: #f1f5f9;
+  --bc-text-secondary: #94a3b8;
+  --bc-text-placeholder: #64748b;
+  --bc-text-disabled: #475569;
+
+  --bc-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --bc-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+  --bc-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+  --bc-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+
+  --bc-input-bg: #1e293b;
+  --bc-input-focus-ring: 0 0 0 3px rgba(129, 140, 248, 0.25);
+}

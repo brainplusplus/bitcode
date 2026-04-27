@@ -27,7 +27,7 @@ bitcode/
 │   ├── embedded/        Go-embedded modules compiled into binary
 │   └── plugins/         Plugin runtimes (TypeScript, Python)
 ├── packages/
-│   └── components/      Stencil Web Components (@bitcode/components, 94 components)
+│   └── components/      Stencil Web Components (@bitcode/components, 103 components)
 ├── samples/
 │   └── erp/             Sample ERP application (CRM + HRM)
 ├── docs/                Project-level documentation
@@ -59,8 +59,10 @@ bitcode/
 ## File Structure Rules (Components)
 
 - `packages/components/src/components/` — Stencil Web Components (each has `.tsx` + `.css`).
-- `packages/components/src/core/` — Shared infrastructure (types, API client, event bus, form engine, i18n).
+- `packages/components/src/core/` — Shared infrastructure (types, API client, event bus, form engine, i18n, BcSetup, data-fetcher, validation-engine, field-utils).
 - `packages/components/src/utils/` — Shared utilities (expression eval, format, validators).
+- `packages/components/src/global/themes/` — Theme CSS files (dark.css, custom themes).
+- `packages/components/docs/` — Per-component documentation (self-contained for future repo split).
 - `packages/components/src/i18n/` — Translation files (11 languages).
 
 ## When Making Changes
@@ -80,6 +82,8 @@ bitcode/
 1. Add/edit component in `packages/components/src/components/`
 2. Update `packages/components/src/components.d.ts` if new component
 3. Run `npm run build` in `packages/components/` to verify
+4. Add/update component doc in `packages/components/docs/` (1 md file per component)
+5. Update `packages/components/docs/README.md` index if new component
 
 ### Documentation Updates (MANDATORY)
 
@@ -92,7 +96,7 @@ bitcode/
 | Feature added, completed, or status changed | `docs/features.md` — update status (✅/⚠️/❌), check off roadmap items |
 | Engine feature added/changed | `engine/docs/features/*.md` — update or create per-feature doc |
 | New module or module structure change | `docs/codebase.md` — update module section |
-| New component added to packages/components | `docs/codebase.md` — update components section |
+| New component added to packages/components | `docs/codebase.md` — update components section, `packages/components/docs/` — add component doc |
 | Public API changed (new endpoint, new config) | `README.md` — update config table, CLI commands, or feature list |
 | Major milestone or project-level change | `README.md` — update overview |
 

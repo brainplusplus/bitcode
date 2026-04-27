@@ -347,14 +347,20 @@ packages/components/
     ├── declarations.d.ts                       # Module declarations
     │
     ├── core/                                   # Shared infrastructure
-    │   ├── types.ts                            # FieldType (30+ types), WidgetType, event interfaces
-    │   ├── api-client.ts                       # HTTP client for engine REST APIs
+    │   ├── types.ts                            # FieldType (30+ types), WidgetType, event interfaces, FetchParams/FetchResult, ValidationResult, BcConfig
+    │   ├── bc-setup.ts                         # BcSetup singleton — global config (auth, headers, theme, validators, reactivity rules)
+    │   ├── data-fetcher.ts                     # 4-level data fetching (local, URL, event intercept, custom fetcher). Standalone — uses native fetch()
+    │   ├── validation-engine.ts                # 3-level validation pipeline (built-in, custom JS, server-side). Uses validators.ts
+    │   ├── field-utils.ts                      # Shared field utilities (dirty/touched tracking, ARIA attrs, CSS classes, FormProxy, debounce)
+    │   ├── api-client.ts                       # HTTP client for engine REST APIs (BitCode-specific, optional fallback)
     │   ├── event-bus.ts                        # Cross-component event bus
-    │   ├── form-engine.ts                      # Form state management, validation, submission
+    │   ├── form-engine.ts                      # Form state management, validation, submission (BitCode-specific)
     │   └── i18n.ts                             # Client-side i18n utilities
     │
     ├── global/
-    │   └── global.css                          # Global styles
+    │   ├── global.css                          # Global styles, CSS custom properties, size tokens, auto dark mode
+    │   └── themes/
+    │       └── dark.css                        # Dark theme overrides (applied via data-bc-theme="dark")
     │
     ├── i18n/                                   # Translation files
     │   ├── index.ts                            # i18n initialization (global script)

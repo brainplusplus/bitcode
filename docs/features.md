@@ -10,11 +10,11 @@
 
 | Metric | Count |
 |--------|-------|
-| Total Features Tracked | 71 |
-| ✅ Implemented | 44 |
+| Total Features Tracked | 73 |
+| ✅ Implemented | 46 |
 | ⚠️ Partial | 2 |
 | ❌ Not Yet | 25 |
-| **Completion** | **62.0%** (effective ~63.4% counting partials as 0.5) |
+| **Completion** | **63.0%** (effective ~64.4% counting partials as 0.5) |
 
 ### Per-Category Summary
 
@@ -134,14 +134,16 @@ Before the gap list — what's already **production-solid**:
 
 | # | Feature | Status | Effort | What Exists | What's Missing |
 |---|---------|--------|--------|-------------|----------------|
-| 30 | Form Builder (Visual) | ⚠️ | L | JSON-based form layout (rows, fields, widths, tabs). SSR rendering. 102 Stencil.js components. | Visual drag-and-drop form designer in browser. |
-| 31 | Conditional Field Logic | ✅ | — | `"visible": "expression"`, `"readonly": true`. Component compiler evaluates conditions. Stencil components support `behavior.dependsOn`, `readonlyIf`, `mandatoryIf`. | — |
-| 32 | Custom Validation Rules | ✅ | — | Process `validate` step with eq, neq, required operators. | — |
+| 30 | Form Builder (Visual) | ⚠️ | L | JSON-based form layout (rows, fields, widths, tabs). SSR rendering. 103 Stencil.js components. | Visual drag-and-drop form designer in browser. |
+| 31 | Conditional Field Logic | ✅ | — | `"visible": "expression"`, `"readonly": true`. Component compiler evaluates conditions. Stencil components support `behavior.dependsOn`, `readonlyIf`, `mandatoryIf`. Client-side: `BcSetup.reactivity()` for imperative cross-field logic, `depend-on` prop for declarative cascading. | — |
+| 32 | Custom Validation Rules | ✅ | — | Process `validate` step with eq, neq, required operators. Client-side: 3-level validation (built-in props, custom JS validators, server-side validation). `BcSetup.registerValidator()` for named validators. | — |
 | 33 | Multi-Step Form / Wizard | ❌ | M | — | No wizard component. Need wizard JSON definition (steps + fields per step) + `bc-dialog-wizard` exists in Stencil but not wired to engine. |
 | 34 | Print Format / PDF | ❌ | L | Template engine exists (Go html/template) but HTML only. No PDF generation. | Need print template JSON definition + PDF renderer (wkhtmltopdf/chromedp/gotenberg). |
 | 35 | Web Form (Public) | ❌ | M | — | All forms require auth. Need public form route (bypass auth) + CAPTCHA + rate limiting. |
 | 36 | View Types (List/Kanban/Calendar) | ✅ | — | 6 view types: list, form, kanban, calendar, chart, custom. All implemented in `view/renderer.go` + templates. Stencil has 9 view components (+ gantt, map, tree, report, activity). | — |
 | 37 | Dashboard Builder | ✅ | — | Custom view type with `data_sources`. Admin dashboard at `/admin`. | — |
+| 72 | Enterprise Component Infrastructure | ✅ | — | BcSetup (global config: auth, headers, theme, validators), 4-level data fetching (local/URL/event-intercept/custom-fetcher), 3-level validation (built-in/custom-JS/server-side), field utilities (dirty/touched/ARIA/FormProxy), theming (light/dark/system-detect/custom via CSS custom properties). All standalone — no BitCode dependency. | Per-component upgrade (Phase 2-6 in progress). |
+| 73 | Theming System | ✅ | — | CSS custom properties (`--bc-*`), light/dark themes, `prefers-color-scheme` auto-detect, `data-bc-theme` attribute for scoped themes, size tokens (sm/md/lg), `BcSetup.configure({ theme })` for programmatic switching. | — |
 
 ---
 

@@ -162,7 +162,10 @@ docker-compose up -d
 - **Template engine** — Go html/template with helpers and partials
 - **File storage** — Local + S3 with attachments table, thumbnails, versioning, path formatting
 - **View system** — List, form, kanban, calendar, chart, custom views (SSR)
-- **Web Components** — 102 Stencil.js components (fields, layout, views, charts, dialogs, widgets, media viewers/players)
+- **Web Components** — 103 Stencil.js enterprise components (fields, layout, views, charts, dialogs, widgets, media viewers/players). **Standalone-capable** — works without BitCode framework
+- **Component Theming** — Light/dark/system-detect/custom themes via CSS custom properties
+- **4-Level Data Fetching** — Local data, URL endpoint, event intercept, custom fetcher function
+- **3-Level Validation** — Built-in rules, custom JS validators, server-side validation
 - **Event bus** — Domain events with agent handlers
 - **Cron scheduler** — Scheduled background jobs
 - **Multi-database** — SQLite (default), PostgreSQL, MySQL, MongoDB
@@ -183,7 +186,8 @@ docker-compose up -d
 |-----|-------------|
 | [Architecture](docs/architecture.md) | System design, data flow, core concepts, tech stack |
 | [Codebase](docs/codebase.md) | Full file map for engine, components, and samples |
-| [Features & Roadmap](docs/features.md) | 67-feature inventory, completion status, phased roadmap |
+| [Features & Roadmap](docs/features.md) | 73-feature inventory, completion status, phased roadmap |
+| [Component Docs](packages/components/docs/README.md) | Per-component reference (props, events, methods, examples) |
 | [Engine Architecture](engine/docs/architecture.md) | Engine internals, layer diagram, data flow |
 | [Engine Codebase](engine/docs/codebase.md) | Engine file map, test coverage, key interfaces |
 | [Engine Features](engine/docs/features/) | Per-feature deep docs: |

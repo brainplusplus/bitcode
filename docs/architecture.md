@@ -199,11 +199,11 @@ Views are wrapped in a layout template with sidebar navigation, navbar, and resp
 
 ### 7. Web Components (`@bitcode/components`)
 
-A Stencil.js component library providing rich UI widgets:
+A Stencil.js component library providing 103 enterprise-grade UI widgets. **Standalone-capable** — works in plain HTML without BitCode framework.
 
 | Category | Components |
 |----------|------------|
-| **Fields** | 30+ field types (string, date, richtext, code, signature, barcode, geo, etc.) |
+| **Fields** | 34 field types (string, date, richtext, code, signature, barcode, geo, etc.) |
 | **Layout** | row, column, section, tabs, sheet, header, separator |
 | **Views** | list, form, kanban, calendar, gantt, map, tree, report, activity |
 | **Charts** | line, bar, pie, area, gauge, funnel, heatmap, pivot, KPI, scorecard, progress |
@@ -214,7 +214,15 @@ A Stencil.js component library providing rich UI widgets:
 | **Print** | export, print, report link |
 | **Social** | activity feed, chatter, timeline |
 
-Components communicate via a shared event bus and API client (`src/core/`).
+**Core infrastructure** (`src/core/`):
+- **BcSetup** — Global configuration (auth, headers, theme, validators). Standalone — no BitCode dependency.
+- **Data Fetcher** — 4-level data strategy: local data, URL endpoint, event intercept, custom fetcher function.
+- **Validation Engine** — 3-level validation: built-in rules, custom JS validators, server-side validation.
+- **Field Utils** — Shared field logic (dirty/touched tracking, ARIA, render helpers).
+- **Theming** — Light/dark/system-detect/custom themes via CSS custom properties. No Tailwind.
+- **Event Bus** — Cross-component communication.
+- **Form Engine** — Form state management (optional, BitCode-specific).
+- **API Client** — HTTP client for BitCode REST APIs (optional fallback).
 
 ---
 
