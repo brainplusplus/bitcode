@@ -169,56 +169,7 @@ func (r *Renderer) renderList(ctx context.Context, viewDef *parser.ViewDefinitio
 	if viewDef.Model == "" {
 		return "", fmt.Errorf("list view requires a model")
 	}
-
-	page := opt.Page
-	if page < 1 {
-		page = 1
-	}
-	pageSize := 20
-
-	repo := persistence.NewGenericRepository(r.db, r.resolveTable(viewDef.Model))
-	records, total, err := repo.FindAll(ctx, nil, page, pageSize)
-	if err != nil {
-		return "", err
-	}
-
-	if r.hydrator != nil && r.modelRegistry != nil {
-		if modelDef, mErr := r.modelRegistry.Get(viewDef.Model); mErr == nil {
-			r.hydrator.HydrateRecords(ctx, modelDef, records)
-		}
-	}
-
-	totalPages := int((total + int64(pageSize) - 1) / int64(pageSize))
-
-	formUrl := ""
-	if opt.Module != "" {
-		formUrl = fmt.Sprintf("/app/%s/%s/form", opt.Module, viewDef.Model)
-	}
-
-	data := map[string]any{
-		"title":      viewDef.Title,
-		"fields":     viewDef.Fields,
-		"records":    records,
-		"total":      total,
-		"actions":    viewDef.Actions,
-		"filters":    viewDef.Filters,
-		"formUrl":    formUrl,
-		"page":       page,
-		"pageSize":   pageSize,
-		"totalPages": totalPages,
-		"prevPage":   page - 1,
-		"nextPage":   page + 1,
-	}
-
-	if r.template.Has("templates/views/list.html") {
-		return r.template.Render("templates/views/list.html", data)
-	}
-
-	if r.template.Has("views/list.html") {
-		return r.template.Render("views/list.html", data)
-	}
-
-	return r.defaultListHTML(viewDef, records, total), nil
+	return r.defaultListHTML(viewDef, nil, 0), nil
 }
 
 func (r *Renderer) renderForm(ctx context.Context, viewDef *parser.ViewDefinition, opt RenderOptions) (string, error) {

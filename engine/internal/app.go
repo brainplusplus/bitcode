@@ -1556,12 +1556,24 @@ func (a *App) installModule(modPath string) error {
 		}
 	}
 
-	// Security sync: groups + ACL + record rules → DB
 	if a.DB != nil {
 		secDir := filepath.Join(modPath, "securities")
 		secLoader := module.NewSecurityLoader(a.DB)
-		if err := secLoader.LoadFromDirectory(secDir, modName); err != nil {
-			log.Printf("[WARN] failed to load securities for %s: %v", modName, err)
+		if _, statErr := os.Stat(secDir); statErr == nil {
+			if err := secLoader.LoadFromDirectory(secDir, modName); err != nil {
+				log.Printf("[WARN] failed to load securities for %s: %v", modName, err)
+			} else {
+				log.Printf("[SECURITY] loaded securities for %s from %s", modName, secDir)
+			}
+		}
+
+		if loaded.Securities != nil && len(loaded.Securities) > 0 {
+			for _, secDef := range loaded.Securities {
+				if err := secLoader.SyncToDB(secDef, modName); err != nil {
+					log.Printf("[WARN] failed to sync security %s: %v", secDef.Name, err)
+				}
+			}
+			log.Printf("[SECURITY] synced %d security definitions for %s", len(loaded.Securities), modName)
 		}
 	}
 
