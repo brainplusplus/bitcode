@@ -7,6 +7,7 @@
   "table": { "prefix": "hr" },
   "models": ["models/*.json"],
   "apis": ["apis/*.json"],
+  "securities": ["securities/*.json"],
   "processes": ["processes/*.json"],
   "agents": ["agents/*.json"],
   "views": ["views/*.json"],
@@ -35,12 +36,12 @@
   },
   "menu": [
     { "label": "HR", "icon": "briefcase", "children": [
-      { "label": "Dashboard",      "view": "dashboard" },
-      { "label": "Employees",      "view": "employee/list" },
-      { "label": "Departments",    "view": "department/list" },
-      { "label": "Job Positions",   "view": "position/list" },
-      { "label": "Leave Requests",  "view": "leave/list" },
-      { "label": "Leave Calendar",  "view": "leave/calendar" }
+      { "label": "Dashboard",      "view": "dashboard", "groups": ["hrm.user"] },
+      { "label": "Employees",      "view": "employee/list", "groups": ["hrm.user"] },
+      { "label": "Departments",    "view": "department/list", "groups": ["hrm.user"] },
+      { "label": "Job Positions",   "view": "position/list", "groups": ["hrm.officer"] },
+      { "label": "Leave Requests",  "view": "leave/list", "groups": ["hrm.user"] },
+      { "label": "Leave Calendar",  "view": "leave/calendar", "groups": ["hrm.user"] }
     ]}
   ],
   "settings": {

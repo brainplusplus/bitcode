@@ -2,10 +2,16 @@
   "name": "contact",
   "module": "crm",
   "label": "Contact",
+  "api": {
+    "auto_crud": true,
+    "auth": true,
+    "auto_pages": true,
+    "protocols": { "rest": true, "graphql": true }
+  },
   "fields": {
     "name":       { "type": "string", "required": true, "max": 200, "label": "Full Name" },
     "email":      { "type": "email", "label": "Email", "widget": "email" },
-    "phone":      { "type": "string", "max": 20, "label": "Phone", "widget": "phone" },
+    "phone":      { "type": "string", "max": 20, "label": "Phone", "widget": "phone", "mask": true, "mask_length": 4 },
     "company":    { "type": "string", "max": 200, "label": "Company" },
     "job_title":  { "type": "string", "max": 100, "label": "Job Title" },
     "type":       { "type": "selection", "options": ["person", "company"], "default": "person", "label": "Type" },
@@ -15,10 +21,8 @@
     "tags":       { "type": "many2many", "model": "tag", "label": "Tags" },
     "leads":      { "type": "one2many", "model": "lead", "inverse": "contact_id" }
   },
-  "record_rules": [
-    { "groups": ["crm.user"],    "domain": [["created_by", "=", "{{user.id}}"]] },
-    { "groups": ["crm.manager"], "domain": [] }
-  ],
+  "title_field": "name",
+  "search_field": ["name", "email", "company"],
   "indexes": [
     ["company"],
     ["email"]

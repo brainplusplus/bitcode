@@ -1,0 +1,19 @@
+{
+  "name": "crm.manager",
+  "label": "CRM / Manager",
+  "category": "CRM",
+  "implies": ["crm.user"],
+  "access": {
+    "contact":  "all",
+    "lead":     "all",
+    "activity": "all",
+    "tag":      "all"
+  },
+  "rules": [
+    { "name": "crm_manager_all_contacts", "model": "contact", "domain": [] },
+    { "name": "crm_manager_all_leads", "model": "lead", "domain": [] }
+  ],
+  "menus": ["crm/dashboard", "crm/contacts", "crm/leads", "crm/leads-board", "crm/pipeline-chart"],
+  "pages": ["contact_list", "contact_form", "lead_list", "lead_form", "lead_kanban", "pipeline_chart", "crm_dashboard"],
+  "comment": "Full CRM access including pipeline chart and all records."
+}

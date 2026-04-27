@@ -2,6 +2,7 @@
   "name": "leave_request",
   "module": "hrm",
   "label": "Leave Request",
+  "api": { "auto_crud": true, "auth": true, "auto_pages": true },
   "fields": {
     "employee_id": { "type": "many2one", "model": "employee", "required": true, "label": "Employee" },
     "leave_type":  { "type": "selection", "options": ["annual", "sick", "personal", "maternity", "unpaid"], "required": true, "label": "Leave Type" },

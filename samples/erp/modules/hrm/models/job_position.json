@@ -2,6 +2,8 @@
   "name": "job_position",
   "module": "hrm",
   "label": "Job Position",
+  "api": { "auto_crud": true, "auth": true, "auto_pages": true },
+  "title_field": "title",
   "fields": {
     "title":         { "type": "string", "required": true, "max": 200, "label": "Position Title" },
     "department_id": { "type": "many2one", "model": "department", "required": true, "label": "Department" },

@@ -573,10 +573,7 @@ func checkedAttr(checked bool) string {
 }
 
 func (c *ComponentCompiler) CompileList(viewDef *parser.ViewDefinition) string {
-	var b strings.Builder
-	fieldsJSON := toJSONArray(viewDef.Fields)
-	b.WriteString(fmt.Sprintf(`<bc-view-list model="%s" view-title="%s" fields='%s'></bc-view-list>`, esc(viewDef.Model), esc(viewDef.Title), fieldsJSON))
-	return b.String()
+	return c.CompileListDatatable(viewDef, nil)
 }
 
 type DatatableOptions struct {
@@ -834,7 +831,7 @@ func (c *ComponentCompiler) compileTabs(tabs []parser.TabDefinition) string {
 	for _, tab := range tabs {
 		b.WriteString(fmt.Sprintf(`<bc-tab label="%s">`, esc(tab.Label)))
 		if tab.View != "" {
-			b.WriteString(fmt.Sprintf(`<bc-view-list model="%s"></bc-view-list>`, esc(tab.View)))
+			b.WriteString(fmt.Sprintf(`<bc-datatable model="%s"></bc-datatable>`, esc(tab.View)))
 		}
 		for _, field := range tab.Fields {
 			b.WriteString(fmt.Sprintf(`<bc-field-text name="%s" label="%s"></bc-field-text>`, esc(field), esc(field)))

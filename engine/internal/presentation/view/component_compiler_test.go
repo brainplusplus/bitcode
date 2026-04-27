@@ -158,11 +158,14 @@ func TestCompileList(t *testing.T) {
 
 	html := cc.CompileList(viewDef)
 
-	if !strings.Contains(html, `<bc-view-list model="order"`) {
-		t.Error("expected bc-view-list")
+	if !strings.Contains(html, `<bc-datatable`) {
+		t.Error("expected bc-datatable")
+	}
+	if !strings.Contains(html, `model="order"`) {
+		t.Error("expected model=order")
 	}
 	if !strings.Contains(html, `"name"`) {
-		t.Error("expected name in fields")
+		t.Error("expected name in columns")
 	}
 }
 

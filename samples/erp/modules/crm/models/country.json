@@ -2,6 +2,7 @@
   "name": "country",
   "module": "crm",
   "label": "Country",
+  "api": { "auto_crud": true, "auto_pages": true, "modal": true },
   "primary_key": {
     "strategy": "natural_key",
     "field": "iso_code"

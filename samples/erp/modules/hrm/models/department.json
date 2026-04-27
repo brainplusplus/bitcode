@@ -2,6 +2,8 @@
   "name": "department",
   "module": "hrm",
   "label": "Department",
+  "api": { "auto_crud": true, "auth": true, "auto_pages": true },
+  "title_field": "name",
   "fields": {
     "name":       { "type": "string", "required": true, "unique": true, "max": 100, "label": "Department Name" },
     "code":       { "type": "string", "required": true, "unique": true, "max": 10, "label": "Code" },

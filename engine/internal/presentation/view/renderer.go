@@ -403,7 +403,24 @@ func (r *Renderer) renderCustom(ctx context.Context, viewDef *parser.ViewDefinit
 }
 
 func (r *Renderer) defaultListHTML(viewDef *parser.ViewDefinition, records []map[string]any, total int64) string {
-	return r.componentCompiler.CompileList(viewDef)
+	moduleName := ""
+	if r.modelRegistry != nil {
+		if modelDef, err := r.modelRegistry.Get(viewDef.Model); err == nil && modelDef != nil {
+			moduleName = modelDef.Module
+		}
+	}
+
+	opts := &DatatableOptions{
+		ModuleName: moduleName,
+	}
+	if moduleName != "" && viewDef.Model != "" {
+		plural := viewDef.Model + "s"
+		opts.CreateUrl = "/" + moduleName + "/" + plural + "/new"
+		opts.DetailUrl = "/" + moduleName + "/" + plural + "/:id"
+		opts.EditUrl = "/" + moduleName + "/" + plural + "/:id/edit"
+	}
+
+	return r.componentCompiler.CompileListDatatable(viewDef, opts)
 }
 
 func ComponentScriptTag() string {

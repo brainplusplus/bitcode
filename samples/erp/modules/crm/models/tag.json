@@ -2,6 +2,7 @@
   "name": "tag",
   "module": "crm",
   "label": "Tag",
+  "api": { "auto_crud": true, "auto_pages": true, "modal": true },
   "fields": {
     "name":  { "type": "string", "required": true, "unique": true, "max": 50 },
     "color": { "type": "string", "max": 7, "default": "#3B82F6" }

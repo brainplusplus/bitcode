@@ -1,0 +1,14 @@
+{
+  "name": "hrm.manager",
+  "label": "HR / Manager",
+  "category": "HR",
+  "implies": ["hrm.officer"],
+  "access": {
+    "employee":      "all",
+    "department":    "all",
+    "job_position":  "all",
+    "leave_request": "all"
+  },
+  "menus": ["hrm/dashboard", "hrm/employees", "hrm/departments", "hrm/positions", "hrm/leaves", "hrm/leave-calendar"],
+  "comment": "Full HR access including delete, import, and all sensitive operations."
+}

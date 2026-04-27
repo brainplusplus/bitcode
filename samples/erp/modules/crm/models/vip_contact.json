@@ -3,6 +3,7 @@
   "module": "crm",
   "label": "VIP Contact",
   "inherit": "contact",
+  "api": { "auto_crud": true, "auth": true, "auto_pages": true },
   "fields": {
     "vip_level":     { "type": "selection", "options": ["gold", "platinum", "diamond"], "default": "gold", "label": "VIP Level" },
     "discount_rate": { "type": "decimal", "precision": 2, "default": 0.1, "label": "Discount Rate" },

@@ -2,6 +2,7 @@
   "name": "activity",
   "module": "crm",
   "label": "Activity",
+  "api": { "auto_crud": true, "auth": true, "auto_pages": true },
   "fields": {
     "lead_id":     { "type": "many2one", "model": "lead", "required": true, "label": "Lead" },
     "contact_id":  { "type": "many2one", "model": "contact", "label": "Contact" },

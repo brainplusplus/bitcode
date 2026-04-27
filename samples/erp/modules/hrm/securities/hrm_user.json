@@ -1,0 +1,17 @@
+{
+  "name": "hrm.user",
+  "label": "HR / User",
+  "category": "HR",
+  "implies": ["base.user"],
+  "access": {
+    "employee":      ["select", "read"],
+    "department":    ["select", "read"],
+    "job_position":  ["select", "read"],
+    "leave_request": ["select", "read", "write", "create", "export"]
+  },
+  "rules": [
+    { "name": "hrm_user_own_leaves", "model": "leave_request", "domain": [["employee_id", "=", "{{user.id}}"]] }
+  ],
+  "menus": ["hrm/dashboard", "hrm/employees", "hrm/departments", "hrm/leaves", "hrm/leave-calendar"],
+  "comment": "Basic HR access. Can view employees/departments, manage own leave requests."
+}

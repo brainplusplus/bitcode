@@ -1,0 +1,19 @@
+{
+  "name": "crm.user",
+  "label": "CRM / User",
+  "category": "CRM",
+  "implies": ["base.user"],
+  "access": {
+    "contact":  ["select", "read", "write", "create", "print", "email", "report", "export", "clone"],
+    "lead":     ["select", "read", "write", "create", "print", "email", "report", "export", "clone"],
+    "activity": ["select", "read", "write", "create", "export"],
+    "tag":      ["select", "read"]
+  },
+  "rules": [
+    { "name": "crm_user_own_contacts", "model": "contact", "domain": [["created_by", "=", "{{user.id}}"]] },
+    { "name": "crm_user_own_leads", "model": "lead", "domain": [["created_by", "=", "{{user.id}}"]] }
+  ],
+  "menus": ["crm/dashboard", "crm/contacts", "crm/leads", "crm/leads-board"],
+  "pages": ["contact_list", "contact_form", "lead_list", "lead_form", "lead_kanban"],
+  "comment": "Basic CRM access. Own contacts and leads only."
+}

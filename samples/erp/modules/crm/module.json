@@ -7,6 +7,7 @@
   "table": { "prefix": "crm" },
   "models": ["models/*.json"],
   "apis": ["apis/*.json"],
+  "securities": ["securities/*.json"],
   "processes": ["processes/*.json"],
   "agents": ["agents/*.json"],
   "views": ["views/*.json"],
@@ -30,11 +31,11 @@
   },
   "menu": [
     { "label": "CRM", "icon": "users", "children": [
-      { "label": "Dashboard",      "view": "dashboard" },
-      { "label": "Contacts",       "view": "contact/list" },
-      { "label": "Leads",          "view": "lead/list" },
-      { "label": "Leads Board",    "view": "lead/kanban" },
-      { "label": "Pipeline Chart", "view": "pipeline_chart" }
+      { "label": "Dashboard",      "view": "dashboard", "groups": ["crm.user"] },
+      { "label": "Contacts",       "view": "contact/list", "groups": ["crm.user"] },
+      { "label": "Leads",          "view": "lead/list", "groups": ["crm.user"] },
+      { "label": "Leads Board",    "view": "lead/kanban", "groups": ["crm.user"] },
+      { "label": "Pipeline Chart", "view": "pipeline_chart", "groups": ["crm.manager"] }
     ]}
   ],
   "settings": {

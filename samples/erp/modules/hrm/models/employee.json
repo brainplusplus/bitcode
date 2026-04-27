@@ -2,6 +2,9 @@
   "name": "employee",
   "module": "hrm",
   "label": "Employee",
+  "api": { "auto_crud": true, "auth": true, "auto_pages": true, "protocols": { "rest": true, "graphql": true } },
+  "title_field": "name",
+  "search_field": ["name", "email", "employee_id"],
   "fields": {
     "employee_id":   { "type": "string", "required": true, "unique": true, "max": 20, "label": "Employee ID" },
     "user_id":       { "type": "many2one", "model": "user", "label": "User Account" },

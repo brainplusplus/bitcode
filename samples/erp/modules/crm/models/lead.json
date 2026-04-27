@@ -2,6 +2,14 @@
   "name": "lead",
   "module": "crm",
   "label": "Lead",
+  "api": {
+    "auto_crud": true,
+    "auth": true,
+    "auto_pages": true,
+    "protocols": { "rest": true, "graphql": true }
+  },
+  "title_field": "name",
+  "search_field": ["name", "email", "source", "status"],
   "fields": {
     "name":             { "type": "string", "required": true, "max": 200, "label": "Lead Title" },
     "contact_id":       { "type": "many2one", "model": "contact", "label": "Contact" },
