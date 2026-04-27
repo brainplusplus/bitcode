@@ -297,6 +297,9 @@ textarea.bc-input{resize:vertical;min-height:72px}
 <main class="bc-main">
 {{.Content}}
 </main>
+<script type="module" src="/assets/components/bc-components.esm.js"></script>
+<script nomodule src="/assets/components/bc-components.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script>
 document.addEventListener('DOMContentLoaded',function(){
   var toggle=document.querySelector('.bc-menu-toggle');

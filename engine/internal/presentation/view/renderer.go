@@ -95,26 +95,7 @@ func (r *Renderer) SetViewResolver(resolver func(name string) *parser.ViewDefini
 }
 
 func (r *Renderer) renderEmbeddedList(viewDef *parser.ViewDefinition, records []map[string]any, total int64) string {
-	var b strings.Builder
-	b.WriteString(fmt.Sprintf(`<div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:0.5rem;">%d records</div>`, total))
-	if len(records) == 0 {
-		b.WriteString(`<p style="color:var(--text-muted);text-align:center;padding:1rem;">No records</p>`)
-		return b.String()
-	}
-	b.WriteString(`<div style="overflow-x:auto;"><table class="bc-table"><thead><tr>`)
-	for _, f := range viewDef.Fields {
-		b.WriteString(fmt.Sprintf(`<th>%s</th>`, f))
-	}
-	b.WriteString(`</tr></thead><tbody>`)
-	for _, rec := range records {
-		b.WriteString(`<tr>`)
-		for _, f := range viewDef.Fields {
-			b.WriteString(fmt.Sprintf(`<td>%v</td>`, rec[f]))
-		}
-		b.WriteString(`</tr>`)
-	}
-	b.WriteString(`</tbody></table></div>`)
-	return b.String()
+	return r.defaultListHTML(viewDef, records, total)
 }
 
 func (r *Renderer) RenderView(ctx context.Context, viewDef *parser.ViewDefinition, opts ...RenderOptions) (string, error) {
