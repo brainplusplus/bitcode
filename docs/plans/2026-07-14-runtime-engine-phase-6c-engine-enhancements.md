@@ -285,11 +285,106 @@ Startup:
 }
 ```
 
+### 2.12 Process Source — Dynamic Data
+
+For data that comes from computation, API calls, or scripts:
+
+```json
+{
+  "name": "exchange_rate",
+  "source": "process",
+  "process": "fetch_exchange_rates",
+  "refresh": "1h",
+  "fields": {
+    "from": { "type": "string", "max": 3 },
+    "to": { "type": "string", "max": 3 },
+    "rate": { "type": "decimal" },
+    "updated_at": { "type": "datetime" }
+  }
+}
+```
+
+Or with inline script:
+
+```json
+{
+  "name": "system_info",
+  "source": "process",
+  "script": { "lang": "javascript", "file": "scripts/system_info.js" },
+  "refresh": "5m",
+  "fields": { ... }
+}
+```
+
+Process source follows the same pattern as model events — `process` (named process) or `script` (inline script reference). The process/script must return an array of objects matching the field definitions.
+
+### 2.13 Refresh Strategy
+
+Applies to all source types. Manual refresh is **always available** regardless of config — via API (`POST /api/v1/_meta/models/:name/refresh`) or bridge (`bitcode.model.refresh("name")`).
+
+```json
+{ "refresh": "startup" }   // only on startup (default for "array")
+{ "refresh": "1h" }        // every hour + manual
+{ "refresh": "30m" }       // every 30 minutes + manual
+{ "refresh": "5m" }        // every 5 minutes + manual
+{ "refresh": "never" }     // only manual (default for "process")
+```
+
+| `refresh` | `source: "array"` | `source: "process"` |
+|-----------|:-:|:-:|
+| `"startup"` | ✅ Default — sync from file on startup | Re-execute process on startup |
+| `"1h"` / `"30m"` / etc. | Re-read file on interval | Re-execute process on interval |
+| `"never"` | Only manual trigger | ✅ Default — only manual trigger |
+
+### 2.14 Write-Back Sync (`sync_source`)
+
+For array models with `writable: true`, changes made via UI/API can be written back to the source file:
+
+```json
+{
+  "name": "currency",
+  "source": "array",
+  "writable": true,
+  "sync_source": true,
+  "rows_file": "data/currencies.json",
+  "fields": { ... }
+}
+```
+
+**Behavior**: When a record is created/updated/deleted via API or bridge, the engine writes the current DB state back to the source file in the same format (JSON/CSV/XLSX/XML).
+
+**Source of truth**: DB is always source of truth when `writable: true`. If the file is changed externally (e.g., git pull), engine logs a WARNING and does NOT auto-reload (to prevent overwriting user edits). Use CLI to force:
+
+```bash
+bitcode model sync --to-file currency    # DB → File (export)
+bitcode model sync --from-file currency  # File → DB (reimport, overwrites DB)
+bitcode model diff currency              # Show differences
+```
+
+**Validation constraints**:
+
+| Constraint | Error |
+|-----------|-------|
+| `sync_source: true` + `writable: false` | "sync_source requires writable: true" |
+| `sync_source: true` + inline `rows` (no `rows_file`) | "sync_source requires rows_file (cannot write back to inline rows)" |
+| `sync_source: true` + `source: "process"` | "sync_source only works with array source" |
+
+### 2.15 Complete Source Behavior Matrix
+
+| `source` | `writable` | `sync_source` | File→DB | DB→File | Refresh | Source of Truth |
+|----------|:----------:|:-------------:|:-------:|:-------:|---------|:---------------:|
+| `"db"` | — | — | — | — | — | DB |
+| `"array"` | `false` | `false` | ✅ Always | ❌ | startup | File |
+| `"array"` | `true` | `false` | ✅ Seed | ❌ | startup | DB |
+| `"array"` | `true` | `true` | ✅ Seed | ✅ On write | startup | DB |
+| `"process"` | `false` | — | ✅ Execute | ❌ | never | Process |
+| `"process"` | `true` | — | ✅ Execute | ❌ | never | DB (after seed) |
+
 ---
 
 ## 3. View Layout Modifiers
 
-### 2.1 Current State
+### 3.1 Current State
 
 LayoutRow currently has:
 
@@ -305,7 +400,7 @@ type LayoutRow struct {
 
 Only `readonly` (static boolean). No conditional visibility or disable.
 
-### 2.2 New Fields
+### 3.2 New Fields
 
 ```go
 type LayoutRow struct {
@@ -329,7 +424,7 @@ type ChildTableColumn struct {
 }
 ```
 
-### 2.3 Expression Syntax
+### 3.3 Expression Syntax
 
 Expressions use the same syntax as existing `readonly_if`, `mandatory_if`, `depends_on` in FieldDefinition:
 
@@ -344,7 +439,7 @@ Expressions use the same syntax as existing `readonly_if`, `mandatory_if`, `depe
 }
 ```
 
-### 2.4 Evaluation
+### 3.4 Evaluation
 
 Expressions are evaluated **client-side** (in the web component) for real-time reactivity. The server renders all fields but marks them with `data-visible-if`, `data-disabled-if` attributes:
 
@@ -357,7 +452,7 @@ Expressions are evaluated **client-side** (in the web component) for real-time r
 
 The `bc-form` web component evaluates expressions on form data change and toggles visibility/disabled state.
 
-### 2.5 Server-Side Rendering Fallback
+### 3.5 Server-Side Rendering Fallback
 
 For SSR (non-JS environments), the server evaluates expressions against the current record data and omits hidden fields / adds disabled attribute:
 
@@ -370,7 +465,7 @@ func shouldRender(expr string, record map[string]any) bool {
 }
 ```
 
-### 2.6 Precedence: Model vs View
+### 3.6 Precedence: Model vs View
 
 | Modifier | Model Level | View Level | Precedence |
 |----------|:-----------:|:----------:|------------|
@@ -386,7 +481,7 @@ func shouldRender(expr string, record map[string]any) bool {
 
 ## 4. Metadata API
 
-### 3.1 Why Needed
+### 4.1 Why Needed
 
 Module "setting" (Phase 7) needs to:
 - List all registered models
@@ -397,7 +492,7 @@ Module "setting" (Phase 7) needs to:
 
 Currently, this information is only accessible via `admin.go` (hardcoded HTML). Module "setting" needs it as **JSON API**.
 
-### 3.2 Endpoints
+### 4.2 Endpoints
 
 ```
 GET /api/v1/_meta/models                    → list all models
@@ -412,7 +507,7 @@ GET /api/v1/_meta/processes/:name           → process definition
 GET /api/v1/_meta/field-types               → list all supported field types with metadata
 ```
 
-### 3.3 Response Format
+### 4.3 Response Format
 
 #### `GET /api/v1/_meta/models`
 
@@ -489,7 +584,7 @@ GET /api/v1/_meta/field-types               → list all supported field types w
 }
 ```
 
-### 3.4 Authentication
+### 4.4 Authentication
 
 Metadata API requires **admin authentication** by default. Configurable:
 
@@ -501,7 +596,7 @@ auth = true             # default: true (require auth)
 admin_only = true       # default: true (only admin group)
 ```
 
-### 3.5 Bridge API Access
+### 4.5 Bridge API Access
 
 Scripts can also access metadata via bridge:
 
@@ -518,7 +613,7 @@ This is added to the `bitcode.meta` namespace in the bridge API (Phase 1 already
 
 ## 5. Embedded View Improvements
 
-### 4.1 Problem
+### 5.1 Problem
 
 Embedded views in form tabs currently load ALL records:
 
@@ -529,7 +624,7 @@ records, total, err := repo.FindAll(context.Background(), nil, 1, 10)
 
 When a form shows an embedded list of "orders for this customer", it shows ALL orders, not just this customer's orders.
 
-### 4.2 Solution: `filter_by` on TabDefinition
+### 5.2 Solution: `filter_by` on TabDefinition
 
 ```go
 type TabDefinition struct {
@@ -541,7 +636,7 @@ type TabDefinition struct {
 }
 ```
 
-### 4.3 Usage
+### 5.3 Usage
 
 ```json
 {
@@ -561,7 +656,7 @@ type TabDefinition struct {
 WHERE customer_id = {current_record_id}
 ```
 
-### 4.4 Implementation
+### 5.4 Implementation
 
 ```go
 func (r *Renderer) renderEmbeddedView(viewDef *parser.ViewDefinition, parentRecord map[string]any, filterBy string) string {
@@ -585,7 +680,7 @@ func (r *Renderer) renderEmbeddedView(viewDef *parser.ViewDefinition, parentReco
 }
 ```
 
-### 4.5 Multiple Filters
+### 5.5 Multiple Filters
 
 For complex cases, `filter_by` can be an object:
 
@@ -617,9 +712,9 @@ type TabDefinition struct {
 
 ---
 
-## 5. Process-Based Data Source
+## 6. Process-Based Data Source
 
-### 5.1 Problem
+### 6.1 Problem
 
 View `data_sources` currently only support model queries:
 
@@ -636,7 +731,7 @@ View `data_sources` currently only support model queries:
 
 But module "setting" needs data from **processes** — e.g., "get system stats", "get recent activity", "get module health". These are not simple model queries.
 
-### 5.2 Solution: Process Data Source
+### 6.2 Solution: Process Data Source
 
 ```json
 {
@@ -652,7 +747,7 @@ But module "setting" needs data from **processes** — e.g., "get system stats",
 }
 ```
 
-### 5.3 DataSourceDefinition Update
+### 6.3 DataSourceDefinition Update
 
 ```go
 type DataSourceDefinition struct {
@@ -664,7 +759,7 @@ type DataSourceDefinition struct {
 
 **Validation**: `model` and `process` are mutually exclusive. Parser error if both set.
 
-### 5.4 Implementation
+### 6.4 Implementation
 
 ```go
 func (r *Renderer) resolveDataSource(ctx context.Context, name string, ds parser.DataSourceDefinition) (any, error) {
@@ -683,7 +778,7 @@ func (r *Renderer) resolveDataSource(ctx context.Context, name string, ds parser
 }
 ```
 
-### 5.5 Security
+### 6.5 Security
 
 Process data sources execute with the **current user's permissions**. The process itself handles authorization via its own permission checks.
 
