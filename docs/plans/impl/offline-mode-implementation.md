@@ -20,7 +20,7 @@
 | **1** | Foundation | Config parsing + `_off_*` schema generation + sync API stubs | 2-3 weeks | ✅ COMPLETE | Engine understands `mode: "offline"` and generates correct schemas |
 | **2** | Tauri Shell | Tauri project setup + Stencil integration + `bc-native.ts` bridge | 1-2 weeks | ✅ COMPLETE | Stencil components run inside Tauri on desktop + mobile |
 | **2.5** | Per-Model Offline & Client Routing | Per-model `app.mode`, resolution chain, `offline-store.ts`, schema sync endpoint | 3-5 days | ✅ COMPLETE | Granular per-model offline + client CRUD routing |
-| **3** | Sync Engine | Client outbox + server sync endpoints + idempotency + delta sync | 2-3 weeks | ⬜ PENDING | Data syncs between local SQLite and server PostgreSQL |
+| **3** | Sync Engine | Client outbox + server sync endpoints + idempotency + delta sync | 2-3 weeks | ✅ COMPLETE | Data syncs between local SQLite and server PostgreSQL |
 | **4** | Conflict Resolution & Edge Cases | Field-level merge + HLC + receipt numbering + inventory handling | 1-2 weeks | ⬜ PENDING | All edge cases from design doc handled |
 | **5** | Polish & Cross-Platform Testing | iOS/Android testing, App Store compliance, encryption, performance | 1-2 weeks | ⬜ PENDING | Production-ready on all 5 platforms |
 

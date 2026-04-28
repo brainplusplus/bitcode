@@ -442,7 +442,7 @@ Single file at `packages/components/src/core/bc-native.ts`. Detects environment 
 
 ## Implementation Files
 
-### Implemented (Phase 1 + 2 + 2.5)
+### Implemented (Phase 1 + 2 + 2.5 + 3)
 
 | File | Purpose |
 |------|---------|
@@ -451,28 +451,26 @@ Single file at `packages/components/src/core/bc-native.ts`. Detects environment 
 | `engine/internal/config.go` | `AppMode` field in `AppConfig`, `app.mode` viper default |
 | `engine/internal/app.go` | `initSyncInfrastructure()`, sync route registration, `modelReg.ProjectAppMode` wiring |
 | `engine/internal/domain/model/registry.go` | `RegisterWithModule` resolution chain (model→module→project), `ProjectAppMode`, `validateOfflinePK()` |
-| `engine/internal/infrastructure/persistence/offline_schema.go` | `OfflineColumns()`, `OfflineUUIDColumn()`, 4 client `_off_*` table DDLs |
+| `engine/internal/infrastructure/persistence/offline_schema.go` | `OfflineColumns()`, `OfflineUUIDColumn()`, 4 client `_off_*` table DDLs (with `device_id` column) |
 | `engine/internal/infrastructure/persistence/sync_schema.go` | 4 server `_sync_*` table DDLs (PostgreSQL/MySQL/SQLite) |
 | `engine/internal/infrastructure/persistence/dynamic_model.go` | `buildColumns()` appends `_off_*` columns when `OfflineModule=true` |
-| `engine/internal/presentation/api/sync_handler.go` | 6 sync API endpoints: 5 stubs (501) + `GetSchema` (returns offline models + fields) |
+| `engine/internal/presentation/api/sync_handler.go` | 6 sync API endpoints: `RegisterDevice`, `PushEnvelope`, `PullChanges`, `DeviceStatus`, `GetSchema` + `CacheAuth` stub |
 | `packages/components/src/core/bc-native.ts` | Bridge abstraction layer (13 methods, Tauri/Web fallback) |
 | `packages/components/src/core/bc-native.spec.ts` | Bridge unit tests (10 tests) |
 | `packages/components/src/core/bc-setup.ts` | `registerOfflineModels()`, `isModelOffline()`, `getOfflineModels()` |
-| `packages/components/src/core/offline-store.ts` | CRUD routing layer — SQLite for offline models, fetch() for online. Outbox recording. |
-| `packages/components/src/core/offline-store.spec.ts` | Offline store tests (11 tests — routing, CRUD, outbox, table mapping) |
+| `packages/components/src/core/offline-store.ts` | Full sync client: CRUD routing, SQL injection prevention, transactions, outbox with device_id/envelope_id, `registerDevice()`, `syncPush()`, `syncPull()`, `beginTransaction()`/`commitTransaction()` |
+| `packages/components/src/core/offline-store.spec.ts` | Offline store tests (17 tests — routing, CRUD, transactions, rollback, SQL injection, envelope grouping) |
 | `packages/tauri/src-tauri/Cargo.toml` | Tauri 2.10 + plugins (sql, fs, notification, barcode, biometric) |
-| `packages/tauri/src-tauri/src/main.rs` | Tauri entry point, plugin registration, SQLite migrations |
-| `packages/tauri/src-tauri/tauri.conf.json` | Tauri config — `frontendDist`, `withGlobalTauri`, CSP, window |
+| `packages/tauri/src-tauri/src/main.rs` | Tauri entry point, plugin registration, SQLite migrations (with `device_id` in outbox) |
+| `packages/tauri/src-tauri/tauri.conf.json` | Tauri config — `frontendDist`, `beforeDevCommand`, `withGlobalTauri`, CSP, window |
 | `packages/tauri/src-tauri/capabilities/default.json` | Permissions for core, sql, fs, notification |
 | `packages/tauri/src-tauri/build.rs` | Tauri build script |
 | `packages/tauri/package.json` | npm scripts for dev/build (desktop, android, ios) |
-| `packages/components/www/index.html` | Entry point HTML for Tauri WebView |
 
-### Planned (Phase 3-5)
+### Planned (Phase 4-5)
 
 | File | Purpose |
 |------|---------|
-| `engine/internal/runtime/sync/processor.go` | Server-side envelope processing |
-| `engine/internal/runtime/sync/conflict.go` | Conflict resolution logic |
+| `engine/internal/runtime/sync/conflict.go` | Field-level conflict resolution logic |
 | `engine/internal/runtime/sync/inventory.go` | Inventory delta reconciliation |
 | `packages/components/src/core/hlc.ts` | Hybrid Logical Clock implementation |

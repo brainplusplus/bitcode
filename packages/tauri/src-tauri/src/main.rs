@@ -9,13 +9,14 @@ fn offline_migrations() -> Vec<Migration> {
             description: "create_off_outbox",
             sql: "CREATE TABLE IF NOT EXISTS _off_outbox (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                envelope_id TEXT,
+                envelope_id TEXT NOT NULL DEFAULT '',
                 table_name TEXT NOT NULL,
                 record_id TEXT NOT NULL,
                 operation TEXT NOT NULL CHECK(operation IN ('CREATE','UPDATE','DELETE')),
                 payload TEXT NOT NULL DEFAULT '{}',
                 status TEXT NOT NULL DEFAULT 'PENDING' CHECK(status IN ('PENDING','SYNCED','ERROR','DEAD')),
                 idempotency_key TEXT NOT NULL UNIQUE,
+                device_id TEXT NOT NULL DEFAULT '',
                 created_at TEXT NOT NULL DEFAULT (datetime('now')),
                 retry_count INTEGER NOT NULL DEFAULT 0
             )",

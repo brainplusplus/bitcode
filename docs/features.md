@@ -145,7 +145,7 @@ Before the gap list — what's already **production-solid**:
 | 37 | Dashboard Builder | ✅ | — | Custom view type with `data_sources`. Admin dashboard at `/admin`. | — |
 | 72 | Enterprise Component Infrastructure | ✅ | — | All 6 phases complete. BcSetup (global config + reactivity runtime), 4-level data fetching, 3-level validation, theming (light/dark/system/custom), 34 field components, 5 select-family with searchable dropdown + cascading, datatable with enterprise methods, 11 charts with enterprise features. All standalone — no BitCode dependency. | — |
 | 73 | Theming System | ✅ | — | CSS custom properties (`--bc-*`), light/dark themes, `prefers-color-scheme` auto-detect, `data-bc-theme` attribute for scoped themes, size tokens (sm/md/lg), `BcSetup.configure({ theme })` for programmatic switching. | — |
-| 74 | Offline Mode | ⚠️ | XL | **Phase 1 ✅ + Phase 2 ✅ + Phase 2.5 ✅ (of 5).** Engine understands `mode:"offline"` in model.json/module.json/bitcode.toml with resolution chain (model→module→project→default). Auto-generates `_off_*` columns on SQLite tables. 4 client + 4 server infrastructure tables. PK validation. 6 sync API endpoints (5 stubs + `GetSchema`). Tauri 2.0 native shell. `bc-native.ts` bridge (13 methods). `offline-store.ts` routes CRUD to SQLite (offline) or fetch() (online) with outbox recording. | Phase 3: Sync engine (device registration, push, pull, envelope grouping). Phase 4: HLC, field-level conflict merge, receipt numbering, inventory deltas. Phase 5: Encryption, offline auth, cross-platform testing. |
+| 74 | Offline Mode | ⚠️ | XL | **Phase 1-3 ✅ (of 5).** Engine understands `mode:"offline"` with resolution chain. Auto-generates `_off_*` columns. 4 client + 4 server infrastructure tables. PK validation. Tauri 2.0 native shell. `bc-native.ts` bridge (13 methods). `offline-store.ts` with SQL injection prevention, transactional CRUD, outbox with device_id/envelope_id. Sync engine: device registration (`POST /sync/register`), push (`POST /sync/push` with idempotency via `_sync_log`), pull (`GET /sync/pull` with delta sync via `_sync_versions`), envelope grouping for atomic multi-table operations. | Phase 4: HLC, field-level conflict merge, receipt numbering, inventory deltas. Phase 5: Encryption, offline auth, cross-platform testing. |
 | 75 | Native Shell (Tauri) | ⚠️ | L | **Phase 2 ✅.** Tauri 2.0 project at `packages/tauri/`. Stencil components run inside native WebView. Plugins: tauri-plugin-sql (SQLite), tauri-plugin-fs, tauri-plugin-notification. Mobile plugins (barcode-scanner, biometric) behind feature flag. Build pipeline: `npm run dev:desktop`, `build:desktop`, `dev:android`, `build:android`, `dev:ios`, `build:ios`. Icons generated for all platforms. | Mobile platform testing (Android/iOS). Camera/GPS plugins (less mature on mobile). App Store submission. |
 
 ---
@@ -331,6 +331,8 @@ Known limitations in the Bridge API (`engine/internal/runtime/bridge/`) that wil
 | 6 | Executor integration | `executor.go` not yet wrapped with execution log recording | Wrap `Execute()` to auto-record `process_execution` + per-step logging | 1 (iteration 2) |
 | 7 | BulkUpdate hooks | `BulkUpdate` skips before/after hooks for performance | Add opt-in hook dispatch for bulk operations | 6B |
 | 8 | BulkDelete hooks | `BulkDelete` skips before/after hooks for performance | Same as above | 6B |
+| 9 | QuickJS unit tests | Only compile check, no VM execution tests | Add VM execution tests | 4 (iteration 2) |
+| 10 | yaegi go.mod per module | Not implemented | `bitcode module extract-deps` CLI + `yaegi extract` pipeline | 5 (iteration 2) |
 
 ---
 
@@ -355,13 +357,13 @@ Detailed per-feature documentation lives in `engine/docs/features/`:
 | Multi-tenancy | [multitenancy.md](../engine/docs/features/multitenancy.md) | ✅ |
 | Admin UI | [admin.md](../engine/docs/features/admin.md) | ✅ |
 | File Storage | [storage.md](../engine/docs/features/storage.md) | ✅ |
-| Offline Mode | [offline-mode.md](../engine/docs/features/offline-mode.md) | ⚠️ Phase 1-2 of 5 |
+| Offline Mode | [offline-mode.md](../engine/docs/features/offline-mode.md) | ⚠️ Phase 1-3 of 5 |
 
 ---
 
 ## Test Coverage
 
-570 Go tests across 41 packages + 74 Stencil component tests. All passing. See [engine/docs/codebase.md](../engine/docs/codebase.md) for the full breakdown.
+540 Go tests across 31 packages + 74 Stencil component tests. All passing. See [engine/docs/codebase.md](../engine/docs/codebase.md) for the full breakdown.
 
 ```bash
 cd engine && go test ./... -v

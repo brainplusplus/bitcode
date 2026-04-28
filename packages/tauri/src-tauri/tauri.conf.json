@@ -5,6 +5,7 @@
   "identifier": "com.bitcode.app",
   "build": {
     "frontendDist": "../../components/www",
+    "beforeDevCommand": "npm run build --prefix ../../components",
     "beforeBuildCommand": "npm run build --prefix ../../components"
   },
   "app": {

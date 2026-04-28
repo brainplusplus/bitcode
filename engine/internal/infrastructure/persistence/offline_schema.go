@@ -50,13 +50,14 @@ func CreateOfflineInfrastructureTables(db *gorm.DB) error {
 func offlineOutboxSQL() string {
 	return `CREATE TABLE IF NOT EXISTS _off_outbox (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  envelope_id TEXT NOT NULL,
+  envelope_id TEXT NOT NULL DEFAULT '',
   table_name TEXT NOT NULL,
   record_id TEXT NOT NULL,
   operation TEXT NOT NULL,
   payload TEXT NOT NULL,
   status TEXT NOT NULL DEFAULT 'PENDING',
   idempotency_key TEXT NOT NULL UNIQUE,
+  device_id TEXT NOT NULL DEFAULT '',
   created_at TEXT NOT NULL,
   retry_count INTEGER NOT NULL DEFAULT 0
 )`
