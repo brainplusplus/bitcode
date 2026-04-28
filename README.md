@@ -57,6 +57,65 @@ npm install
 npm run build
 ```
 
+### Run Desktop App (Tauri)
+
+Prerequisites: [Rust](https://rustup.rs/), [Tauri CLI](https://v2.tauri.app/start/prerequisites/)
+
+```bash
+# Quick start (Windows)
+.\run_desktop.bat
+
+# Quick start (macOS/Linux)
+./run_desktop.sh
+
+# Quick start (PowerShell — any OS)
+.\run_desktop.ps1
+
+# Or manually:
+cd packages/components && npm install
+cd ../tauri && npm run dev:desktop
+```
+
+The desktop app builds the Stencil components first, then launches a native window with SQLite, offline sync, and all native capabilities.
+
+**Production build:**
+
+```bash
+cd packages/tauri
+npm run build:desktop          # Release build (optimized, installer generated)
+npm run build:desktop:debug    # Debug build (faster, no optimization)
+```
+
+Output: `packages/tauri/src-tauri/target/release/bundle/` — contains `.msi` (Windows), `.dmg` (macOS), `.deb`/`.AppImage` (Linux).
+
+### Run Mobile App (Tauri)
+
+Prerequisites: [Android Studio](https://developer.android.com/studio) or [Xcode](https://developer.apple.com/xcode/) + Tauri mobile prerequisites.
+
+```bash
+# Android — first time setup
+cd packages/tauri
+npm run build:android-init     # Generate Android project
+npm run dev:android            # Dev mode on connected device/emulator
+
+# iOS — first time setup (macOS only)
+npm run build:ios-init         # Generate Xcode project
+npm run dev:ios                # Dev mode on simulator/device
+
+# Production builds
+npm run build:android          # Release APK/AAB
+npm run build:ios              # Release IPA
+```
+
+### Offline Mode with Encryption
+
+```bash
+# Enable SQLite encryption (optional)
+# Requires SQLCipher: brew install sqlcipher (macOS) / apt install libsqlcipher-dev (Ubuntu)
+cd packages/tauri
+BITCODE_DB_KEY=your-secret-key cargo tauri build --features encryption
+```
+
 ## CLI Commands
 
 ```bash
@@ -181,7 +240,7 @@ docker-compose up -d
 - **Admin UI** — Built-in panel at `/admin`
 - **Hot reload** — File watcher in dev mode
 - **Native shell (Tauri)** — Tauri 2.0 wraps Stencil components for desktop (Win/Mac/Linux) and mobile (iOS/Android). `bc-native.ts` bridge abstracts native capabilities with Web API fallback
-- **Offline mode** — One toggle (`mode:"offline"`) enables offline-first with auto-generated sync infrastructure, local SQLite, outbox pattern, and delta sync (in progress)
+- **Offline mode** — One toggle (`mode:"offline"`) enables offline-first with auto-generated sync infrastructure, local SQLite, outbox pattern, delta sync, field-level conflict resolution, offline auth (72h), encrypted storage, and inventory tracking
 
 ## Documentation
 
