@@ -62,14 +62,66 @@ type FuncDef struct {
 	Steps   []Node
 }
 
+// StructDef defines a user-declared struct type.
+type StructDef struct {
+	NodeMeta
+	Name    string
+	Frozen  bool                   `json:"frozen,omitempty"`
+	Alias   string                 `json:"alias,omitempty"`
+	Fields  map[string]*FieldDef   `json:"fields"`
+	Methods map[string]*MethodDef  `json:"methods,omitempty"`
+}
+
+// FieldDef describes a single struct field.
+type FieldDef struct {
+	Type       string // "string", "int", "Person", "[]string", "?Address"
+	Default    any    // nil if required
+	HasDefault bool
+}
+
+// MethodDef defines a method on a struct.
+// self is implicit — NOT declared in Params.
+type MethodDef struct {
+	NodeMeta
+	Name    string
+	Params  []FuncParam    `json:"params,omitempty"`
+	Returns string         `json:"returns,omitempty"`
+	Steps   []Node         `json:"steps"`
+}
+
+// NewConstruction represents a nested struct construction inside a with block.
+type NewConstruction struct {
+	StructName string
+	With       map[string]any
+}
+
+// ImportDef describes a single import declaration.
+type ImportDef struct {
+	Alias    string // namespace alias
+	Path     string // raw path string
+	PathType string // "relative", "stdlib", "ext", "io"
+}
+
+// ParallelNode represents a parallel execution step.
+type ParallelNode struct {
+	NodeMeta
+	Branches map[string][]Node `json:"parallel"`
+	Join     string            `json:"join,omitempty"`     // "all" (default), "any", "settled"
+	OnError  string            `json:"on_error,omitempty"` // "cancel_all" (default), "continue", "collect"
+	Into     string            `json:"into,omitempty"`
+}
+
+func (n *ParallelNode) nodeType() string { return "parallel" }
+func (n *ParallelNode) Meta() *NodeMeta  { return &n.NodeMeta }
+
 // Program is the root AST node representing an entire go-json program.
 type Program struct {
 	NodeMeta
 	Name      string
 	GoJSON    string // language version (e.g. "1")
 	Input     []InputField
-	Imports   []string
-	Structs   map[string]any // Phase 4.5b — placeholder
+	Imports   []*ImportDef
+	Structs   map[string]*StructDef
 	Functions map[string]*FuncDef
 	Steps     []Node
 	Limits    *LimitsDef
@@ -98,9 +150,8 @@ type LetNode struct {
 	// Call shorthand: {"let": "x", "call": "fn", "with": {...}}
 	Call     string
 	CallWith map[string]string
-	// New shorthand (Phase 4.5b): {"let": "x", "new": "Person", "with": {...}}
 	New     string
-	NewWith map[string]string
+	NewWith map[string]any
 }
 
 func (n *LetNode) nodeType() string { return "let" }
@@ -190,12 +241,15 @@ func (n *ContinueNode) Meta() *NodeMeta  { return &n.NodeMeta }
 // Overloaded: string → expression, map → value/expr/with modes.
 type ReturnNode struct {
 	NodeMeta
-	Expr     string // expression mode (most common)
-	Value    any    // literal value mode
-	With     map[string]string // computed object mode
+	Expr     string
+	Value    any
+	With     map[string]string
+	New      string
+	NewWith  map[string]any
 	HasExpr  bool
 	HasValue bool
 	HasWith  bool
+	HasNew   bool
 }
 
 func (n *ReturnNode) nodeType() string { return "return" }

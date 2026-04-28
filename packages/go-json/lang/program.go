@@ -8,9 +8,26 @@ type CompiledProgram struct {
 	Name      string
 	GoJSON    string
 	AST       *Program
+	Structs   map[string]*CompiledStruct
 	Functions map[string]*CompiledFunc
 	Input     []InputField
 	Limits    ResolvedLimits
+}
+
+// CompiledStruct is a compiled struct definition ready for instantiation.
+type CompiledStruct struct {
+	Name    string
+	Frozen  bool
+	Fields  map[string]*FieldDef
+	Methods map[string]*CompiledMethod
+}
+
+// CompiledMethod is a compiled method ready for execution.
+type CompiledMethod struct {
+	Name    string
+	Params  []ParamDef
+	Returns string
+	Steps   []Node
 }
 
 // CompiledFunc is a compiled function ready for execution.

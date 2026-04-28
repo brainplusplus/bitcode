@@ -137,7 +137,6 @@ func (e *ExprLangEngine) Validate(expression string, env map[string]any) error {
 func (e *ExprLangEngine) ReturnType(expression string, env map[string]any) (string, error) {
 	defer func() {
 		if r := recover(); r != nil {
-			// Swallow panic.
 		}
 	}()
 

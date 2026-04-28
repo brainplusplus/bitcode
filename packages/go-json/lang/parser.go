@@ -51,12 +51,38 @@ func parseProgram(raw map[string]any, cleanedJSON []byte) (*Program, error) {
 		}
 	}
 
-	// Parse imports.
-	if importsRaw, ok := raw["imports"].([]any); ok {
-		for _, imp := range importsRaw {
-			if s, ok := imp.(string); ok {
-				prog.Imports = append(prog.Imports, s)
+	// Parse imports — design doc uses "import", support "imports" for compat.
+	importsRaw, ok := raw["import"].(map[string]any)
+	if !ok {
+		importsRaw, ok = raw["imports"].(map[string]any)
+	}
+	if ok {
+		for alias, pathRaw := range importsRaw {
+			pathStr, ok := pathRaw.(string)
+			if !ok {
+				return nil, CompileError("INVALID_IMPORT", fmt.Sprintf("import '%s' path must be a string", alias), -1)
 			}
+			prog.Imports = append(prog.Imports, &ImportDef{
+				Alias:    alias,
+				Path:     pathStr,
+				PathType: detectImportPathType(pathStr),
+			})
+		}
+	}
+
+	// Parse structs.
+	if structsRaw, ok := raw["structs"].(map[string]any); ok {
+		prog.Structs = make(map[string]*StructDef)
+		for name, sRaw := range structsRaw {
+			sMap, ok := sRaw.(map[string]any)
+			if !ok {
+				return nil, CompileError("INVALID_STRUCT", fmt.Sprintf("struct '%s' must be an object", name), -1)
+			}
+			sd, err := parseStructDef(name, sMap, cleanedJSON)
+			if err != nil {
+				return nil, err
+			}
+			prog.Structs[name] = sd
 		}
 	}
 
@@ -124,9 +150,11 @@ func parseStep(m map[string]any, index int) (Node, error) {
 
 	// Detect step type by key presence (priority order).
 	if _, ok := m["let"]; ok {
-		// Check for call shorthand: {"let": "x", "call": "fn", ...}
 		if _, hasCall := m["call"]; hasCall {
 			return parseLetCallNode(m, index)
+		}
+		if _, hasNew := m["new"]; hasNew {
+			return parseLetNewNode(m, index)
 		}
 		return parseLetNode(m, index)
 	}
@@ -159,6 +187,9 @@ func parseStep(m map[string]any, index int) (Node, error) {
 	}
 	if _, ok := m["log"]; ok {
 		return parseLogNode(m, index)
+	}
+	if _, ok := m["parallel"]; ok {
+		return parseParallelNode(m, index)
 	}
 	if _, ok := m["break"]; ok {
 		return parseBreakNode(m, index)
@@ -453,8 +484,13 @@ func parseReturnNode(m map[string]any, index int) (*ReturnNode, error) {
 		node.Expr = v
 		node.HasExpr = true
 	case map[string]any:
-		// Object mode: {"return": {"value": ...}} or {"return": {"expr": ...}} or {"return": {"with": ...}}
-		if val, ok := v["value"]; ok {
+		if newName, ok := v["new"].(string); ok {
+			node.New = newName
+			node.HasNew = true
+			if withRaw, ok := v["with"].(map[string]any); ok {
+				node.NewWith = parseNewWithArgs(withRaw)
+			}
+		} else if val, ok := v["value"]; ok {
 			node.Value = val
 			node.HasValue = true
 		} else if expr, ok := v["expr"].(string); ok {
@@ -464,7 +500,6 @@ func parseReturnNode(m map[string]any, index int) (*ReturnNode, error) {
 			node.With = toStringMap(withRaw)
 			node.HasWith = true
 		} else {
-			// Literal map return: {"return": {"status": "ok"}}
 			node.Value = v
 			node.HasValue = true
 		}
@@ -767,6 +802,296 @@ func skipValue(dec *json.Decoder) {
 	}
 }
 
+// --- Struct parsing ---
+
+func parseStructDef(name string, raw map[string]any, cleanedJSON []byte) (*StructDef, error) {
+	// Barrel file alias: {"alias": "_addr.Address"} → re-export
+	if alias, ok := raw["alias"].(string); ok {
+		return &StructDef{
+			Name:   name,
+			Alias:  alias,
+			Fields: make(map[string]*FieldDef),
+		}, nil
+	}
+
+	sd := &StructDef{
+		Name:   name,
+		Fields: make(map[string]*FieldDef),
+	}
+
+	if frozen, ok := raw["frozen"].(bool); ok {
+		sd.Frozen = frozen
+	}
+
+	fieldsRaw, ok := raw["fields"].(map[string]any)
+	if !ok {
+		return nil, CompileError("INVALID_STRUCT", fmt.Sprintf("struct '%s' requires 'fields' object", name), -1)
+	}
+
+	for fieldName, fieldRaw := range fieldsRaw {
+		fd, err := parseFieldDef(name, fieldName, fieldRaw)
+		if err != nil {
+			return nil, err
+		}
+		sd.Fields[fieldName] = fd
+	}
+
+	if methodsRaw, ok := raw["methods"].(map[string]any); ok {
+		sd.Methods = make(map[string]*MethodDef)
+		for methodName, mRaw := range methodsRaw {
+			mMap, ok := mRaw.(map[string]any)
+			if !ok {
+				return nil, CompileError("INVALID_METHOD",
+					fmt.Sprintf("method '%s.%s' must be an object", name, methodName), -1)
+			}
+			md, err := parseMethodDef(name, methodName, mMap, cleanedJSON)
+			if err != nil {
+				return nil, err
+			}
+			sd.Methods[methodName] = md
+		}
+	}
+
+	return sd, nil
+}
+
+func parseFieldDef(structName, fieldName string, raw any) (*FieldDef, error) {
+	switch v := raw.(type) {
+	case string:
+		return &FieldDef{Type: TypeFromJSON(v)}, nil
+	case map[string]any:
+		fd := &FieldDef{}
+		typStr, ok := v["type"].(string)
+		if !ok {
+			return nil, CompileError("INVALID_FIELD",
+				fmt.Sprintf("field '%s.%s' requires 'type' string", structName, fieldName), -1)
+		}
+		fd.Type = TypeFromJSON(typStr)
+		if def, ok := v["default"]; ok {
+			fd.Default = def
+			fd.HasDefault = true
+		}
+		return fd, nil
+	default:
+		return nil, CompileError("INVALID_FIELD",
+			fmt.Sprintf("field '%s.%s' must be a type string or {type, default} object", structName, fieldName), -1)
+	}
+}
+
+func parseMethodDef(structName, methodName string, raw map[string]any, cleanedJSON []byte) (*MethodDef, error) {
+	md := &MethodDef{Name: methodName}
+
+	if ret, ok := raw["returns"].(string); ok {
+		md.Returns = TypeFromJSON(ret)
+	}
+
+	if paramsRaw, ok := raw["params"].(map[string]any); ok {
+		orderedKeys := extractMethodParamKeys(cleanedJSON, structName, methodName)
+		if orderedKeys == nil {
+			for pName, pType := range paramsRaw {
+				typStr, _ := pType.(string)
+				md.Params = append(md.Params, FuncParam{
+					Name: pName,
+					Type: TypeFromJSON(typStr),
+				})
+			}
+		} else {
+			for _, pName := range orderedKeys {
+				pType, ok := paramsRaw[pName]
+				if !ok {
+					continue
+				}
+				typStr, _ := pType.(string)
+				md.Params = append(md.Params, FuncParam{
+					Name: pName,
+					Type: TypeFromJSON(typStr),
+				})
+			}
+		}
+	}
+
+	if stepsRaw, ok := raw["steps"].([]any); ok {
+		steps, err := parseSteps(stepsRaw)
+		if err != nil {
+			return nil, err
+		}
+		md.Steps = steps
+	}
+
+	return md, nil
+}
+
+func extractMethodParamKeys(jsonData []byte, structName, methodName string) []string {
+	dec := json.NewDecoder(bytes.NewReader(jsonData))
+	if !seekKey(dec, "structs") {
+		return nil
+	}
+	if !seekKey(dec, structName) {
+		return nil
+	}
+	if !seekKey(dec, "methods") {
+		return nil
+	}
+	if !seekKey(dec, methodName) {
+		return nil
+	}
+	if !seekKey(dec, "params") {
+		return nil
+	}
+
+	t, err := dec.Token()
+	if err != nil {
+		return nil
+	}
+	if delim, ok := t.(json.Delim); !ok || delim != '{' {
+		return nil
+	}
+
+	var keys []string
+	depth := 0
+	for dec.More() {
+		t, err := dec.Token()
+		if err != nil {
+			break
+		}
+		if depth == 0 {
+			if key, ok := t.(string); ok {
+				keys = append(keys, key)
+				skipValue(dec)
+			}
+		} else {
+			if delim, ok := t.(json.Delim); ok {
+				switch delim {
+				case '{', '[':
+					depth++
+				case '}', ']':
+					depth--
+				}
+			}
+		}
+	}
+	return keys
+}
+
+func parseLetNewNode(m map[string]any, index int) (*LetNode, error) {
+	node := &LetNode{}
+	node.StepIndex = index
+	parseComment(&node.NodeMeta, m)
+
+	name, ok := m["let"].(string)
+	if !ok {
+		return nil, CompileError("INVALID_LET", "let name must be a string", index)
+	}
+	node.Name = name
+
+	if typ, ok := m["type"].(string); ok {
+		node.Type = TypeFromJSON(typ)
+	}
+
+	newName, ok := m["new"].(string)
+	if !ok {
+		return nil, CompileError("INVALID_NEW", "new struct name must be a string", index)
+	}
+	node.New = newName
+
+	if withRaw, ok := m["with"].(map[string]any); ok {
+		node.NewWith = parseNewWithArgs(withRaw)
+	}
+
+	return node, nil
+}
+
+// parseNewWithArgs handles mixed value types in new+with:
+//   - string → expression (kept as string)
+//   - number/bool/null → literal expression string
+//   - map with "new" key → nested NewConstruction{StructName, With}
+//   - map without "new" → literal value (kept as-is)
+//   - array → literal value (kept as-is)
+func parseNewWithArgs(m map[string]any) map[string]any {
+	result := make(map[string]any, len(m))
+	for k, v := range m {
+		switch val := v.(type) {
+		case string:
+			result[k] = val
+		case map[string]any:
+			if newName, ok := val["new"].(string); ok {
+				nc := &NewConstruction{StructName: newName}
+				if withRaw, ok := val["with"].(map[string]any); ok {
+					nc.With = parseNewWithArgs(withRaw)
+				}
+				result[k] = nc
+			} else {
+				result[k] = val
+			}
+		case nil:
+			result[k] = "nil"
+		case bool:
+			if val {
+				result[k] = "true"
+			} else {
+				result[k] = "false"
+			}
+		default:
+			result[k] = fmt.Sprintf("%v", v)
+		}
+	}
+	return result
+}
+
+// --- Parallel parsing ---
+
+func parseParallelNode(m map[string]any, index int) (*ParallelNode, error) {
+	node := &ParallelNode{}
+	node.StepIndex = index
+	parseComment(&node.NodeMeta, m)
+
+	branchesRaw, ok := m["parallel"].(map[string]any)
+	if !ok {
+		return nil, CompileError("INVALID_PARALLEL", "parallel must be an object of branch_name → steps", index)
+	}
+
+	node.Branches = make(map[string][]Node)
+	for branchName, stepsRaw := range branchesRaw {
+		stepsArr, ok := stepsRaw.([]any)
+		if !ok {
+			return nil, CompileError("INVALID_PARALLEL",
+				fmt.Sprintf("parallel branch '%s' must be a steps array", branchName), index)
+		}
+		steps, err := parseSteps(stepsArr)
+		if err != nil {
+			return nil, err
+		}
+		node.Branches[branchName] = steps
+	}
+
+	if join, ok := m["join"].(string); ok {
+		node.Join = join
+	}
+	if onError, ok := m["on_error"].(string); ok {
+		node.OnError = onError
+	}
+	if into, ok := m["into"].(string); ok {
+		node.Into = into
+	}
+
+	return node, nil
+}
+
+// --- Import helpers ---
+
+func detectImportPathType(path string) string {
+	if strings.HasPrefix(path, "stdlib:") {
+		return "stdlib"
+	}
+	if strings.HasPrefix(path, "ext:") {
+		return "ext"
+	}
+	if strings.HasPrefix(path, "io:") {
+		return "io"
+	}
+	return "relative"
+}
+
 // --- Helpers ---
 
 func parseComment(meta *NodeMeta, m map[string]any) {
@@ -831,6 +1156,29 @@ func toStringMap(m map[string]any) map[string]string {
 		if s, ok := v.(string); ok {
 			result[k] = s
 		} else {
+			result[k] = fmt.Sprintf("%v", v)
+		}
+	}
+	return result
+}
+
+// toExprMap converts JSON values to expression strings.
+// string → kept as expression, number/bool → literal expression, null → "nil"
+func toExprMap(m map[string]any) map[string]string {
+	result := make(map[string]string, len(m))
+	for k, v := range m {
+		switch val := v.(type) {
+		case string:
+			result[k] = val
+		case nil:
+			result[k] = "nil"
+		case bool:
+			if val {
+				result[k] = "true"
+			} else {
+				result[k] = "false"
+			}
+		default:
 			result[k] = fmt.Sprintf("%v", v)
 		}
 	}

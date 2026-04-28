@@ -548,6 +548,14 @@ func (vm *VM) executeWhile(n *WhileNode) (any, error) {
 func (vm *VM) executeReturn(n *ReturnNode) (any, error) {
 	idx := n.StepIndex
 
+	if n.HasNew {
+		result, err := vm.executeNew(n.New, n.NewWith, idx)
+		if err != nil {
+			return nil, err
+		}
+		return returnValue{value: result}, nil
+	}
+
 	if n.HasValue {
 		return returnValue{value: n.Value}, nil
 	}
@@ -945,17 +953,32 @@ func (vm *VM) executeParallel(n *ParallelNode) (any, error) {
 	}
 
 	results := make(map[string]any)
+	branchCount := len(n.Branches)
 	var firstErr error
+	collected := 0
 
-	for i := 0; i < len(n.Branches); i++ {
+	for collected < branchCount {
 		br := <-resultCh
+		collected++
 		if br.err != nil {
 			switch onError {
 			case "cancel_all":
 				cancel()
+				// Drain remaining goroutines to prevent leak.
+				for collected < branchCount {
+					extra := <-resultCh
+					collected++
+					if extra.err == nil {
+						results[extra.name] = extra.value
+					}
+				}
 				if n.Into != "" {
 					results[br.name] = nil
-					vm.scope.Declare(n.Into, results, "map")
+					if vm.scope.Has(n.Into) {
+						vm.scope.Set(n.Into, results, "map")
+					} else {
+						vm.scope.Declare(n.Into, results, "map")
+					}
 				}
 				return nil, br.err
 			case "continue":
@@ -987,7 +1010,7 @@ func (vm *VM) executeParallel(n *ParallelNode) (any, error) {
 
 // --- Struct construction ---
 
-func (vm *VM) executeNew(structName string, withExprs map[string]string, stepIndex int) (map[string]any, error) {
+func (vm *VM) executeNew(structName string, withArgs map[string]any, stepIndex int) (map[string]any, error) {
 	cs, ok := vm.program.Structs[structName]
 	if !ok {
 		structNames := make([]string, 0, len(vm.program.Structs))
@@ -1007,9 +1030,9 @@ func (vm *VM) executeNew(structName string, withExprs map[string]string, stepInd
 	}
 
 	for fieldName, fd := range cs.Fields {
-		if withExprs != nil {
-			if expr, ok := withExprs[fieldName]; ok {
-				val, err := vm.evalExpr(expr, stepIndex)
+		if withArgs != nil {
+			if arg, ok := withArgs[fieldName]; ok {
+				val, err := vm.evalNewArg(arg, stepIndex)
 				if err != nil {
 					return nil, err
 				}
@@ -1040,6 +1063,21 @@ func (vm *VM) executeNew(structName string, withExprs map[string]string, stepInd
 	}
 
 	return instance, nil
+}
+
+// evalNewArg evaluates a single with-arg value based on its parsed type:
+//   - string → expression
+//   - *NewConstruction → recursive struct construction
+//   - anything else → literal value
+func (vm *VM) evalNewArg(arg any, stepIndex int) (any, error) {
+	switch v := arg.(type) {
+	case string:
+		return vm.evalExpr(v, stepIndex)
+	case *NewConstruction:
+		return vm.executeNew(v.StructName, v.With, stepIndex)
+	default:
+		return v, nil
+	}
 }
 
 // --- Method invocation ---
@@ -1205,8 +1243,10 @@ func (vm *VM) wrapMethod(obj map[string]any, typeName string, cm *CompiledMethod
 func (vm *VM) evalExpr(expression string, stepIndex int) (any, error) {
 	env := vm.scope.ToMap()
 
-	// Inject method wrappers for struct instances so person.greet() works in expressions.
-	for varName, val := range env {
+	// Inject method wrappers directly into struct instance maps.
+	// Must use the same map reference so mutations from method calls
+	// are visible to subsequent chained calls.
+	for _, val := range env {
 		obj, ok := val.(map[string]any)
 		if !ok {
 			continue
@@ -1219,14 +1259,9 @@ func (vm *VM) evalExpr(expression string, stepIndex int) (any, error) {
 		if !ok || cs.Methods == nil {
 			continue
 		}
-		enriched := make(map[string]any, len(obj)+len(cs.Methods))
-		for k, v := range obj {
-			enriched[k] = v
-		}
 		for mName, cm := range cs.Methods {
-			enriched[mName] = vm.wrapMethod(obj, typeName, cm)
+			obj[mName] = vm.wrapMethod(obj, typeName, cm)
 		}
-		env[varName] = enriched
 	}
 
 	result, err := vm.engine.Eval(expression, env)
