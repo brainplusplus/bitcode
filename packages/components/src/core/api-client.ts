@@ -1,4 +1,5 @@
 import { ListParams, ListResponse } from './types';
+import { BcSetup } from './bc-setup';
 
 export class LcApiClient {
   private baseUrl: string;
@@ -156,6 +157,7 @@ export class LcApiClient {
 }
 
 let _client: LcApiClient | undefined;
+let _offlineProxy: LcApiClient | undefined;
 
 export function getApiClient(): LcApiClient {
   if (!_client) {
@@ -168,9 +170,121 @@ export function getApiClient(): LcApiClient {
     }
     _client = new LcApiClient(baseUrl);
   }
+
+  if (BcSetup.isOfflineReady()) {
+    if (!_offlineProxy) {
+      _offlineProxy = createOfflineProxy(_client);
+    }
+    return _offlineProxy;
+  }
+
   return _client;
 }
 
 export function setApiClient(client: LcApiClient): void {
   _client = client;
+  _offlineProxy = undefined;
+}
+
+function createOfflineProxy(httpClient: LcApiClient): LcApiClient {
+  return new Proxy(httpClient, {
+    get(target, prop, receiver) {
+      if (prop === 'list') {
+        return async (model: string, params?: ListParams): Promise<ListResponse> => {
+          if (BcSetup.isModelOffline(model)) {
+            try {
+              const { OfflineStore } = await import('./offline-store');
+              return await OfflineStore.find(model, {
+                page: params?.page,
+                pageSize: params?.pageSize,
+                search: params?.q,
+                sort: params?.sort ? [{ field: params.sort, direction: (params.order as 'asc' | 'desc') || 'asc' }] : undefined,
+                filters: params?.filters as Record<string, string>,
+              });
+            } catch (err) {
+              console.warn('[api-client] offline list failed for "%s":', model, err);
+            }
+          }
+          return target.list(model, params);
+        };
+      }
+
+      if (prop === 'read') {
+        return async (model: string, id: string): Promise<Record<string, unknown>> => {
+          if (BcSetup.isModelOffline(model)) {
+            try {
+              const { OfflineStore } = await import('./offline-store');
+              const record = await OfflineStore.findById(model, id);
+              if (record) return record;
+            } catch (err) {
+              console.warn('[api-client] offline read failed for "%s/%s":', model, id, err);
+            }
+          }
+          return target.read(model, id);
+        };
+      }
+
+      if (prop === 'create') {
+        return async (model: string, data: Record<string, unknown>): Promise<Record<string, unknown>> => {
+          if (BcSetup.isModelOffline(model)) {
+            try {
+              const { OfflineStore } = await import('./offline-store');
+              const result = await OfflineStore.create(model, data);
+              return { ...data, id: result.id };
+            } catch (err) {
+              console.warn('[api-client] offline create failed for "%s":', model, err);
+            }
+          }
+          return target.create(model, data);
+        };
+      }
+
+      if (prop === 'update') {
+        return async (model: string, id: string, data: Record<string, unknown>): Promise<Record<string, unknown>> => {
+          if (BcSetup.isModelOffline(model)) {
+            try {
+              const { OfflineStore } = await import('./offline-store');
+              await OfflineStore.update(model, id, data);
+              return { ...data, id };
+            } catch (err) {
+              console.warn('[api-client] offline update failed for "%s/%s":', model, id, err);
+            }
+          }
+          return target.update(model, id, data);
+        };
+      }
+
+      if (prop === 'remove') {
+        return async (model: string, id: string): Promise<void> => {
+          if (BcSetup.isModelOffline(model)) {
+            try {
+              const { OfflineStore } = await import('./offline-store');
+              await OfflineStore.delete(model, id);
+              return;
+            } catch (err) {
+              console.warn('[api-client] offline delete failed for "%s/%s":', model, id, err);
+            }
+          }
+          return target.remove(model, id);
+        };
+      }
+
+      if (prop === 'search') {
+        return async (model: string, query: string): Promise<Record<string, unknown>[]> => {
+          if (BcSetup.isModelOffline(model)) {
+            try {
+              const { OfflineStore } = await import('./offline-store');
+              const result = await OfflineStore.find(model, { search: query, pageSize: 20 });
+              return result.data as Record<string, unknown>[];
+            } catch (err) {
+              console.warn('[api-client] offline search failed for "%s":', model, err);
+            }
+          }
+          return target.search(model, query);
+        };
+      }
+
+      return Reflect.get(target, prop, receiver);
+    },
+  });
 }

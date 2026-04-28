@@ -107,6 +107,23 @@ npm run build:android          # Release APK/AAB
 npm run build:ios              # Release IPA
 ```
 
+### Sync Status Widget
+
+Drop `<bc-sync-status>` into any page to show offline sync status:
+
+```html
+<!-- Full view: online/offline indicator, pending count, sync button -->
+<bc-sync-status></bc-sync-status>
+
+<!-- Compact mode for toolbars -->
+<bc-sync-status compact></bc-sync-status>
+
+<!-- Custom poll interval (ms) -->
+<bc-sync-status poll-interval="10000"></bc-sync-status>
+```
+
+Events: `bcSyncTriggered`, `bcSyncCompleted` — listen for sync lifecycle.
+
 ### Offline Mode with Encryption
 
 ```bash
