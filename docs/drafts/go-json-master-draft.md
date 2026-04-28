@@ -153,6 +153,67 @@ These are unresolved design decisions that need further discussion. Each is mark
 - C: Configurable via `on_error` field: `"cancel_all"` | `"continue"` | `"ignore"`
 **Current lean**: Option C — configurable, default `"cancel_all"`.
 
+### OQ-6: Namespace / Module Namespace for Struct Disambiguation
+**Phase**: 4.5b §5
+**Problem**: Two different modules define struct with same name. E.g. `crm.Contact` vs `hrm.Contact`. How to disambiguate?
+**Context**: In Java it's `com.company.crm.Contact`. In Go it's `crm.Contact` (package-scoped). In Python it's `from crm.models import Contact`.
+**Sub-questions**:
+- Is the import alias sufficient? (`{"import": {"crm": "./crm/types.json", "hrm": "./hrm/types.json"}}` → `crm.Contact` vs `hrm.Contact`)
+- Or do we need explicit namespace declaration inside the JSON file itself? (`"namespace": "crm"`)
+- What about deeply nested namespaces? `company.division.module.Type`?
+- How does this interact with extensions? `ext:bitcode` already acts as a namespace.
+**Current lean**: Import alias IS the namespace. `crm.Contact` and `hrm.Contact` are disambiguated by their import alias. No need for explicit namespace declaration inside files. But needs further thought for large projects with deep module hierarchies.
+
+### OQ-7: Stdlib Function Call in Expressions — Chained / Namespaced
+**Phase**: 4.5a §11, 4.5b §6
+**Problem**: Can stdlib functions be called with namespace and chaining? E.g. `string.random(input.min, 20)` or `math.clamp(x, 0, 100)`.
+**Sub-questions**:
+- Are stdlib functions flat (`random(10, 20)`) or namespaced (`string.random(10, 20)`)?
+- Can they be chained? `"hello".upper().trim()` or `upper(trim("hello"))`?
+- If namespaced, does `string` conflict with the type conversion function `string(x)`?
+- How does expr-lang handle this? (expr-lang supports method calls on types and custom functions, but not arbitrary namespacing)
+**Current lean**: Flat by default (like Python built-ins: `len()`, `upper()`, `abs()`). Namespaced for disambiguation when needed (like `crypto.sha256()` vs potential user function `sha256()`). Method-style chaining NOT supported in Phase 4.5a — too complex for expr-lang integration. Revisit in later phase.
+
+### OQ-8: Undefined/Untyped Variables — Dynamic Type or Compile Error?
+**Phase**: 4.5a §4
+**Problem**: What happens when a variable has no type annotation and receives values of different types at different points?
+**Example**:
+```json
+{"let": "x", "value": 42},
+{"set": "x", "value": "hello"}
+```
+**Sub-questions**:
+- Is this allowed? (dynamic typing like `interface{}` in Go / `Object` in Java / `any` in TypeScript)
+- Or is this a type error? (once `x` is `int`, it stays `int`)
+- What about variables that receive external/unknown data? (`{"let": "data", "expr": "input.payload"}` where payload could be anything)
+- How does `any` type interact with this? Is `any` explicit opt-in, or implicit default?
+**Options**:
+- A: **Strict after first assignment** — `let x = 42` locks `x` to `int`. `set x = "hello"` → type error. Use `any` explicitly for dynamic: `{"let": "x", "type": "any", "value": 42}`.
+- B: **Always dynamic** — variables can hold any type at any time (like Python/JS). Type annotations are hints, not enforced.
+- C: **Gradual** — untyped mode = dynamic (Option B). Typed mode (with input schema) = strict (Option A).
+**Current lean**: Option C — gradual. In untyped mode, variables are dynamic. In typed mode (input schema declared), variables are strict after first assignment. This matches the gradual typing philosophy already in the design.
+
+### OQ-9: Eval / Inline Code Execution in Other Languages
+**Phase**: 4.5c
+**Problem**: Should go-json support `eval` that executes code in Go, Python, or JavaScript?
+**Example**:
+```json
+{"let": "result", "eval": "go", "code": "return fmt.Sprintf(\"%d items\", len(items))"}
+{"let": "result", "eval": "js", "code": "return items.map(x => x.name).join(', ')"}
+{"let": "result", "eval": "python", "code": "return sum(x['price'] for x in items)"}
+```
+**Sub-questions**:
+- Does this break the "standalone" principle? (go-json would need yaegi/goja/python runtime as dependencies)
+- Is this a core feature or an extension? (host can inject eval capability via `WithExtension`)
+- Security implications? (eval is dangerous — code injection, sandbox escape)
+- Performance? (spinning up a JS/Python VM per eval is expensive)
+- Does this make code generation impossible? (eval blocks can't be transpiled)
+**Options**:
+- A: **No eval** — go-json is self-contained. If you need Go/JS/Python, use those runtimes directly via bitcode's script step.
+- B: **Eval as extension** — not built-in, but host can inject: `gojson.WithExtension("eval", evalExtension)`. Bitcode could provide this since it already has yaegi/goja.
+- C: **Built-in eval** — core feature with language selector.
+**Current lean**: Option B — eval as extension, NOT built-in. Keeps go-json standalone and clean. Bitcode can provide eval capability by injecting yaegi/goja/python as extensions. This way go-json itself has zero dependency on any script runtime.
+
 ---
 
 ## 4. Architecture Overview
