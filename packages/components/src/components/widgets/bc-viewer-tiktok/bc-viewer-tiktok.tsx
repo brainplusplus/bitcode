@@ -1,4 +1,4 @@
-import { Component, Prop, State, Watch, Element, h } from '@stencil/core';
+import { Component, Prop, State, Watch, Element, Method, h } from '@stencil/core';
 
 @Component({
   tag: 'bc-viewer-tiktok',
@@ -86,7 +86,9 @@ export class BcViewerTiktok {
       this.embedFailed = true;
     };
     document.body.appendChild(script);
-  }
+  }  @Prop() loading: boolean = false;
+
+  @Method() async refresh(): Promise<void> { }
 
   render() {
     if (!this.src) {
@@ -147,3 +149,4 @@ export class BcViewerTiktok {
     );
   }
 }
+

@@ -609,6 +609,7 @@ export namespace Components {
         "viewTitle": string;
     }
     interface BcDialogConfirm {
+        "closeDialog": () => Promise<void>;
         /**
           * @default ''
          */
@@ -617,18 +618,35 @@ export namespace Components {
           * @default false
          */
         "open": boolean;
+        "openDialog": () => Promise<void>;
+        /**
+          * @default 'sm'
+         */
+        "size": 'sm' | 'md' | 'lg';
     }
     interface BcDialogModal {
+        "closeDialog": () => Promise<void>;
         /**
           * @default ''
          */
         "dialogTitle": string;
+        "isOpen": () => Promise<boolean>;
+        /**
+          * @default false
+         */
+        "loading": boolean;
         /**
           * @default false
          */
         "open": boolean;
+        "openDialog": () => Promise<void>;
+        /**
+          * @default 'md'
+         */
+        "size": 'sm' | 'md' | 'lg' | 'xl';
     }
     interface BcDialogQuickentry {
+        "closeDialog": () => Promise<void>;
         /**
           * @default ''
          */
@@ -645,16 +663,23 @@ export namespace Components {
           * @default false
          */
         "open": boolean;
+        "openDialog": () => Promise<void>;
     }
     interface BcDialogWizard {
+        "closeDialog": () => Promise<void>;
         /**
           * @default ''
          */
         "dialogTitle": string;
+        "getCurrentStep": () => Promise<number>;
+        "goToStep": (step: number) => Promise<void>;
+        "nextStep": () => Promise<void>;
         /**
           * @default false
          */
         "open": boolean;
+        "openDialog": () => Promise<void>;
+        "prevStep": () => Promise<void>;
         /**
           * @default '[]'
          */
@@ -3980,6 +4005,7 @@ export namespace Components {
         "value": string;
     }
     interface BcSection {
+        "collapse": () => Promise<void>;
         /**
           * @default false
          */
@@ -3992,10 +4018,12 @@ export namespace Components {
           * @default ''
          */
         "description": string;
+        "expand": () => Promise<void>;
         /**
           * @default ''
          */
         "sectionTitle": string;
+        "toggle": () => Promise<void>;
     }
     interface BcSeparator {
         /**
@@ -4012,6 +4040,8 @@ export namespace Components {
         "label": string;
     }
     interface BcTabs {
+        "getActiveIndex": () => Promise<number>;
+        "selectTab": (index: number) => Promise<void>;
     }
     interface BcTimeline {
         /**
@@ -4028,6 +4058,7 @@ export namespace Components {
           * @default ''
          */
         "dialogTitle": string;
+        "dismiss": () => Promise<void>;
         /**
           * @default 4000
          */
@@ -4044,6 +4075,7 @@ export namespace Components {
           * @default 'top-right'
          */
         "position": string;
+        "show": (message?: string, variant?: string) => Promise<void>;
         /**
           * @default 'info'
          */
@@ -4062,6 +4094,7 @@ export namespace Components {
           * @default ''
          */
         "model": string;
+        "refresh": () => Promise<void>;
         /**
           * @default ''
          */
@@ -4084,6 +4117,7 @@ export namespace Components {
           * @default ''
          */
         "model": string;
+        "refresh": () => Promise<void>;
         /**
           * @default 'name'
          */
@@ -4102,6 +4136,7 @@ export namespace Components {
           * @default false
          */
         "readonly": boolean;
+        "refresh": () => Promise<void>;
         /**
           * @default '{}'
          */
@@ -4132,6 +4167,7 @@ export namespace Components {
           * @default ''
          */
         "recordId": string;
+        "refresh": () => Promise<void>;
         /**
           * @default ''
          */
@@ -4150,6 +4186,7 @@ export namespace Components {
           * @default ''
          */
         "model": string;
+        "refresh": () => Promise<void>;
         /**
           * @default ''
          */
@@ -4168,6 +4205,7 @@ export namespace Components {
           * @default ''
          */
         "model": string;
+        "refresh": () => Promise<void>;
         /**
           * @default ''
          */
@@ -4186,6 +4224,7 @@ export namespace Components {
           * @default ''
          */
         "model": string;
+        "refresh": () => Promise<void>;
         /**
           * @default ''
          */
@@ -4212,6 +4251,7 @@ export namespace Components {
           * @default 'name'
          */
         "nameField": string;
+        "refresh": () => Promise<void>;
         /**
           * @default ''
          */
@@ -4230,6 +4270,7 @@ export namespace Components {
           * @default ''
          */
         "model": string;
+        "refresh": () => Promise<void>;
         /**
           * @default ''
          */
@@ -4252,6 +4293,7 @@ export namespace Components {
           * @default 'parent_id'
          */
         "parentField": string;
+        "refresh": () => Promise<void>;
         /**
           * @default ''
          */
@@ -4273,7 +4315,12 @@ export namespace Components {
         /**
           * @default false
          */
+        "loading": boolean;
+        /**
+          * @default false
+         */
         "loop": boolean;
+        "refresh": () => Promise<void>;
         /**
           * @default ''
          */
@@ -4293,9 +4340,14 @@ export namespace Components {
          */
         "height": string;
         /**
+          * @default false
+         */
+        "loading": boolean;
+        /**
           * @default 'microsoft'
          */
         "provider": 'microsoft' | 'google';
+        "refresh": () => Promise<void>;
         /**
           * @default ''
          */
@@ -4319,6 +4371,11 @@ export namespace Components {
          */
         "lightbox": boolean;
         /**
+          * @default false
+         */
+        "loading": boolean;
+        "refresh": () => Promise<void>;
+        /**
           * @default ''
          */
         "src": string;
@@ -4336,6 +4393,11 @@ export namespace Components {
           * @default true
          */
         "captioned": boolean;
+        /**
+          * @default false
+         */
+        "loading": boolean;
+        "refresh": () => Promise<void>;
         /**
           * @default ''
          */
@@ -4355,6 +4417,11 @@ export namespace Components {
          */
         "height": string;
         /**
+          * @default false
+         */
+        "loading": boolean;
+        "refresh": () => Promise<void>;
+        /**
           * @default ''
          */
         "src": string;
@@ -4364,6 +4431,11 @@ export namespace Components {
         "toolbar": boolean;
     }
     interface BcViewerTiktok {
+        /**
+          * @default false
+         */
+        "loading": boolean;
+        "refresh": () => Promise<void>;
         /**
           * @default ''
          */
@@ -4393,6 +4465,10 @@ export namespace Components {
         /**
           * @default false
          */
+        "loading": boolean;
+        /**
+          * @default false
+         */
         "loop": boolean;
         /**
           * @default false
@@ -4402,6 +4478,7 @@ export namespace Components {
           * @default ''
          */
         "poster": string;
+        "refresh": () => Promise<void>;
         /**
           * @default ''
          */
@@ -4429,6 +4506,11 @@ export namespace Components {
          */
         "height": string;
         /**
+          * @default false
+         */
+        "loading": boolean;
+        "refresh": () => Promise<void>;
+        /**
           * @default ''
          */
         "src": string;
@@ -4442,6 +4524,8 @@ export namespace Components {
         "width": string;
     }
     interface BcWidgetBadge {
+        "getValue": () => Promise<unknown>;
+        "setValue": (value: unknown) => Promise<void>;
         /**
           * @default ''
          */
@@ -4452,18 +4536,24 @@ export namespace Components {
         "variant": string;
     }
     interface BcWidgetCopy {
+        "getValue": () => Promise<string>;
+        "setValue": (value: unknown) => Promise<void>;
         /**
           * @default ''
          */
         "value": string;
     }
     interface BcWidgetDomain {
+        "getValue": () => Promise<unknown>;
+        "setValue": (value: unknown) => Promise<void>;
         /**
-          * @default '[]'
+          * @default ''
          */
         "value": string;
     }
     interface BcWidgetEmail {
+        "getValue": () => Promise<unknown>;
+        "setValue": (value: unknown) => Promise<void>;
         /**
           * @default ''
          */
@@ -4472,6 +4562,8 @@ export namespace Components {
     interface BcWidgetHandle {
     }
     interface BcWidgetPhone {
+        "getValue": () => Promise<unknown>;
+        "setValue": (value: unknown) => Promise<void>;
         /**
           * @default ''
          */
@@ -4492,10 +4584,12 @@ export namespace Components {
         "value": number;
     }
     interface BcWidgetProgress {
+        "getValue": () => Promise<number>;
         /**
           * @default 100
          */
         "max": number;
+        "setValue": (value: unknown) => Promise<void>;
         /**
           * @default 0
          */
@@ -4506,6 +4600,8 @@ export namespace Components {
         "variant": string;
     }
     interface BcWidgetStatusbar {
+        "getValue": () => Promise<unknown>;
+        "setValue": (value: unknown) => Promise<void>;
         /**
           * @default '[]'
          */
@@ -4516,6 +4612,8 @@ export namespace Components {
         "value": string;
     }
     interface BcWidgetUrl {
+        "getValue": () => Promise<unknown>;
+        "setValue": (value: unknown) => Promise<void>;
         /**
           * @default ''
          */
@@ -6951,17 +7049,29 @@ declare namespace LocalJSX {
           * @default false
          */
         "open"?: boolean;
+        /**
+          * @default 'sm'
+         */
+        "size"?: 'sm' | 'md' | 'lg';
     }
     interface BcDialogModal {
         /**
           * @default ''
          */
         "dialogTitle"?: string;
+        /**
+          * @default false
+         */
+        "loading"?: boolean;
         "onLcDialogClose"?: (event: BcDialogModalCustomEvent<{type: string}>) => void;
         /**
           * @default false
          */
         "open"?: boolean;
+        /**
+          * @default 'md'
+         */
+        "size"?: 'sm' | 'md' | 'lg' | 'xl';
     }
     interface BcDialogQuickentry {
         /**
@@ -10455,6 +10565,10 @@ declare namespace LocalJSX {
         /**
           * @default false
          */
+        "loading"?: boolean;
+        /**
+          * @default false
+         */
         "loop"?: boolean;
         /**
           * @default ''
@@ -10474,6 +10588,10 @@ declare namespace LocalJSX {
           * @default '600px'
          */
         "height"?: string;
+        /**
+          * @default false
+         */
+        "loading"?: boolean;
         /**
           * @default 'microsoft'
          */
@@ -10501,6 +10619,10 @@ declare namespace LocalJSX {
          */
         "lightbox"?: boolean;
         /**
+          * @default false
+         */
+        "loading"?: boolean;
+        /**
           * @default ''
          */
         "src"?: string;
@@ -10518,6 +10640,10 @@ declare namespace LocalJSX {
           * @default true
          */
         "captioned"?: boolean;
+        /**
+          * @default false
+         */
+        "loading"?: boolean;
         /**
           * @default ''
          */
@@ -10537,6 +10663,10 @@ declare namespace LocalJSX {
          */
         "height"?: string;
         /**
+          * @default false
+         */
+        "loading"?: boolean;
+        /**
           * @default ''
          */
         "src"?: string;
@@ -10546,6 +10676,10 @@ declare namespace LocalJSX {
         "toolbar"?: boolean;
     }
     interface BcViewerTiktok {
+        /**
+          * @default false
+         */
+        "loading"?: boolean;
         /**
           * @default ''
          */
@@ -10572,6 +10706,10 @@ declare namespace LocalJSX {
           * @default 'auto'
          */
         "height"?: string;
+        /**
+          * @default false
+         */
+        "loading"?: boolean;
         /**
           * @default false
          */
@@ -10611,6 +10749,10 @@ declare namespace LocalJSX {
          */
         "height"?: string;
         /**
+          * @default false
+         */
+        "loading"?: boolean;
+        /**
           * @default ''
          */
         "src"?: string;
@@ -10641,7 +10783,7 @@ declare namespace LocalJSX {
     }
     interface BcWidgetDomain {
         /**
-          * @default '[]'
+          * @default ''
          */
         "value"?: string;
     }
@@ -10870,10 +11012,13 @@ declare namespace LocalJSX {
     interface BcDialogConfirmAttributes {
         "open": boolean;
         "dialogTitle": string;
+        "size": 'sm' | 'md' | 'lg';
     }
     interface BcDialogModalAttributes {
         "open": boolean;
         "dialogTitle": string;
+        "size": 'sm' | 'md' | 'lg' | 'xl';
+        "loading": boolean;
     }
     interface BcDialogQuickentryAttributes {
         "open": boolean;
@@ -11789,12 +11934,14 @@ declare namespace LocalJSX {
         "autoplay": boolean;
         "loop": boolean;
         "download": boolean;
+        "loading": boolean;
     }
     interface BcViewerDocumentAttributes {
         "src": string;
         "height": string;
         "provider": 'microsoft' | 'google';
         "download": boolean;
+        "loading": boolean;
     }
     interface BcViewerImageAttributes {
         "src": string;
@@ -11804,21 +11951,25 @@ declare namespace LocalJSX {
         "zoomable": boolean;
         "lightbox": boolean;
         "download": boolean;
+        "loading": boolean;
     }
     interface BcViewerInstagramAttributes {
         "src": string;
         "width": string;
         "captioned": boolean;
+        "loading": boolean;
     }
     interface BcViewerPdfAttributes {
         "src": string;
         "height": string;
         "toolbar": boolean;
         "download": boolean;
+        "loading": boolean;
     }
     interface BcViewerTiktokAttributes {
         "src": string;
         "width": string;
+        "loading": boolean;
     }
     interface BcViewerVideoAttributes {
         "src": string;
@@ -11831,6 +11982,7 @@ declare namespace LocalJSX {
         "width": string;
         "height": string;
         "download": boolean;
+        "loading": boolean;
     }
     interface BcViewerYoutubeAttributes {
         "src": string;
@@ -11839,6 +11991,7 @@ declare namespace LocalJSX {
         "autoplay": boolean;
         "controls": boolean;
         "start": number;
+        "loading": boolean;
     }
     interface BcWidgetBadgeAttributes {
         "value": string;

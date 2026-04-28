@@ -1,4 +1,4 @@
-import { Component, Prop, State, Event, EventEmitter, Element, Listen, h } from '@stencil/core';
+import { Component, Prop, State, Event, EventEmitter, Element, Listen, Method, h } from '@stencil/core';
 import { getApiClient } from '../../../core/api-client';
 import { i18n } from '../../../core/i18n';
 
@@ -98,7 +98,7 @@ export class BcViewForm {
       await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
       await this.componentDidLoad();
     } catch (err) { console.error('Clone failed:', err); }
-  }
+  }  @Method() async refresh(): Promise<void> { }
 
   render() {
     const isNew = !this.recordId;
@@ -134,3 +134,4 @@ export class BcViewForm {
     );
   }
 }
+

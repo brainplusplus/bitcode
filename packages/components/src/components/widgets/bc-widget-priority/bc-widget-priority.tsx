@@ -3,7 +3,7 @@ import { Component, Prop, h, Event, EventEmitter } from '@stencil/core';
 @Component({
   tag: 'bc-widget-priority',
   styleUrl: 'bc-widget-priority.css',
-  shadow: true,
+  shadow: false,
 })
 export class BcWidgetPriority {
   @Prop({ mutable: true }) value: number = 0;
@@ -16,3 +16,5 @@ export class BcWidgetPriority {
     return (<div class="bc-priority">{Array.from({length:this.max},(_,i)=>i+1).map(i => <button type="button" class={{'star':true,'filled':i<=this.value}} disabled={this.disabled} onClick={()=>this.handleClick(i)}>{i<=this.value?'\u2605':'\u2606'}</button>)}</div>);
   }
 }
+
+

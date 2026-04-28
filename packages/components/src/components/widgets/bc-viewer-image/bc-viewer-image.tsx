@@ -1,9 +1,9 @@
-import { Component, Prop, State, h } from '@stencil/core';
+import { Component, Prop, State, Method, h } from '@stencil/core';
 
 @Component({
   tag: 'bc-viewer-image',
   styleUrl: 'bc-viewer-image.css',
-  shadow: true,
+  shadow: false,
 })
 export class BcViewerImage {
   @Prop() src: string = '';
@@ -39,7 +39,9 @@ export class BcViewerImage {
     a.download = this.src.split('/').pop() || 'image';
     a.target = '_blank';
     a.click();
-  }
+  }  @Prop() loading: boolean = false;
+
+  @Method() async refresh(): Promise<void> { }
 
   render() {
     if (!this.src) {
@@ -133,3 +135,5 @@ export class BcViewerImage {
     );
   }
 }
+
+

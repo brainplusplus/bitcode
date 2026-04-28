@@ -11,7 +11,7 @@ interface HeaderButton {
 @Component({
   tag: 'bc-header',
   styleUrl: 'bc-header.css',
-  shadow: true,
+  shadow: false,
 })
 export class BcHeader {
   @Prop() buttons: string = '[]';
@@ -65,3 +65,4 @@ export class BcHeader {
     );
   }
 }
+

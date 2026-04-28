@@ -3,7 +3,7 @@ import { Component, Prop, h } from '@stencil/core';
 @Component({
   tag: 'bc-html-block',
   styleUrl: 'bc-html-block.css',
-  shadow: true,
+  shadow: false,
 })
 export class BcHtmlBlock {
   @Prop() content: string = '';
@@ -14,3 +14,4 @@ export class BcHtmlBlock {
     );
   }
 }
+

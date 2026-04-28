@@ -1,4 +1,4 @@
-import { Component, Prop, State, Event, EventEmitter, Element, h } from '@stencil/core';
+import { Component, Prop, State, Event, EventEmitter, Element, Method, h } from '@stencil/core';
 import { getApiClient } from '../../../core/api-client';
 import { i18n } from '../../../core/i18n';
 
@@ -17,7 +17,10 @@ export class BcDialogQuickentry {
 
   componentWillRender() { this.el.dir = i18n.dir; }
 
-  private close() { this.open = false; this.formData = {}; this.lcDialogClose.emit({ type: 'quickentry' }); }
+  @Method() async openDialog(): Promise<void> { this.open = true; }
+  @Method() async closeDialog(): Promise<void> { this._close(); }
+
+  private _close() { this.open = false; this.formData = {}; this.lcDialogClose.emit({ type: 'quickentry' }); }
 
   private async save() {
     if (!this.model) return;
@@ -36,11 +39,11 @@ export class BcDialogQuickentry {
     if (!this.open) return null;
     const fields = this.getFields();
     return (
-      <div class="bc-overlay" onClick={() => this.close()}>
-        <div class="bc-quickentry" onClick={(e) => e.stopPropagation()}>
+      <div class="bc-overlay" onClick={() => this._close()}>
+        <div class="bc-quickentry" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
           <div class="bc-qe-header">
             <h3>{this.dialogTitle || i18n.t('quickentry.title')}</h3>
-            <button type="button" class="bc-close" onClick={() => this.close()}>{'\u00D7'}</button>
+            <button type="button" class="bc-close" onClick={() => this._close()}>{'\u00D7'}</button>
           </div>
           <div class="bc-qe-body">
             {fields.map(f => (
@@ -51,7 +54,7 @@ export class BcDialogQuickentry {
             ))}
           </div>
           <div class="bc-qe-footer">
-            <button type="button" class="bc-btn" onClick={() => this.close()}>{i18n.t('common.cancel')}</button>
+            <button type="button" class="bc-btn" onClick={() => this._close()}>{i18n.t('common.cancel')}</button>
             <button type="button" class="bc-btn bc-btn-primary" onClick={() => this.save()} disabled={this.saving}>{this.saving ? i18n.t('quickentry.saving') : i18n.t('common.create')}</button>
           </div>
         </div>

@@ -1,4 +1,4 @@
-import { Component, Prop, State, Element, h } from '@stencil/core';
+import { Component, Method, Prop, State, Element, h } from '@stencil/core';
 import { getApiClient } from '../../../core/api-client';
 import { i18n } from '../../../core/i18n';
 
@@ -44,7 +44,7 @@ export class BcViewReport {
   private computeAvg(field: string): number {
     if (this.data.length === 0) return 0;
     return this.computeTotal(field) / this.data.length;
-  }
+  }  @Method() async refresh(): Promise<void> { }
 
   render() {
     return (
@@ -87,3 +87,4 @@ export class BcViewReport {
     );
   }
 }
+

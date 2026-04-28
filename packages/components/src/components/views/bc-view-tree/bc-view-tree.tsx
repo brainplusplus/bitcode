@@ -1,4 +1,4 @@
-import { Component, Prop, State, Element, h } from '@stencil/core';
+import { Component, Method, Prop, State, Element, h } from '@stencil/core';
 import { getApiClient } from '../../../core/api-client';
 import { i18n } from '../../../core/i18n';
 
@@ -64,7 +64,7 @@ export class BcViewTree {
       </div>,
       node.expanded && node.children.map(child => this.renderNode(child)),
     ];
-  }
+  }  @Method() async refresh(): Promise<void> { }
 
   render() {
     return (
@@ -76,3 +76,4 @@ export class BcViewTree {
     );
   }
 }
+

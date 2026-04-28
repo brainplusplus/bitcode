@@ -3,7 +3,7 @@ import { Component, Prop, h } from '@stencil/core';
 @Component({
   tag: 'bc-row',
   styleUrl: 'bc-row.css',
-  shadow: true,
+  shadow: false,
 })
 export class BcRow {
   @Prop() gap: string = 'md';
@@ -16,3 +16,4 @@ export class BcRow {
     );
   }
 }
+

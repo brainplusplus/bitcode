@@ -1,4 +1,4 @@
-import { Component, Prop, State, Element, h } from '@stencil/core';
+import { Component, Method, Prop, State, Element, h } from '@stencil/core';
 import { i18n } from '../../../core/i18n';
 import { Calendar } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -50,7 +50,7 @@ export class BcViewCalendar {
     this.calendar.render();
   }
 
-  disconnectedCallback() { this.calendar?.destroy(); }
+  disconnectedCallback() { this.calendar?.destroy(); }  @Method() async refresh(): Promise<void> { }
 
   render() {
     return (
@@ -61,3 +61,4 @@ export class BcViewCalendar {
     );
   }
 }
+

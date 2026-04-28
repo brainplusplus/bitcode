@@ -1,4 +1,4 @@
-import { Component, Prop, State, Event, EventEmitter, Element, h } from '@stencil/core';
+import { Component, Method, Prop, State, Event, EventEmitter, Element, h } from '@stencil/core';
 import { getApiClient } from '../../../core/api-client';
 import { i18n } from '../../../core/i18n';
 
@@ -72,7 +72,7 @@ export class BcViewList {
     this.lcRowSelect.emit({ ids: Array.from(this.selected) });
   }
 
-  private async handleSearch(q: string) { this.searchQuery = q; this.page = 1; await this.fetchData(); }
+  private async handleSearch(q: string) { this.searchQuery = q; this.page = 1; await this.fetchData(); }  @Method() async refresh(): Promise<void> { }
 
   render() {
     const fields = this.getFields();
@@ -120,4 +120,5 @@ export class BcViewList {
     );
   }
 }
+
 

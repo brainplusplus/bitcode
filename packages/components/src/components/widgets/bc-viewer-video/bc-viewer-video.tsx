@@ -1,9 +1,9 @@
-import { Component, Prop, State, h } from '@stencil/core';
+import { Component, Prop, State, Method, h } from '@stencil/core';
 
 @Component({
   tag: 'bc-viewer-video',
   styleUrl: 'bc-viewer-video.css',
-  shadow: true,
+  shadow: false,
 })
 export class BcViewerVideo {
   @Prop() src: string = '';
@@ -112,7 +112,9 @@ export class BcViewerVideo {
     const m = Math.floor(seconds / 60);
     const s = Math.floor(seconds % 60);
     return `${m}:${s.toString().padStart(2, '0')}`;
-  }
+  }  @Prop() loading: boolean = false;
+
+  @Method() async refresh(): Promise<void> { }
 
   render() {
     if (!this.src) {
@@ -226,3 +228,5 @@ export class BcViewerVideo {
     );
   }
 }
+
+

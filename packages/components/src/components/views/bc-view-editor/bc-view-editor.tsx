@@ -1,4 +1,4 @@
-import { Component, Prop, State, Event, EventEmitter, Watch, h } from '@stencil/core';
+import { Component, Method, Prop, State, Event, EventEmitter, Watch, h } from '@stencil/core';
 import { EditorLayout, EditorSection, ModelFieldInfo, genId } from './types';
 
 @Component({
@@ -267,7 +267,7 @@ export class BcViewEditor {
     newLayout.sections[sectionIdx] = { ...newLayout.sections[sectionIdx], title };
     this.layout = newLayout;
     this.emitChange();
-  }
+  }  @Method() async refresh(): Promise<void> { }
 
   render() {
     const used = this.usedFields();
@@ -375,3 +375,4 @@ export class BcViewEditor {
     );
   }
 }
+

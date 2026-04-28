@@ -1,4 +1,4 @@
-import { Component, Prop, State, Event, EventEmitter, Watch, h } from '@stencil/core';
+import { Component, Prop, State, Event, EventEmitter, Watch, Method, h } from '@stencil/core';
 
 @Component({ tag: 'bc-toast', styleUrl: 'bc-toast.css', shadow: false })
 export class BcToast {
@@ -23,11 +23,14 @@ export class BcToast {
   private startTimer() {
     if (this.timer) clearTimeout(this.timer);
     if (this.duration > 0) {
-      this.timer = setTimeout(() => { this.close(); }, this.duration);
+      this.timer = setTimeout(() => { this._close(); }, this.duration);
     }
   }
 
-  private close() { this.visible = false; this.open = false; this.lcDialogClose.emit({ type: 'toast' }); }
+  @Method() async show(message?: string, variant?: string): Promise<void> { if (message) this.message = message; if (variant) this.variant = variant; this.open = true; }
+  @Method() async dismiss(): Promise<void> { this._close(); }
+
+  private _close() { this.visible = false; this.open = false; this.lcDialogClose.emit({ type: 'toast' }); }
 
   private icon(): string {
     switch (this.variant) { case 'success': return '\u2713'; case 'error': return '\u2717'; case 'warning': return '\u26A0'; default: return '\u2139'; }
@@ -43,7 +46,7 @@ export class BcToast {
             {this.dialogTitle && <div class="bc-toast-title">{this.dialogTitle}</div>}
             <div class="bc-toast-message">{this.message}</div>
           </div>
-          <button type="button" class="bc-toast-close" onClick={() => this.close()}>{'\u00D7'}</button>
+          <button type="button" class="bc-toast-close" onClick={() => this._close()}>{'\u00D7'}</button>
         </div>
       </div>
     );

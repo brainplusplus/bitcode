@@ -1,10 +1,10 @@
-import { Component, State, h, Element } from '@stencil/core';
+import { Component, State, Method, h, Element } from '@stencil/core';
 import { i18n } from '../../../core/i18n';
 
 @Component({
   tag: 'bc-tabs',
   styleUrl: 'bc-tabs.css',
-  shadow: true,
+  shadow: false,
 })
 export class BcTabs {
   @Element() el!: HTMLElement;
@@ -14,7 +14,10 @@ export class BcTabs {
     return Array.from(this.el.querySelectorAll('bc-tab'));
   }
 
-  private selectTab(index: number) {
+  @Method() async selectTab(index: number): Promise<void> { this._selectTab(index); }
+  @Method() async getActiveIndex(): Promise<number> { return this.activeIndex; }
+
+  private _selectTab(index: number) {
     this.activeIndex = index;
     const tabs = this.getTabs();
     tabs.forEach((tab, i) => {
@@ -23,7 +26,7 @@ export class BcTabs {
   }
 
   componentDidLoad() {
-    this.selectTab(0);
+    this._selectTab(0);
   }
 
   render() {
@@ -39,7 +42,7 @@ export class BcTabs {
               class={{ 'bc-tab-btn': true, 'active': i === this.activeIndex }}
               role="tab"
               aria-selected={String(i === this.activeIndex)}
-              onClick={() => this.selectTab(i)}
+              onClick={() => this._selectTab(i)}
             >
               {label}
             </button>
@@ -52,3 +55,4 @@ export class BcTabs {
     );
   }
 }
+

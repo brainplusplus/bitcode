@@ -1,9 +1,9 @@
-import { Component, Prop, State, h } from '@stencil/core';
+import { Component, Prop, State, Method, h } from '@stencil/core';
 
 @Component({
   tag: 'bc-viewer-audio',
   styleUrl: 'bc-viewer-audio.css',
-  shadow: true,
+  shadow: false,
 })
 export class BcViewerAudio {
   @Prop() src: string = '';
@@ -104,7 +104,9 @@ export class BcViewerAudio {
     if (!this.src) return '';
     const name = this.src.split('/').pop()?.split('?')[0] || '';
     return decodeURIComponent(name);
-  }
+  }  @Prop() loading: boolean = false;
+
+  @Method() async refresh(): Promise<void> { }
 
   render() {
     if (!this.src) {
@@ -205,3 +207,5 @@ export class BcViewerAudio {
     );
   }
 }
+
+

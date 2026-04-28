@@ -1,4 +1,4 @@
-import { Component, Prop, State, Watch, Element, h } from '@stencil/core';
+import { Component, Prop, State, Watch, Element, Method, h } from '@stencil/core';
 
 @Component({
   tag: 'bc-viewer-instagram',
@@ -84,7 +84,9 @@ export class BcViewerInstagram {
       this.embedFailed = true;
     };
     document.body.appendChild(script);
-  }
+  }  @Prop() loading: boolean = false;
+
+  @Method() async refresh(): Promise<void> { }
 
   render() {
     if (!this.src) {
@@ -158,3 +160,4 @@ export class BcViewerInstagram {
     );
   }
 }
+

@@ -3,7 +3,7 @@ import { Component, Prop, h } from '@stencil/core';
 @Component({
   tag: 'bc-separator',
   styleUrl: 'bc-separator.css',
-  shadow: true,
+  shadow: false,
 })
 export class BcSeparator {
   @Prop() label: string = '';
@@ -17,3 +17,4 @@ export class BcSeparator {
     );
   }
 }
+

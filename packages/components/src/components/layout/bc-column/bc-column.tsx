@@ -3,7 +3,7 @@ import { Component, Prop, h } from '@stencil/core';
 @Component({
   tag: 'bc-column',
   styleUrl: 'bc-column.css',
-  shadow: true,
+  shadow: false,
 })
 export class BcColumn {
   @Prop() width: number = 12;
@@ -17,3 +17,4 @@ export class BcColumn {
     );
   }
 }
+

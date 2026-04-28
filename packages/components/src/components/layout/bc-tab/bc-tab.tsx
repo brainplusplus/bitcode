@@ -3,7 +3,7 @@ import { Component, Prop, h } from '@stencil/core';
 @Component({
   tag: 'bc-tab',
   styleUrl: 'bc-tab.css',
-  shadow: true,
+  shadow: false,
 })
 export class BcTab {
   @Prop() label: string = '';
@@ -16,3 +16,4 @@ export class BcTab {
     );
   }
 }
+

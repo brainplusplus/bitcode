@@ -1,9 +1,9 @@
-import { Component, Prop, State, h } from '@stencil/core';
+import { Component, Prop, State, Method, h } from '@stencil/core';
 
 @Component({
   tag: 'bc-viewer-pdf',
   styleUrl: 'bc-viewer-pdf.css',
-  shadow: true,
+  shadow: false,
 })
 export class BcViewerPdf {
   @Prop() src: string = '';
@@ -25,7 +25,9 @@ export class BcViewerPdf {
     a.download = this.src.split('/').pop() || 'document.pdf';
     a.target = '_blank';
     a.click();
-  }
+  }  @Prop() loading: boolean = false;
+
+  @Method() async refresh(): Promise<void> { }
 
   render() {
     if (!this.src) {
@@ -90,3 +92,5 @@ export class BcViewerPdf {
     );
   }
 }
+
+

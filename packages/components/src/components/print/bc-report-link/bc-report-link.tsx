@@ -3,7 +3,7 @@ import { Component, Prop, h } from '@stencil/core';
 @Component({
   tag: 'bc-report-link',
   styleUrl: 'bc-report-link.css',
-  shadow: true,
+  shadow: false,
 })
 export class BcReportLink {
   @Prop() label: string = 'View Report';
@@ -17,3 +17,4 @@ export class BcReportLink {
     );
   }
 }
+

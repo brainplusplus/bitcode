@@ -10,7 +10,7 @@ interface SmartButton {
 @Component({
   tag: 'bc-button-box',
   styleUrl: 'bc-button-box.css',
-  shadow: true,
+  shadow: false,
 })
 export class BcButtonBox {
   @Prop() buttons: string = '[]';
@@ -35,3 +35,4 @@ export class BcButtonBox {
     );
   }
 }
+

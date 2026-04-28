@@ -3,7 +3,7 @@ import { Component, Prop, h } from '@stencil/core';
 @Component({
   tag: 'bc-print',
   styleUrl: 'bc-print.css',
-  shadow: true,
+  shadow: false,
 })
 export class BcPrint {
   @Prop() label: string = 'Print';
@@ -17,3 +17,4 @@ export class BcPrint {
     );
   }
 }
+

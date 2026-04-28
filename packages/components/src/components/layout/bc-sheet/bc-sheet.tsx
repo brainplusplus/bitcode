@@ -3,7 +3,7 @@ import { Component, h } from '@stencil/core';
 @Component({
   tag: 'bc-sheet',
   styleUrl: 'bc-sheet.css',
-  shadow: true,
+  shadow: false,
 })
 export class BcSheet {
   render() {
@@ -14,3 +14,4 @@ export class BcSheet {
     );
   }
 }
+

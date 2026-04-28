@@ -1,9 +1,9 @@
-import { Component, Prop, State, h } from '@stencil/core';
+import { Component, Prop, State, Method, h } from '@stencil/core';
 
 @Component({
   tag: 'bc-section',
   styleUrl: 'bc-section.css',
-  shadow: true,
+  shadow: false,
 })
 export class BcSection {
   @Prop() sectionTitle: string = '';
@@ -17,11 +17,14 @@ export class BcSection {
     this.isCollapsed = this.collapsed;
   }
 
-  private toggle() {
+  @Method() async toggle(): Promise<void> {
     if (this.collapsible) {
       this.isCollapsed = !this.isCollapsed;
     }
   }
+
+  @Method() async expand(): Promise<void> { this.isCollapsed = false; }
+  @Method() async collapse(): Promise<void> { if (this.collapsible) this.isCollapsed = true; }
 
   render() {
     return (
@@ -44,3 +47,4 @@ export class BcSection {
     );
   }
 }
+

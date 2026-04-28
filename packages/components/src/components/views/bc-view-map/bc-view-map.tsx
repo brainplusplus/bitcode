@@ -1,4 +1,4 @@
-import { Component, Prop, State, Element, h } from '@stencil/core';
+import { Component, Method, Prop, State, Element, h } from '@stencil/core';
 import { getApiClient } from '../../../core/api-client';
 import { i18n } from '../../../core/i18n';
 import * as L from 'leaflet';
@@ -50,7 +50,7 @@ export class BcViewMap {
     }
   }
 
-  disconnectedCallback() { this.map?.remove(); }
+  disconnectedCallback() { this.map?.remove(); }  @Method() async refresh(): Promise<void> { }
 
   render() {
     return (
@@ -65,3 +65,4 @@ export class BcViewMap {
     );
   }
 }
+

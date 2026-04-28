@@ -3,7 +3,7 @@ import { Component, Prop, h } from '@stencil/core';
 @Component({
   tag: 'bc-export',
   styleUrl: 'bc-export.css',
-  shadow: true,
+  shadow: false,
 })
 export class BcExport {
   @Prop() label: string = 'Export';
@@ -17,3 +17,4 @@ export class BcExport {
     );
   }
 }
+

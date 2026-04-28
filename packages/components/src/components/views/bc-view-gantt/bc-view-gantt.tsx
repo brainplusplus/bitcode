@@ -1,4 +1,4 @@
-import { Component, Prop, State, Element, h } from '@stencil/core';
+import { Component, Method, Prop, State, Element, h } from '@stencil/core';
 import { getApiClient } from '../../../core/api-client';
 import Gantt from 'frappe-gantt';
 
@@ -41,7 +41,7 @@ export class BcViewGantt {
       on_date_change: (task: {id: string}, start: Date, end: Date) => { console.log('Date changed:', task.id, start, end); },
       on_progress_change: (task: {id: string}, progress: number) => { console.log('Progress:', task.id, progress); },
     });
-  }
+  }  @Method() async refresh(): Promise<void> { }
 
   render() {
     return (
@@ -53,3 +53,4 @@ export class BcViewGantt {
     );
   }
 }
+

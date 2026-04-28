@@ -1,9 +1,9 @@
-import { Component, Prop, State, Watch, h } from '@stencil/core';
+import { Component, Prop, State, Watch, Method, h } from '@stencil/core';
 
 @Component({
   tag: 'bc-viewer-youtube',
   styleUrl: 'bc-viewer-youtube.css',
-  shadow: true,
+  shadow: false,
 })
 export class BcViewerYoutube {
   @Prop() src: string = '';
@@ -86,7 +86,9 @@ export class BcViewerYoutube {
     params.set('rel', '0');
     const qs = params.toString();
     return `https://www.youtube.com/embed/${this.videoId}${qs ? '?' + qs : ''}`;
-  }
+  }  @Prop() loading: boolean = false;
+
+  @Method() async refresh(): Promise<void> { }
 
   render() {
     if (!this.src) {
@@ -130,3 +132,5 @@ export class BcViewerYoutube {
     );
   }
 }
+
+

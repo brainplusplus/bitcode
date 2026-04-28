@@ -1,4 +1,4 @@
-import { Component, Prop, State, Element, h } from '@stencil/core';
+import { Component, Method, Prop, State, Element, h } from '@stencil/core';
 import { getApiClient } from '../../../core/api-client';
 import { i18n } from '../../../core/i18n';
 
@@ -28,7 +28,7 @@ export class BcViewActivity {
   private formatDate(d: string): string {
     try { return i18n.tf.date(d, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }); }
     catch { return d; }
-  }
+  }  @Method() async refresh(): Promise<void> { }
 
   render() {
     return (
@@ -61,3 +61,4 @@ export class BcViewActivity {
     );
   }
 }
+

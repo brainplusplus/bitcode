@@ -1,4 +1,4 @@
-import { Component, Prop, State, Event, EventEmitter, Element, h } from '@stencil/core';
+import { Component, Method, Prop, State, Event, EventEmitter, Element, h } from '@stencil/core';
 import { getApiClient } from '../../../core/api-client';
 import { i18n } from '../../../core/i18n';
 import Sortable from 'sortablejs';
@@ -53,7 +53,7 @@ export class BcViewKanban {
         });
       });
     }, 100);
-  }
+  }  @Method() async refresh(): Promise<void> { }
 
   render() {
     const fields = this.getFields();
@@ -86,3 +86,4 @@ export class BcViewKanban {
     );
   }
 }
+

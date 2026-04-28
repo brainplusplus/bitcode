@@ -4,7 +4,7 @@ import { i18n } from '../../core/i18n';
 @Component({
   tag: 'bc-placeholder',
   styleUrl: 'bc-placeholder.css',
-  shadow: true,
+  shadow: false,
 })
 export class BcPlaceholder {
   @Prop() text: string = '';
@@ -17,3 +17,4 @@ export class BcPlaceholder {
     );
   }
 }
+
