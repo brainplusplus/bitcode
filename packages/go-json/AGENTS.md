@@ -18,10 +18,11 @@ Standalone JSON/JSONC programming language engine. Embeddable in Go applications
 ```
 packages/go-json/
 ├── lang/           Core language engine (AST, parser, compiler, VM, scope, types, errors, expr engine, debugger, import resolver)
-├── stdlib/         Layer 2 stdlib (34 functions + crypto namespace). Layer 1 = expr-lang built-ins (~68 functions, zero work)
-├── runtime/        Runtime API: NewRuntime(), Execute(), CompileFile(), program cache, limits, logger, session
-├── cmd/go-json/    CLI placeholder
-├── io/             Reserved for Phase 4.5c (I/O modules)
+├── stdlib/         Layer 2 stdlib (34 functions + crypto namespace + regex). Layer 1 = expr-lang built-ins (~68 functions, zero work)
+├── runtime/        Runtime API: NewRuntime(), Execute(), CompileFile(), program cache, limits, logger, session, extensions
+├── io/             I/O modules: HTTP, FS, SQL, Exec with security layer (Phase 4.5c)
+├── codegen/        Code generation: Go, JavaScript, Python generators (Phase 4.5c)
+├── cmd/go-json/    CLI: run, check, test, ast, codegen, migrate commands (Phase 4.5c)
 └── testdata/       Test fixture programs (.json, .jsonc)
 ```
 
@@ -76,7 +77,7 @@ packages/go-json/
 |-------|----------|-----------|
 | Layer 1 | expr-lang built-ins (~68 functions: abs, ceil, floor, round, min, max, len, upper, lower, trim, split, filter, map, reduce, find, sort, int, float, string, type, etc.) | expr-lang — DO NOT reimplement |
 | Layer 2 | go-json additions (34 functions + crypto namespace). Phase 4.5a: clamp, sign, randomInt, randomFloat, pow, sqrt, mod, padLeft, padRight, substring, format, matches, append, prepend, slice, chunk, zip, bool, isNil. Phase 4.5b: has, get, merge, pick, omit, formatDate, addDuration, diffDates, urlEncode, urlDecode, sprintf, crypto.sha256, crypto.md5, crypto.uuid, crypto.hmac | `stdlib/` package |
-| Layer 3 | I/O / host modules (DB, HTTP, file, etc.) | Phase 4.5c — not yet implemented |
+| Layer 3 | I/O modules (HTTP, FS, SQL, Exec) with two-layer security gating. Regex stdlib (match, findAll, replace with caching). | `io/` and `stdlib/regex.go` |
 
 ## Conventions
 
@@ -89,14 +90,17 @@ packages/go-json/
 
 ```bash
 cd packages/go-json
-go test ./... -v          # All tests (131)
+go test ./... -v          # All tests (171)
 go test ./lang/ -v        # Language engine tests
 go test ./lang/ -run TestStruct -v       # Struct tests
 go test ./lang/ -run TestMethod -v       # Method tests
 go test ./lang/ -run TestParallel -v     # Parallel tests
 go test ./lang/ -run TestImport -v       # Import tests
 go test ./lang/ -run TestIntegration -v  # Integration tests
-go test ./stdlib/ -v                     # Stdlib tests
+go test ./stdlib/ -v                     # Stdlib tests (including regex)
+go test ./io/ -v                         # I/O security tests
+go test ./runtime/ -v                    # Runtime + extension tests
+go test ./codegen/ -v                    # Code generation tests
 ```
 
 ## What's Done (Phase 4.5b)
@@ -109,9 +113,26 @@ go test ./stdlib/ -v                     # Stdlib tests
 - Stdlib Layer 2 extensions: maps, datetime, encoding, crypto (namespaced), format
 - Nullable type support (`?T`), optional chaining via expr-lang
 
-## What's NOT Done (Phase 4.5c)
+## What's Done (Phase 4.5c)
 
-- I/O modules (DB, HTTP, file, email) — `io:` imports parsed but not resolved
-- stdlib/ext module resolution — `stdlib:`/`ext:` imports parsed but not resolved
-- BitCode engine integration (process engine routing `.json` scripts to go-json)
+- I/O module framework: `IOModule` interface, `IORegistry`, `WithIO()`/`WithoutIO()` runtime options
+- I/O security layer: `SecurityConfig`, two-layer gating (import + runtime enable), hardcoded deny lists, path traversal prevention, cloud metadata blocking
+- HTTP module: GET/POST/PUT/PATCH/DELETE with auth (bearer/basic), redirect following, response size limits
+- FS module: read/write/append/exists/list/mkdir/remove with sandboxing, encoding (UTF-8/base64), symlink resolution
+- SQL module: query/execute with dual-mode DSN (standalone/hosted), transactions with savepoints, parameterized queries only
+- Exec module: command whitelisting, DeniedCommands (always blocked), env isolation, EngineSecrets stripping, output truncation
+- Regex stdlib: match/findAll/replace with compiled regex caching, ReDoS prevention (pattern length + input size limits)
+- Extension API: `Extension` struct with Functions/Structs/Constants, `WithExtension()` runtime option, `ext:name` import support
+- Bitcode bridge adapter: maps all 20 bridge namespaces (50+ functions) to go-json Extension, model proxy with CRUD/bulk/relation/sudo
+- scripts/*.json support: `detectRuntimeFromExtension` detects `.json` → `go-json`, `GoJSONRunner` implements `EmbeddedRunner`
+- Backward compatibility: `ProcessDefinition.Runtime` field, `IsGoJSON()` helper, old format unchanged
+- Process engine data step replacement: `GoJSONDataHandler` adapts old step types to bridge calls
+- CLI: run (--input/--input-file/--timeout/--io/--trace), check (--verbose), test (--filter/--verbose), ast (--output), codegen (--target/--output), migrate (--from/--to/--dry-run)
+- Code generation: `CodeGenerator` interface, Go/JavaScript/Python generators handling all step types
+- 171 tests total (131 from Phase 4.5a/b + 40 new)
+
+## What's NOT Done
+
 - Expression-level compile-time type validation (deferred to runtime)
+- `io:` import resolution at compile time (functions registered at runtime level)
+- REPL mode (future)
