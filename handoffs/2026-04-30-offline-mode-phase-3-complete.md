@@ -144,15 +144,15 @@
 12. Tauri CSP is permissive (fine for dev, tighten for production)
 13. No error handling in CRUD — errors propagate unhandled to component
 
-### New in Phase 3
+### Resolved (post Phase 3)
 
-19. **`syncPush` retry logic is per-envelope** — if one operation in an envelope fails, the entire envelope is retried. This is correct for atomicity but means a single bad record blocks all records in that envelope.
+19. ~~`syncPush` per-envelope retry~~ — **Fixed:** after 3 failed retries, envelope is split into individual operations. Each operation is pushed separately; successful ones are marked SYNCED, failed ones get ERROR/DEAD independently.
 
-20. **`PullChanges` fetches full record data** — for each version entry, the server queries the actual table to get current data. This means if a record was updated multiple times between syncs, only the latest state is returned (not intermediate states). This is correct for LWW but means conflict detection in Phase 4 needs the version history, not just current state.
+20. ~~`PullChanges` fetches full record data~~ — **Fixed:** deduplicates per record (only latest version entry per table+record_id), and for UPDATE operations with `changed_fields`, returns only the delta (changed fields + id) instead of the full record.
 
-21. **`recordSyncVersion` uses `MAX(version) + 1`** — this is not safe under concurrent writes. Two simultaneous push requests could get the same version number. For production, should use a database sequence or `SELECT ... FOR UPDATE`. Current implementation is fine for single-server deployments.
+21. ~~`recordSyncVersion` race condition~~ — **Fixed:** PostgreSQL uses `INSERT ... RETURNING version` (BIGSERIAL handles concurrency). SQLite/MySQL uses atomic `INSERT ... SELECT COALESCE(MAX(version),0)+1 FROM _sync_versions` in a single statement.
 
-22. **`DeviceStatus` endpoint is read-only** — no way to deactivate a device via API yet. Admin would need to update `_sync_devices.is_active` directly in the database.
+22. ~~`DeviceStatus` read-only~~ — **Fixed:** added `PATCH /api/v1/sync/devices/:device_id` endpoint for updating device name, activating/deactivating with reason. `PushEnvelope` now rejects deactivated devices with 403.
 
 ## How to Verify Current State
 

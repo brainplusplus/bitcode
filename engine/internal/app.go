@@ -1518,6 +1518,7 @@ func (a *App) initSyncInfrastructure() {
 	syncGroup.Get("/pull", syncHandler.PullChanges)
 	syncGroup.Post("/auth/cache", syncHandler.CacheAuth)
 	syncGroup.Get("/status", syncHandler.DeviceStatus)
+	syncGroup.Patch("/devices/:device_id", syncHandler.UpdateDevice)
 	syncGroup.Get("/schema", syncHandler.GetSchema)
 	log.Println("[SYNC] sync API endpoints registered")
 }

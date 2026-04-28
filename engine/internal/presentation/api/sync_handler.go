@@ -3,6 +3,7 @@ package api
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"sort"
 	"strings"
@@ -12,6 +13,7 @@ import (
 	"gorm.io/gorm"
 
 	domainModel "github.com/bitcode-framework/bitcode/internal/domain/model"
+	"github.com/bitcode-framework/bitcode/internal/infrastructure/persistence"
 )
 
 type SyncHandler struct {
@@ -21,6 +23,16 @@ type SyncHandler struct {
 
 func NewSyncHandler(db *gorm.DB, modelReg *domainModel.Registry) *SyncHandler {
 	return &SyncHandler{db: db, modelReg: modelReg}
+}
+
+type syncVersionRow struct {
+	ID            int64  `gorm:"column:id"`
+	TableName     string `gorm:"column:table_name"`
+	RecordID      string `gorm:"column:record_id"`
+	Operation     string `gorm:"column:operation"`
+	Version       int64  `gorm:"column:version"`
+	ChangedFields string `gorm:"column:changed_fields"`
+	ChangedBy     string `gorm:"column:changed_by"`
 }
 
 type registerDeviceRequest struct {
@@ -95,6 +107,15 @@ func (h *SyncHandler) PushEnvelope(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error":   "missing_fields",
 			"message": "envelope_id, device_id, and operations are required",
+		})
+	}
+
+	var deviceActive bool
+	h.db.Raw("SELECT is_active FROM _sync_devices WHERE device_id = ?", req.DeviceID).Scan(&deviceActive)
+	if !deviceActive {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
+			"error":   "device_deactivated",
+			"message": "Device has been deactivated",
 		})
 	}
 
@@ -210,17 +231,7 @@ func (h *SyncHandler) PullChanges(c *fiber.Ctx) error {
 		limit = 5000
 	}
 
-	type versionRow struct {
-		ID            int64  `gorm:"column:id"`
-		TableName     string `gorm:"column:table_name"`
-		RecordID      string `gorm:"column:record_id"`
-		Operation     string `gorm:"column:operation"`
-		Version       int64  `gorm:"column:version"`
-		ChangedFields string `gorm:"column:changed_fields"`
-		ChangedBy     string `gorm:"column:changed_by"`
-	}
-
-	var versions []versionRow
+	var versions []syncVersionRow
 	query := h.db.Table("_sync_versions").
 		Where("version > ?", sinceVersion).
 		Order("version ASC").
@@ -237,49 +248,152 @@ func (h *SyncHandler) PullChanges(c *fiber.Ctx) error {
 		})
 	}
 
-	type changeEntry struct {
-		TableName string                 `json:"table_name"`
-		RecordID  string                 `json:"record_id"`
-		Operation string                 `json:"operation"`
-		Data      map[string]interface{} `json:"data"`
-		Version   int64                  `json:"version"`
+	type recordKey struct {
+		Table    string
+		RecordID string
 	}
 
-	changes := make([]changeEntry, 0, len(versions))
+	latestIdx := make(map[recordKey]int)
+	for i, v := range versions {
+		latestIdx[recordKey{v.TableName, v.RecordID}] = i
+	}
+
+	type changeEntry struct {
+		TableName     string                 `json:"table_name"`
+		RecordID      string                 `json:"record_id"`
+		Operation     string                 `json:"operation"`
+		Data          map[string]interface{} `json:"data"`
+		Version       int64                  `json:"version"`
+		ChangedFields []string               `json:"changed_fields,omitempty"`
+	}
+
+	changes := make([]changeEntry, 0, len(latestIdx))
 	var maxVersion int64
 
-	for _, v := range versions {
-		data := make(map[string]interface{})
-
-		if v.Operation != "DELETE" {
-			tableName := v.TableName
-			if !isValidTableName(tableName) {
-				continue
-			}
-			var row map[string]interface{}
-			if err := h.db.Table(tableName).Where("id = ?", v.RecordID).Take(&row).Error; err != nil {
-				continue
-			}
-			data = row
-		}
-
-		changes = append(changes, changeEntry{
-			TableName: v.TableName,
-			RecordID:  v.RecordID,
-			Operation: v.Operation,
-			Data:      data,
-			Version:   v.Version,
-		})
-
+	for i, v := range versions {
 		if v.Version > maxVersion {
 			maxVersion = v.Version
 		}
+
+		if latestIdx[recordKey{v.TableName, v.RecordID}] != i {
+			continue
+		}
+
+		if !isValidTableName(v.TableName) {
+			continue
+		}
+
+		entry := changeEntry{
+			TableName: v.TableName,
+			RecordID:  v.RecordID,
+			Operation: v.Operation,
+			Version:   v.Version,
+		}
+
+		if v.Operation == "DELETE" {
+			entry.Data = map[string]interface{}{"id": v.RecordID}
+		} else {
+			var row map[string]interface{}
+			if err := h.db.Table(v.TableName).Where("id = ?", v.RecordID).Take(&row).Error; err != nil {
+				continue
+			}
+
+			if v.Operation == "UPDATE" && v.ChangedFields != "" {
+				var fieldNames []string
+				if err := json.Unmarshal([]byte(v.ChangedFields), &fieldNames); err == nil && len(fieldNames) > 0 {
+					entry.ChangedFields = fieldNames
+					delta := map[string]interface{}{"id": v.RecordID}
+					for _, fn := range fieldNames {
+						if val, ok := row[fn]; ok {
+							delta[fn] = val
+						}
+					}
+					entry.Data = delta
+				} else {
+					entry.Data = row
+				}
+			} else {
+				entry.Data = row
+			}
+		}
+
+		changes = append(changes, entry)
 	}
 
 	return c.JSON(fiber.Map{
 		"changes":     changes,
 		"max_version": maxVersion,
 		"count":       len(changes),
+	})
+}
+
+type updateDeviceRequest struct {
+	DeviceName *string `json:"device_name,omitempty"`
+	IsActive   *bool   `json:"is_active,omitempty"`
+	Reason     string  `json:"reason,omitempty"`
+}
+
+func (h *SyncHandler) UpdateDevice(c *fiber.Ctx) error {
+	deviceID := c.Params("device_id")
+	if deviceID == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":   "missing_device_id",
+			"message": "device_id path parameter is required",
+		})
+	}
+
+	var count int64
+	h.db.Table("_sync_devices").Where("device_id = ?", deviceID).Count(&count)
+	if count == 0 {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error":   "device_not_found",
+			"message": "Device not registered",
+		})
+	}
+
+	var req updateDeviceRequest
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":   "invalid_request",
+			"message": "Invalid request body",
+		})
+	}
+
+	updates := make(map[string]interface{})
+
+	if req.DeviceName != nil {
+		updates["device_name"] = *req.DeviceName
+	}
+
+	if req.IsActive != nil {
+		updates["is_active"] = *req.IsActive
+		if !*req.IsActive {
+			now := time.Now().UTC()
+			updates["deactivated_at"] = now
+			updates["deactivated_reason"] = req.Reason
+		} else {
+			updates["deactivated_at"] = nil
+			updates["deactivated_reason"] = nil
+		}
+	}
+
+	if len(updates) == 0 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":   "no_updates",
+			"message": "No fields to update",
+		})
+	}
+
+	if err := h.db.Table("_sync_devices").Where("device_id = ?", deviceID).Updates(updates).Error; err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error":   "update_failed",
+			"message": err.Error(),
+		})
+	}
+
+	return c.JSON(fiber.Map{
+		"device_id": deviceID,
+		"updated":   updates,
 	})
 }
 
@@ -501,16 +615,32 @@ func applyDelete(tx *gorm.DB, op pushOperation) error {
 }
 
 func recordSyncVersion(tx *gorm.DB, tableName, recordID, operation, changedBy string) (int64, error) {
-	var maxVersion int64
-	tx.Raw("SELECT COALESCE(MAX(version), 0) FROM _sync_versions").Scan(&maxVersion)
-	newVersion := maxVersion + 1
+	dialect := persistence.DetectDialect(tx)
+	now := time.Now().UTC()
+
+	if dialect == persistence.DialectPostgres {
+		var newVersion int64
+		err := tx.Raw(
+			`INSERT INTO _sync_versions (table_name, record_id, operation, changed_by, created_at)
+			 VALUES ($1, $2, $3, $4, $5) RETURNING version`,
+			tableName, recordID, operation, changedBy, now,
+		).Scan(&newVersion).Error
+		return newVersion, err
+	}
 
 	err := tx.Exec(
-		"INSERT INTO _sync_versions (table_name, record_id, operation, version, changed_by, created_at) VALUES (?, ?, ?, ?, ?, ?)",
-		tableName, recordID, operation, newVersion, changedBy, time.Now().UTC(),
+		`INSERT INTO _sync_versions (table_name, record_id, operation, version, changed_by, created_at)
+		 SELECT ?, ?, ?, COALESCE(MAX(version), 0) + 1, ?, ? FROM _sync_versions`,
+		tableName, recordID, operation, changedBy, now,
 	).Error
+	if err != nil {
+		return 0, err
+	}
 
-	return newVersion, err
+	var newVersion int64
+	tx.Raw("SELECT MAX(version) FROM _sync_versions WHERE table_name = ? AND record_id = ? AND changed_by = ?",
+		tableName, recordID, changedBy).Scan(&newVersion)
+	return newVersion, nil
 }
 
 func logSyncEnvelope(db *gorm.DB, envelopeID, deviceID, status string, opsCount int, duration time.Duration, errMsg string) {

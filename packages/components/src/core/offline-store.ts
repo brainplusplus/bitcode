@@ -446,6 +446,16 @@ export const OfflineStore = {
     }
 
     for (const [envelopeId, operations] of envelopes) {
+      const minRetry = Math.min(...operations.map(op => op.retry_count as number));
+      const shouldSplitEnvelope = minRetry >= 3 && operations.length > 1;
+
+      if (shouldSplitEnvelope) {
+        const result = await pushOperationsIndividually(url, headers, operations);
+        synced += result.synced;
+        errors += result.errors;
+        continue;
+      }
+
       try {
         const resp = await fetch(`${url}/api/v1/sync/push`, {
           method: 'POST',
@@ -471,25 +481,11 @@ export const OfflineStore = {
           );
           synced += operations.length;
         } else {
-          for (const op of operations) {
-            const retries = (op.retry_count as number) + 1;
-            const newStatus = retries >= 5 ? 'DEAD' : 'PENDING';
-            await BcNative.dbExecute(
-              `UPDATE _off_outbox SET retry_count = ?, status = ? WHERE id = ?`,
-              [retries, newStatus, op.id],
-            );
-          }
+          await incrementRetryBatch(operations);
           errors += operations.length;
         }
       } catch {
-        for (const op of operations) {
-          const retries = (op.retry_count as number) + 1;
-          const newStatus = retries >= 5 ? 'DEAD' : 'PENDING';
-          await BcNative.dbExecute(
-            `UPDATE _off_outbox SET retry_count = ?, status = ? WHERE id = ?`,
-            [retries, newStatus, op.id],
-          );
-        }
+        await incrementRetryBatch(operations);
         errors += operations.length;
       }
     }
@@ -582,6 +578,71 @@ export const OfflineStore = {
     return { applied };
   },
 };
+
+async function pushOperationsIndividually(
+  url: string,
+  headers: Record<string, string>,
+  operations: Array<Record<string, unknown>>,
+): Promise<{ synced: number; errors: number }> {
+  let synced = 0;
+  let errors = 0;
+
+  for (const op of operations) {
+    const soloEnvelopeId = generateUUIDv7();
+    try {
+      const resp = await fetch(`${url}/api/v1/sync/push`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          envelope_id: soloEnvelopeId,
+          device_id: _deviceId,
+          operations: [{
+            table_name: op.table_name,
+            record_id: op.record_id,
+            operation: op.operation,
+            payload: JSON.parse(op.payload as string),
+            idempotency_key: op.idempotency_key,
+          }],
+        }),
+      });
+
+      if (resp.ok) {
+        await BcNative.dbExecute(
+          `UPDATE _off_outbox SET status = 'SYNCED' WHERE id = ?`,
+          [op.id],
+        );
+        synced++;
+      } else {
+        const retries = (op.retry_count as number) + 1;
+        await BcNative.dbExecute(
+          `UPDATE _off_outbox SET retry_count = ?, status = ? WHERE id = ?`,
+          [retries, retries >= 5 ? 'DEAD' : 'ERROR', op.id],
+        );
+        errors++;
+      }
+    } catch {
+      const retries = (op.retry_count as number) + 1;
+      await BcNative.dbExecute(
+        `UPDATE _off_outbox SET retry_count = ?, status = ? WHERE id = ?`,
+        [retries, retries >= 5 ? 'DEAD' : 'PENDING', op.id],
+      );
+      errors++;
+    }
+  }
+
+  return { synced, errors };
+}
+
+async function incrementRetryBatch(operations: Array<Record<string, unknown>>): Promise<void> {
+  for (const op of operations) {
+    const retries = (op.retry_count as number) + 1;
+    const newStatus = retries >= 5 ? 'DEAD' : 'PENDING';
+    await BcNative.dbExecute(
+      `UPDATE _off_outbox SET retry_count = ?, status = ? WHERE id = ?`,
+      [retries, newStatus, op.id],
+    );
+  }
+}
 
 async function fetchFromServer(model: string, params?: FetchParams): Promise<FetchResult> {
   const baseUrl = BcSetup.getConfig().baseUrl;
