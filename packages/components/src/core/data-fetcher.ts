@@ -137,6 +137,15 @@ export async function fetchData(opts: {
   }
 
   if (opts.model) {
+    if (BcSetup.isModelOffline(opts.model)) {
+      try {
+        const { OfflineStore } = await import('./offline-store');
+        return await OfflineStore.find(opts.model, opts.params);
+      } catch {
+        /* OfflineStore unavailable — fall through to HTTP */
+      }
+    }
+
     try {
       const { getApiClient } = await import('./api-client');
       const api = getApiClient();
@@ -150,7 +159,7 @@ export async function fetchData(opts: {
       });
       return { data: result.data, total: result.total };
     } catch {
-      // api-client not available — standalone mode
+      /* api-client not available — standalone mode */
     }
   }
 
@@ -204,12 +213,25 @@ export async function fetchOptions(opts: {
   }
 
   if (opts.model) {
+    if (BcSetup.isModelOffline(opts.model)) {
+      try {
+        const { OfflineStore } = await import('./offline-store');
+        const result = await OfflineStore.find(opts.model, {
+          search: opts.query,
+          pageSize: 20,
+        });
+        return result.data;
+      } catch {
+        /* OfflineStore unavailable — fall through to HTTP */
+      }
+    }
+
     try {
       const { getApiClient } = await import('./api-client');
       const api = getApiClient();
       return api.search(opts.model, opts.query || '');
     } catch {
-      // standalone mode
+      /* api-client not available — standalone mode */
     }
   }
 

@@ -86,6 +86,10 @@ class BcSetupImpl {
     if (partial.theme !== undefined) {
       this._applyTheme(partial.theme);
     }
+
+    if (partial.baseUrl && !this._offlineInitDone) {
+      this.initOffline();
+    }
   }
 
   getConfig(): Readonly<BcConfig> {
@@ -236,6 +240,45 @@ class BcSetupImpl {
   getOfflineModels(): string[] {
     return Array.from(this._offlineModels);
   }
+
+  private _offlineInitPromise: Promise<void> | null = null;
+  private _offlineInitDone = false;
+
+  initOffline(): Promise<void> {
+    if (this._offlineInitDone) return Promise.resolve();
+    if (this._offlineInitPromise) return this._offlineInitPromise;
+
+    this._offlineInitPromise = this._doOfflineInit().finally(() => {
+      this._offlineInitDone = true;
+      this._offlineInitPromise = null;
+    });
+    return this._offlineInitPromise;
+  }
+
+  private async _doOfflineInit(): Promise<void> {
+    try {
+      const { BcNative } = await import('./bc-native');
+      const { OfflineStore } = await import('./offline-store');
+
+      const baseUrl = this._config.baseUrl;
+      if (!baseUrl) return;
+
+      const initResult = await OfflineStore.initFromServer(baseUrl);
+      if (initResult.modelCount === 0) return;
+
+      if (BcNative.isTauri()) {
+        await OfflineStore.registerDevice(baseUrl).catch(() => {
+          /* device may already be registered or server unreachable — non-fatal */
+        });
+      }
+    } catch {
+      /* offline init failed — app continues in online-only mode */
+    }
+  }
+
+  isOfflineReady(): boolean {
+    return this._offlineInitDone && this._offlineModels.size > 0;
+  }
 }
 
 export const BcSetup = new BcSetupImpl();
@@ -259,5 +302,12 @@ if (typeof document !== 'undefined') {
   }
   if (Object.keys(autoConfig).length > 0) {
     BcSetup.configure(autoConfig);
+  }
+}
+
+if (typeof document !== 'undefined') {
+  const offlineMeta = document.querySelector('meta[name="bc-offline"]');
+  if (offlineMeta && offlineMeta.getAttribute('content') !== 'false') {
+    BcSetup.initOffline();
   }
 }

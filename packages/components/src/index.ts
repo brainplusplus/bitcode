@@ -39,6 +39,9 @@ export type {
 } from './core/types';
 
 export { fetchData, fetchOptions, resolveUrl, normalizeResponse, buildHeaders } from './core/data-fetcher';
+export { OfflineStore } from './core/offline-store';
+export { BcNative } from './core/bc-native';
+export type { BcEnvironment, BcPhotoOptions, BcGeoPosition, BcDbResult, BcDbRow, BcNotifyOptions } from './core/bc-native';
 export { validateBuiltIn, runValidationPipeline, validateServer, validateCustom } from './core/validation-engine';
 export type { BuiltInValidationOpts } from './core/validation-engine';
 

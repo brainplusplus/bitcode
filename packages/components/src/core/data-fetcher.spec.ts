@@ -1,5 +1,6 @@
-import { resolveUrl, normalizeResponse, buildHeaders } from './data-fetcher';
+import { resolveUrl, normalizeResponse, buildHeaders, fetchData, fetchOptions } from './data-fetcher';
 import { BcSetup } from './bc-setup';
+import { BcNative } from './bc-native';
 
 describe('resolveUrl', () => {
   it('replaces placeholders', () => {
@@ -84,5 +85,49 @@ describe('buildHeaders', () => {
   it('parses JSON string headers', () => {
     const headers = buildHeaders('{"X-Custom":"value"}');
     expect(headers['X-Custom']).toBe('value');
+  });
+});
+
+describe('fetchData offline routing', () => {
+  beforeEach(() => { BcSetup.reset(); });
+
+  it('routes to OfflineStore when model is offline', async () => {
+    BcSetup.registerOfflineModels(['product']);
+
+    jest.spyOn(BcNative, 'dbSelect')
+      .mockResolvedValueOnce([{ cnt: 1 }])
+      .mockResolvedValueOnce([{ id: '1', name: 'Test Product' }]);
+
+    const result = await fetchData({ model: 'product', params: { page: 1, pageSize: 10 } });
+
+    expect(result.data).toHaveLength(1);
+    expect((result.data[0] as Record<string, unknown>).name).toBe('Test Product');
+  });
+
+  it('falls through to HTTP when model is not offline', async () => {
+    (global.fetch as jest.Mock) = jest.fn().mockRejectedValue(new Error('no server'));
+
+    const result = await fetchData({ model: 'order' });
+
+    expect(result.data).toEqual([]);
+  });
+});
+
+describe('fetchOptions offline routing', () => {
+  beforeEach(() => { BcSetup.reset(); });
+
+  it('routes to OfflineStore for offline model options', async () => {
+    BcSetup.registerOfflineModels(['category']);
+
+    jest.spyOn(BcNative, 'dbSelect')
+      .mockResolvedValueOnce([{ cnt: 2 }])
+      .mockResolvedValueOnce([
+        { id: '1', name: 'Electronics' },
+        { id: '2', name: 'Food' },
+      ]);
+
+    const options = await fetchOptions({ model: 'category', query: '' });
+
+    expect(options).toHaveLength(2);
   });
 });

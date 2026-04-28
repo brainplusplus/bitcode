@@ -4033,6 +4033,22 @@ export namespace Components {
     }
     interface BcSheet {
     }
+    interface BcSyncStatus {
+        /**
+          * @default false
+         */
+        "compact": boolean;
+        /**
+          * @default 30000
+         */
+        "pollInterval": number;
+        "refreshStatus": () => Promise<void>;
+        /**
+          * @default true
+         */
+        "showSyncButton": boolean;
+        "triggerSync": () => Promise<void>;
+    }
     interface BcTab {
         /**
           * @default ''
@@ -4911,6 +4927,10 @@ export interface BcLookupModalCustomEvent<T> extends CustomEvent<T> {
 export interface BcSearchCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLBcSearchElement;
+}
+export interface BcSyncStatusCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLBcSyncStatusElement;
 }
 export interface BcToastCustomEvent<T> extends CustomEvent<T> {
     detail: T;
@@ -6175,6 +6195,24 @@ declare global {
         prototype: HTMLBcSheetElement;
         new (): HTMLBcSheetElement;
     };
+    interface HTMLBcSyncStatusElementEventMap {
+        "bcSyncTriggered": void;
+        "bcSyncCompleted": { synced: number; errors: number; applied: number; conflicts: number };
+    }
+    interface HTMLBcSyncStatusElement extends Components.BcSyncStatus, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcSyncStatusElementEventMap>(type: K, listener: (this: HTMLBcSyncStatusElement, ev: BcSyncStatusCustomEvent<HTMLBcSyncStatusElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcSyncStatusElementEventMap>(type: K, listener: (this: HTMLBcSyncStatusElement, ev: BcSyncStatusCustomEvent<HTMLBcSyncStatusElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLBcSyncStatusElement: {
+        prototype: HTMLBcSyncStatusElement;
+        new (): HTMLBcSyncStatusElement;
+    };
     interface HTMLBcTabElement extends Components.BcTab, HTMLStencilElement {
     }
     var HTMLBcTabElement: {
@@ -6505,6 +6543,7 @@ declare global {
         "bc-section": HTMLBcSectionElement;
         "bc-separator": HTMLBcSeparatorElement;
         "bc-sheet": HTMLBcSheetElement;
+        "bc-sync-status": HTMLBcSyncStatusElement;
         "bc-tab": HTMLBcTabElement;
         "bc-tabs": HTMLBcTabsElement;
         "bc-timeline": HTMLBcTimelineElement;
@@ -10356,6 +10395,22 @@ declare namespace LocalJSX {
     }
     interface BcSheet {
     }
+    interface BcSyncStatus {
+        /**
+          * @default false
+         */
+        "compact"?: boolean;
+        "onBcSyncCompleted"?: (event: BcSyncStatusCustomEvent<{ synced: number; errors: number; applied: number; conflicts: number }>) => void;
+        "onBcSyncTriggered"?: (event: BcSyncStatusCustomEvent<void>) => void;
+        /**
+          * @default 30000
+         */
+        "pollInterval"?: number;
+        /**
+          * @default true
+         */
+        "showSyncButton"?: boolean;
+    }
     interface BcTab {
         /**
           * @default ''
@@ -11973,6 +12028,11 @@ declare namespace LocalJSX {
     interface BcSeparatorAttributes {
         "label": string;
     }
+    interface BcSyncStatusAttributes {
+        "pollInterval": number;
+        "compact": boolean;
+        "showSyncButton": boolean;
+    }
     interface BcTabAttributes {
         "label": string;
     }
@@ -12243,6 +12303,7 @@ declare namespace LocalJSX {
         "bc-section": Omit<BcSection, keyof BcSectionAttributes> & { [K in keyof BcSection & keyof BcSectionAttributes]?: BcSection[K] } & { [K in keyof BcSection & keyof BcSectionAttributes as `attr:${K}`]?: BcSectionAttributes[K] } & { [K in keyof BcSection & keyof BcSectionAttributes as `prop:${K}`]?: BcSection[K] };
         "bc-separator": Omit<BcSeparator, keyof BcSeparatorAttributes> & { [K in keyof BcSeparator & keyof BcSeparatorAttributes]?: BcSeparator[K] } & { [K in keyof BcSeparator & keyof BcSeparatorAttributes as `attr:${K}`]?: BcSeparatorAttributes[K] } & { [K in keyof BcSeparator & keyof BcSeparatorAttributes as `prop:${K}`]?: BcSeparator[K] };
         "bc-sheet": BcSheet;
+        "bc-sync-status": Omit<BcSyncStatus, keyof BcSyncStatusAttributes> & { [K in keyof BcSyncStatus & keyof BcSyncStatusAttributes]?: BcSyncStatus[K] } & { [K in keyof BcSyncStatus & keyof BcSyncStatusAttributes as `attr:${K}`]?: BcSyncStatusAttributes[K] } & { [K in keyof BcSyncStatus & keyof BcSyncStatusAttributes as `prop:${K}`]?: BcSyncStatus[K] };
         "bc-tab": Omit<BcTab, keyof BcTabAttributes> & { [K in keyof BcTab & keyof BcTabAttributes]?: BcTab[K] } & { [K in keyof BcTab & keyof BcTabAttributes as `attr:${K}`]?: BcTabAttributes[K] } & { [K in keyof BcTab & keyof BcTabAttributes as `prop:${K}`]?: BcTab[K] };
         "bc-tabs": BcTabs;
         "bc-timeline": Omit<BcTimeline, keyof BcTimelineAttributes> & { [K in keyof BcTimeline & keyof BcTimelineAttributes]?: BcTimeline[K] } & { [K in keyof BcTimeline & keyof BcTimelineAttributes as `attr:${K}`]?: BcTimelineAttributes[K] } & { [K in keyof BcTimeline & keyof BcTimelineAttributes as `prop:${K}`]?: BcTimeline[K] };
@@ -12352,6 +12413,7 @@ declare module "@stencil/core" {
             "bc-section": LocalJSX.IntrinsicElements["bc-section"] & JSXBase.HTMLAttributes<HTMLBcSectionElement>;
             "bc-separator": LocalJSX.IntrinsicElements["bc-separator"] & JSXBase.HTMLAttributes<HTMLBcSeparatorElement>;
             "bc-sheet": LocalJSX.IntrinsicElements["bc-sheet"] & JSXBase.HTMLAttributes<HTMLBcSheetElement>;
+            "bc-sync-status": LocalJSX.IntrinsicElements["bc-sync-status"] & JSXBase.HTMLAttributes<HTMLBcSyncStatusElement>;
             "bc-tab": LocalJSX.IntrinsicElements["bc-tab"] & JSXBase.HTMLAttributes<HTMLBcTabElement>;
             "bc-tabs": LocalJSX.IntrinsicElements["bc-tabs"] & JSXBase.HTMLAttributes<HTMLBcTabsElement>;
             "bc-timeline": LocalJSX.IntrinsicElements["bc-timeline"] & JSXBase.HTMLAttributes<HTMLBcTimelineElement>;

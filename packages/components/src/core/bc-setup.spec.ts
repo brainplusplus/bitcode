@@ -82,4 +82,15 @@ describe('BcSetup', () => {
     expect(BcSetup.getValidator('test')).toBeUndefined();
     expect(BcSetup.hasReactivityRule('x')).toBe(false);
   });
+
+  it('reports offline readiness', () => {
+    expect(BcSetup.isOfflineReady()).toBe(false);
+  });
+
+  it('initOffline is idempotent', async () => {
+    const p1 = BcSetup.initOffline();
+    const p2 = BcSetup.initOffline();
+    expect(p1).toBe(p2);
+    await p1;
+  });
 });
