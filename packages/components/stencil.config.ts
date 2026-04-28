@@ -14,6 +14,9 @@ export const config: Config = {
     {
       type: 'www',
       serviceWorker: null,
+      copy: [
+        { src: 'demo', dest: 'demo' },
+      ],
     },
   ],
   globalStyle: 'src/global/global.css',
