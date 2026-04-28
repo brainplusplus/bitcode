@@ -100,14 +100,20 @@ type EdgeDefinition struct {
 }
 
 type ProcessDefinition struct {
-	Name  string                    `json:"name"`
-	Steps []StepDefinition          `json:"steps,omitempty"`
-	Nodes map[string]StepDefinition `json:"nodes,omitempty"`
-	Edges []EdgeDefinition          `json:"edges,omitempty"`
+	Name    string                    `json:"name"`
+	Runtime string                    `json:"runtime,omitempty"`
+	Steps   []StepDefinition          `json:"steps,omitempty"`
+	Nodes   map[string]StepDefinition `json:"nodes,omitempty"`
+	Edges   []EdgeDefinition          `json:"edges,omitempty"`
 }
 
 func (p *ProcessDefinition) IsDAG() bool {
 	return len(p.Nodes) > 0
+}
+
+// IsGoJSON returns true if the process uses the go-json runtime.
+func (p *ProcessDefinition) IsGoJSON() bool {
+	return p.Runtime == "go-json"
 }
 
 func ParseProcess(data []byte) (*ProcessDefinition, error) {
