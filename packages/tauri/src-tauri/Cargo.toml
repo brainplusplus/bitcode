@@ -1,0 +1,38 @@
+[package]
+name = "bitcode-app"
+version = "0.1.0"
+description = "BitCode — native shell for Stencil web components"
+authors = ["BitCode"]
+license = "MIT"
+repository = ""
+default-run = "bitcode-app"
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-sql = { version = "2", features = ["sqlite"] }
+tauri-plugin-fs = "2"
+tauri-plugin-notification = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Mobile-only plugins (barcode scanner, biometric) are behind feature flags
+# because they require platform-specific SDKs that don't compile on desktop.
+# Enable with: cargo build --features mobile-plugins
+[features]
+default = []
+mobile-plugins = [
+  "dep:tauri-plugin-barcode-scanner",
+  "dep:tauri-plugin-biometric",
+]
+
+[dependencies.tauri-plugin-barcode-scanner]
+version = "2"
+optional = true
+
+[dependencies.tauri-plugin-biometric]
+version = "2"
+optional = true

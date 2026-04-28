@@ -1,0 +1,23 @@
+{
+  "name": "@bitcode/tauri",
+  "version": "0.1.0",
+  "private": true,
+  "description": "BitCode native shell — Tauri wrapper for Stencil web components",
+  "scripts": {
+    "dev": "cargo tauri dev",
+    "dev:desktop": "cargo tauri dev",
+    "dev:android": "cargo tauri android dev",
+    "dev:ios": "cargo tauri ios dev",
+    "build": "cargo tauri build",
+    "build:desktop": "cargo tauri build",
+    "build:desktop:debug": "cargo tauri build --debug",
+    "build:android-init": "cargo tauri android init",
+    "build:android": "cargo tauri android build",
+    "build:android:debug": "cargo tauri android build --debug",
+    "build:ios-init": "cargo tauri ios init",
+    "build:ios": "cargo tauri ios build",
+    "build:ios:debug": "cargo tauri ios build --debug",
+    "icons": "cargo tauri icon src-tauri/icons/app-icon.png -o src-tauri/icons",
+    "check": "cd src-tauri && cargo check"
+  }
+}
