@@ -4,12 +4,13 @@
 
 Standalone JSON/JSONC programming language engine. Embeddable in Go applications. Part of the BitCode platform but independently usable.
 
-**Pipeline:** JSONC pre-process → JSON parse → AST → compile (structural validation + limit resolution) → immutable Program → VM execution with debug hooks.
+**Pipeline:** JSONC pre-process → JSON parse → import resolution → AST → compile (struct registration, structural validation, limit resolution) → immutable Program → VM execution with debug hooks.
 
 **Expression evaluation** delegated to [expr-lang/expr](https://github.com/expr-lang/expr) via `ExprEngine` abstraction layer. The VM never calls expr-lang directly.
 
-**Design doc:** `docs/plans/2026-07-14-runtime-engine-phase-4.5a-go-json-core-language.md`
-**Implementation plan:** `docs/plans/2026-07-14-runtime-engine-phase-4.5a-go-json-core-language-plan.md`
+**Phase 4.5a design:** `docs/plans/2026-07-14-runtime-engine-phase-4.5a-go-json-core-language.md`
+**Phase 4.5b design:** `docs/plans/2026-07-14-runtime-engine-phase-4.5b-go-json-modularity.md`
+**Phase 4.5b plan:** `docs/plans/2026-07-14-runtime-engine-phase-4.5b-go-json-modularity-plan.md`
 **Decisions:** `docs/plans/2026-04-28-go-json-brainstorming-design.md`
 
 ## Package Structure
@@ -32,8 +33,11 @@ packages/go-json/
 3. **Structural validation at compile time, expression validation at runtime** — expr-lang's compile-time type checking requires a fully-typed environment which we don't have with gradual typing. Runtime catches expression errors.
 4. **Scope isolation for functions** — `IsolatedChild()` creates scope WITHOUT parent link. Functions cannot access caller variables. Block scope (`NewChild()`) for if/for/while allows reading and mutating outer variables.
 5. **Sentinel types for control flow** — `returnValue`, `breakSignal`, `continueSignal` are unexported struct types that propagate through `executeSteps()` return values.
-6. **Resource limits at every step** — step count, call depth, loop iterations, timeout checked before each step execution.
+6. **Resource limits at every step** — step count, call depth, loop iterations, timeout checked before each step execution. MaxVariables, MaxVariableSize checked after every `Declare()`. MaxOutputSize checked on program return.
 7. **JSON param ordering** — Go maps don't preserve insertion order. `extractOrderedKeys()` uses `json.Decoder` tokenization to recover function param order from raw JSON.
+8. **Built-in name protection** — `let` blocks variable names that shadow critical built-in functions (len, abs, min, max, etc.). Curated list excludes common-word functions (count, filter, sort) that are also natural variable names.
+9. **Implicit scope variables** — `session.*` (user_id, locale, tenant_id, groups) and `execution.*` (id, program, started_at, depth, step_count) injected automatically into every execution.
+10. **Trace enrichment** — `TraceEntry` captures Var/Value for let/set, Condition/Result for if/while/switch, per step type via `enrichTraceEntry()`.
 
 ## Step Types (15)
 
@@ -58,7 +62,7 @@ packages/go-json/
 
 ```bash
 cd packages/go-json
-go test ./... -v          # All tests (75)
+go test ./... -v          # All tests (82)
 go test ./lang/ -v        # Language engine tests
 go test ./lang/ -run TestIntegration -v  # Integration tests only
 go test ./lang/ -run TestEdge -v         # Edge case tests only
@@ -70,4 +74,7 @@ go test ./lang/ -run TestEdge -v         # Edge case tests only
 - Import/module system
 - I/O modules (DB, HTTP, file, email)
 - BitCode engine integration (process engine routing `.json` scripts to go-json)
-- Expression-level compile-time type validation (deferred to runtime)
+- Expression-level compile-time type validation (deferred to runtime — gradual typing and compile-time validation are fundamentally in tension, see compiler.go)
+- `Timezone` expr-lang config (no date/time stdlib functions in Phase 4.5a)
+- `WithContext` expr-lang config (no long-running custom functions in Phase 4.5a)
+- Stdlib deprecation support (nothing to deprecate yet — add when stdlib evolves)

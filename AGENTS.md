@@ -299,7 +299,7 @@ go test ./... -v          # All go-json tests
 go test ./lang/ -v        # Language engine tests only
 ```
 
-Current: 570 Go engine tests + 75 go-json tests + 74 Stencil tests, 0 failures. Build: OK.
+Current: 570 Go engine tests + 82 go-json tests + 74 Stencil tests, 0 failures. Build: OK.
 
 ## Build
 

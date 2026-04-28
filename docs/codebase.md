@@ -589,13 +589,21 @@ packages/go-json/
     ├── hello.json                              # Minimal program
     ├── hello.jsonc                              # Same with JSONC comments
     ├── variables.json                           # let, set, value/expr/with modes
+    ├── variables.jsonc                          # Same with JSONC comments + trailing commas
     ├── control_flow.json                        # if/elif/else, switch
     ├── loops.json                               # for, while, range, break, continue
     ├── functions.json                           # Function definition, call, recursion (factorial)
-    └── error_handling.json                      # try/catch/finally, error throw
+    ├── recursion.json                           # Factorial + fibonacci recursive functions
+    ├── error_handling.json                      # try/catch/finally, error throw
+    ├── stdlib_math.json                         # Layer 2 math: clamp, sign, pow, sqrt, mod
+    ├── stdlib_strings.json                      # Layer 2 strings: padLeft, substring, format, matches
+    ├── stdlib_arrays.json                       # Layer 2 arrays: append, prepend, slice, chunk, zip
+    ├── limits.json                              # Program-level resource limits
+    ├── comments.json                            # _c inline, standalone, multi-line
+    └── types.json                               # Type inference, nullable, any, strict assignment
 ```
 
-**75 tests** across 4 packages. `go build ./...` + `go vet ./...` clean.
+**82 tests** across 4 packages. `go build ./...` + `go vet ./...` clean.
 
 ---
 
