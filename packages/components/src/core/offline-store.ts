@@ -2,6 +2,7 @@ import { FetchParams, FetchResult } from './types';
 import { BcSetup } from './bc-setup';
 import { BcNative, BcDbRow } from './bc-native';
 import { buildHeaders, normalizeResponse } from './data-fetcher';
+import { hlcNow, hlcSetDeviceId as _hlcSetDeviceId, hlcCompare, parseHLC } from './hlc';
 
 interface SaveResult {
   id: string;
@@ -217,6 +218,7 @@ export const OfflineStore = {
 
   setDeviceId(deviceId: string): void {
     _deviceId = deviceId;
+    _hlcSetDeviceId(deviceId);
   },
 
   getDeviceId(): string {
@@ -231,6 +233,42 @@ export const OfflineStore = {
 
   commitTransaction(): void {
     _currentEnvelopeId = null;
+  },
+
+  async getNextReceiptNumber(tableName: string): Promise<string> {
+    assertSafeTable(tableName);
+
+    const rows = await BcNative.dbSelect(
+      'SELECT prefix, last_sequence FROM _off_number_sequence WHERE table_name = ?',
+      [tableName],
+    );
+
+    let prefix = '';
+    let lastSeq = 0;
+
+    if (rows.length > 0) {
+      const row = rows[0] as Record<string, unknown>;
+      prefix = (row.prefix as string) || '';
+      lastSeq = (row.last_sequence as number) || 0;
+    }
+
+    if (!prefix) {
+      const stateRows = await BcNative.dbSelect(
+        'SELECT device_prefix FROM _off_sync_state LIMIT 1',
+        [],
+      );
+      prefix = (stateRows[0] as Record<string, string>)?.device_prefix || '000-X';
+    }
+
+    const nextSeq = lastSeq + 1;
+
+    await BcNative.dbExecute(
+      `INSERT INTO _off_number_sequence (table_name, prefix, last_sequence) VALUES (?, ?, ?)
+       ON CONFLICT(table_name, prefix) DO UPDATE SET last_sequence = ?`,
+      [tableName, prefix, nextSeq, nextSeq],
+    );
+
+    return `${prefix}-${String(nextSeq).padStart(4, '0')}`;
   },
 
   async find(model: string, params?: FetchParams): Promise<FetchResult> {
@@ -273,6 +311,8 @@ export const OfflineStore = {
     const id = (data.id as string) || generateUUIDv7();
     const now = new Date().toISOString();
 
+    const hlc = _deviceId ? hlcNow() : '';
+
     const record: Record<string, unknown> = {
       ...data,
       id,
@@ -282,6 +322,7 @@ export const OfflineStore = {
       _off_deleted: 0,
       _off_created_at: now,
       _off_updated_at: now,
+      _off_hlc: hlc,
     };
 
     await BcNative.dbExecute('BEGIN TRANSACTION', []);
@@ -307,11 +348,14 @@ export const OfflineStore = {
     assertSafeTable(table);
     const now = new Date().toISOString();
 
+    const hlc = _deviceId ? hlcNow() : '';
+
     const record: Record<string, unknown> = {
       ...data,
       _off_status: 'PENDING',
       _off_version: { __raw: '_off_version + 1' },
       _off_updated_at: now,
+      _off_hlc: hlc,
     };
 
     await BcNative.dbExecute('BEGIN TRANSACTION', []);
@@ -493,10 +537,11 @@ export const OfflineStore = {
     return { synced, errors };
   },
 
-  async syncPull(baseUrl?: string): Promise<{ applied: number }> {
+  async syncPull(baseUrl?: string): Promise<{ applied: number; conflicts: number }> {
     const url = baseUrl || BcSetup.getConfig().baseUrl;
     const headers = buildHeaders();
     let applied = 0;
+    let conflicts = 0;
 
     const stateRows = await BcNative.dbSelect(
       'SELECT last_pull_version FROM _off_sync_state LIMIT 1',
@@ -509,7 +554,7 @@ export const OfflineStore = {
         `${url}/api/v1/sync/pull?since_version=${sinceVersion}&device_id=${encodeURIComponent(_deviceId)}`,
         { headers },
       );
-      if (!resp.ok) return { applied: 0 };
+      if (!resp.ok) return { applied: 0, conflicts: 0 };
 
       const body = await resp.json() as {
         changes: Array<{
@@ -518,16 +563,28 @@ export const OfflineStore = {
           operation: string;
           data: Record<string, unknown>;
           version: number;
+          hlc?: string;
         }>;
         max_version: number;
       };
 
-      if (!body.changes || body.changes.length === 0) return { applied: 0 };
+      if (!body.changes || body.changes.length === 0) return { applied: 0, conflicts: 0 };
 
       await BcNative.dbExecute('BEGIN TRANSACTION', []);
       try {
         for (const change of body.changes) {
           assertSafeTable(change.table_name);
+
+          const localRows = await BcNative.dbSelect(
+            `SELECT * FROM ${change.table_name} WHERE id = ?`,
+            [change.record_id],
+          );
+          const localRecord = localRows[0] as Record<string, unknown> | undefined;
+
+          const hasLocalChanges = localRecord
+            && localRecord._off_status === 'PENDING'
+            && (localRecord._off_version as number) > 1;
+
           switch (change.operation) {
             case 'CREATE': {
               const keys = Object.keys(change.data);
@@ -541,22 +598,43 @@ export const OfflineStore = {
               break;
             }
             case 'UPDATE': {
-              const entries = Object.entries(change.data).filter(([k]) => k !== 'id');
-              for (const [k] of entries) assertValidColumn(change.table_name, k);
-              const setParts = entries.map(([k]) => `${k} = ?`);
-              const vals = entries.map(([, v]) => v);
-              vals.push(change.record_id);
-              await BcNative.dbExecute(
-                `UPDATE ${change.table_name} SET ${setParts.join(', ')} WHERE id = ?`,
-                vals,
-              );
+              if (hasLocalChanges && localRecord) {
+                const mergeConflicts = await mergeFieldLevel(
+                  change.table_name,
+                  change.record_id,
+                  localRecord,
+                  change.data,
+                  (localRecord._off_hlc as string) || '',
+                  change.hlc || '',
+                );
+                conflicts += mergeConflicts;
+              } else {
+                const entries = Object.entries(change.data).filter(([k]) => k !== 'id');
+                for (const [k] of entries) assertValidColumn(change.table_name, k);
+                const setParts = entries.map(([k]) => `${k} = ?`);
+                const vals = entries.map(([, v]) => v);
+                vals.push(change.record_id);
+                await BcNative.dbExecute(
+                  `UPDATE ${change.table_name} SET ${setParts.join(', ')} WHERE id = ?`,
+                  vals,
+                );
+              }
               break;
             }
             case 'DELETE': {
-              await BcNative.dbExecute(
-                `UPDATE ${change.table_name} SET _off_deleted = 1 WHERE id = ?`,
-                [change.record_id],
-              );
+              if (hasLocalChanges && localRecord) {
+                // Edit vs Delete: edit wins — keep local edits, don't delete
+                await logConflict(
+                  change.table_name, change.record_id, '_off_deleted',
+                  '0', '1', '0', 'EDIT_WINS_LOCAL',
+                );
+                conflicts++;
+              } else {
+                await BcNative.dbExecute(
+                  `UPDATE ${change.table_name} SET _off_deleted = 1 WHERE id = ?`,
+                  [change.record_id],
+                );
+              }
               break;
             }
           }
@@ -575,9 +653,99 @@ export const OfflineStore = {
       }
     } catch { /* */ }
 
-    return { applied };
+    return { applied, conflicts };
   },
 };
+
+const SYSTEM_FIELD_PREFIXES = ['_off_', '_sync_'];
+
+function isSystemField(field: string): boolean {
+  if (field === 'id') return true;
+  return SYSTEM_FIELD_PREFIXES.some(p => field.startsWith(p));
+}
+
+async function mergeFieldLevel(
+  tableName: string,
+  recordId: string,
+  localRecord: Record<string, unknown>,
+  remoteData: Record<string, unknown>,
+  localHlc: string,
+  remoteHlc: string,
+): Promise<number> {
+  let conflictCount = 0;
+  const mergedUpdates: Record<string, unknown> = {};
+
+  const allFields = new Set([...Object.keys(localRecord), ...Object.keys(remoteData)]);
+
+  for (const field of allFields) {
+    if (isSystemField(field)) continue;
+
+    const localVal = localRecord[field];
+    const remoteVal = remoteData[field];
+
+    if (remoteVal === undefined) continue;
+
+    const localStr = JSON.stringify(localVal);
+    const remoteStr = JSON.stringify(remoteVal);
+
+    if (localStr === remoteStr) continue;
+
+    const localWasModified = localRecord._off_status === 'PENDING';
+
+    if (!localWasModified) {
+      mergedUpdates[field] = remoteVal;
+      continue;
+    }
+
+    if (remoteData[field] !== undefined && localWasModified) {
+      let winner: 'local' | 'remote' = 'remote';
+      if (localHlc && remoteHlc) {
+        winner = hlcCompare(localHlc, remoteHlc) >= 0 ? 'local' : 'remote';
+      }
+
+      const resolvedVal = winner === 'local' ? localVal : remoteVal;
+      mergedUpdates[field] = resolvedVal;
+
+      await logConflict(
+        tableName, recordId, field,
+        String(localVal ?? ''), String(remoteVal ?? ''),
+        String(resolvedVal ?? ''),
+        winner === 'local' ? 'LOCAL_WINS' : 'REMOTE_WINS',
+      );
+      conflictCount++;
+    }
+  }
+
+  if (Object.keys(mergedUpdates).length > 0) {
+    const entries = Object.entries(mergedUpdates);
+    for (const [k] of entries) assertValidColumn(tableName, k);
+    const setParts = entries.map(([k]) => `${k} = ?`);
+    const vals = entries.map(([, v]) => v);
+    vals.push(recordId);
+    await BcNative.dbExecute(
+      `UPDATE ${tableName} SET ${setParts.join(', ')} WHERE id = ?`,
+      vals,
+    );
+  }
+
+  return conflictCount;
+}
+
+async function logConflict(
+  tableName: string,
+  recordId: string,
+  fieldName: string,
+  localValue: string,
+  remoteValue: string,
+  resolvedValue: string,
+  resolution: string,
+): Promise<void> {
+  await BcNative.dbExecute(
+    `INSERT INTO _off_conflict_log (table_name, record_id, field_name, local_value, remote_value, resolved_value, resolution, resolved_at, device_id)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [tableName, recordId, fieldName, localValue, remoteValue, resolvedValue, resolution, new Date().toISOString(), _deviceId],
+  );
+}
 
 async function pushOperationsIndividually(
   url: string,

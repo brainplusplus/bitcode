@@ -145,7 +145,7 @@ Before the gap list — what's already **production-solid**:
 | 37 | Dashboard Builder | ✅ | — | Custom view type with `data_sources`. Admin dashboard at `/admin`. | — |
 | 72 | Enterprise Component Infrastructure | ✅ | — | All 6 phases complete. BcSetup (global config + reactivity runtime), 4-level data fetching, 3-level validation, theming (light/dark/system/custom), 34 field components, 5 select-family with searchable dropdown + cascading, datatable with enterprise methods, 11 charts with enterprise features. All standalone — no BitCode dependency. | — |
 | 73 | Theming System | ✅ | — | CSS custom properties (`--bc-*`), light/dark themes, `prefers-color-scheme` auto-detect, `data-bc-theme` attribute for scoped themes, size tokens (sm/md/lg), `BcSetup.configure({ theme })` for programmatic switching. | — |
-| 74 | Offline Mode | ⚠️ | XL | **Phase 1-3 ✅ (of 5).** Engine understands `mode:"offline"` with resolution chain. Auto-generates `_off_*` columns. 4 client + 4 server infrastructure tables. PK validation. Tauri 2.0 native shell. `bc-native.ts` bridge (13 methods). `offline-store.ts` with SQL injection prevention, transactional CRUD, outbox with device_id/envelope_id. Sync engine: device registration (`POST /sync/register`), push (`POST /sync/push` with idempotency via `_sync_log`), pull (`GET /sync/pull` with delta sync via `_sync_versions`), envelope grouping for atomic multi-table operations. | Phase 4: HLC, field-level conflict merge, receipt numbering, inventory deltas. Phase 5: Encryption, offline auth, cross-platform testing. |
+| 74 | Offline Mode | ⚠️ | XL | **Phase 1-4 ✅ (of 5).** Engine understands `mode:"offline"` with resolution chain. Auto-generates `_off_*` columns. 4 client + 4 server infrastructure tables. PK validation. Tauri 2.0 native shell. `bc-native.ts` bridge (13 methods). `offline-store.ts` with SQL injection prevention, transactional CRUD, outbox with device_id/envelope_id. Sync engine: device registration, push with idempotency, pull with delta sync, envelope grouping. HLC for deterministic event ordering. Field-level conflict merge with HLC tie-breaking. Device-prefixed receipt numbering. Inventory delta-based tracking with oversell alerts. | Phase 5: Encryption, offline auth, cross-platform testing. |
 | 75 | Native Shell (Tauri) | ⚠️ | L | **Phase 2 ✅.** Tauri 2.0 project at `packages/tauri/`. Stencil components run inside native WebView. Plugins: tauri-plugin-sql (SQLite), tauri-plugin-fs, tauri-plugin-notification. Mobile plugins (barcode-scanner, biometric) behind feature flag. Build pipeline: `npm run dev:desktop`, `build:desktop`, `dev:android`, `build:android`, `dev:ios`, `build:ios`. Icons generated for all platforms. | Mobile platform testing (Android/iOS). Camera/GPS plugins (less mature on mobile). App Store submission. |
 
 ---
@@ -357,7 +357,7 @@ Detailed per-feature documentation lives in `engine/docs/features/`:
 | Multi-tenancy | [multitenancy.md](../engine/docs/features/multitenancy.md) | ✅ |
 | Admin UI | [admin.md](../engine/docs/features/admin.md) | ✅ |
 | File Storage | [storage.md](../engine/docs/features/storage.md) | ✅ |
-| Offline Mode | [offline-mode.md](../engine/docs/features/offline-mode.md) | ⚠️ Phase 1-3 of 5 |
+| Offline Mode | [offline-mode.md](../engine/docs/features/offline-mode.md) | ⚠️ Phase 1-4 of 5 |
 
 ---
 

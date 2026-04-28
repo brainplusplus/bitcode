@@ -283,4 +283,209 @@ describe('OfflineStore', () => {
       expect(OfflineStore.getDeviceId()).toBe('DEV-B');
     });
   });
+
+  describe('create populates _off_hlc', () => {
+    it('includes _off_hlc in INSERT when device_id is set', async () => {
+      BcSetup.registerOfflineModels(['lead']);
+      OfflineStore.registerTableMap([{ name: 'lead', table_name: 'crm_lead' }]);
+      OfflineStore.setDeviceId('DEV-HLC');
+
+      const dbExecSpy = jest.spyOn(BcNative, 'dbExecute')
+        .mockResolvedValue({ rowsAffected: 1 });
+
+      await OfflineStore.create('lead', { name: 'HLC Test' });
+
+      const insertCall = dbExecSpy.mock.calls[1][0] as string;
+      expect(insertCall).toContain('_off_hlc');
+
+      const insertVals = dbExecSpy.mock.calls[1][1] as unknown[];
+      const hlcIdx = insertCall.split('(')[1].split(')')[0].split(',').findIndex(
+        (col: string) => col.trim() === '_off_hlc',
+      );
+      expect(hlcIdx).toBeGreaterThanOrEqual(0);
+      const hlcVal = insertVals[hlcIdx] as string;
+      expect(hlcVal).toContain('DEV-HLC');
+      expect(hlcVal.split(':').length).toBeGreaterThanOrEqual(3);
+    });
+  });
+
+  describe('syncPull with conflict detection', () => {
+    it('returns conflicts count when local record has pending changes', async () => {
+      BcSetup.registerOfflineModels(['product']);
+      OfflineStore.registerTableMap([{ name: 'product', table_name: 'pos_product' }]);
+      OfflineStore.setDeviceId('DEV-A');
+
+      const dbSelectSpy = jest.spyOn(BcNative, 'dbSelect');
+      const dbExecSpy = jest.spyOn(BcNative, 'dbExecute')
+        .mockResolvedValue({ rowsAffected: 1 });
+
+      dbSelectSpy
+        .mockResolvedValueOnce([{ last_pull_version: 0 }])
+        .mockResolvedValueOnce([{
+          id: 'rec-1', name: 'Widget', price: 150,
+          _off_status: 'PENDING', _off_version: 3, _off_hlc: 'zzzzzz:0001:DEV-A',
+          _off_deleted: 0,
+        }]);
+
+      (global.fetch as jest.Mock).mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({
+          changes: [{
+            table_name: 'pos_product',
+            record_id: 'rec-1',
+            operation: 'UPDATE',
+            data: { id: 'rec-1', price: 120 },
+            version: 5,
+            hlc: 'aaaaaa:0001:DEV-B',
+          }],
+          max_version: 5,
+        }),
+      });
+
+      BcSetup.configure({ baseUrl: 'http://localhost:8080' });
+      const result = await OfflineStore.syncPull();
+
+      expect(result.applied).toBe(1);
+      expect(result.conflicts).toBe(1);
+
+      const conflictLogCalls = dbExecSpy.mock.calls.filter(
+        c => (c[0] as string).includes('_off_conflict_log'),
+      );
+      expect(conflictLogCalls.length).toBeGreaterThanOrEqual(1);
+    });
+
+    it('applies remote changes directly when no local conflict', async () => {
+      BcSetup.registerOfflineModels(['product']);
+      OfflineStore.registerTableMap([{ name: 'product', table_name: 'pos_product' }]);
+      OfflineStore.setDeviceId('DEV-A');
+
+      const dbSelectSpy = jest.spyOn(BcNative, 'dbSelect');
+      jest.spyOn(BcNative, 'dbExecute')
+        .mockResolvedValue({ rowsAffected: 1 });
+
+      dbSelectSpy
+        .mockResolvedValueOnce([{ last_pull_version: 0 }])
+        .mockResolvedValueOnce([{
+          id: 'rec-2', name: 'Gadget', price: 100,
+          _off_status: 'SYNCED', _off_version: 1,
+          _off_deleted: 0,
+        }]);
+
+      (global.fetch as jest.Mock).mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({
+          changes: [{
+            table_name: 'pos_product',
+            record_id: 'rec-2',
+            operation: 'UPDATE',
+            data: { id: 'rec-2', price: 200 },
+            version: 3,
+          }],
+          max_version: 3,
+        }),
+      });
+
+      BcSetup.configure({ baseUrl: 'http://localhost:8080' });
+      const result = await OfflineStore.syncPull();
+
+      expect(result.applied).toBe(1);
+      expect(result.conflicts).toBe(0);
+    });
+
+    it('edit wins over delete when local has pending changes', async () => {
+      BcSetup.registerOfflineModels(['product']);
+      OfflineStore.registerTableMap([{ name: 'product', table_name: 'pos_product' }]);
+      OfflineStore.setDeviceId('DEV-A');
+
+      const dbSelectSpy = jest.spyOn(BcNative, 'dbSelect');
+      const dbExecSpy = jest.spyOn(BcNative, 'dbExecute')
+        .mockResolvedValue({ rowsAffected: 1 });
+
+      dbSelectSpy
+        .mockResolvedValueOnce([{ last_pull_version: 0 }])
+        .mockResolvedValueOnce([{
+          id: 'rec-3', name: 'Edited', price: 999,
+          _off_status: 'PENDING', _off_version: 2,
+          _off_deleted: 0,
+        }]);
+
+      (global.fetch as jest.Mock).mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({
+          changes: [{
+            table_name: 'pos_product',
+            record_id: 'rec-3',
+            operation: 'DELETE',
+            data: { id: 'rec-3' },
+            version: 4,
+          }],
+          max_version: 4,
+        }),
+      });
+
+      BcSetup.configure({ baseUrl: 'http://localhost:8080' });
+      const result = await OfflineStore.syncPull();
+
+      expect(result.applied).toBe(1);
+      expect(result.conflicts).toBe(1);
+
+      const deleteCalls = dbExecSpy.mock.calls.filter(
+        c => (c[0] as string).includes('_off_deleted = 1'),
+      );
+      expect(deleteCalls.length).toBe(0);
+    });
+  });
+
+  describe('getNextReceiptNumber', () => {
+    it('generates sequential receipt numbers using device prefix', async () => {
+      const dbSelectSpy = jest.spyOn(BcNative, 'dbSelect');
+      const dbExecSpy = jest.spyOn(BcNative, 'dbExecute')
+        .mockResolvedValue({ rowsAffected: 1 });
+
+      dbSelectSpy
+        .mockResolvedValueOnce([{ prefix: '001-A', last_sequence: 15 }]);
+
+      const num = await OfflineStore.getNextReceiptNumber('pos_sale');
+
+      expect(num).toBe('001-A-0016');
+
+      const upsertCall = dbExecSpy.mock.calls[0][0] as string;
+      expect(upsertCall).toContain('_off_number_sequence');
+      expect(upsertCall).toContain('ON CONFLICT');
+    });
+
+    it('falls back to device_prefix from _off_sync_state when no sequence exists', async () => {
+      const dbSelectSpy = jest.spyOn(BcNative, 'dbSelect');
+      jest.spyOn(BcNative, 'dbExecute')
+        .mockResolvedValue({ rowsAffected: 1 });
+
+      dbSelectSpy
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce([{ device_prefix: '042-B' }]);
+
+      const num = await OfflineStore.getNextReceiptNumber('pos_sale');
+
+      expect(num).toBe('042-B-0001');
+    });
+
+    it('uses default prefix when no state exists', async () => {
+      const dbSelectSpy = jest.spyOn(BcNative, 'dbSelect');
+      jest.spyOn(BcNative, 'dbExecute')
+        .mockResolvedValue({ rowsAffected: 1 });
+
+      dbSelectSpy
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce([]);
+
+      const num = await OfflineStore.getNextReceiptNumber('pos_sale');
+
+      expect(num).toBe('000-X-0001');
+    });
+
+    it('rejects invalid table names', async () => {
+      await expect(
+        OfflineStore.getNextReceiptNumber('DROP TABLE; --'),
+      ).rejects.toThrow('Invalid table name');
+    });
+  });
 });

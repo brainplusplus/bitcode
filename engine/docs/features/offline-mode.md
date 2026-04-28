@@ -442,7 +442,7 @@ Single file at `packages/components/src/core/bc-native.ts`. Detects environment 
 
 ## Implementation Files
 
-### Implemented (Phase 1 + 2 + 2.5 + 3)
+### Implemented (Phase 1 + 2 + 2.5 + 3 + 4)
 
 | File | Purpose |
 |------|---------|
@@ -458,8 +458,8 @@ Single file at `packages/components/src/core/bc-native.ts`. Detects environment 
 | `packages/components/src/core/bc-native.ts` | Bridge abstraction layer (13 methods, Tauri/Web fallback) |
 | `packages/components/src/core/bc-native.spec.ts` | Bridge unit tests (10 tests) |
 | `packages/components/src/core/bc-setup.ts` | `registerOfflineModels()`, `isModelOffline()`, `getOfflineModels()` |
-| `packages/components/src/core/offline-store.ts` | Full sync client: CRUD routing, SQL injection prevention, transactions, outbox with device_id/envelope_id, `registerDevice()`, `syncPush()`, `syncPull()`, `beginTransaction()`/`commitTransaction()` |
-| `packages/components/src/core/offline-store.spec.ts` | Offline store tests (17 tests — routing, CRUD, transactions, rollback, SQL injection, envelope grouping) |
+| `packages/components/src/core/offline-store.ts` | Full sync client: CRUD routing, SQL injection prevention, transactions, outbox with device_id/envelope_id, `registerDevice()`, `syncPush()`, `syncPull()` with conflict detection, `beginTransaction()`/`commitTransaction()`, `getNextReceiptNumber()`, HLC wiring |
+| `packages/components/src/core/offline-store.spec.ts` | Offline store tests (24 tests — routing, CRUD, transactions, rollback, SQL injection, envelope grouping, HLC wiring, conflict detection, edit-vs-delete, receipt numbering) |
 | `packages/tauri/src-tauri/Cargo.toml` | Tauri 2.10 + plugins (sql, fs, notification, barcode, biometric) |
 | `packages/tauri/src-tauri/src/main.rs` | Tauri entry point, plugin registration, SQLite migrations (with `device_id` in outbox) |
 | `packages/tauri/src-tauri/tauri.conf.json` | Tauri config — `frontendDist`, `beforeDevCommand`, `withGlobalTauri`, CSP, window |
@@ -467,10 +467,11 @@ Single file at `packages/components/src/core/bc-native.ts`. Detects environment 
 | `packages/tauri/src-tauri/build.rs` | Tauri build script |
 | `packages/tauri/package.json` | npm scripts for dev/build (desktop, android, ios) |
 
-### Planned (Phase 4-5)
+| `packages/components/src/core/hlc.ts` | Hybrid Logical Clock: `hlcNow()`, `hlcReceive()`, `hlcCompare()`, `parseHLC()`, `formatHLC()` |
+| `packages/components/src/core/hlc.spec.ts` | HLC tests (18 tests — parse/format, monotonicity, clock skew, receive merge, compare, tie-breaking) |
+| `engine/internal/runtime/sync/conflict.go` | Field-level conflict resolution: `ResolveFieldConflicts()`, `ResolveEditVsDelete()`, `RecordConflictsToServer()`, HLC comparison |
+| `engine/internal/runtime/sync/conflict_test.go` | Conflict resolution tests (12 tests — auto-merge, HLC wins, edit-vs-delete, system fields, tie-breaking) |
+| `engine/internal/runtime/sync/inventory.go` | Inventory delta tracking: `ApplyInventoryDelta()`, `DetectInventoryFields()`, `CreateOversellAlertsTable()`, oversell alert recording |
+| `engine/internal/runtime/sync/inventory_test.go` | Inventory tests (8 tests — delta detection, multiple deltas, type coercion, validation) |
 
-| File | Purpose |
-|------|---------|
-| `engine/internal/runtime/sync/conflict.go` | Field-level conflict resolution logic |
-| `engine/internal/runtime/sync/inventory.go` | Inventory delta reconciliation |
-| `packages/components/src/core/hlc.ts` | Hybrid Logical Clock implementation |
+### Planned (Phase 5)
