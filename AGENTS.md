@@ -231,6 +231,42 @@ All 11 locale files must be provided for every module that has user-facing text.
 
 > **Full roadmap with 75 features**: see [`docs/features.md`](docs/features.md)
 
+## Session Handoff
+
+Ketika pekerjaan perlu dilanjutkan di session baru (context terlalu panjang, ganti hari, atau perlu fresh session), gunakan folder `handoffs/` untuk menyimpan konteks handoff.
+
+### Cara Membuat Handoff
+
+1. Buat file di `handoffs/` dengan format nama: `YYYY-MM-DD-<topic>.md`
+   - Contoh: `handoffs/2026-04-28-offline-mode-phase-4.md`
+   - Gunakan tanggal + topik agar unik dan tidak bentrok dengan handoff lain
+
+2. Isi file handoff dengan:
+   - **Apa yang sudah dikerjakan** — summary pekerjaan yang selesai
+   - **Apa yang belum selesai** — task yang tersisa
+   - **Konteks penting** — keputusan desain, gotcha, hal yang perlu diingat
+   - **File yang diubah** — daftar file yang di-touch
+   - **Next steps** — langkah konkret untuk melanjutkan
+
+3. Di session baru, mulai dengan instruksi:
+   ```
+   Lanjutkan pekerjaan dari handoff file: handoffs/2026-04-28-offline-mode-phase-4.md
+   ```
+
+### Aturan
+
+- **Satu file per handoff** — jangan timpa file handoff yang sudah ada
+- **Nama harus unik** — gunakan tanggal + topik spesifik
+- **Jangan hapus handoff lama** — biarkan sebagai history/referensi
+- **Handoff bukan dokumentasi** — ini konteks untuk AI session, bukan docs untuk manusia
+
+```
+handoffs/
+├── 2026-04-28-offline-mode-phase-4.md
+├── 2026-05-01-graphql-subscriptions.md
+└── 2026-05-03-marketplace-mvp.md
+```
+
 ## Testing
 
 ```bash
