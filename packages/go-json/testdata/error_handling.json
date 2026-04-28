@@ -1,0 +1,21 @@
+{
+  "name": "error_handling",
+  "steps": [
+    {"let": "result", "value": "none"},
+    {
+      "try": [
+        {"error": "'something went wrong'"}
+      ],
+      "catch": {
+        "as": "err",
+        "steps": [
+          {"set": "result", "expr": "err.message"}
+        ]
+      },
+      "finally": [
+        {"let": "cleanup", "value": true}
+      ]
+    },
+    {"return": "result"}
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "name": "control_flow",
+  "input": {
+    "score": "int"
+  },
+  "steps": [
+    {"let": "grade", "value": "F"},
+    {
+      "if": "input.score >= 90",
+      "then": [
+        {"set": "grade", "value": "A"}
+      ],
+      "elif": [
+        {
+          "condition": "input.score >= 80",
+          "then": [{"set": "grade", "value": "B"}]
+        },
+        {
+          "condition": "input.score >= 70",
+          "then": [{"set": "grade", "value": "C"}]
+        }
+      ],
+      "else": [
+        {"set": "grade", "value": "F"}
+      ]
+    },
+    {"return": "grade"}
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "name": "loops",
+  "steps": [
+    {"let": "items", "value": [1, 2, 3, 4, 5]},
+    {"let": "total", "value": 0},
+    {
+      "for": "item",
+      "in": "items",
+      "index": "i",
+      "steps": [
+        {"set": "total", "expr": "total + item"}
+      ]
+    },
+    {"let": "range_sum", "value": 0},
+    {
+      "for": "i",
+      "range": [1, 6],
+      "steps": [
+        {"set": "range_sum", "expr": "range_sum + i"}
+      ]
+    },
+    {"let": "count", "value": 1},
+    {
+      "while": "count < 10",
+      "steps": [
+        {"set": "count", "expr": "count * 2"}
+      ]
+    },
+    {"return": "{'total': total, 'range_sum': range_sum, 'count': count}"}
+  ]
+}

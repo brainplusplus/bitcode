@@ -28,6 +28,7 @@ bitcode/
 │   └── plugins/         Plugin runtimes (TypeScript, Python)
 ├── packages/
 │   ├── components/      Stencil Web Components (@bitcode/components, 103 components)
+│   ├── go-json/         go-json — JSON/JSONC programming language engine (standalone Go package)
 │   └── tauri/           Tauri 2.0 native shell (desktop + mobile)
 ├── samples/
 │   └── erp/             Sample ERP application (CRM + HRM)
@@ -37,7 +38,7 @@ bitcode/
 
 ## Conventions
 
-- **Go 1.23+**, standard project layout (`cmd/`, `internal/`, `pkg/`)
+- **Go 1.23+** (engine), **Go 1.24+** (go-json), standard project layout (`cmd/`, `internal/`, `pkg/`)
 - **DDD internally**, flat JSON externally — users never see DDD terms
 - **Convention over configuration** — sensible defaults everywhere
 - **All PK and FK are UUID** (TEXT in SQLite, UUID in Postgres, CHAR(36) in MySQL)
@@ -65,6 +66,19 @@ bitcode/
 - `packages/components/src/global/themes/` — Theme CSS files (dark.css, custom themes).
 - `packages/components/docs/` — Per-component documentation (self-contained for future repo split).
 - `packages/components/src/i18n/` — Translation files (11 languages).
+
+## File Structure Rules (go-json)
+
+- `packages/go-json/lang/` — Core language engine: AST, parser, compiler, VM, scope, types, errors, expr engine, debugger.
+- `packages/go-json/stdlib/` — Layer 2 stdlib functions (math, strings, arrays, types). Layer 1 is expr-lang built-ins (~68 functions, zero work).
+- `packages/go-json/runtime/` — Runtime API: `NewRuntime()`, `Execute()`, program cache, limits, logger, session context.
+- `packages/go-json/cmd/go-json/` — CLI entry point (placeholder for Phase 4.5b+).
+- `packages/go-json/codegen/` — Code generation (reserved for Phase 4.5b+).
+- `packages/go-json/io/` — I/O modules (reserved for Phase 4.5c+).
+- `packages/go-json/testdata/` — Test fixture programs (`.json` and `.jsonc`).
+- **Design doc:** `docs/plans/2026-07-14-runtime-engine-phase-4.5a-go-json-core-language.md`
+- **Implementation plan:** `docs/plans/2026-07-14-runtime-engine-phase-4.5a-go-json-core-language-plan.md`
+- **Tests:** `cd packages/go-json && go test ./... -v`
 
 ## When Making Changes
 
@@ -251,6 +265,11 @@ Ketika pekerjaan perlu dilanjutkan di session baru (context terlalu panjang, gan
 3. Di session baru, mulai dengan instruksi:
    ```
    Lanjutkan pekerjaan dari handoff file: handoffs/2026-04-28-offline-mode-phase-4.md
+
+oia terkadang, ada orang/agent lain yang sedang mengerjakan fitur berbeda, jadi jangan sembarangan untuk meremove atau melakukan hal-hal yang bisa merusak kerjaan orang/agent lain, konfirmasikan terlebih dahulu jika memang butuh hal-hal penting, tapi jika masih scope kamu silahkan lakukan
+
+WAJIB berpikir kritis, detail, mateng, lengkap dan jujur.
+Setelah selesai per phase, update semua docs terkait lalu commit.
    ```
 
 ### Aturan
@@ -271,12 +290,16 @@ handoffs/
 
 ```bash
 cd engine
-go test ./... -v          # All tests
+go test ./... -v          # All engine tests
 go test ./pkg/ddd/        # Specific package
 go test ./... -count=1    # No cache
+
+cd packages/go-json
+go test ./... -v          # All go-json tests
+go test ./lang/ -v        # Language engine tests only
 ```
 
-Current: 570 Go tests + 74 Stencil tests, 0 failures. Build: OK.
+Current: 570 Go engine tests + 75 go-json tests + 74 Stencil tests, 0 failures. Build: OK.
 
 ## Build
 

@@ -20,6 +20,7 @@ bitcode/
 ├── engine/                                     # Go runtime (the core)
 ├── packages/                                   # Shared libraries
 │   ├── components/                             # Stencil Web Components
+│   ├── go-json/                                # go-json — JSON/JSONC programming language engine (Go)
 │   └── tauri/                                  # Tauri native shell (desktop + mobile)
 ├── samples/                                    # Example applications
 │   └── erp/                                    # Full ERP sample
@@ -534,6 +535,67 @@ packages/tauri/
     └── src/
         └── main.rs                             # Entry point — plugin registration, SQLite migrations for _off_* tables
 ```
+
+---
+
+## go-json Language Engine (`packages/go-json/`)
+
+Standalone JSON/JSONC programming language engine. Embeddable in Go applications. Powered by expr-lang/expr for expression evaluation.
+
+**Design doc:** `docs/plans/2026-07-14-runtime-engine-phase-4.5a-go-json-core-language.md`
+**Implementation plan:** `docs/plans/2026-07-14-runtime-engine-phase-4.5a-go-json-core-language-plan.md`
+
+```
+packages/go-json/
+├── go.mod                                      # module github.com/bitcode-framework/go-json (Go 1.24+, expr-lang/expr)
+├── go.sum
+│
+├── lang/                                       # Core language engine
+│   ├── ast.go                                  # AST node types — 15 step types (let, set, if, switch, for, while, break, continue, return, call, try, error, log, comment) + Program, FuncDef
+│   ├── parser.go                               # JSONC/JSON → AST. Handles all step types, overloaded nodes (return/error/log), ordered function params
+│   ├── compiler.go                             # AST → CompiledProgram. Structural validation (break/continue outside loop), limit resolution
+│   ├── vm.go                                   # Tree-walk interpreter. All step types, scope isolation, resource limits, debug hooks, trace
+│   ├── scope.go                                # Variable scoping — block scope (if/for/while), chain lookup, isolated child (functions), ToMap() for expr-lang
+│   ├── types.go                                # Gradual type system — InferType (JSON float64→int detection), TypesCompatible, nullable (?T)
+│   ├── errors.go                               # GoJSONError with enrichment, levenshtein "did you mean?", JSON/Short/Error output, fluent builder
+│   ├── expr_engine.go                          # ExprEngine interface + ExprLangEngine (expr-lang/expr). Compiled expression cache, error enrichment
+│   ├── debugger.go                             # Debugger interface (OnStep/OnVariable/OnError/OnFunctionCall/OnFunctionReturn) + ExecutionTrace
+│   ├── program.go                              # Immutable CompiledProgram, CompiledFunc, ParamDef, ResolvedLimits, DefaultLimits(), HardLimits()
+│   ├── preprocess.go                           # JSONC → JSON: strip // and /* */ comments, trailing commas. String-aware (won't strip inside strings)
+│   ├── preprocess_test.go                      # 18 tests — comments, strings, escaped quotes, trailing commas, edge cases
+│   ├── integration_test.go                     # 35 tests — full pipeline (parse → compile → execute) for all features
+│   └── edge_cases_test.go                      # 22 tests — nil, types, overflow, unicode, malformed JSON, error formatting
+│
+├── stdlib/                                     # Layer 2 stdlib (Layer 1 = expr-lang built-ins, ~68 functions)
+│   ├── registry.go                             # Function registry + DefaultRegistry() with all Layer 2 functions
+│   ├── math.go                                 # 7 functions: clamp, sign, randomInt, randomFloat, pow, sqrt, mod
+│   ├── strings.go                              # 5 functions: padLeft, padRight, substring, format, matches (regex)
+│   ├── arrays.go                               # 5 functions: append, prepend, slice, chunk, zip
+│   └── types.go                                # 2 functions: bool (truthy conversion), isNil
+│
+├── runtime/                                    # Runtime API
+│   ├── runtime.go                              # NewRuntime(opts...), Compile(), Execute(), ExecuteJSON(). Program cache (SHA256 keyed). Concurrent-safe
+│   ├── limits.go                               # Limits struct, DefaultLimits(), HardLimits(), ToResolved()
+│   ├── context.go                              # Session (UserID, Locale, TenantID, Groups) + ExecutionMeta (ID, Program, StartedAt)
+│   └── logger.go                               # Logger interface (Log(level, message, data)) + DefaultLogger (stdout)
+│
+├── cmd/go-json/
+│   └── main.go                                 # CLI placeholder
+│
+├── codegen/                                    # Reserved for Phase 4.5b (struct codegen)
+├── io/                                         # Reserved for Phase 4.5c (I/O modules)
+│
+└── testdata/                                   # Test fixture programs
+    ├── hello.json                              # Minimal program
+    ├── hello.jsonc                              # Same with JSONC comments
+    ├── variables.json                           # let, set, value/expr/with modes
+    ├── control_flow.json                        # if/elif/else, switch
+    ├── loops.json                               # for, while, range, break, continue
+    ├── functions.json                           # Function definition, call, recursion (factorial)
+    └── error_handling.json                      # try/catch/finally, error throw
+```
+
+**75 tests** across 4 packages. `go build ./...` + `go vet ./...` clean.
 
 ---
 

@@ -1,6 +1,6 @@
 # BitCode Platform — Features & Roadmap
 
-**Last Updated**: 01 May 2026
+**Last Updated**: 14 July 2026
 **Benchmark**: Frappe/ERPNext, Odoo, NocoBase
 **Engine Version**: 0.1.0
 
@@ -10,11 +10,11 @@
 
 | Metric | Count |
 |--------|-------|
-| Total Features Tracked | 75 |
-| ✅ Implemented | 47 |
+| Total Features Tracked | 76 |
+| ✅ Implemented | 48 |
 | ⚠️ Partial | 3 |
 | ❌ Not Yet | 25 |
-| **Completion** | **62.7%** (effective ~64.7% counting partials as 0.5) |
+| **Completion** | **63.2%** (effective ~65.1% counting partials as 0.5) |
 
 ### Per-Category Summary
 
@@ -128,6 +128,7 @@ Before the gap list — what's already **production-solid**:
 | 27 | Assignment Rules | ❌ | M | — | No auto-assignment based on rules. Need assignment rule JSON definition + evaluator on record create/update. |
 | 28 | Webhook | ❌ | M | Process engine has `http` step for outbound calls, but not a configurable webhook system. | Need webhook definition (URL, events, headers) + dispatcher listening to event bus. |
 | 29 | Server Script / Business Logic | ✅ | — | Plugin system (TS + Python) via JSON-RPC. Process `script` step. Documented in `docs/features/plugins.md`. | — |
+| 76 | go-json Core Language Engine | ✅ | — | Standalone JSON/JSONC programming language engine (`packages/go-json/`). 15 step types (let, set, if/elif/else, switch, for, while, break, continue, return, call, try/catch/finally, error, log, comment). Gradual type system (infer + strict-after-assignment + nullable + any). Function system with scope isolation and recursion. expr-lang/expr for expression evaluation (~68 built-in functions). Layer 2 stdlib (19 functions: math, strings, arrays, types). Resource limits (steps, depth, iterations, timeout). Debugger interface + execution trace. Compile-once-run-many with program cache. 75 tests. Design doc: `docs/plans/2026-07-14-runtime-engine-phase-4.5a-go-json-core-language.md`. | Phase 4.5b (structs, imports, modules) and Phase 4.5c (I/O integration with BitCode engine) not yet implemented. |
 
 ---
 
@@ -290,6 +291,14 @@ The gap between "JSON-code" and true "low-code":
 - [ ] **#34** Print Format / PDF — print template JSON + PDF renderer (wkhtmltopdf/chromedp/gotenberg)
 - [ ] **#38** Report Builder — report JSON definition (columns, filters, group_by, aggregations) + renderer
 - [ ] **#47** Data Import / Export Wizard — upload → map columns → validate → insert
+
+### Phase 4.5 — Runtime Engine Redesign (go-json)
+
+JSON/JSONC programming language engine replacing process engine scripting:
+
+- [x] **#76** go-json Core Language (Phase 4.5a) — standalone `packages/go-json/` with 15 step types, gradual types, functions, stdlib, resource limits, debugger, 75 tests
+- [ ] **Phase 4.5b** go-json Modularity — structs, imports, module system, codegen
+- [ ] **Phase 4.5c** go-json I/O Integration — I/O modules, BitCode engine integration, process engine routing
 
 ### Phase 4 — Enterprise Features (8–12 weeks, effort L–XL)
 

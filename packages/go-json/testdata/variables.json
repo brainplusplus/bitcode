@@ -1,0 +1,20 @@
+{
+  "name": "variables",
+  "steps": [
+    {"let": "name", "value": "Alice"},
+    {"let": "age", "value": 30},
+    {"let": "scores", "value": [90, 85, 92]},
+    {"let": "active", "value": true},
+    {"let": "config", "value": {"key": "value"}},
+    {"let": "greeting", "expr": "'Hello ' + name"},
+    {"let": "next_age", "expr": "age + 1"},
+    {"let": "profile", "with": {
+      "name": "name",
+      "age": "age",
+      "is_adult": "age >= 18"
+    }},
+    {"set": "age", "value": 31},
+    {"set": "name", "expr": "'Bob'"},
+    {"return": "profile"}
+  ]
+}

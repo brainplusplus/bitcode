@@ -11,6 +11,7 @@ bitcode/
 ├── engine/              Go runtime — reads JSON, runs the app
 ├── packages/
 │   ├── components/      Stencil Web Components (@bitcode/components)
+│   ├── go-json/         go-json — JSON/JSONC programming language engine
 │   └── tauri/           Tauri native shell (desktop + mobile)
 ├── samples/
 │   └── erp/             Sample ERP application (CRM + HRM)
@@ -236,6 +237,7 @@ docker-compose up -d
 - **Workflow engine** — State machines with permission-gated transitions
 - **Process engine** — 14 step types (validate, query, create, update, delete, if, switch, loop, emit, call, script, http, assign, log)
 - **Plugin system** — TypeScript + Python via JSON-RPC, gRPC proto defined
+- **go-json engine** — Standalone JSON/JSONC programming language (`packages/go-json/`). 15 step types, gradual type system, functions with recursion, expr-lang/expr for expressions (~68 built-in + 19 stdlib functions), resource limits, debugger interface, compile-once-run-many
 - **Template engine** — Go html/template with helpers and partials
 - **File storage** — Local + S3 with attachments table, thumbnails, versioning, path formatting
 - **View system** — List, form, kanban, calendar, chart, custom views (SSR)
@@ -296,6 +298,7 @@ docker-compose up -d
 | Layer | Technology |
 |-------|------------|
 | Runtime | Go 1.23+, Fiber v2, GORM |
+| go-json Engine | Go 1.24+, expr-lang/expr (JSON/JSONC programming language) |
 | Database | SQLite / PostgreSQL / MySQL |
 | Cache | In-memory / Redis |
 | Config | Viper (env + TOML/YAML) |

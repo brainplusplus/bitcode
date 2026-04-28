@@ -1,0 +1,31 @@
+{
+  "name": "functions",
+  "functions": {
+    "add": {
+      "params": {
+        "a": "int",
+        "b": "int"
+      },
+      "returns": "int",
+      "steps": [
+        {"return": "a + b"}
+      ]
+    },
+    "factorial": {
+      "params": {
+        "n": "int"
+      },
+      "returns": "int",
+      "steps": [
+        {"if": "n <= 1", "then": [{"return": 1}]},
+        {"let": "sub", "call": "factorial", "with": {"n": "n - 1"}},
+        {"return": "n * sub"}
+      ]
+    }
+  },
+  "steps": [
+    {"let": "sum", "call": "add", "with": {"a": "3", "b": "4"}},
+    {"let": "fact", "call": "factorial", "with": {"n": "5"}},
+    {"return": "{'sum': sum, 'fact': fact}"}
+  ]
+}

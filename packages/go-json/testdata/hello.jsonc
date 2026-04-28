@@ -1,0 +1,9 @@
+{
+  // This is a hello world program
+  "name": "hello_jsonc",
+  "go_json": "1",
+  "steps": [
+    {"_c": "Declare greeting variable", "let": "greeting", "value": "Hello, World!"},
+    {"return": "greeting"}, // return the greeting
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "name": "hello",
+  "go_json": "1",
+  "steps": [
+    {"let": "greeting", "value": "Hello, World!"},
+    {"return": "greeting"}
+  ]
+}
