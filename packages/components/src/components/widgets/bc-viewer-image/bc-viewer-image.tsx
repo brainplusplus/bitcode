@@ -1,4 +1,5 @@
 import { Component, Prop, State, Method, h } from '@stencil/core';
+import { BcSetup } from '../../../core/bc-setup';
 
 @Component({
   tag: 'bc-viewer-image',
@@ -6,16 +7,35 @@ import { Component, Prop, State, Method, h } from '@stencil/core';
   shadow: false,
 })
 export class BcViewerImage {
-  @Prop() src: string = '';
+  @Prop({ mutable: true }) src: string = '';
   @Prop() alt: string = '';
   @Prop() width: string = '100%';
   @Prop() height: string = 'auto';
   @Prop() zoomable: boolean = true;
   @Prop() lightbox: boolean = true;
   @Prop() download: boolean = false;
+  @Prop({ mutable: true }) loading: boolean = false;
+  @Prop() dataSource: string = '';
+  @Prop() srcField: string = 'url';
 
   @State() showLightbox: boolean = false;
   @State() loadError: boolean = false;
+
+  componentDidLoad() { if (this.dataSource && !this.src) this._fetchSrc(); }
+
+  private async _fetchSrc() {
+    this.loading = true;
+    try {
+      const baseUrl = BcSetup.getBaseUrl();
+      const url = this.dataSource.startsWith('http') ? this.dataSource : baseUrl + this.dataSource;
+      const res = await fetch(url, { headers: BcSetup.getHeaders() });
+      const json = await res.json();
+      this.src = String(json[this.srcField] || json.src || json.url || json.file_url || '');
+    } catch { this.loadError = true; }
+    this.loading = false;
+  }
+
+  @Method() async refresh(): Promise<void> { if (this.dataSource) await this._fetchSrc(); }
 
   private handleClick() {
     if (this.lightbox && !this.loadError) {
@@ -39,9 +59,7 @@ export class BcViewerImage {
     a.download = this.src.split('/').pop() || 'image';
     a.target = '_blank';
     a.click();
-  }  @Prop() loading: boolean = false;
-
-  @Method() async refresh(): Promise<void> { }
+  }
 
   render() {
     if (!this.src) {

@@ -1,4 +1,5 @@
 import { Component, Prop, State, Watch, Element, Method, h } from '@stencil/core';
+import { BcSetup } from '../../../core/bc-setup';
 
 @Component({
   tag: 'bc-viewer-tiktok',
@@ -6,8 +7,11 @@ import { Component, Prop, State, Watch, Element, Method, h } from '@stencil/core
   shadow: false,
 })
 export class BcViewerTiktok {
-  @Prop() src: string = '';
+  @Prop({ mutable: true }) src: string = '';
   @Prop() width: string = '325px';
+  @Prop({ mutable: true }) loading: boolean = false;
+  @Prop() dataSource: string = '';
+  @Prop() srcField: string = 'url';
 
   @State() videoId: string = '';
   @State() videoUrl: string = '';
@@ -26,7 +30,8 @@ export class BcViewerTiktok {
   }
 
   componentDidLoad() {
-    this.loadEmbed();
+    if (this.dataSource && !this.src) { this._fetchSrc().then(() => this.loadEmbed()); }
+    else { this.loadEmbed(); }
   }
 
   private parseSource() {
@@ -86,9 +91,10 @@ export class BcViewerTiktok {
       this.embedFailed = true;
     };
     document.body.appendChild(script);
-  }  @Prop() loading: boolean = false;
+}
 
-  @Method() async refresh(): Promise<void> { }
+  private async _fetchSrc() { this.loading = true; try { const baseUrl = BcSetup.getBaseUrl(); const url = this.dataSource.startsWith('http') ? this.dataSource : baseUrl + this.dataSource; const res = await fetch(url, { headers: BcSetup.getHeaders() }); const json = await res.json(); this.src = String(json[this.srcField] || json.src || json.url || ''); } catch { this.embedFailed = true; } this.loading = false; }
+  @Method() async refresh(): Promise<void> { if (this.dataSource) await this._fetchSrc(); }
 
   render() {
     if (!this.src) {

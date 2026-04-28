@@ -1,4 +1,5 @@
 import { Component, Prop, State, Method, h } from '@stencil/core';
+import { BcSetup } from '../../../core/bc-setup';
 
 @Component({
   tag: 'bc-viewer-document',
@@ -6,12 +7,19 @@ import { Component, Prop, State, Method, h } from '@stencil/core';
   shadow: false,
 })
 export class BcViewerDocument {
-  @Prop() src: string = '';
+  @Prop({ mutable: true }) src: string = '';
   @Prop() height: string = '600px';
   @Prop() provider: 'microsoft' | 'google' = 'microsoft';
   @Prop() download: boolean = true;
+  @Prop({ mutable: true }) loading: boolean = false;
+  @Prop() dataSource: string = '';
+  @Prop() srcField: string = 'url';
 
   @State() loadError: boolean = false;
+
+  componentDidLoad() { if (this.dataSource && !this.src) this._fetchSrc(); }
+  private async _fetchSrc() { this.loading = true; try { const baseUrl = BcSetup.getBaseUrl(); const url = this.dataSource.startsWith('http') ? this.dataSource : baseUrl + this.dataSource; const res = await fetch(url, { headers: BcSetup.getHeaders() }); const json = await res.json(); this.src = String(json[this.srcField] || json.src || json.url || json.file_url || ''); } catch { this.loadError = true; } this.loading = false; }
+  @Method() async refresh(): Promise<void> { if (this.dataSource) await this._fetchSrc(); }
 
   private getEmbedUrl(): string {
     if (!this.src) return '';
@@ -55,9 +63,7 @@ export class BcViewerDocument {
     a.download = this.src.split('/').pop() || 'document';
     a.target = '_blank';
     a.click();
-  }  @Prop() loading: boolean = false;
-
-  @Method() async refresh(): Promise<void> { }
+  }
 
   render() {
     if (!this.src) {
@@ -123,5 +129,6 @@ export class BcViewerDocument {
     );
   }
 }
+
 
 

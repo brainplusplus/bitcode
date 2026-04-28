@@ -1,4 +1,5 @@
 import { Component, Prop, State, Method, h } from '@stencil/core';
+import { BcSetup } from '../../../core/bc-setup';
 
 @Component({
   tag: 'bc-viewer-audio',
@@ -6,12 +7,15 @@ import { Component, Prop, State, Method, h } from '@stencil/core';
   shadow: false,
 })
 export class BcViewerAudio {
-  @Prop() src: string = '';
+  @Prop({ mutable: true }) src: string = '';
   @Prop() type: string = '';
   @Prop() controls: boolean = true;
   @Prop() autoplay: boolean = false;
   @Prop() loop: boolean = false;
   @Prop() download: boolean = true;
+  @Prop({ mutable: true }) loading: boolean = false;
+  @Prop() dataSource: string = '';
+  @Prop() srcField: string = 'url';
 
   @State() isPlaying: boolean = false;
   @State() currentTime: number = 0;
@@ -104,9 +108,11 @@ export class BcViewerAudio {
     if (!this.src) return '';
     const name = this.src.split('/').pop()?.split('?')[0] || '';
     return decodeURIComponent(name);
-  }  @Prop() loading: boolean = false;
+  }
 
-  @Method() async refresh(): Promise<void> { }
+  componentDidLoad() { if (this.dataSource && !this.src) this._fetchSrc(); }
+  private async _fetchSrc() { this.loading = true; try { const baseUrl = BcSetup.getBaseUrl(); const url = this.dataSource.startsWith('http') ? this.dataSource : baseUrl + this.dataSource; const res = await fetch(url, { headers: BcSetup.getHeaders() }); const json = await res.json(); this.src = String(json[this.srcField] || json.src || json.url || ''); } catch { this.loadError = true; } this.loading = false; }
+  @Method() async refresh(): Promise<void> { if (this.dataSource) await this._fetchSrc(); }
 
   render() {
     if (!this.src) {
@@ -207,5 +213,6 @@ export class BcViewerAudio {
     );
   }
 }
+
 
 
