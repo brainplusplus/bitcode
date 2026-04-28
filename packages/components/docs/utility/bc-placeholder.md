@@ -1,16 +1,18 @@
 # bc-placeholder
 
-All components use shadow: false for easy theming.
+> Placeholder text display
+
+## Quick Start
+
+```html
+<bc-placeholder></bc-placeholder>
+```
 
 ## Props
 
-See source: src/components/.../bc-placeholder/bc-placeholder.tsx
-
-## Methods
-
-| Method | Returns |
-|--------|---------|
-| refresh() | Promise<void> |
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| text | string | '' | Placeholder text |
 
 See [theming](../theming.md).
 

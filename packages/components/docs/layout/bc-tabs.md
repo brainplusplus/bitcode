@@ -1,16 +1,25 @@
 # bc-tabs
 
-All components use shadow: false for easy theming.
+> Tab container with tab navigation
+
+## Quick Start
+
+```html
+<bc-tabs></bc-tabs>
+```
 
 ## Props
 
-See source: src/components/.../bc-tabs/bc-tabs.tsx
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+(none — tabs are defined by child bc-tab elements)
 
 ## Methods
 
-| Method | Returns |
-|--------|---------|
-| refresh() | Promise<void> |
+| Method | Returns | Description |
+|--------|---------|-------------|
+| selectTab(index) | Promise<void> | Switch to tab by index |
+| getActiveIndex() | Promise<number> | Get active tab index |
 
 See [theming](../theming.md).
 

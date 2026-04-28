@@ -1,16 +1,18 @@
 # bc-button-box
 
-All components use shadow: false for easy theming.
+> Smart button group with counts
+
+## Quick Start
+
+```html
+<bc-button-box></bc-button-box>
+```
 
 ## Props
 
-See source: src/components/.../bc-button-box/bc-button-box.tsx
-
-## Methods
-
-| Method | Returns |
-|--------|---------|
-| refresh() | Promise<void> |
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| buttons | string (JSON) | '[]' | Array of {label, icon, count, view} |
 
 See [theming](../theming.md).
 

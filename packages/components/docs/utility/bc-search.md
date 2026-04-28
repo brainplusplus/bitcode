@@ -1,16 +1,26 @@
 # bc-search
 
-All components use shadow: false for easy theming.
+> Search input with model-based autocomplete
+
+## Quick Start
+
+```html
+<bc-search></bc-search>
+```
 
 ## Props
 
-See source: src/components/.../bc-search/bc-search.tsx
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| value | string | '' | Search query |
+| placeholder | string | '' | Placeholder |
+| model | string | '' | Model for autocomplete |
 
-## Methods
+## Events
 
-| Method | Returns |
-|--------|---------|
-| refresh() | Promise<void> |
+| Event | Payload | Description |
+|-------|---------|-------------|
+| lcSearch | {query} | Search triggered |
 
 See [theming](../theming.md).
 

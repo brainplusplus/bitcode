@@ -1,16 +1,28 @@
 # bc-child-table
 
-All components use shadow: false for easy theming.
+> Inline editable child table (one2many)
+
+## Quick Start
+
+```html
+<bc-child-table></bc-child-table>
+```
 
 ## Props
 
-See source: src/components/.../bc-child-table/bc-child-table.tsx
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| field | string | '' | Field name |
+| columns | string (JSON) | '[]' | Column definitions |
+| data | string (JSON) | '[]' | Table data |
+| summary | string (JSON) | '{}' | Summary config |
+| readonly | boolean | false | Read-only mode |
 
-## Methods
+## Events
 
-| Method | Returns |
-|--------|---------|
-| refresh() | Promise<void> |
+| Event | Payload | Description |
+|-------|---------|-------------|
+| lcFieldChange | {name, value, oldValue} | Data changed |
 
 See [theming](../theming.md).
 

@@ -1,16 +1,18 @@
 # bc-sheet
 
-All components use shadow: false for easy theming.
+> Card-like container with padding and shadow
+
+## Quick Start
+
+```html
+<bc-sheet></bc-sheet>
+```
 
 ## Props
 
-See source: src/components/.../bc-sheet/bc-sheet.tsx
-
-## Methods
-
-| Method | Returns |
-|--------|---------|
-| refresh() | Promise<void> |
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+(none)
 
 See [theming](../theming.md).
 

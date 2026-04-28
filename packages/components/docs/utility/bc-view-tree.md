@@ -1,16 +1,28 @@
 # bc-view-tree
 
-All components use shadow: false for easy theming.
+> Tree/hierarchy view
+
+## Quick Start
+
+```html
+<bc-view-tree></bc-view-tree>
+```
 
 ## Props
 
-See source: src/components/.../bc-view-tree/bc-view-tree.tsx
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| model | string | '' | Model name |
+| view-title | string | '' | Title |
+| fields | string (JSON) | '[]' | Fields |
+| config | string (JSON) | '{}' | Config |
+| parent-field | string | 'parent_id' | Parent field name |
 
 ## Methods
 
-| Method | Returns |
-|--------|---------|
-| refresh() | Promise<void> |
+| Method | Returns | Description |
+|--------|---------|-------------|
+| refresh() | Promise<void> | Reload |
 
 See [theming](../theming.md).
 

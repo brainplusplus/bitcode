@@ -1,16 +1,19 @@
 # bc-export
 
-All components use shadow: false for easy theming.
+> Export link button
+
+## Quick Start
+
+```html
+<bc-export></bc-export>
+```
 
 ## Props
 
-See source: src/components/.../bc-export/bc-export.tsx
-
-## Methods
-
-| Method | Returns |
-|--------|---------|
-| refresh() | Promise<void> |
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| label | string | 'Export' | Button label |
+| href | string | '' | Export URL |
 
 See [theming](../theming.md).
 

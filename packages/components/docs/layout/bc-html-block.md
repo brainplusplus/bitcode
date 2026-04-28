@@ -1,16 +1,18 @@
 # bc-html-block
 
-All components use shadow: false for easy theming.
+> Raw HTML content block
+
+## Quick Start
+
+```html
+<bc-html-block></bc-html-block>
+```
 
 ## Props
 
-See source: src/components/.../bc-html-block/bc-html-block.tsx
-
-## Methods
-
-| Method | Returns |
-|--------|---------|
-| refresh() | Promise<void> |
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| content | string | '' | HTML content (rendered via innerHTML) |
 
 See [theming](../theming.md).
 

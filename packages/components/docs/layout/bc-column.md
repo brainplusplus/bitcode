@@ -1,16 +1,18 @@
 # bc-column
 
-All components use shadow: false for easy theming.
+> Grid column with 12-column width system
+
+## Quick Start
+
+```html
+<bc-column></bc-column>
+```
 
 ## Props
 
-See source: src/components/.../bc-column/bc-column.tsx
-
-## Methods
-
-| Method | Returns |
-|--------|---------|
-| refresh() | Promise<void> |
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| width | number | 12 | Column width (1-12) |
 
 See [theming](../theming.md).
 

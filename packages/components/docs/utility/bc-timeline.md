@@ -1,16 +1,19 @@
 # bc-timeline
 
-All components use shadow: false for easy theming.
+> Activity timeline display
+
+## Quick Start
+
+```html
+<bc-timeline></bc-timeline>
+```
 
 ## Props
 
-See source: src/components/.../bc-timeline/bc-timeline.tsx
-
-## Methods
-
-| Method | Returns |
-|--------|---------|
-| refresh() | Promise<void> |
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| record-id | string | '' | Record ID |
+| model | string | '' | Model name |
 
 See [theming](../theming.md).
 

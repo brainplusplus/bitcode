@@ -1,16 +1,25 @@
 # bc-widget-url
 
-All components use shadow: false for easy theming.
+> URL display with clickable link
+
+## Quick Start
+
+```html
+<bc-widget-url></bc-widget-url>
+```
 
 ## Props
 
-See source: src/components/.../bc-widget-url/bc-widget-url.tsx
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| value | string | '' | URL |
 
 ## Methods
 
-| Method | Returns |
-|--------|---------|
-| refresh() | Promise<void> |
+| Method | Returns | Description |
+|--------|---------|-------------|
+| setValue(value) | Promise<void> | Set URL |
+| getValue() | Promise<string> | Get URL |
 
 See [theming](../theming.md).
 

@@ -1,16 +1,33 @@
 # bc-view-list
 
-All components use shadow: false for easy theming.
+> List view with pagination and row selection
+
+## Quick Start
+
+```html
+<bc-view-list></bc-view-list>
+```
 
 ## Props
 
-See source: src/components/.../bc-view-list/bc-view-list.tsx
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| model | string | '' | Model name |
+| view-title | string | '' | List title |
+| fields | string (JSON) | '[]' | Field definitions |
+| config | string (JSON) | '{}' | View config |
+
+## Events
+
+| Event | Payload | Description |
+|-------|---------|-------------|
+| lcRowSelect | {ids} | Rows selected |
 
 ## Methods
 
-| Method | Returns |
-|--------|---------|
-| refresh() | Promise<void> |
+| Method | Returns | Description |
+|--------|---------|-------------|
+| refresh() | Promise<void> | Reload list |
 
 See [theming](../theming.md).
 

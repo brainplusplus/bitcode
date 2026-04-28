@@ -1,16 +1,26 @@
 # bc-widget-priority
 
-All components use shadow: false for easy theming.
+> Priority stars (clickable)
+
+## Quick Start
+
+```html
+<bc-widget-priority></bc-widget-priority>
+```
 
 ## Props
 
-See source: src/components/.../bc-widget-priority/bc-widget-priority.tsx
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| value | number | 0 | Priority level |
+| max | number | 3 | Max priority |
+| disabled | boolean | false | Disable interaction |
 
-## Methods
+## Events
 
-| Method | Returns |
-|--------|---------|
-| refresh() | Promise<void> |
+| Event | Payload | Description |
+|-------|---------|-------------|
+| lcFieldChange | {name, value, oldValue} | Priority changed |
 
 See [theming](../theming.md).
 

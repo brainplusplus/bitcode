@@ -1,16 +1,25 @@
 # bc-widget-email
 
-All components use shadow: false for easy theming.
+> Email display with mailto: link
+
+## Quick Start
+
+```html
+<bc-widget-email></bc-widget-email>
+```
 
 ## Props
 
-See source: src/components/.../bc-widget-email/bc-widget-email.tsx
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| value | string | '' | Email address |
 
 ## Methods
 
-| Method | Returns |
-|--------|---------|
-| refresh() | Promise<void> |
+| Method | Returns | Description |
+|--------|---------|-------------|
+| setValue(value) | Promise<void> | Set email |
+| getValue() | Promise<string> | Get email |
 
 See [theming](../theming.md).
 

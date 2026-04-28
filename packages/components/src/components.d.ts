@@ -4409,6 +4409,10 @@ export namespace Components {
     }
     interface BcViewerPdf {
         /**
+          * @default ''
+         */
+        "dataSource": string;
+        /**
           * @default true
          */
         "download": boolean;
@@ -4425,6 +4429,10 @@ export namespace Components {
           * @default ''
          */
         "src": string;
+        /**
+          * @default 'url'
+         */
+        "srcField": string;
         /**
           * @default true
          */
@@ -10655,6 +10663,10 @@ declare namespace LocalJSX {
     }
     interface BcViewerPdf {
         /**
+          * @default ''
+         */
+        "dataSource"?: string;
+        /**
           * @default true
          */
         "download"?: boolean;
@@ -10670,6 +10682,10 @@ declare namespace LocalJSX {
           * @default ''
          */
         "src"?: string;
+        /**
+          * @default 'url'
+         */
+        "srcField"?: string;
         /**
           * @default true
          */
@@ -11965,6 +11981,8 @@ declare namespace LocalJSX {
         "toolbar": boolean;
         "download": boolean;
         "loading": boolean;
+        "dataSource": string;
+        "srcField": string;
     }
     interface BcViewerTiktokAttributes {
         "src": string;

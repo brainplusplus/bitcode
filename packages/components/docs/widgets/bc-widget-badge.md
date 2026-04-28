@@ -1,16 +1,26 @@
 # bc-widget-badge
 
-All components use shadow: false for easy theming.
+> Status badge with color variant
+
+## Quick Start
+
+```html
+<bc-widget-badge></bc-widget-badge>
+```
 
 ## Props
 
-See source: src/components/.../bc-widget-badge/bc-widget-badge.tsx
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| value | string | '' | Badge text |
+| variant | string | 'default' | Color variant (success, warning, danger, info, secondary) |
 
 ## Methods
 
-| Method | Returns |
-|--------|---------|
-| refresh() | Promise<void> |
+| Method | Returns | Description |
+|--------|---------|-------------|
+| setValue(value) | Promise<void> | Set badge text |
+| getValue() | Promise<string> | Get badge text |
 
 See [theming](../theming.md).
 

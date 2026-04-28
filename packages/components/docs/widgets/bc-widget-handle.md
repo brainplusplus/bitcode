@@ -1,16 +1,18 @@
 # bc-widget-handle
 
-All components use shadow: false for easy theming.
+> Drag handle icon for sortable rows
+
+## Quick Start
+
+```html
+<bc-widget-handle></bc-widget-handle>
+```
 
 ## Props
 
-See source: src/components/.../bc-widget-handle/bc-widget-handle.tsx
-
-## Methods
-
-| Method | Returns |
-|--------|---------|
-| refresh() | Promise<void> |
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+(none)
 
 See [theming](../theming.md).
 

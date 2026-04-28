@@ -1,16 +1,25 @@
 # bc-widget-phone
 
-All components use shadow: false for easy theming.
+> Phone number display with tel: link
+
+## Quick Start
+
+```html
+<bc-widget-phone></bc-widget-phone>
+```
 
 ## Props
 
-See source: src/components/.../bc-widget-phone/bc-widget-phone.tsx
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| value | string | '' | Phone number |
 
 ## Methods
 
-| Method | Returns |
-|--------|---------|
-| refresh() | Promise<void> |
+| Method | Returns | Description |
+|--------|---------|-------------|
+| setValue(value) | Promise<void> | Set number |
+| getValue() | Promise<string> | Get number |
 
 See [theming](../theming.md).
 

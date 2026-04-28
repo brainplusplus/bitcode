@@ -1,16 +1,25 @@
 # bc-widget-copy
 
-All components use shadow: false for easy theming.
+> Copy-to-clipboard button
+
+## Quick Start
+
+```html
+<bc-widget-copy></bc-widget-copy>
+```
 
 ## Props
 
-See source: src/components/.../bc-widget-copy/bc-widget-copy.tsx
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| value | string | '' | Text to copy |
 
 ## Methods
 
-| Method | Returns |
-|--------|---------|
-| refresh() | Promise<void> |
+| Method | Returns | Description |
+|--------|---------|-------------|
+| setValue(value) | Promise<void> | Set text |
+| getValue() | Promise<string> | Get text |
 
 See [theming](../theming.md).
 

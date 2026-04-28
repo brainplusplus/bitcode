@@ -1,16 +1,27 @@
 # bc-filter-builder
 
-All components use shadow: false for easy theming.
+> Advanced filter builder with conditions and groups
+
+## Quick Start
+
+```html
+<bc-filter-builder></bc-filter-builder>
+```
 
 ## Props
 
-See source: src/components/.../bc-filter-builder/bc-filter-builder.tsx
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| fields | string (JSON) | '[]' | Available fields |
+| operators | string (JSON) | '[...]' | Available operators |
+| value | string | '' | Current filter JSON |
+| show-json-toggle | boolean | false | Show JSON view |
 
-## Methods
+## Events
 
-| Method | Returns |
-|--------|---------|
-| refresh() | Promise<void> |
+| Event | Payload | Description |
+|-------|---------|-------------|
+| lcFilterChange | {filter} | Filter changed |
 
 See [theming](../theming.md).
 

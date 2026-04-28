@@ -1,21 +1,21 @@
-# bc-view-report
+# bc-viewer-instagram
 
-> Report view with aggregations
+> Instagram post embed
 
 ## Quick Start
 
 ```html
-<bc-view-report></bc-view-report>
+<bc-viewer-instagram></bc-viewer-instagram>
 ```
 
 ## Props
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| model | string | '' | Model name |
-| view-title | string | '' | Title |
-| fields | string (JSON) | '[]' | Fields |
-| config | string (JSON) | '{}' | Config |
+| src | string | '' | Instagram post URL |
+| width | string | '400px' | Width |
+| captioned | boolean | true | Show caption |
+| loading | boolean | false | Loading state |
 
 ## Methods
 

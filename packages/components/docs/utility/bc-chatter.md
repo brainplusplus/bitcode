@@ -1,16 +1,25 @@
 # bc-chatter
 
-All components use shadow: false for easy theming.
+> Comment/message thread
+
+## Quick Start
+
+```html
+<bc-chatter></bc-chatter>
+```
 
 ## Props
 
-See source: src/components/.../bc-chatter/bc-chatter.tsx
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| record-id | string | '' | Record ID |
+| model | string | '' | Model name |
 
-## Methods
+## Events
 
-| Method | Returns |
-|--------|---------|
-| refresh() | Promise<void> |
+| Event | Payload | Description |
+|-------|---------|-------------|
+| lcChatterSend | {message} | Message sent |
 
 See [theming](../theming.md).
 

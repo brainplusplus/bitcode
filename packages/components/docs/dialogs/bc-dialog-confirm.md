@@ -1,16 +1,33 @@
 # bc-dialog-confirm
 
-All components use shadow: false for easy theming.
+> Confirmation dialog with overlay
+
+## Quick Start
+
+```html
+<bc-dialog-confirm></bc-dialog-confirm>
+```
 
 ## Props
 
-See source: src/components/.../bc-dialog-confirm/bc-dialog-confirm.tsx
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| open | boolean | false | Open state |
+| dialog-title | string | '' | Dialog title |
+| size | string | 'sm' | Dialog size (sm, md, lg) |
+
+## Events
+
+| Event | Payload | Description |
+|-------|---------|-------------|
+| lcDialogClose | {type} | Dialog closed |
 
 ## Methods
 
-| Method | Returns |
-|--------|---------|
-| refresh() | Promise<void> |
+| Method | Returns | Description |
+|--------|---------|-------------|
+| openDialog() | Promise<void> | Open |
+| closeDialog() | Promise<void> | Close |
 
 See [theming](../theming.md).
 

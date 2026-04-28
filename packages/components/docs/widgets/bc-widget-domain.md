@@ -1,16 +1,25 @@
 # bc-widget-domain
 
-All components use shadow: false for easy theming.
+> Domain filter expression display
+
+## Quick Start
+
+```html
+<bc-widget-domain></bc-widget-domain>
+```
 
 ## Props
 
-See source: src/components/.../bc-widget-domain/bc-widget-domain.tsx
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| value | string | '' | Domain expression |
 
 ## Methods
 
-| Method | Returns |
-|--------|---------|
-| refresh() | Promise<void> |
+| Method | Returns | Description |
+|--------|---------|-------------|
+| setValue(value) | Promise<void> | Set domain |
+| getValue() | Promise<string> | Get domain |
 
 See [theming](../theming.md).
 

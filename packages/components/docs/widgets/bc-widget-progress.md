@@ -1,16 +1,27 @@
 # bc-widget-progress
 
-All components use shadow: false for easy theming.
+> Progress bar with percentage
+
+## Quick Start
+
+```html
+<bc-widget-progress></bc-widget-progress>
+```
 
 ## Props
 
-See source: src/components/.../bc-widget-progress/bc-widget-progress.tsx
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| value | number | 0 | Current value |
+| max | number | 100 | Maximum value |
+| variant | string | 'primary' | Color variant |
 
 ## Methods
 
-| Method | Returns |
-|--------|---------|
-| refresh() | Promise<void> |
+| Method | Returns | Description |
+|--------|---------|-------------|
+| setValue(value) | Promise<void> | Set value |
+| getValue() | Promise<number> | Get value |
 
 See [theming](../theming.md).
 

@@ -1,16 +1,27 @@
 # bc-view-gantt
 
-All components use shadow: false for easy theming.
+> Gantt chart view
+
+## Quick Start
+
+```html
+<bc-view-gantt></bc-view-gantt>
+```
 
 ## Props
 
-See source: src/components/.../bc-view-gantt/bc-view-gantt.tsx
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| model | string | '' | Model name |
+| view-title | string | '' | Title |
+| fields | string (JSON) | '[]' | Fields |
+| config | string (JSON) | '{}' | Config |
 
 ## Methods
 
-| Method | Returns |
-|--------|---------|
-| refresh() | Promise<void> |
+| Method | Returns | Description |
+|--------|---------|-------------|
+| refresh() | Promise<void> | Reload |
 
 See [theming](../theming.md).
 

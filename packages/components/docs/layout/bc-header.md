@@ -1,16 +1,27 @@
 # bc-header
 
-All components use shadow: false for easy theming.
+> Page header with action buttons and status bar
+
+## Quick Start
+
+```html
+<bc-header></bc-header>
+```
 
 ## Props
 
-See source: src/components/.../bc-header/bc-header.tsx
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| buttons | string (JSON) | '[]' | Array of {label, process, variant} |
+| status-field | string | '' | Status field name |
+| status-value | string | '' | Current status |
+| states | string (JSON) | '[]' | Array of state names |
 
-## Methods
+## Events
 
-| Method | Returns |
-|--------|---------|
-| refresh() | Promise<void> |
+| Event | Payload | Description |
+|-------|---------|-------------|
+| lcActionClick | {process} | Button clicked |
 
 See [theming](../theming.md).
 

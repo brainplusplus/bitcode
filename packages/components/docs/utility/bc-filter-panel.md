@@ -1,16 +1,27 @@
 # bc-filter-panel
 
-All components use shadow: false for easy theming.
+> Category-based filter panel
+
+## Quick Start
+
+```html
+<bc-filter-panel></bc-filter-panel>
+```
 
 ## Props
 
-See source: src/components/.../bc-filter-panel/bc-filter-panel.tsx
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| value | string | '{}' | Current filters |
+| categories | string (JSON) | '[]' | Filter categories |
+| placeholder | string | 'Search...' | Placeholder |
 
-## Methods
+## Events
 
-| Method | Returns |
-|--------|---------|
-| refresh() | Promise<void> |
+| Event | Payload | Description |
+|-------|---------|-------------|
+| lcFilterChange | {filters} | Filter changed |
+| lcSearch | {query} | Search |
 
 See [theming](../theming.md).
 

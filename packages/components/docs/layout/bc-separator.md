@@ -1,16 +1,18 @@
 # bc-separator
 
-All components use shadow: false for easy theming.
+> Horizontal separator with optional label
+
+## Quick Start
+
+```html
+<bc-separator></bc-separator>
+```
 
 ## Props
 
-See source: src/components/.../bc-separator/bc-separator.tsx
-
-## Methods
-
-| Method | Returns |
-|--------|---------|
-| refresh() | Promise<void> |
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| label | string | '' | Separator label |
 
 See [theming](../theming.md).
 

@@ -1,4 +1,5 @@
-import { Component, Prop, State, Method, h } from '@stencil/core';
+import { Component, Prop, State, Method, Element, h } from '@stencil/core';
+import { BcSetup } from '../../../core/bc-setup';
 
 @Component({
   tag: 'bc-viewer-pdf',
@@ -6,12 +7,32 @@ import { Component, Prop, State, Method, h } from '@stencil/core';
   shadow: false,
 })
 export class BcViewerPdf {
-  @Prop() src: string = '';
+  @Element() el!: HTMLElement;
+  @Prop({ mutable: true }) src: string = '';
   @Prop() height: string = '600px';
   @Prop() toolbar: boolean = true;
   @Prop() download: boolean = true;
+  @Prop({ mutable: true }) loading: boolean = false;
+  @Prop() dataSource: string = '';
+  @Prop() srcField: string = 'url';
 
   @State() loadError: boolean = false;
+
+  componentDidLoad() { if (this.dataSource && !this.src) this._fetchSrc(); }
+
+  private async _fetchSrc() {
+    if (!this.dataSource) return;
+    this.loading = true;
+    try {
+      const baseUrl = BcSetup.getBaseUrl();
+      const url = this.dataSource.startsWith('http') ? this.dataSource : baseUrl + this.dataSource;
+      const res = await fetch(url, { headers: BcSetup.getHeaders() });
+      const json = await res.json();
+      const resolved = json[this.srcField] || json.src || json.url || json.file_url || json.file || '';
+      if (resolved) this.src = String(resolved);
+    } catch { this.loadError = true; }
+    this.loading = false;
+  }
 
   private getEmbedUrl(): string {
     if (!this.src) return '';
@@ -25,9 +46,9 @@ export class BcViewerPdf {
     a.download = this.src.split('/').pop() || 'document.pdf';
     a.target = '_blank';
     a.click();
-  }  @Prop() loading: boolean = false;
+  }
 
-  @Method() async refresh(): Promise<void> { }
+  @Method() async refresh(): Promise<void> { if (this.dataSource) await this._fetchSrc(); }
 
   render() {
     if (!this.src) {

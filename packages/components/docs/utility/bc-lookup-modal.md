@@ -1,16 +1,31 @@
 # bc-lookup-modal
 
-All components use shadow: false for easy theming.
+> Record lookup modal with search and selection
+
+## Quick Start
+
+```html
+<bc-lookup-modal></bc-lookup-modal>
+```
 
 ## Props
 
-See source: src/components/.../bc-lookup-modal/bc-lookup-modal.tsx
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| open | boolean | false | Open state |
+| model | string | '' | Model name |
+| display-field | string | 'name' | Display field |
+| columns | string (JSON) | '[]' | Table columns |
+| multiple | boolean | false | Multi-select |
+| api-url | string | '' | Custom API URL |
+| modal-title | string | '' | Modal title |
 
-## Methods
+## Events
 
-| Method | Returns |
-|--------|---------|
-| refresh() | Promise<void> |
+| Event | Payload | Description |
+|-------|---------|-------------|
+| lcLookupSelect | {records} | Records selected |
+| lcLookupClose | {} | Modal closed |
 
 See [theming](../theming.md).
 

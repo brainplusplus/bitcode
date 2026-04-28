@@ -1,16 +1,26 @@
 # bc-widget-statusbar
 
-All components use shadow: false for easy theming.
+> Status bar showing workflow states
+
+## Quick Start
+
+```html
+<bc-widget-statusbar></bc-widget-statusbar>
+```
 
 ## Props
 
-See source: src/components/.../bc-widget-statusbar/bc-widget-statusbar.tsx
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| states | string (JSON) | '[]' | Array of state names |
+| value | string | '' | Current state |
 
 ## Methods
 
-| Method | Returns |
-|--------|---------|
-| refresh() | Promise<void> |
+| Method | Returns | Description |
+|--------|---------|-------------|
+| setValue(value) | Promise<void> | Set current state |
+| getValue() | Promise<string> | Get current state |
 
 See [theming](../theming.md).
 

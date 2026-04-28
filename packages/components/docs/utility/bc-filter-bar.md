@@ -1,16 +1,27 @@
 # bc-filter-bar
 
-All components use shadow: false for easy theming.
+> Quick filter bar with presets
+
+## Quick Start
+
+```html
+<bc-filter-bar></bc-filter-bar>
+```
 
 ## Props
 
-See source: src/components/.../bc-filter-bar/bc-filter-bar.tsx
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| value | string | '' | Current filter |
+| presets | string (JSON) | '[]' | Filter presets |
+| placeholder | string | 'Search...' | Placeholder |
 
-## Methods
+## Events
 
-| Method | Returns |
-|--------|---------|
-| refresh() | Promise<void> |
+| Event | Payload | Description |
+|-------|---------|-------------|
+| lcFilterChange | {filters} | Filter changed |
+| lcSearch | {query} | Search |
 
 See [theming](../theming.md).
 

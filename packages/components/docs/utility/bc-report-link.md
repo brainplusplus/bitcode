@@ -1,16 +1,19 @@
 # bc-report-link
 
-All components use shadow: false for easy theming.
+> Report link button
+
+## Quick Start
+
+```html
+<bc-report-link></bc-report-link>
+```
 
 ## Props
 
-See source: src/components/.../bc-report-link/bc-report-link.tsx
-
-## Methods
-
-| Method | Returns |
-|--------|---------|
-| refresh() | Promise<void> |
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| label | string | 'View Report' | Button label |
+| href | string | '' | Report URL |
 
 See [theming](../theming.md).
 

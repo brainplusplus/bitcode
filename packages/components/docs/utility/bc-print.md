@@ -1,16 +1,19 @@
 # bc-print
 
-All components use shadow: false for easy theming.
+> Print link button
+
+## Quick Start
+
+```html
+<bc-print></bc-print>
+```
 
 ## Props
 
-See source: src/components/.../bc-print/bc-print.tsx
-
-## Methods
-
-| Method | Returns |
-|--------|---------|
-| refresh() | Promise<void> |
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| label | string | 'Print' | Button label |
+| href | string | '' | Print URL |
 
 See [theming](../theming.md).
 

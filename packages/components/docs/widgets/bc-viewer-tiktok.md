@@ -1,21 +1,20 @@
-# bc-view-report
+# bc-viewer-tiktok
 
-> Report view with aggregations
+> TikTok video embed
 
 ## Quick Start
 
 ```html
-<bc-view-report></bc-view-report>
+<bc-viewer-tiktok></bc-viewer-tiktok>
 ```
 
 ## Props
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| model | string | '' | Model name |
-| view-title | string | '' | Title |
-| fields | string (JSON) | '[]' | Fields |
-| config | string (JSON) | '{}' | Config |
+| src | string | '' | TikTok video URL |
+| width | string | '325px' | Width |
+| loading | boolean | false | Loading state |
 
 ## Methods
 

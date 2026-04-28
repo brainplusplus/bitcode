@@ -1,16 +1,29 @@
 # bc-view-calendar
 
-All components use shadow: false for easy theming.
+> Calendar view
+
+## Quick Start
+
+```html
+<bc-view-calendar></bc-view-calendar>
+```
 
 ## Props
 
-See source: src/components/.../bc-view-calendar/bc-view-calendar.tsx
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| model | string | '' | Model name |
+| view-title | string | '' | Title |
+| fields | string (JSON) | '[]' | Fields |
+| config | string (JSON) | '{}' | Config |
+| date-field | string | 'date' | Date field name |
+| title-field | string | 'name' | Title field name |
 
 ## Methods
 
-| Method | Returns |
-|--------|---------|
-| refresh() | Promise<void> |
+| Method | Returns | Description |
+|--------|---------|-------------|
+| refresh() | Promise<void> | Reload |
 
 See [theming](../theming.md).
 

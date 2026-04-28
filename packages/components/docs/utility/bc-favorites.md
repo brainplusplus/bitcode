@@ -1,16 +1,26 @@
 # bc-favorites
 
-All components use shadow: false for easy theming.
+> Saved search favorites
+
+## Quick Start
+
+```html
+<bc-favorites></bc-favorites>
+```
 
 ## Props
 
-See source: src/components/.../bc-favorites/bc-favorites.tsx
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| value | string | '' | Current filter |
+| placeholder | string | 'Search...' | Placeholder |
 
-## Methods
+## Events
 
-| Method | Returns |
-|--------|---------|
-| refresh() | Promise<void> |
+| Event | Payload | Description |
+|-------|---------|-------------|
+| lcFavoriteSelect | {favorite} | Favorite selected |
+| lcSearch | {query} | Search |
 
 See [theming](../theming.md).
 

@@ -1,16 +1,25 @@
 # bc-activity
 
-All components use shadow: false for easy theming.
+> Activity feed with scheduling
+
+## Quick Start
+
+```html
+<bc-activity></bc-activity>
+```
 
 ## Props
 
-See source: src/components/.../bc-activity/bc-activity.tsx
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| record-id | string | '' | Record ID |
+| model | string | '' | Model name |
 
-## Methods
+## Events
 
-| Method | Returns |
-|--------|---------|
-| refresh() | Promise<void> |
+| Event | Payload | Description |
+|-------|---------|-------------|
+| lcActivitySchedule | {activity} | Activity scheduled |
 
 See [theming](../theming.md).
 

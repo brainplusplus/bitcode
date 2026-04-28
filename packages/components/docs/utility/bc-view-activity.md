@@ -1,16 +1,27 @@
 # bc-view-activity
 
-All components use shadow: false for easy theming.
+> Activity view showing scheduled activities
+
+## Quick Start
+
+```html
+<bc-view-activity></bc-view-activity>
+```
 
 ## Props
 
-See source: src/components/.../bc-view-activity/bc-view-activity.tsx
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| model | string | '' | Model name |
+| view-title | string | '' | Title |
+| fields | string (JSON) | '[]' | Fields |
+| config | string (JSON) | '{}' | Config |
 
 ## Methods
 
-| Method | Returns |
-|--------|---------|
-| refresh() | Promise<void> |
+| Method | Returns | Description |
+|--------|---------|-------------|
+| refresh() | Promise<void> | Reload |
 
 See [theming](../theming.md).
 

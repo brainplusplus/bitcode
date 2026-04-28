@@ -1,16 +1,18 @@
 # bc-row
 
-All components use shadow: false for easy theming.
+> Flex row container with configurable gap
+
+## Quick Start
+
+```html
+<bc-row></bc-row>
+```
 
 ## Props
 
-See source: src/components/.../bc-row/bc-row.tsx
-
-## Methods
-
-| Method | Returns |
-|--------|---------|
-| refresh() | Promise<void> |
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| gap | string | 'md' | Gap size (xs, sm, md, lg, xl) |
 
 See [theming](../theming.md).
 

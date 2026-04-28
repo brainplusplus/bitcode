@@ -1,16 +1,29 @@
 # bc-view-map
 
-All components use shadow: false for easy theming.
+> Map view with markers (Leaflet)
+
+## Quick Start
+
+```html
+<bc-view-map></bc-view-map>
+```
 
 ## Props
 
-See source: src/components/.../bc-view-map/bc-view-map.tsx
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| model | string | '' | Model name |
+| view-title | string | '' | Title |
+| fields | string (JSON) | '[]' | Fields |
+| config | string (JSON) | '{}' | Config |
+| geo-field | string | 'location' | Geo field name |
+| name-field | string | 'name' | Name field |
 
 ## Methods
 
-| Method | Returns |
-|--------|---------|
-| refresh() | Promise<void> |
+| Method | Returns | Description |
+|--------|---------|-------------|
+| refresh() | Promise<void> | Reload |
 
 See [theming](../theming.md).
 
