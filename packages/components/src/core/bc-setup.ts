@@ -41,6 +41,7 @@ class BcSetupImpl {
   private _reactivityRules: Map<string, ReactivityHandler> = new Map();
   private _validators: Map<string, ValidatorFn> = new Map();
   private _systemThemeCleanup: (() => void) | null = null;
+  private _reactivityListener: ((e: Event) => void) | null = null;
 
   configure(partial: Partial<BcConfig>): void {
     if (partial.headers) {
@@ -108,6 +109,43 @@ class BcSetupImpl {
     for (const [fieldName, handler] of Object.entries(rules)) {
       this._reactivityRules.set(fieldName, handler);
     }
+    this._ensureReactivityListener();
+  }
+
+  private _ensureReactivityListener(): void {
+    if (typeof document === 'undefined' || this._reactivityListener) return;
+    this._reactivityListener = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (!detail || !detail.name) return;
+      const handler = this._reactivityRules.get(detail.name);
+      if (!handler) return;
+      const target = e.target as HTMLElement;
+      if (!target) return;
+      let container = target.parentElement;
+      while (container) {
+        if (container.tagName === 'FORM' || container.tagName === 'BC-VIEW-FORM' || container.hasAttribute('data-bc-form')) break;
+        container = container.parentElement;
+      }
+      const scope = container || target.parentElement || document.body;
+      const formProxy = this._createFormProxy(scope);
+      try { handler(detail.value, formProxy); } catch (err) { console.error(`BcSetup reactivity error for field "${detail.name}":`, err); }
+    };
+    document.addEventListener('lcFieldChange', this._reactivityListener);
+  }
+
+  private _createFormProxy(container: HTMLElement): FormProxy {
+    const getField = (name: string) => container.querySelector(`[name="${name}"]`) as (HTMLElement & Record<string, unknown>) | null;
+    return {
+      getValue(name: string): unknown { const f = getField(name); if (!f) return undefined; if (typeof f.getValue === 'function') return f.getValue(); return (f as unknown as HTMLInputElement).value; },
+      setValue(name: string, value: unknown): void { const f = getField(name); if (!f) return; if (typeof f.setValue === 'function') f.setValue(value); else (f as unknown as HTMLInputElement).value = String(value ?? ''); },
+      setRequired(name: string, required: boolean): void { const f = getField(name); if (!f) return; if (required) f.setAttribute('required', ''); else f.removeAttribute('required'); },
+      setReadonly(name: string, readonly: boolean): void { const f = getField(name); if (!f) return; if (readonly) f.setAttribute('readonly', ''); else f.removeAttribute('readonly'); },
+      setDisabled(name: string, disabled: boolean): void { const f = getField(name); if (!f) return; if (disabled) f.setAttribute('disabled', ''); else f.removeAttribute('disabled'); },
+      setError(name: string, message: string): void { const f = getField(name); if (!f) return; if (typeof f.setError === 'function') f.setError(message); },
+      clearError(name: string): void { const f = getField(name); if (!f) return; if (typeof f.clearError === 'function') f.clearError(); },
+      setOptions(name: string, options: unknown[]): void { const f = getField(name); if (!f) return; if (typeof f.setOptions === 'function') f.setOptions(options); },
+      setVisible(name: string, visible: boolean): void { const f = getField(name); if (!f) return; (f as HTMLElement).style.display = visible ? '' : 'none'; },
+    };
   }
 
   getReactivityRule(fieldName: string): ReactivityHandler | undefined {
@@ -128,6 +166,10 @@ class BcSetupImpl {
 
   reset(): void {
     this._cleanupSystemTheme();
+    if (this._reactivityListener && typeof document !== 'undefined') {
+      document.removeEventListener('lcFieldChange', this._reactivityListener);
+      this._reactivityListener = null;
+    }
     this._config = { ...DEFAULT_CONFIG, headers: {}, validationMessages: { ...DEFAULT_CONFIG.validationMessages } };
     this._reactivityRules.clear();
     this._validators.clear();
