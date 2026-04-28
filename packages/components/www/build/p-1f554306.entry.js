@@ -1,1 +1,0 @@
-import{r as c,h as a}from"./p-B4XMdEvj.js";const b=class{constructor(a){c(this,a),this.label=""}render(){return a("div",{key:"bc25630ece3d831c0fcbc917311051631f0fbcdc",class:"bc-tab",role:"tabpanel"},a("slot",{key:"d2a80a69a77870d8b43ba6df9972ac4b007db143"}))}};b.style=":host{display:block}.bc-tab{padding:var(--bc-spacing-sm) 0}";export{b as bc_tab}
