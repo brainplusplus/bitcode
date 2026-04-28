@@ -467,11 +467,14 @@ Step 1 → Python **background** pool (step-level override).
 | **1.5** | Multi-Tenancy Architecture | Phase 1 | ✅ Done | shared_table strategy, auto tenant_id column, tenant_scoped per model, conditional filtering |
 | **4** | Embedded Runtime: goja + quickjs | Phase 1 | ✅ Done | goja (ES6+) + QuickJS (ES2023), 20 bridge namespaces, shared executor, compilation cache |
 | **5** | Embedded Runtime: yaegi | Phase 1 | ✅ Done | `runtime: "go"` — yaegi interpreter, 20 bridge namespaces, goroutines, context-based timeout, stdlib filter, bridges/ loader, 18 tests |
+| **4.5a** | go-json Core Language | Phase 1 | 🔲 Draft | Standalone JSON programming language — expr-lang, let/set, if/switch/loop, functions, recursion, try/catch, 60 stdlib functions, resource limits |
+| **4.5b** | go-json Modularity | Phase 4.5a | 🔲 Draft | Struct/methods, import system, parallel execution, 30 extended stdlib, nullable types |
+| **4.5c** | go-json I/O + Integration | Phase 4.5b | 🔲 Draft | HTTP/FS/SQL/exec I/O, bitcode bridge integration, scripts/*.json, AST export, CLI runner |
 | **2** | Fix Node.js Child Process | Phase 1, 1.5 | 🔲 Pending | 6 TS scripts in samples/erp work with real bridge |
 | **3** | Fix Python Child Process | Phase 1, 1.5 | 🔲 Pending | 6 PY scripts in samples/erp work with real bridge |
 | **6B** | Polymorphic Relations | Phase 6A | 🔲 Pending | morph_to, morph_one, morph_many, morph_to_many, morph_by_many |
 | **6C** | Engine Enhancements | Phase 6A, Phase 1 | 🔲 Pending | Array-backed models (Sushi-style), view modifiers, metadata API, eager loading fixes |
-| **7** | Module "setting" | All phases (1-6C) | 🔲 Pending | Admin panel as JSON module, 4+ runtimes stress test, admin.go deprecation |
+| **7** | Module "setting" | Phase 4.5c + all others | 🔲 Pending | Admin panel as JSON module, go-json as process engine, 5+ runtimes stress test |
 
 ### Dependency Graph
 
@@ -483,13 +486,19 @@ Phase 1 (Bridge API Design)
   ├──► Phase 2 (Node.js) ◄─────────┤
   ├──► Phase 3 (Python)  ◄─────────┤
   ├──► Phase 4 (goja)    ──────────┤
-  └──► Phase 5 (yaegi)   ──────────┘
-                                    │
+  ├──► Phase 5 (yaegi)   ──────────┤
+  └──► Phase 4.5a (go-json Core) ──┤
+       │                            │
+       ├──► Phase 4.5b (Modularity) │
+       │    │                       │
+       │    └──► Phase 4.5c (I/O) ──┘
+       │                            │
 Phase 6A (Schema Compat) ──────────┤ (independent, can start anytime)
                                     │
                                     ├──► Phase 6B (Polymorphic Relations)
                                     ├──► Phase 6C (Engine Enhancements)
                                     └──► Phase 7 (Module "setting")
+                                         requires Phase 4.5c
 ```
 
 Phase 1.5 must complete before Phase 2-3 (runtime implementations need correct tenant behavior).
