@@ -34,6 +34,7 @@ import (
 	jsrt "github.com/bitcode-framework/bitcode/internal/runtime/embedded"
 	gojaRT "github.com/bitcode-framework/bitcode/internal/runtime/embedded/goja"
 	qjsRT "github.com/bitcode-framework/bitcode/internal/runtime/embedded/qjs"
+	yaegiRT "github.com/bitcode-framework/bitcode/internal/runtime/embedded/yaegi"
 	"github.com/bitcode-framework/bitcode/internal/runtime/executor"
 	"github.com/bitcode-framework/bitcode/internal/runtime/executor/steps"
 	"github.com/bitcode-framework/bitcode/internal/runtime/expression"
@@ -150,6 +151,7 @@ func NewApp(cfg AppConfig) (*App, error) {
 	embeddedReg := jsrt.NewRegistry()
 	embeddedReg.Register("goja", gojaRT.New())
 	embeddedReg.Register("quickjs", qjsRT.New())
+	embeddedReg.Register("yaegi", yaegiRT.New(nil))
 
 	templateEngine.RegisterHelper("t", func(locale string, key string) string {
 		return translator.Translate(locale, key)

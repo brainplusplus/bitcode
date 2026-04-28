@@ -66,6 +66,56 @@ func (c *Context) Audit() AuditLogger         { return c.audit }
 func (c *Context) Crypto() Crypto             { return c.crypto }
 func (c *Context) Execution() ExecutionLog    { return c.execution }
 
+type ContextDeps struct {
+	TxManager TxManager
+	Model     ModelFactory
+	DB        DB
+	HTTP      HTTPClient
+	Cache     Cache
+	FS        FS
+	Session   Session
+	Config    ConfigReader
+	Env       EnvReader
+	Emitter   EventEmitter
+	Caller    ProcessCaller
+	Execer    CommandExecutor
+	Logger    Logger
+	Email     EmailSender
+	Notify    Notifier
+	Storage   Storage
+	I18N      I18N
+	Security  SecurityChecker
+	Audit     AuditLogger
+	Crypto    Crypto
+	Execution ExecutionLog
+}
+
+func NewContext(deps ContextDeps) *Context {
+	return &Context{
+		txManager: deps.TxManager,
+		model:     deps.Model,
+		db:        deps.DB,
+		http:      deps.HTTP,
+		cache:     deps.Cache,
+		fs:        deps.FS,
+		session:   deps.Session,
+		config:    deps.Config,
+		env:       deps.Env,
+		emitter:   deps.Emitter,
+		caller:    deps.Caller,
+		execer:    deps.Execer,
+		logger:    deps.Logger,
+		email:     deps.Email,
+		notify:    deps.Notify,
+		storage:   deps.Storage,
+		i18n:      deps.I18N,
+		security:  deps.Security,
+		audit:     deps.Audit,
+		crypto:    deps.Crypto,
+		execution: deps.Execution,
+	}
+}
+
 func (c *Context) cloneWithTx(gormTx *gorm.DB) *Context {
 	clone := *c
 	if dbImpl, ok := c.db.(*dbBridge); ok {

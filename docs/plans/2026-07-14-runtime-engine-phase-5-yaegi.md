@@ -1,7 +1,7 @@
 # Phase 5: Embedded Go Runtime (yaegi) + Custom Bridges + go.mod + exec Whitelist
 
 **Date**: 14 July 2026
-**Status**: Draft
+**Status**: Done
 **Depends on**: Phase 1 (bridge API), Phase 4 (shared embedded runtime interface)
 **Unlocks**: Phase 6C (engine enhancements), Phase 7 (module setting)
 **Master doc**: `2026-07-14-runtime-engine-redesign-master.md`

@@ -59,11 +59,32 @@ Go scripts import: `import "bitcode"` → `bitcode.Model("contact").Get(id)`
 
 ## Definition of Done
 
-- [ ] yaegi executes Go scripts with all 20 bridge namespaces
-- [ ] Context-based timeout works (cooperative cancellation)
-- [ ] Custom bridges/ folder loaded (project + module level)
-- [ ] go.mod per module works (extract-deps + yaegi extract)
-- [ ] os/exec blocked in stdlib, only via bitcode.Exec() with whitelist
-- [ ] unsafe, syscall blocked
-- [ ] Goroutine support works (WaitGroup, channels)
-- [ ] Panic recovery works
+- [x] yaegi executes Go scripts with all 20 bridge namespaces
+- [x] Context-based timeout works (cooperative cancellation)
+- [x] Custom bridges/ folder loaded (project + module level)
+- [ ] go.mod per module works (extract-deps + yaegi extract) — deferred to Phase 5 iter 2
+- [x] os/exec blocked in stdlib, only via bitcode.Exec() with whitelist
+- [x] unsafe, syscall blocked
+- [x] Goroutine support works (WaitGroup, channels)
+- [x] Panic recovery works
+
+## Completion Notes
+
+**Completed**: 28 July 2026
+**Tests**: 18 new tests in `yaegi/yaegi_test.go`
+**Total test count**: 540 (up from 526)
+
+### What Was Implemented
+- `yaegi/runtime.go` — YaegiRuntime with filtered stdlib + bridge source loading
+- `yaegi/vm.go` — YaegiVM with context-based timeout, signature detection (0/1/2 params), panic recovery
+- `yaegi/symbols.go` — All 20 bridge namespaces as typed Go proxy structs (PascalCase)
+- `yaegi/stdlib_filter.go` — Filters os.Exit from stdlib (os/exec, unsafe, syscall already excluded by yaegi)
+- `yaegi/bridge_loader.go` — Scans bridges/ folders, returns source code for VM evaluation
+- `bridge/context.go` — Added `ContextDeps` + `NewContext()` constructor for testability
+- `registry.go` — `ParseEngine` handles "go" → "yaegi" mapping
+- `script_runner.go` — `CanHandle` accepts "go" and "go:*" runtimes
+- `app.go` — Registers "yaegi" engine alongside goja + quickjs
+
+### What Was Deferred
+- **go.mod per module** (`bitcode module extract-deps` CLI) — requires CLI command infrastructure + yaegi extract pipeline. Deferred to Phase 5 iter 2.
+- **CLI commands** for extract-deps, add-go-package, remove-go-package — same reason.

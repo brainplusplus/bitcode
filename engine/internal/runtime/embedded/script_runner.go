@@ -39,6 +39,9 @@ func (r *EmbeddedScriptRunner) CanHandle(runtime string) bool {
 	if runtime == "" || runtime == "javascript" {
 		return true
 	}
+	if runtime == "go" || strings.HasPrefix(runtime, "go:") {
+		return true
+	}
 	return strings.HasPrefix(runtime, "javascript:")
 }
 

@@ -12,7 +12,8 @@ func TestParseEngine(t *testing.T) {
 		{"javascript", ""},
 		{"javascript:goja", "goja"},
 		{"javascript:quickjs", "quickjs"},
-		{"go", ""},
+		{"go", "yaegi"},
+		{"go:yaegi", "yaegi"},
 		{"node", ""},
 		{"python", ""},
 		{"", ""},
@@ -29,6 +30,7 @@ func TestRegistryResolve(t *testing.T) {
 	reg := NewRegistry()
 	reg.Register("goja", &mockRuntime{name: "goja"})
 	reg.Register("quickjs", &mockRuntime{name: "quickjs"})
+	reg.Register("yaegi", &mockRuntime{name: "yaegi"})
 
 	rt, err := reg.Resolve("javascript:quickjs", "goja")
 	if err != nil {
@@ -52,6 +54,22 @@ func TestRegistryResolve(t *testing.T) {
 	}
 	if rt.Name() != "goja" {
 		t.Errorf("expected goja (hardcoded default), got %s", rt.Name())
+	}
+
+	rt, err = reg.Resolve("go", "goja")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if rt.Name() != "yaegi" {
+		t.Errorf("expected yaegi for 'go' runtime, got %s", rt.Name())
+	}
+
+	rt, err = reg.Resolve("go:yaegi", "goja")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if rt.Name() != "yaegi" {
+		t.Errorf("expected yaegi for 'go:yaegi' runtime, got %s", rt.Name())
 	}
 
 	_, err = reg.Resolve("javascript:nonexistent", "")

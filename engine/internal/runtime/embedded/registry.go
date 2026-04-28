@@ -26,7 +26,7 @@ func (r *EngineRegistry) Get(name string) (EmbeddedRuntime, error) {
 	defer r.mu.RUnlock()
 	engine, ok := r.engines[name]
 	if !ok {
-		return nil, fmt.Errorf("embedded JS engine '%s' not found, available: %v", name, r.Names())
+		return nil, fmt.Errorf("embedded engine '%s' not found, available: %v", name, r.Names())
 	}
 	return engine, nil
 }
@@ -53,6 +53,16 @@ func (r *EngineRegistry) Resolve(runtimeField string, defaultEngine string) (Emb
 }
 
 func ParseEngine(runtimeField string) string {
+	if runtimeField == "go" {
+		return "yaegi"
+	}
+	if strings.HasPrefix(runtimeField, "go:") {
+		parts := strings.SplitN(runtimeField, ":", 2)
+		if len(parts) == 2 {
+			return parts[1]
+		}
+		return "yaegi"
+	}
 	if !strings.HasPrefix(runtimeField, "javascript") {
 		return ""
 	}

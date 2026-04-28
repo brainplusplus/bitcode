@@ -73,21 +73,29 @@ engine/
 │   │   │   ├── tx.go                       # Transaction manager
 │   │   │   ├── (12 more bridge files)      # db, cache, config, event, process, logger, email, notify, storage, i18n, security, audit, crypto
 │   │   │   └── bridge_test.go              # 27 tests
-│   │   ├── embedded/                        # Embedded JS runtimes — shared executor + per-engine VMs
+│   │   ├── embedded/                        # Embedded runtimes — shared executor + per-engine VMs
 │   │   │   ├── runtime.go                  # EmbeddedRuntime + VM interfaces
 │   │   │   ├── executor.go                 # ExecuteEmbedded() — timeout, panic recovery, context cancel
-│   │   │   ├── registry.go                 # Engine registry + runtime resolution
+│   │   │   ├── registry.go                 # Engine registry + runtime resolution (JS + Go)
 │   │   │   ├── bridge_helper.go            # Shared conversion: ParseSearchOpts, ParseHTTPOpts, etc.
 │   │   │   ├── script_runner.go            # EmbeddedScriptRunner — adapts to ScriptRunner interface
-│   │   │   ├── embedded_test.go            # 10 tests (registry, helpers)
+│   │   │   ├── script_loader.go            # LoadScript — reads .go/.js files from disk
+│   │   │   ├── embedded_test.go            # 12 tests (registry, helpers, Go runtime resolution)
 │   │   │   ├── goja/                       # goja runtime (pure Go, ES6+)
 │   │   │   │   ├── runtime.go, vm.go       # GojaVM — InjectBridge, Execute, Interrupt, compilation cache
 │   │   │   │   ├── proxy.go                # All 20 bridge namespaces as Go function maps
 │   │   │   │   └── goja_test.go            # 11 tests (execution, params, patterns, interrupt)
-│   │   │   └── qjs/                        # QuickJS runtime (Wazero WASM, ES2023)
-│   │   │       ├── runtime.go, vm.go       # QJSVM — host functions + JS wrapper
-│   │   │       ├── proxy.go                # Host function registration (__bc_* flat functions)
-│   │   │       └── bitcode_init.go         # JS wrapper creating bitcode.* API
+│   │   │   ├── qjs/                        # QuickJS runtime (Wazero WASM, ES2023)
+│   │   │   │   ├── runtime.go, vm.go       # QJSVM — host functions + JS wrapper
+│   │   │   │   ├── proxy.go                # Host function registration (__bc_* flat functions)
+│   │   │   │   └── bitcode_init.go         # JS wrapper creating bitcode.* API
+│   │   │   └── yaegi/                      # yaegi runtime (Go interpreter, goroutines)
+│   │   │       ├── runtime.go              # YaegiRuntime — filtered stdlib + bridge source loading
+│   │   │       ├── vm.go                   # YaegiVM — context-based timeout, signature detection, panic recovery
+│   │   │       ├── symbols.go              # All 20 bridge namespaces as typed Go proxy structs
+│   │   │       ├── stdlib_filter.go        # Filters os.Exit; os/exec, unsafe, syscall excluded by yaegi
+│   │   │       ├── bridge_loader.go        # Scans bridges/ folders for custom Go bridge files
+│   │   │       └── yaegi_test.go           # 18 tests (execution, goroutines, channels, timeout, stdlib, panic)
 │   │   ├── agent/
 │   │   │   ├── worker.go                   # Agent worker — subscribe to events, execute with retry
 │   │   │   └── cron.go                     # Cron scheduler — periodic job execution
@@ -196,10 +204,14 @@ engine/
 | `embedded` | 4 | Verify base module embedded correctly |
 | `infrastructure/i18n` | 4 | Translate, fallback, locale detection |
 | `presentation/template` | 5 | Load/render, helpers (truncate, dict, eq) |
+| `runtime/bridge` | 27 | All 20 bridge namespaces, factory, error types |
+| `runtime/embedded` | 12 | Registry, helpers, Go runtime resolution |
+| `runtime/embedded/goja` | 11 | Execution, params, patterns, interrupt |
+| `runtime/embedded/yaegi` | 18 | Execution, goroutines, channels, timeout, stdlib filter, panic |
 | `runtime/executor` | 3 | Step dispatch, unknown type, step error |
 | `runtime/executor/steps` | 9 | Validate (eq/fail/required), emit, assign, if, process parse |
-| `infrastructure/persistence` | 6 | ViewRevision CRUD, list, cleanup |
-| **Total** | **181** | |
+| `infrastructure/persistence` | ~111 | ViewRevision, tenant, repository, migration |
+| **Total** | **540** | |
 
 ## Key Interfaces
 
