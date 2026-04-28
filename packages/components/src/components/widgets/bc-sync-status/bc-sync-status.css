@@ -1,0 +1,89 @@
+.bc-sync-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--bc-font-family, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+  font-size: var(--bc-font-size-sm, 13px);
+  color: var(--bc-text-color, #374151);
+  padding: 6px 12px;
+  border-radius: var(--bc-border-radius, 6px);
+  background: var(--bc-bg-secondary, #f9fafb);
+  border: 1px solid var(--bc-border-color, #e5e7eb);
+}
+
+.bc-sync-compact {
+  padding: 4px 8px;
+  gap: 4px;
+}
+
+.bc-sync-dot {
+  font-size: 10px;
+  line-height: 1;
+}
+
+.bc-sync-online .bc-sync-dot {
+  color: var(--bc-success-color, #10b981);
+}
+
+.bc-sync-offline .bc-sync-dot {
+  color: var(--bc-danger-color, #ef4444);
+}
+
+.bc-sync-label {
+  font-weight: 500;
+}
+
+.bc-sync-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: var(--bc-warning-color, #f59e0b);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.bc-sync-pending,
+.bc-sync-errors,
+.bc-sync-conflicts,
+.bc-sync-last {
+  color: var(--bc-text-muted, #6b7280);
+}
+
+.bc-sync-count {
+  font-weight: 600;
+  color: var(--bc-warning-color, #f59e0b);
+}
+
+.bc-sync-error-count {
+  color: var(--bc-danger-color, #ef4444);
+}
+
+.bc-sync-conflict-count {
+  color: var(--bc-info-color, #3b82f6);
+}
+
+.bc-sync-btn {
+  padding: 4px 12px;
+  border: 1px solid var(--bc-primary-color, #3b82f6);
+  border-radius: var(--bc-border-radius, 6px);
+  background: var(--bc-primary-color, #3b82f6);
+  color: #fff;
+  font-size: var(--bc-font-size-sm, 13px);
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.bc-sync-btn:hover {
+  opacity: 0.9;
+}
+
+.bc-sync-btn:disabled,
+.bc-sync-btn-syncing {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

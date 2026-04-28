@@ -2,6 +2,7 @@ package api
 
 import (
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -14,6 +15,7 @@ import (
 
 	domainModel "github.com/bitcode-framework/bitcode/internal/domain/model"
 	"github.com/bitcode-framework/bitcode/internal/infrastructure/persistence"
+	"github.com/bitcode-framework/bitcode/pkg/security"
 )
 
 type SyncHandler struct {
@@ -398,9 +400,91 @@ func (h *SyncHandler) UpdateDevice(c *fiber.Ctx) error {
 }
 
 func (h *SyncHandler) CacheAuth(c *fiber.Ctx) error {
-	return c.Status(fiber.StatusNotImplemented).JSON(fiber.Map{
-		"error":   "not_implemented",
-		"message": "Auth cache endpoint — coming in Phase 5",
+	var req struct {
+		DeviceID string `json:"device_id"`
+		Username string `json:"username"`
+		Password string `json:"password"`
+	}
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":   "invalid_request",
+			"message": "Invalid request body",
+		})
+	}
+
+	if req.DeviceID == "" || req.Username == "" || req.Password == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":   "missing_fields",
+			"message": "device_id, username, and password are required",
+		})
+	}
+
+	var deviceActive bool
+	h.db.Raw("SELECT is_active FROM _sync_devices WHERE device_id = ?", req.DeviceID).Scan(&deviceActive)
+	if !deviceActive {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
+			"error":   "device_deactivated",
+			"message": "Device has been deactivated",
+		})
+	}
+
+	repo := persistence.NewGenericRepository(h.db, "users")
+	loginQuery := persistence.NewQuery().Where("username", "=", req.Username)
+	users, _, err := repo.FindAll(c.Context(), loginQuery, 1, 1)
+	if err != nil || len(users) == 0 {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error":   "invalid_credentials",
+			"message": "Invalid username or password",
+		})
+	}
+
+	user := users[0]
+	hash, _ := user["password_hash"].(string)
+	if !security.CheckPassword(req.Password, hash) {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error":   "invalid_credentials",
+			"message": "Invalid username or password",
+		})
+	}
+
+	userID, _ := user["id"].(string)
+	username, _ := user["username"].(string)
+	userEmail, _ := user["email"].(string)
+
+	var groupNames []string
+	rows, err := h.db.Raw(
+		`SELECT g.name FROM groups g
+		 INNER JOIN user_groups ug ON ug.group_id = g.id
+		 WHERE ug.user_id = ?`, userID,
+	).Rows()
+	if err == nil {
+		defer rows.Close()
+		for rows.Next() {
+			var gn string
+			rows.Scan(&gn)
+			groupNames = append(groupNames, gn)
+		}
+	}
+
+	offlineHash := sha256Hex(req.Password)
+
+	now := time.Now().UTC()
+	maxOfflineHours := 72
+	expiresAt := now.Add(time.Duration(maxOfflineHours) * time.Hour)
+
+	h.db.Exec(
+		"UPDATE _sync_devices SET user_id = ? WHERE device_id = ?",
+		userID, req.DeviceID,
+	)
+
+	return c.JSON(fiber.Map{
+		"user_id":    userID,
+		"username":   username,
+		"email":      userEmail,
+		"groups":     groupNames,
+		"user_hash":  offlineHash,
+		"cached_at":  now.Format(time.RFC3339),
+		"expires_at": expiresAt.Format(time.RFC3339),
 	})
 }
 
@@ -648,4 +732,9 @@ func logSyncEnvelope(db *gorm.DB, envelopeID, deviceID, status string, opsCount 
 		"INSERT INTO _sync_log (envelope_id, device_id, received_at, status, operations_count, processing_time_ms, error_message) VALUES (?, ?, ?, ?, ?, ?, ?)",
 		envelopeID, deviceID, time.Now().UTC(), status, opsCount, duration.Milliseconds(), nullIfEmpty(errMsg),
 	)
+}
+
+func sha256Hex(input string) string {
+	h := sha256.Sum256([]byte(input))
+	return hex.EncodeToString(h[:])
 }

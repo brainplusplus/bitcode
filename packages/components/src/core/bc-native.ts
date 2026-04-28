@@ -325,4 +325,41 @@ export const BcNative = {
     console.warn('[BcNative] syncData in browser mode — no-op');
     return { success: true, synced: 0, errors: 0 };
   },
+
+  isOnline(): boolean {
+    if (typeof navigator !== 'undefined' && 'onLine' in navigator) {
+      return navigator.onLine;
+    }
+    return true;
+  },
+
+  onConnectivityChange(callback: (online: boolean) => void): () => void {
+    if (typeof window === 'undefined') return () => {};
+    const onOnline = () => callback(true);
+    const onOffline = () => callback(false);
+    window.addEventListener('online', onOnline);
+    window.addEventListener('offline', onOffline);
+    return () => {
+      window.removeEventListener('online', onOnline);
+      window.removeEventListener('offline', onOffline);
+    };
+  },
+
+  getPlatformInfo(): { platform: string; isMobile: boolean; hasCamera: boolean; hasGeo: boolean } {
+    const env = BcNative.getEnvironment();
+    const ua = typeof navigator !== 'undefined' ? navigator.userAgent.toLowerCase() : '';
+    const isMobile = env === 'tauri-mobile' || /android|iphone|ipad/.test(ua);
+    const hasCamera = isTauri() || (typeof navigator !== 'undefined' && 'mediaDevices' in navigator);
+    const hasGeo = typeof navigator !== 'undefined' && 'geolocation' in navigator;
+
+    let platform = 'unknown';
+    if (ua.includes('android')) platform = 'android';
+    else if (ua.includes('iphone') || ua.includes('ipad')) platform = 'ios';
+    else if (ua.includes('win')) platform = 'windows';
+    else if (ua.includes('mac')) platform = 'macos';
+    else if (ua.includes('linux')) platform = 'linux';
+    else if (env === 'browser') platform = 'web';
+
+    return { platform, isMobile, hasCamera, hasGeo };
+  },
 };

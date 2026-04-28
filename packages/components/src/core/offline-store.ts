@@ -53,6 +53,26 @@ function assertSafeTable(table: string): void {
   assertSafeIdentifier(table, 'table name');
 }
 
+const MAX_OFFLINE_HOURS = 72;
+const MAX_FAILED_AUTH_ATTEMPTS = 5;
+const AUTH_LOCKOUT_MINUTES = 15;
+const DEFAULT_SYNC_BATCH_SIZE = 100;
+const COMPRESSION_THRESHOLD_BYTES = 1024;
+
+interface SyncConfig {
+  batchSize: number;
+  enableCompression: boolean;
+  pullPageSize: number;
+  maxRetries: number;
+}
+
+const _syncConfig: SyncConfig = {
+  batchSize: DEFAULT_SYNC_BATCH_SIZE,
+  enableCompression: true,
+  pullPageSize: 1000,
+  maxRetries: 5,
+};
+
 let _deviceId = '';
 let _currentEnvelopeId: string | null = null;
 
@@ -214,6 +234,13 @@ export const OfflineStore = {
         registerSchemaFields(m.table_name, m.fields);
       }
     }
+  },
+
+  configureSyncOptions(opts: Partial<SyncConfig>): void {
+    if (opts.batchSize !== undefined) _syncConfig.batchSize = Math.max(1, Math.min(opts.batchSize, 5000));
+    if (opts.enableCompression !== undefined) _syncConfig.enableCompression = opts.enableCompression;
+    if (opts.pullPageSize !== undefined) _syncConfig.pullPageSize = Math.max(10, Math.min(opts.pullPageSize, 5000));
+    if (opts.maxRetries !== undefined) _syncConfig.maxRetries = Math.max(1, Math.min(opts.maxRetries, 20));
   },
 
   setDeviceId(deviceId: string): void {
@@ -476,8 +503,8 @@ export const OfflineStore = {
 
     const pending = await BcNative.dbSelect(
       `SELECT id, envelope_id, table_name, record_id, operation, payload, idempotency_key, device_id, retry_count
-       FROM _off_outbox WHERE status = 'PENDING' ORDER BY id ASC`,
-      [],
+       FROM _off_outbox WHERE status = 'PENDING' ORDER BY id ASC LIMIT ?`,
+      [_syncConfig.batchSize],
     ) as Array<Record<string, unknown>>;
 
     if (pending.length === 0) return { synced: 0, errors: 0 };
@@ -501,20 +528,24 @@ export const OfflineStore = {
       }
 
       try {
+        const payload = JSON.stringify({
+          envelope_id: envelopeId,
+          device_id: _deviceId,
+          operations: operations.map(op => ({
+            table_name: op.table_name,
+            record_id: op.record_id,
+            operation: op.operation,
+            payload: JSON.parse(op.payload as string),
+            idempotency_key: op.idempotency_key,
+          })),
+        });
+
+        const { body, contentHeaders } = await maybeCompress(payload, headers);
+
         const resp = await fetch(`${url}/api/v1/sync/push`, {
           method: 'POST',
-          headers,
-          body: JSON.stringify({
-            envelope_id: envelopeId,
-            device_id: _deviceId,
-            operations: operations.map(op => ({
-              table_name: op.table_name,
-              record_id: op.record_id,
-              operation: op.operation,
-              payload: JSON.parse(op.payload as string),
-              idempotency_key: op.idempotency_key,
-            })),
-          }),
+          headers: contentHeaders,
+          body,
         });
 
         if (resp.ok) {
@@ -550,9 +581,10 @@ export const OfflineStore = {
     const sinceVersion = (stateRows[0] as Record<string, number>)?.last_pull_version ?? 0;
 
     try {
+      const pullHeaders = { ...headers, 'Accept-Encoding': 'gzip' };
       const resp = await fetch(
-        `${url}/api/v1/sync/pull?since_version=${sinceVersion}&device_id=${encodeURIComponent(_deviceId)}`,
-        { headers },
+        `${url}/api/v1/sync/pull?since_version=${sinceVersion}&device_id=${encodeURIComponent(_deviceId)}&limit=${_syncConfig.pullPageSize}`,
+        { headers: pullHeaders },
       );
       if (!resp.ok) return { applied: 0, conflicts: 0 };
 
@@ -655,7 +687,230 @@ export const OfflineStore = {
 
     return { applied, conflicts };
   },
+
+  async cacheAuth(baseUrl?: string, username?: string, password?: string): Promise<{
+    userId: string; username: string; email: string; groups: string[];
+  } | null> {
+    const url = baseUrl || BcSetup.getConfig().baseUrl;
+    const headers = { ...buildHeaders(), 'Content-Type': 'application/json' };
+
+    if (!username || !password) return null;
+
+    try {
+      const resp = await fetch(`${url}/api/v1/sync/auth/cache`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          device_id: _deviceId,
+          username,
+          password,
+        }),
+      });
+      if (!resp.ok) return null;
+
+      const result = await resp.json() as {
+        user_id: string; username: string; email: string;
+        groups: string[]; user_hash: string;
+        cached_at: string; expires_at: string;
+      };
+
+      await BcNative.dbExecute(
+        `INSERT OR REPLACE INTO _off_auth_cache
+         (user_id, user_hash, user_email, user_name, user_groups, cached_at, expires_at, device_id)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          result.user_id, result.user_hash, result.email,
+          result.username, JSON.stringify(result.groups || []),
+          result.cached_at, result.expires_at, _deviceId,
+        ],
+      );
+
+      await BcNative.dbExecute(
+        `UPDATE _off_sync_state SET auth_cached_at = ?, user_id = ?, failed_auth_attempts = 0, locked_until = '' WHERE device_id = ?`,
+        [result.cached_at, result.user_id, _deviceId],
+      );
+
+      return {
+        userId: result.user_id,
+        username: result.username,
+        email: result.email,
+        groups: result.groups || [],
+      };
+    } catch {
+      return null;
+    }
+  },
+
+  async authenticateOffline(username: string, password: string): Promise<{
+    success: boolean;
+    userId?: string;
+    error?: string;
+  }> {
+    const stateRows = await BcNative.dbSelect(
+      'SELECT failed_auth_attempts, locked_until FROM _off_sync_state WHERE device_id = ?',
+      [_deviceId],
+    );
+    if (stateRows.length > 0) {
+      const state = stateRows[0] as Record<string, unknown>;
+      const lockedUntil = state.locked_until as string;
+      if (lockedUntil && new Date(lockedUntil) > new Date()) {
+        const remainMs = new Date(lockedUntil).getTime() - Date.now();
+        const remainMin = Math.ceil(remainMs / 60_000);
+        return { success: false, error: `Account locked. Try again in ${remainMin} minute(s).` };
+      }
+    }
+
+    const cacheRows = await BcNative.dbSelect(
+      'SELECT user_id, user_hash, user_name, expires_at FROM _off_auth_cache WHERE user_name = ?',
+      [username],
+    );
+
+    if (cacheRows.length === 0) {
+      return { success: false, error: 'No cached credentials. Connect to server to login.' };
+    }
+
+    const cached = cacheRows[0] as Record<string, string>;
+
+    const expiresAt = new Date(cached.expires_at);
+    if (expiresAt <= new Date()) {
+      return { success: false, error: `Offline session expired (${MAX_OFFLINE_HOURS}h limit). Connect to server to re-authenticate.` };
+    }
+
+    const passwordMatch = await verifyPasswordOffline(password, cached.user_hash);
+    if (!passwordMatch) {
+      await incrementFailedAuth();
+      return { success: false, error: 'Invalid password.' };
+    }
+
+    await BcNative.dbExecute(
+      'UPDATE _off_sync_state SET failed_auth_attempts = 0, locked_until = ? WHERE device_id = ?',
+      ['', _deviceId],
+    );
+
+    return { success: true, userId: cached.user_id };
+  },
+
+  async getSyncStatus(): Promise<{
+    isOnline: boolean;
+    pendingCount: number;
+    errorCount: number;
+    deadCount: number;
+    lastSyncAt: string;
+    conflictCount: number;
+  }> {
+    let isOnline = false;
+    try {
+      const url = BcSetup.getConfig().baseUrl;
+      if (url) {
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), 3000);
+        const resp = await fetch(`${url}/health`, { signal: ctrl.signal });
+        clearTimeout(timer);
+        isOnline = resp.ok;
+      }
+    } catch { /* offline */ }
+
+    const pendingRows = await BcNative.dbSelect(
+      "SELECT COUNT(*) as cnt FROM _off_outbox WHERE status = 'PENDING'", [],
+    );
+    const errorRows = await BcNative.dbSelect(
+      "SELECT COUNT(*) as cnt FROM _off_outbox WHERE status = 'ERROR'", [],
+    );
+    const deadRows = await BcNative.dbSelect(
+      "SELECT COUNT(*) as cnt FROM _off_outbox WHERE status = 'DEAD'", [],
+    );
+    const stateRows = await BcNative.dbSelect(
+      'SELECT last_sync_at FROM _off_sync_state WHERE device_id = ?', [_deviceId],
+    );
+    const conflictRows = await BcNative.dbSelect(
+      'SELECT COUNT(*) as cnt FROM _off_conflict_log', [],
+    );
+
+    return {
+      isOnline,
+      pendingCount: ((pendingRows[0] as BcDbRow)?.cnt as number) ?? 0,
+      errorCount: ((errorRows[0] as BcDbRow)?.cnt as number) ?? 0,
+      deadCount: ((deadRows[0] as BcDbRow)?.cnt as number) ?? 0,
+      lastSyncAt: ((stateRows[0] as Record<string, string>)?.last_sync_at) ?? '',
+      conflictCount: ((conflictRows[0] as BcDbRow)?.cnt as number) ?? 0,
+    };
+  },
+
+  async syncAll(baseUrl?: string): Promise<{
+    pushResult: { synced: number; errors: number };
+    pullResult: { applied: number; conflicts: number };
+  }> {
+    const pushResult = await OfflineStore.syncPush(baseUrl);
+    const pullResult = await OfflineStore.syncPull(baseUrl);
+    return { pushResult, pullResult };
+  },
 };
+
+async function verifyPasswordOffline(password: string, storedHash: string): Promise<boolean> {
+  if (!storedHash || !password) return false;
+  const candidateHash = await sha256Hex(password);
+  return storedHash === candidateHash;
+}
+
+async function sha256Hex(input: string): Promise<string> {
+  if (typeof crypto !== 'undefined' && crypto.subtle) {
+    const data = new TextEncoder().encode(input);
+    const buf = await crypto.subtle.digest('SHA-256', data);
+    return Array.from(new Uint8Array(buf), b => b.toString(16).padStart(2, '0')).join('');
+  }
+  let h = 0x811c9dc5;
+  for (let i = 0; i < input.length; i++) {
+    h ^= input.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  return 'fnv1a:' + (h >>> 0).toString(16);
+}
+
+async function incrementFailedAuth(): Promise<void> {
+  const rows = await BcNative.dbSelect(
+    'SELECT failed_auth_attempts FROM _off_sync_state WHERE device_id = ?',
+    [_deviceId],
+  );
+  const current = ((rows[0] as Record<string, number>)?.failed_auth_attempts) ?? 0;
+  const next = current + 1;
+
+  let lockedUntil = '';
+  if (next >= MAX_FAILED_AUTH_ATTEMPTS) {
+    const lockTime = new Date(Date.now() + AUTH_LOCKOUT_MINUTES * 60_000);
+    lockedUntil = lockTime.toISOString();
+  }
+
+  await BcNative.dbExecute(
+    'UPDATE _off_sync_state SET failed_auth_attempts = ?, locked_until = ? WHERE device_id = ?',
+    [next, lockedUntil, _deviceId],
+  );
+}
+
+async function maybeCompress(
+  payload: string,
+  baseHeaders: Record<string, string>,
+): Promise<{ body: BodyInit; contentHeaders: Record<string, string> }> {
+  if (
+    !_syncConfig.enableCompression
+    || payload.length < COMPRESSION_THRESHOLD_BYTES
+    || typeof CompressionStream === 'undefined'
+  ) {
+    return { body: payload, contentHeaders: baseHeaders };
+  }
+
+  try {
+    const stream = new Blob([payload]).stream().pipeThrough(new CompressionStream('gzip'));
+    const compressed = await new Response(stream).blob();
+    if (compressed.size < payload.length * 0.9) {
+      return {
+        body: compressed,
+        contentHeaders: { ...baseHeaders, 'Content-Encoding': 'gzip' },
+      };
+    }
+  } catch { /* CompressionStream not available — send uncompressed */ }
+
+  return { body: payload, contentHeaders: baseHeaders };
+}
 
 const SYSTEM_FIELD_PREFIXES = ['_off_', '_sync_'];
 

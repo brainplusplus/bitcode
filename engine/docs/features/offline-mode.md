@@ -442,7 +442,7 @@ Single file at `packages/components/src/core/bc-native.ts`. Detects environment 
 
 ## Implementation Files
 
-### Implemented (Phase 1 + 2 + 2.5 + 3 + 4)
+### Implemented (Phase 1 + 2 + 2.5 + 3 + 4 + 5)
 
 | File | Purpose |
 |------|---------|
@@ -454,24 +454,23 @@ Single file at `packages/components/src/core/bc-native.ts`. Detects environment 
 | `engine/internal/infrastructure/persistence/offline_schema.go` | `OfflineColumns()`, `OfflineUUIDColumn()`, 4 client `_off_*` table DDLs (with `device_id` column) |
 | `engine/internal/infrastructure/persistence/sync_schema.go` | 4 server `_sync_*` table DDLs (PostgreSQL/MySQL/SQLite) |
 | `engine/internal/infrastructure/persistence/dynamic_model.go` | `buildColumns()` appends `_off_*` columns when `OfflineModule=true` |
-| `engine/internal/presentation/api/sync_handler.go` | 6 sync API endpoints: `RegisterDevice`, `PushEnvelope`, `PullChanges`, `DeviceStatus`, `GetSchema` + `CacheAuth` stub |
-| `packages/components/src/core/bc-native.ts` | Bridge abstraction layer (13 methods, Tauri/Web fallback) |
+| `engine/internal/presentation/api/sync_handler.go` | 7 sync API endpoints: `RegisterDevice`, `PushEnvelope`, `PullChanges`, `DeviceStatus`, `GetSchema`, `CacheAuth`, `UpdateDevice` |
+| `packages/components/src/core/bc-native.ts` | Bridge abstraction layer (16 methods, Tauri/Web fallback) — includes `isOnline()`, `onConnectivityChange()`, `getPlatformInfo()` |
 | `packages/components/src/core/bc-native.spec.ts` | Bridge unit tests (10 tests) |
 | `packages/components/src/core/bc-setup.ts` | `registerOfflineModels()`, `isModelOffline()`, `getOfflineModels()` |
-| `packages/components/src/core/offline-store.ts` | Full sync client: CRUD routing, SQL injection prevention, transactions, outbox with device_id/envelope_id, `registerDevice()`, `syncPush()`, `syncPull()` with conflict detection, `beginTransaction()`/`commitTransaction()`, `getNextReceiptNumber()`, HLC wiring |
-| `packages/components/src/core/offline-store.spec.ts` | Offline store tests (24 tests — routing, CRUD, transactions, rollback, SQL injection, envelope grouping, HLC wiring, conflict detection, edit-vs-delete, receipt numbering) |
-| `packages/tauri/src-tauri/Cargo.toml` | Tauri 2.10 + plugins (sql, fs, notification, barcode, biometric) |
-| `packages/tauri/src-tauri/src/main.rs` | Tauri entry point, plugin registration, SQLite migrations (with `device_id` in outbox) |
-| `packages/tauri/src-tauri/tauri.conf.json` | Tauri config — `frontendDist`, `beforeDevCommand`, `withGlobalTauri`, CSP, window |
+| `packages/components/src/core/offline-store.ts` | Full sync client: CRUD routing, SQL injection prevention, transactions, outbox, `syncPush()` with batch size + gzip compression, `syncPull()` with pagination, `cacheAuth()`, `authenticateOffline()` with brute-force protection + lockout, `getSyncStatus()`, `syncAll()`, `configureSyncOptions()`, `getNextReceiptNumber()`, HLC wiring, conflict detection |
+| `packages/components/src/core/offline-store.spec.ts` | Offline store tests (34 tests — routing, CRUD, transactions, rollback, SQL injection, envelope grouping, HLC wiring, conflict detection, edit-vs-delete, receipt numbering, auth caching, offline auth, sync status, batch config) |
+| `packages/tauri/src-tauri/Cargo.toml` | Tauri 2.0 + plugins (sql, fs, notification, barcode, biometric) + `encryption` feature flag |
+| `packages/tauri/src-tauri/src/main.rs` | Tauri entry point, plugin registration, SQLite migrations (5 migrations incl. `_off_auth_cache`), encrypted DB support via `BITCODE_DB_KEY` env var |
+| `packages/tauri/src-tauri/tauri.conf.json` | Tauri config — hardened CSP (no `unsafe-eval`, `object-src 'none'`, `frame-ancestors 'none'`) |
 | `packages/tauri/src-tauri/capabilities/default.json` | Permissions for core, sql, fs, notification |
 | `packages/tauri/src-tauri/build.rs` | Tauri build script |
 | `packages/tauri/package.json` | npm scripts for dev/build (desktop, android, ios) |
-
 | `packages/components/src/core/hlc.ts` | Hybrid Logical Clock: `hlcNow()`, `hlcReceive()`, `hlcCompare()`, `parseHLC()`, `formatHLC()` |
 | `packages/components/src/core/hlc.spec.ts` | HLC tests (18 tests — parse/format, monotonicity, clock skew, receive merge, compare, tie-breaking) |
 | `engine/internal/runtime/sync/conflict.go` | Field-level conflict resolution: `ResolveFieldConflicts()`, `ResolveEditVsDelete()`, `RecordConflictsToServer()`, HLC comparison |
 | `engine/internal/runtime/sync/conflict_test.go` | Conflict resolution tests (12 tests — auto-merge, HLC wins, edit-vs-delete, system fields, tie-breaking) |
 | `engine/internal/runtime/sync/inventory.go` | Inventory delta tracking: `ApplyInventoryDelta()`, `DetectInventoryFields()`, `CreateOversellAlertsTable()`, oversell alert recording |
 | `engine/internal/runtime/sync/inventory_test.go` | Inventory tests (8 tests — delta detection, multiple deltas, type coercion, validation) |
-
-### Planned (Phase 5)
+| `packages/components/src/components/widgets/bc-sync-status/bc-sync-status.tsx` | Sync status UI component — online/offline indicator, pending/error/conflict counts, last sync time, manual sync trigger |
+| `packages/components/src/components/widgets/bc-sync-status/bc-sync-status.css` | Sync status component styles |

@@ -33,7 +33,9 @@ fn offline_migrations() -> Vec<Migration> {
                 registered_at TEXT NOT NULL DEFAULT '',
                 auth_cached_at TEXT NOT NULL DEFAULT '',
                 user_id TEXT NOT NULL DEFAULT '',
-                user_hash TEXT NOT NULL DEFAULT ''
+                user_hash TEXT NOT NULL DEFAULT '',
+                failed_auth_attempts INTEGER NOT NULL DEFAULT 0,
+                locked_until TEXT NOT NULL DEFAULT ''
             )",
             kind: MigrationKind::Up,
         },
@@ -66,7 +68,32 @@ fn offline_migrations() -> Vec<Migration> {
             )",
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 5,
+            description: "create_off_auth_cache",
+            sql: "CREATE TABLE IF NOT EXISTS _off_auth_cache (
+                user_id TEXT PRIMARY KEY,
+                user_hash TEXT NOT NULL,
+                user_email TEXT NOT NULL DEFAULT '',
+                user_name TEXT NOT NULL DEFAULT '',
+                user_groups TEXT NOT NULL DEFAULT '[]',
+                cached_at TEXT NOT NULL DEFAULT (datetime('now')),
+                expires_at TEXT NOT NULL,
+                device_id TEXT NOT NULL DEFAULT ''
+            )",
+            kind: MigrationKind::Up,
+        },
     ]
+}
+
+fn db_connection_string() -> String {
+    #[cfg(feature = "encryption")]
+    {
+        if let Ok(key) = std::env::var("BITCODE_DB_KEY") {
+            return format!("sqlite:bitcode.db?key={}", key);
+        }
+    }
+    "sqlite:bitcode.db".to_string()
 }
 
 fn main() {
@@ -75,7 +102,7 @@ fn main() {
     builder = builder
         .plugin(
             SqlBuilder::default()
-                .add_migrations("sqlite:bitcode.db", offline_migrations())
+                .add_migrations(&db_connection_string(), offline_migrations())
                 .build(),
         )
         .plugin(tauri_plugin_fs::init())
