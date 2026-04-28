@@ -89,6 +89,8 @@ type Runtime struct {
 	ioSecurity *goio.SecurityConfig
 	ioDisabled bool
 
+	extensions *extensionRegistry
+
 	cache   map[string]*lang.CompiledProgram
 	cacheMu sync.RWMutex
 }
@@ -101,6 +103,7 @@ func NewRuntime(opts ...Option) *Runtime {
 		ctx:        context.Background(),
 		stdlibEnv:  make(map[string]any),
 		ioRegistry: goio.NewIORegistry(),
+		extensions: newExtensionRegistry(),
 	}
 
 	for _, opt := range opts {
@@ -119,6 +122,13 @@ func NewRuntime(opts ...Option) *Runtime {
 		}
 		for k, v := range r.ioRegistry.EnvVars() {
 			r.stdlibEnv[k] = v
+		}
+	}
+
+	// Register extension functions in expression environment.
+	for name, ext := range r.extensions.all() {
+		if ext.Functions != nil {
+			r.stdlibEnv[name] = ext.Functions
 		}
 	}
 
