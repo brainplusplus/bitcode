@@ -239,3 +239,83 @@ func TestRegistry_NotAmbiguous(t *testing.T) {
 		t.Error("expected 'order' to not be ambiguous")
 	}
 }
+
+func TestRegistry_DuplicateModelSameModule(t *testing.T) {
+	reg := NewRegistry()
+	m1 := &parser.ModelDefinition{Name: "contact", Module: "crm", Fields: map[string]parser.FieldDefinition{"name": {Type: "string"}}}
+	m2 := &parser.ModelDefinition{Name: "contact", Module: "crm", Fields: map[string]parser.FieldDefinition{"email": {Type: "email"}}}
+
+	if err := reg.Register(m1); err != nil {
+		t.Fatal(err)
+	}
+	err := reg.Register(m2)
+	if err == nil {
+		t.Fatal("expected error for duplicate model in same module")
+	}
+}
+
+func TestRegistry_DuplicateModelDifferentModule(t *testing.T) {
+	reg := NewRegistry()
+	m1 := &parser.ModelDefinition{Name: "contact", Module: "crm", Fields: map[string]parser.FieldDefinition{"name": {Type: "string"}}}
+	m2 := &parser.ModelDefinition{Name: "contact", Module: "hrm", Fields: map[string]parser.FieldDefinition{"name": {Type: "string"}}}
+
+	if err := reg.Register(m1); err != nil {
+		t.Fatal(err)
+	}
+	if err := reg.Register(m2); err != nil {
+		t.Fatal("cross-module same name should be allowed")
+	}
+}
+
+func TestRegistry_InheritNotDuplicate(t *testing.T) {
+	reg := NewRegistry()
+	m1 := &parser.ModelDefinition{Name: "user", Module: "base", Fields: map[string]parser.FieldDefinition{"name": {Type: "string"}}}
+	m2 := &parser.ModelDefinition{Name: "user", Module: "base", Inherit: "base.user", Fields: map[string]parser.FieldDefinition{"phone": {Type: "string"}}}
+
+	if err := reg.Register(m1); err != nil {
+		t.Fatal(err)
+	}
+	if err := reg.Register(m2); err != nil {
+		t.Fatal("inheritance should not be flagged as duplicate")
+	}
+}
+
+func TestResolveTableName_Plural(t *testing.T) {
+	model := &parser.ModelDefinition{Name: "contact"}
+	mod := &parser.ModuleDefinition{Name: "crm", Table: &parser.TableConfig{Prefix: "crm"}}
+
+	got := ResolveTableName(model, mod, "plural")
+	if got != "crm_contacts" {
+		t.Errorf("expected 'crm_contacts', got %q", got)
+	}
+}
+
+func TestResolveTableName_PluralPerModel(t *testing.T) {
+	plural := true
+	model := &parser.ModelDefinition{Name: "person", TablePlural: &plural}
+	mod := &parser.ModuleDefinition{Name: "hr", Table: &parser.TableConfig{Prefix: "hr"}}
+
+	got := ResolveTableName(model, mod)
+	if got != "hr_people" {
+		t.Errorf("expected 'hr_people', got %q", got)
+	}
+}
+
+func TestResolveTableName_SingularDefault(t *testing.T) {
+	model := &parser.ModelDefinition{Name: "contact"}
+	mod := &parser.ModuleDefinition{Name: "crm", Table: &parser.TableConfig{Prefix: "crm"}}
+
+	got := ResolveTableName(model, mod)
+	if got != "crm_contact" {
+		t.Errorf("expected 'crm_contact', got %q", got)
+	}
+}
+
+func TestResolveTableName_ExplicitTableNameIgnoresPlural(t *testing.T) {
+	model := &parser.ModelDefinition{Name: "contact", TableName: "my_custom_table"}
+
+	got := ResolveTableName(model, nil, "plural")
+	if got != "my_custom_table" {
+		t.Errorf("expected 'my_custom_table', got %q", got)
+	}
+}

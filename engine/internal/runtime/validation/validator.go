@@ -719,6 +719,28 @@ func (v *Validator) autoMapValidation(fieldDef *parser.FieldDefinition) *parser.
 		hasRule = true
 	}
 
+	switch fieldDef.Type {
+	case parser.FieldUUID:
+		val.UUID = true
+		hasRule = true
+	case parser.FieldIP:
+		val.IP = true
+		hasRule = true
+	case parser.FieldIPv6:
+		val.IPv6 = true
+		hasRule = true
+	case parser.FieldColor:
+		val.Regex = `^#[0-9a-fA-F]{6}$`
+		val.RegexMessage = "invalid color format (expected #RRGGBB)"
+		hasRule = true
+	case parser.FieldYear:
+		minY := float64(1900)
+		maxY := float64(2300)
+		val.Min = &minY
+		val.Max = &maxY
+		hasRule = true
+	}
+
 	isStringType := false
 	switch fieldDef.Type {
 	case parser.FieldString, parser.FieldText, parser.FieldSmallText, parser.FieldEmail,

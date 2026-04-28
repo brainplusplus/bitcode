@@ -2,6 +2,7 @@ package module
 
 import (
 	"github.com/bitcode-framework/bitcode/internal/compiler/parser"
+	"github.com/jinzhu/inflection"
 )
 
 func GenerateAPIFromModel(model *parser.ModelDefinition, moduleName string) *parser.APIDefinition {
@@ -108,22 +109,5 @@ func mergeAPIDefinition(base *parser.APIDefinition, override *parser.APIDefiniti
 }
 
 func pluralize(name string) string {
-	if len(name) == 0 {
-		return name
-	}
-	last := name[len(name)-1]
-	switch last {
-	case 's', 'x', 'z':
-		return name + "es"
-	case 'y':
-		if len(name) > 1 {
-			prev := name[len(name)-2]
-			if prev != 'a' && prev != 'e' && prev != 'i' && prev != 'o' && prev != 'u' {
-				return name[:len(name)-1] + "ies"
-			}
-		}
-		return name + "s"
-	default:
-		return name + "s"
-	}
+	return inflection.Plural(name)
 }

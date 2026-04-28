@@ -87,10 +87,16 @@ func fieldTypeToTag(fieldType parser.FieldType, widget string) string {
 		return "bc-field-geo"
 	case parser.FieldRating:
 		return "bc-field-rating"
-	case parser.FieldJSON:
+	case parser.FieldJSON, parser.FieldJSONObject, parser.FieldJSONArray:
 		return "bc-field-json"
 	case parser.FieldEmail:
 		return "bc-field-string"
+	case parser.FieldUUID, parser.FieldIP, parser.FieldIPv6:
+		return "bc-field-string"
+	case parser.FieldYear:
+		return "bc-field-number"
+	case parser.FieldVector, parser.FieldBinary:
+		return ""
 	default:
 		return "bc-field-string"
 	}

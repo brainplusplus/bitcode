@@ -2,6 +2,7 @@ package graphql
 
 import (
 	"github.com/graphql-go/graphql"
+	"github.com/jinzhu/inflection"
 	"github.com/bitcode-framework/bitcode/internal/compiler/parser"
 )
 
@@ -202,24 +203,7 @@ func fieldTypeToGraphQL(ft parser.FieldType) graphql.Output {
 }
 
 func pluralizeModel(name string) string {
-	if len(name) == 0 {
-		return name
-	}
-	last := name[len(name)-1]
-	switch last {
-	case 's', 'x', 'z':
-		return name + "es"
-	case 'y':
-		if len(name) > 1 {
-			prev := name[len(name)-2]
-			if prev != 'a' && prev != 'e' && prev != 'i' && prev != 'o' && prev != 'u' {
-				return name[:len(name)-1] + "ies"
-			}
-		}
-		return name + "s"
-	default:
-		return name + "s"
-	}
+	return inflection.Plural(name)
 }
 
 

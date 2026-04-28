@@ -148,6 +148,74 @@ export function findSiblingField(container: HTMLElement, fieldName: string): HTM
   return container.querySelector(`[name="${fieldName}"]`);
 }
 
+export interface FormValidationResult {
+  valid: boolean;
+  errors: Record<string, string[]>;
+  firstInvalidField: string | null;
+}
+
+export async function validateAllFields(container?: HTMLElement): Promise<FormValidationResult> {
+  const scope = container || document.body;
+  const fields = scope.querySelectorAll('[name]');
+  const errors: Record<string, string[]> = {};
+  let firstInvalid: string | null = null;
+
+  for (let i = 0; i < fields.length; i++) {
+    const field = fields[i] as HTMLElement & Record<string, unknown>;
+    const name = field.getAttribute('name');
+    if (!name) continue;
+    if (typeof field.validate !== 'function') continue;
+
+    const result = await field.validate() as ValidationResult;
+    if (!result.valid) {
+      errors[name] = result.errors;
+      if (!firstInvalid) firstInvalid = name;
+    }
+  }
+
+  if (firstInvalid) {
+    const firstField = scope.querySelector(`[name="${firstInvalid}"]`) as HTMLElement & Record<string, unknown>;
+    if (firstField) {
+      if (typeof firstField.focusField === 'function') firstField.focusField();
+      else firstField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+
+  return { valid: Object.keys(errors).length === 0, errors, firstInvalidField: firstInvalid };
+}
+
+export async function resetAllFields(container?: HTMLElement): Promise<void> {
+  const scope = container || document.body;
+  const fields = scope.querySelectorAll('[name]');
+  for (let i = 0; i < fields.length; i++) {
+    const field = fields[i] as HTMLElement & Record<string, unknown>;
+    if (typeof field.reset === 'function') await field.reset();
+  }
+}
+
+export async function clearAllErrors(container?: HTMLElement): Promise<void> {
+  const scope = container || document.body;
+  const fields = scope.querySelectorAll('[name]');
+  for (let i = 0; i < fields.length; i++) {
+    const field = fields[i] as HTMLElement & Record<string, unknown>;
+    if (typeof field.clearError === 'function') await field.clearError();
+  }
+}
+
+export async function getFormData(container?: HTMLElement): Promise<Record<string, unknown>> {
+  const scope = container || document.body;
+  const fields = scope.querySelectorAll('[name]');
+  const data: Record<string, unknown> = {};
+  for (let i = 0; i < fields.length; i++) {
+    const field = fields[i] as HTMLElement & Record<string, unknown>;
+    const name = field.getAttribute('name');
+    if (!name) continue;
+    if (typeof field.getValue === 'function') data[name] = await field.getValue();
+    else data[name] = (field as unknown as HTMLInputElement).value;
+  }
+  return data;
+}
+
 export function createFormProxy(container: HTMLElement): import('./bc-setup').FormProxy {
   const getField = (name: string) => findSiblingField(container, name) as (HTMLElement & Record<string, unknown>) | null;
 

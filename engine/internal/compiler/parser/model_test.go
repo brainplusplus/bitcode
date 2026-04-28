@@ -666,3 +666,205 @@ func TestModelDefinition_OptionsPartial(t *testing.T) {
 		t.Error("expected soft_deletes_by default false when not specified")
 	}
 }
+
+func TestParseModel_NewTypes(t *testing.T) {
+	data := []byte(`{
+		"name": "test_new_types",
+		"fields": {
+			"token":     { "type": "uuid" },
+			"client_ip": { "type": "ip" },
+			"server_ip": { "type": "ipv6" },
+			"birth_year": { "type": "year" },
+			"embedding": { "type": "vector", "dimensions": 1536 },
+			"raw_data":  { "type": "binary" },
+			"metadata":  { "type": "json:object" },
+			"tags_data": { "type": "json:array" }
+		}
+	}`)
+
+	model, err := ParseModel(data)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	checks := map[string]FieldType{
+		"token":      FieldUUID,
+		"client_ip":  FieldIP,
+		"server_ip":  FieldIPv6,
+		"birth_year": FieldYear,
+		"embedding":  FieldVector,
+		"raw_data":   FieldBinary,
+		"metadata":   FieldJSONObject,
+		"tags_data":  FieldJSONArray,
+	}
+
+	for name, expected := range checks {
+		if model.Fields[name].Type != expected {
+			t.Errorf("field %q: expected type %q, got %q", name, expected, model.Fields[name].Type)
+		}
+	}
+
+	if model.Fields["embedding"].Dimensions != 1536 {
+		t.Errorf("expected dimensions 1536, got %d", model.Fields["embedding"].Dimensions)
+	}
+}
+
+func TestParseModel_VectorWithoutDimensions(t *testing.T) {
+	data := []byte(`{"name": "bad", "fields": {"emb": {"type": "vector"}}}`)
+	_, err := ParseModel(data)
+	if err == nil {
+		t.Fatal("expected error for vector without dimensions")
+	}
+	if !strings.Contains(err.Error(), "dimensions") {
+		t.Errorf("expected dimensions error, got: %v", err)
+	}
+}
+
+func TestParseModel_InvalidTypeVariant(t *testing.T) {
+	data := []byte(`{"name": "bad", "fields": {"x": {"type": "string:big"}}}`)
+	_, err := ParseModel(data)
+	if err == nil {
+		t.Fatal("expected error for invalid type variant")
+	}
+	if !strings.Contains(err.Error(), "does not support variants") {
+		t.Errorf("expected variant error, got: %v", err)
+	}
+}
+
+func TestParseModel_IPVariants(t *testing.T) {
+	data := []byte(`{
+		"name": "test_ip",
+		"fields": {
+			"v4": { "type": "ip:v4" },
+			"v6": { "type": "ip:v6" }
+		}
+	}`)
+
+	model, err := ParseModel(data)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if model.Fields["v4"].Type != FieldIP {
+		t.Errorf("ip:v4 should resolve to FieldIP, got %q", model.Fields["v4"].Type)
+	}
+	if model.Fields["v6"].Type != FieldIPv6 {
+		t.Errorf("ip:v6 should resolve to FieldIPv6, got %q", model.Fields["v6"].Type)
+	}
+}
+
+func TestParseModel_StorageHintValid(t *testing.T) {
+	data := []byte(`{
+		"name": "test_storage",
+		"fields": {
+			"big_id":   { "type": "integer", "storage": "bigint" },
+			"amount":   { "type": "decimal", "storage": "numeric" },
+			"content":  { "type": "text", "storage": "longtext" },
+			"price":    { "type": "currency", "storage": "numeric" }
+		}
+	}`)
+
+	_, err := ParseModel(data)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
+func TestParseModel_StorageHintInvalid(t *testing.T) {
+	data := []byte(`{"name": "bad", "fields": {"x": {"type": "integer", "storage": "varchar"}}}`)
+	_, err := ParseModel(data)
+	if err == nil {
+		t.Fatal("expected error for invalid storage hint")
+	}
+	if !strings.Contains(err.Error(), "invalid storage hint") {
+		t.Errorf("expected storage hint error, got: %v", err)
+	}
+}
+
+func TestParseModel_CurrencyFieldMutualExclusion(t *testing.T) {
+	data := []byte(`{"name": "bad", "fields": {"amount": {"type": "currency", "currency": "IDR", "currency_field": "curr_id"}}}`)
+	_, err := ParseModel(data)
+	if err == nil {
+		t.Fatal("expected error for currency + currency_field")
+	}
+	if !strings.Contains(err.Error(), "cannot have both") {
+		t.Errorf("expected mutual exclusion error, got: %v", err)
+	}
+}
+
+func TestParseModel_TitleFieldFormat(t *testing.T) {
+	data := []byte(`{
+		"name": "test_title",
+		"title_field": "{data.code} - {data.name}",
+		"fields": {
+			"code": { "type": "string" },
+			"name": { "type": "string" },
+			"price": { "type": "decimal" }
+		}
+	}`)
+
+	model, err := ParseModel(data)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if len(model.SearchField) != 2 {
+		t.Fatalf("expected 2 search fields, got %d: %v", len(model.SearchField), model.SearchField)
+	}
+
+	hasCode := false
+	hasName := false
+	for _, f := range model.SearchField {
+		if f == "code" {
+			hasCode = true
+		}
+		if f == "name" {
+			hasName = true
+		}
+	}
+	if !hasCode || !hasName {
+		t.Errorf("expected search fields [code, name], got %v", model.SearchField)
+	}
+}
+
+func TestParseModel_TablePlural(t *testing.T) {
+	data := []byte(`{
+		"name": "contact",
+		"table": { "prefix": "crm", "plural": true },
+		"fields": { "name": { "type": "string" } }
+	}`)
+
+	model, err := ParseModel(data)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if model.TablePlural == nil || !*model.TablePlural {
+		t.Error("expected TablePlural to be true")
+	}
+	if model.TablePrefix == nil || *model.TablePrefix != "crm" {
+		t.Error("expected TablePrefix to be 'crm'")
+	}
+}
+
+func TestParseModel_HiddenField(t *testing.T) {
+	data := []byte(`{
+		"name": "test_hidden",
+		"fields": {
+			"name":      { "type": "string" },
+			"embedding": { "type": "vector", "dimensions": 768, "hidden": true }
+		}
+	}`)
+
+	model, err := ParseModel(data)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if !model.Fields["embedding"].Hidden {
+		t.Error("expected embedding to be hidden")
+	}
+	if model.Fields["name"].Hidden {
+		t.Error("expected name to not be hidden")
+	}
+}

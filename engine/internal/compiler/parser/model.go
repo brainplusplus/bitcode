@@ -3,7 +3,10 @@ package parser
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
+	"regexp"
+	"strings"
 )
 
 type FieldType string
@@ -45,6 +48,18 @@ const (
 	FieldColor       FieldType = "color"
 	FieldGeolocation FieldType = "geolocation"
 	FieldRating      FieldType = "rating"
+
+	// Phase 6A: New types
+	FieldUUID   FieldType = "uuid"
+	FieldIP     FieldType = "ip"
+	FieldIPv6   FieldType = "ipv6"
+	FieldYear   FieldType = "year"
+	FieldVector FieldType = "vector"
+	FieldBinary FieldType = "binary"
+
+	// Phase 6A: JSON variants
+	FieldJSONObject FieldType = "json:object"
+	FieldJSONArray  FieldType = "json:array"
 )
 
 type PKStrategy string
@@ -337,6 +352,14 @@ type SanitizeConfig struct {
 	AllStrings []string `json:"_all_strings,omitempty"`
 }
 
+type NumberFormatConfig struct {
+	ThousandSeparator string `json:"thousand_separator,omitempty"`
+	DecimalSeparator  string `json:"decimal_separator,omitempty"`
+	Precision         int    `json:"precision,omitempty"`
+	Prefix            string `json:"prefix,omitempty"`
+	Suffix            string `json:"suffix,omitempty"`
+}
+
 type FieldDefinition struct {
 	Type      FieldType `json:"type"`
 	Label     string    `json:"label,omitempty"`
@@ -386,6 +409,17 @@ type FieldDefinition struct {
 	Mask       bool     `json:"mask,omitempty"`
 	MaskLength int      `json:"mask_length,omitempty"`
 	Groups     []string `json:"groups,omitempty"`
+
+	Hidden        bool                `json:"hidden,omitempty"`
+	Storage       string              `json:"storage,omitempty"`
+	Scale         int                 `json:"scale,omitempty"`
+	DisplayField  string              `json:"display_field,omitempty"`
+	CurrencyField string              `json:"currency_field,omitempty"`
+	Dimensions    int                 `json:"dimensions,omitempty"`
+	FieldIndex    any                 `json:"index,omitempty"`
+	NumberFormat  *NumberFormatConfig  `json:"number_format,omitempty"`
+	Models        []string            `json:"models,omitempty"`
+	Morph         string              `json:"morph,omitempty"`
 }
 
 type FileConfig struct {
@@ -400,6 +434,8 @@ type RecordRuleDefinition struct {
 
 type ModelTableConfig struct {
 	Prefix string `json:"prefix"`
+	Plural *bool  `json:"plural,omitempty"`
+	Name   string `json:"name,omitempty"`
 }
 
 type APIConfig struct {
@@ -451,6 +487,7 @@ type ModelDefinition struct {
 	TableRaw     json.RawMessage            `json:"table,omitempty"`
 	TableName    string                     `json:"-"`
 	TablePrefix  *string                    `json:"-"`
+	TablePlural  *bool                      `json:"-"`
 	Version       *bool                      `json:"version,omitempty"`
 	Timestamps    *bool                      `json:"timestamps,omitempty"`
 	TimestampsBy  *bool                      `json:"timestamps_by,omitempty"`
@@ -517,6 +554,27 @@ func ParseModel(data []byte) (*ModelDefinition, error) {
 		if field.Type == "" {
 			return nil, fmt.Errorf("field %q must have a type", name)
 		}
+
+		rawType := string(field.Type)
+		switch rawType {
+		case "json:object":
+			field.Type = FieldJSONObject
+		case "json:array":
+			field.Type = FieldJSONArray
+		case "ip:v4":
+			field.Type = FieldIP
+		case "ip:v6":
+			field.Type = FieldIPv6
+		default:
+			if strings.Contains(rawType, ":") {
+				base := strings.SplitN(rawType, ":", 2)[0]
+				if base != "json" && base != "ip" {
+					return nil, fmt.Errorf("field %q: type %q does not support variants (only json and ip do)", name, rawType)
+				}
+			}
+		}
+		model.Fields[name] = field
+
 		if field.Type == FieldMany2One && field.Model == "" {
 			return nil, fmt.Errorf("many2one field %q must specify model", name)
 		}
@@ -535,6 +593,18 @@ func ParseModel(data []byte) (*ModelDefinition, error) {
 		if field.Type == FieldDynamicLink && field.Model == "" {
 			return nil, fmt.Errorf("dynamic_link field %q must specify model", name)
 		}
+		if field.Type == FieldVector && field.Dimensions == 0 {
+			return nil, fmt.Errorf("vector field %q must specify dimensions", name)
+		}
+		if field.CurrencyCode != "" && field.CurrencyField != "" {
+			return nil, fmt.Errorf("field %q cannot have both currency and currency_field", name)
+		}
+		if field.DisplayField != "" && field.Type != FieldMany2One {
+			log.Printf("WARN: display_field on non-many2one field %q will be ignored", name)
+		}
+		if field.Storage != "" && !isValidStorageHint(field.Type, field.Storage) {
+			return nil, fmt.Errorf("field %q: invalid storage hint %q for type %q", name, field.Storage, field.Type)
+		}
 	}
 	if err := validatePrimaryKey(&model); err != nil {
 		return nil, err
@@ -543,7 +613,11 @@ func ParseModel(data []byte) (*ModelDefinition, error) {
 		model.TitleField = resolveTitleField(&model)
 	}
 	if len(model.SearchField) == 0 {
-		model.SearchField = []string{model.TitleField}
+		if strings.Contains(model.TitleField, "{") {
+			model.SearchField = extractSearchableFields(&model, model.TitleField)
+		} else {
+			model.SearchField = []string{model.TitleField}
+		}
 	}
 	if len(model.TableRaw) > 0 {
 		var tableName string
@@ -554,6 +628,10 @@ func ParseModel(data []byte) (*ModelDefinition, error) {
 			if err := json.Unmarshal(model.TableRaw, &tableConfig); err == nil {
 				prefix := tableConfig.Prefix
 				model.TablePrefix = &prefix
+				model.TablePlural = tableConfig.Plural
+				if tableConfig.Name != "" {
+					model.TableName = tableConfig.Name
+				}
 			}
 		}
 	}
@@ -713,4 +791,63 @@ func ParseModelFile(path string) (*ModelDefinition, error) {
 		return nil, fmt.Errorf("cannot read model file %s: %w", path, err)
 	}
 	return ParseModel(data)
+}
+
+func isValidStorageHint(fieldType FieldType, storage string) bool {
+	valid := map[FieldType][]string{
+		FieldInteger:  {"smallint", "bigint"},
+		FieldDecimal:  {"numeric", "double"},
+		FieldFloat:    {"double", "real"},
+		FieldText:     {"mediumtext", "longtext"},
+		FieldString:   {"char"},
+		FieldBinary:   {"mediumblob", "longblob"},
+		FieldDatetime: {"naive"},
+		FieldCurrency: {"numeric"},
+	}
+	hints, ok := valid[fieldType]
+	if !ok {
+		return false
+	}
+	for _, h := range hints {
+		if h == storage {
+			return true
+		}
+	}
+	return false
+}
+
+var dataFieldRe = regexp.MustCompile(`\{(?:[a-z_]+\()?data\.([a-z_]+)`)
+
+func extractSearchableFields(model *ModelDefinition, format string) []string {
+	matches := dataFieldRe.FindAllStringSubmatch(format, -1)
+
+	var fields []string
+	seen := make(map[string]bool)
+	for _, m := range matches {
+		fieldName := m[1]
+		if seen[fieldName] {
+			continue
+		}
+		seen[fieldName] = true
+		if fd, ok := model.Fields[fieldName]; ok {
+			if isTextSearchable(fd.Type) {
+				fields = append(fields, fieldName)
+			}
+		}
+	}
+
+	if len(fields) == 0 {
+		return []string{resolveTitleField(model)}
+	}
+	return fields
+}
+
+func isTextSearchable(ft FieldType) bool {
+	switch ft {
+	case FieldString, FieldText, FieldEmail, FieldPassword, FieldBarcode,
+		FieldColor, FieldCode, FieldSmallText, FieldRichText, FieldMarkdown,
+		FieldHTML, FieldIP, FieldIPv6, FieldUUID:
+		return true
+	}
+	return false
 }

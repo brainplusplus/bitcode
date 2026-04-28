@@ -15,12 +15,8 @@ export interface FormProxy {
   setVisible(name: string, visible: boolean): void;
 }
 
-const DEFAULT_CONFIG: BcConfig = {
-  baseUrl: '',
-  headers: {},
-  auth: { type: 'none' },
-  validateOn: 'blur',
-  validationMessages: {
+const VALIDATION_MESSAGES: Record<string, Record<string, string>> = {
+  en: {
     required: 'This field is required',
     minLength: 'Minimum {0} characters',
     maxLength: 'Maximum {0} characters',
@@ -31,6 +27,25 @@ const DEFAULT_CONFIG: BcConfig = {
     url: 'Invalid URL',
     phone: 'Invalid phone number',
   },
+  id: {
+    required: 'Wajib diisi',
+    minLength: 'Minimal {0} karakter',
+    maxLength: 'Maksimal {0} karakter',
+    min: 'Nilai minimal {0}',
+    max: 'Nilai maksimal {0}',
+    pattern: 'Format tidak valid',
+    email: 'Alamat email tidak valid',
+    url: 'URL tidak valid',
+    phone: 'Nomor telepon tidak valid',
+  },
+};
+
+const DEFAULT_CONFIG: BcConfig = {
+  baseUrl: '',
+  headers: {},
+  auth: { type: 'none' },
+  validateOn: 'blur',
+  validationMessages: { ...VALIDATION_MESSAGES.en },
   size: 'md',
   locale: 'en',
   theme: 'light',
@@ -59,6 +74,12 @@ class BcSetupImpl {
       if (!keysToSkip.has(key) && partial[key] !== undefined) {
         (this._config as unknown as Record<string, unknown>)[key] = partial[key];
       }
+    }
+
+    if (partial.locale !== undefined && !partial.validationMessages) {
+      const lang = partial.locale.split('-')[0];
+      const localeMessages = VALIDATION_MESSAGES[lang] || VALIDATION_MESSAGES.en;
+      this._config.validationMessages = { ...localeMessages };
     }
 
     if (partial.theme !== undefined) {
@@ -205,6 +226,8 @@ class BcSetupImpl {
 }
 
 export const BcSetup = new BcSetupImpl();
+
+export { validateAllFields, resetAllFields, clearAllErrors, getFormData } from './field-utils';
 
 if (typeof document !== 'undefined') {
   const baseUrlMeta = document.querySelector('meta[name="bc-base-url"]');

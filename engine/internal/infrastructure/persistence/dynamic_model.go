@@ -203,56 +203,200 @@ func buildColumns(model *parser.ModelDefinition, dialect DBDialect) string {
 	return cols
 }
 
+func resolveDecimalSQL(field parser.FieldDefinition, dialect DBDialect) string {
+	if dialect == DialectSQLite {
+		return "REAL"
+	}
+	if field.Storage == "numeric" {
+		if dialect == DialectPostgres {
+			return "NUMERIC"
+		}
+		return "DECIMAL(65,30)"
+	}
+	if field.Storage == "double" {
+		if dialect == DialectPostgres {
+			return "DOUBLE PRECISION"
+		}
+		return "DOUBLE"
+	}
+	p, s := 18, 2
+	if field.Scale > 0 {
+		s = field.Scale
+		if field.Precision > 0 {
+			p = field.Precision
+		}
+	} else if field.Precision > 0 {
+		s = field.Precision
+	}
+	if dialect == DialectPostgres {
+		return fmt.Sprintf("NUMERIC(%d,%d)", p, s)
+	}
+	return fmt.Sprintf("DECIMAL(%d,%d)", p, s)
+}
+
+func varcharOrText(dialect DBDialect, length int) string {
+	if dialect == DialectSQLite {
+		return "TEXT"
+	}
+	if length > 0 {
+		return fmt.Sprintf("VARCHAR(%d)", length)
+	}
+	return "VARCHAR(255)"
+}
+
 func fieldTypeToSQL(field parser.FieldDefinition, dialect DBDialect) string {
 	switch field.Type {
+
+	// --- Core types ---
+
 	case parser.FieldString:
-		if dialect == DialectSQLite {
-			return "TEXT"
+		if field.Storage == "char" && dialect != DialectSQLite {
+			if field.Max > 0 {
+				return fmt.Sprintf("CHAR(%d)", field.Max)
+			}
+			return "CHAR(255)"
 		}
-		if field.Max > 0 {
-			return fmt.Sprintf("VARCHAR(%d)", field.Max)
-		}
-		return "VARCHAR(255)"
+		return varcharOrText(dialect, field.Max)
+
 	case parser.FieldText:
+		if dialect == DialectMySQL {
+			switch field.Storage {
+			case "mediumtext":
+				return "MEDIUMTEXT"
+			case "longtext":
+				return "LONGTEXT"
+			}
+		}
 		return "TEXT"
+
 	case parser.FieldInteger:
+		switch field.Storage {
+		case "smallint":
+			if dialect == DialectSQLite {
+				return "INTEGER"
+			}
+			return "SMALLINT"
+		case "bigint":
+			if dialect == DialectSQLite {
+				return "INTEGER"
+			}
+			return "BIGINT"
+		}
 		return "INTEGER"
+
 	case parser.FieldDecimal:
+		return resolveDecimalSQL(field, dialect)
+
+	case parser.FieldFloat:
 		if dialect == DialectSQLite {
 			return "REAL"
 		}
-		if field.Precision > 0 {
-			return fmt.Sprintf("DECIMAL(18,%d)", field.Precision)
+		if dialect == DialectPostgres {
+			return "DOUBLE PRECISION"
 		}
-		return "DECIMAL(18,2)"
-	case parser.FieldBoolean:
+		return "DOUBLE"
+
+	case parser.FieldBoolean, parser.FieldToggle:
 		if dialect == DialectSQLite {
 			return "INTEGER"
 		}
 		return "BOOLEAN"
+
 	case parser.FieldDate:
 		if dialect == DialectSQLite {
 			return "TEXT"
 		}
 		return "DATE"
+
 	case parser.FieldDatetime:
 		if dialect == DialectSQLite {
 			return "TEXT"
+		}
+		if field.Storage == "naive" {
+			if dialect == DialectPostgres {
+				return "TIMESTAMP"
+			}
+			return "DATETIME"
 		}
 		if dialect == DialectPostgres {
 			return "TIMESTAMPTZ"
 		}
 		return "DATETIME"
-	case parser.FieldSelection:
+
+	case parser.FieldTime:
+		if dialect == DialectSQLite {
+			return "TEXT"
+		}
+		return "TIME"
+
+	case parser.FieldSelection, parser.FieldRadio:
 		if dialect == DialectSQLite {
 			return "TEXT"
 		}
 		return "VARCHAR(50)"
-	case parser.FieldEmail:
-		if dialect == DialectSQLite {
-			return "TEXT"
+
+	// --- String-family semantic types ---
+
+	case parser.FieldEmail, parser.FieldPassword, parser.FieldBarcode, parser.FieldDynamicLink:
+		return varcharOrText(dialect, 255)
+
+	case parser.FieldSmallText:
+		return varcharOrText(dialect, 500)
+
+	case parser.FieldColor:
+		return varcharOrText(dialect, 7)
+
+	case parser.FieldUUID:
+		if dialect == DialectPostgres {
+			return "UUID"
 		}
-		return "VARCHAR(255)"
+		if dialect == DialectMySQL {
+			return "CHAR(36)"
+		}
+		return "TEXT"
+
+	case parser.FieldIP:
+		return varcharOrText(dialect, 45)
+
+	case parser.FieldIPv6:
+		return varcharOrText(dialect, 45)
+
+	// --- Text-family semantic types ---
+
+	case parser.FieldRichText, parser.FieldMarkdown, parser.FieldHTML, parser.FieldCode, parser.FieldSignature:
+		return "TEXT"
+
+	// --- Number-family semantic types ---
+
+	case parser.FieldCurrency:
+		return resolveDecimalSQL(field, dialect)
+
+	case parser.FieldPercent:
+		if dialect == DialectSQLite {
+			return "REAL"
+		}
+		if dialect == DialectPostgres {
+			return "NUMERIC(5,2)"
+		}
+		return "DECIMAL(5,2)"
+
+	case parser.FieldRating:
+		if dialect == DialectSQLite {
+			return "INTEGER"
+		}
+		return "SMALLINT"
+
+	case parser.FieldYear:
+		if dialect == DialectSQLite {
+			return "INTEGER"
+		}
+		return "SMALLINT"
+
+	case parser.FieldDuration:
+		return "INTEGER"
+
+	// --- Relation types ---
+
 	case parser.FieldMany2One:
 		if dialect == DialectSQLite {
 			return "TEXT"
@@ -261,7 +405,13 @@ func fieldTypeToSQL(field parser.FieldDefinition, dialect DBDialect) string {
 			return "CHAR(36)"
 		}
 		return "UUID"
-	case parser.FieldJSON:
+
+	case parser.FieldOne2Many, parser.FieldMany2Many, parser.FieldComputed:
+		return ""
+
+	// --- JSON types ---
+
+	case parser.FieldJSON, parser.FieldJSONObject, parser.FieldJSONArray:
 		if dialect == DialectPostgres {
 			return "JSONB"
 		}
@@ -269,16 +419,48 @@ func fieldTypeToSQL(field parser.FieldDefinition, dialect DBDialect) string {
 			return "JSON"
 		}
 		return "TEXT"
-	case parser.FieldFile:
-		if dialect == DialectSQLite {
-			return "TEXT"
+
+	case parser.FieldGeolocation:
+		if dialect == DialectPostgres {
+			return "JSONB"
 		}
-		return "VARCHAR(500)"
-	case parser.FieldOne2Many, parser.FieldMany2Many, parser.FieldComputed:
-		return ""
-	default:
+		if dialect == DialectMySQL {
+			return "JSON"
+		}
 		return "TEXT"
+
+	// --- File types ---
+
+	case parser.FieldFile, parser.FieldImage:
+		return varcharOrText(dialect, 500)
+
+	// --- Special types ---
+
+	case parser.FieldVector:
+		if dialect == DialectPostgres && field.Dimensions > 0 {
+			return fmt.Sprintf("vector(%d)", field.Dimensions)
+		}
+		if dialect == DialectMySQL {
+			return "JSON"
+		}
+		return "TEXT"
+
+	case parser.FieldBinary:
+		if dialect == DialectPostgres {
+			return "BYTEA"
+		}
+		if dialect == DialectMySQL {
+			switch field.Storage {
+			case "mediumblob":
+				return "MEDIUMBLOB"
+			default:
+				return "LONGBLOB"
+			}
+		}
+		return "BLOB"
 	}
+
+	return "TEXT"
 }
 
 func formatDefault(val any, dialect DBDialect) string {

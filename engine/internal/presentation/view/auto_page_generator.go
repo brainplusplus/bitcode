@@ -5,13 +5,17 @@ import (
 )
 
 var excludeFromListFields = map[parser.FieldType]bool{
-	parser.FieldText:     true,
-	parser.FieldRichText: true,
-	parser.FieldMarkdown: true,
-	parser.FieldHTML:     true,
-	parser.FieldCode:     true,
-	parser.FieldJSON:     true,
-	parser.FieldOne2Many: true,
+	parser.FieldText:       true,
+	parser.FieldRichText:   true,
+	parser.FieldMarkdown:   true,
+	parser.FieldHTML:       true,
+	parser.FieldCode:       true,
+	parser.FieldJSON:       true,
+	parser.FieldJSONObject: true,
+	parser.FieldJSONArray:  true,
+	parser.FieldOne2Many:   true,
+	parser.FieldVector:     true,
+	parser.FieldBinary:     true,
 }
 
 func GenerateListView(model *parser.ModelDefinition, moduleName string) *parser.ViewDefinition {
@@ -21,6 +25,9 @@ func GenerateListView(model *parser.ModelDefinition, moduleName string) *parser.
 			continue
 		}
 		if field.Computed != "" {
+			continue
+		}
+		if field.Hidden {
 			continue
 		}
 		fields = append(fields, name)
@@ -70,6 +77,12 @@ func GenerateFormView(model *parser.ModelDefinition, moduleName string) *parser.
 	var tabFields []parser.TabDefinition
 
 	for name, field := range model.Fields {
+		if field.Hidden {
+			continue
+		}
+		if field.Type == parser.FieldVector || field.Type == parser.FieldBinary {
+			continue
+		}
 		if field.Type == parser.FieldOne2Many {
 			label := field.Label
 			if label == "" {
