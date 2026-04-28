@@ -44,6 +44,7 @@ func DefaultRegistry() *Registry {
 	RegisterDateTime(r)
 	RegisterEncoding(r)
 	RegisterFormat(r)
+	RegisterRegex(r)
 	r.RegisterEnv("crypto", CryptoNamespace())
 	return r
 }
