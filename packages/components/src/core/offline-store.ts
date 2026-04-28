@@ -19,18 +19,28 @@ interface SchemaFieldDef {
 }
 
 const _schemaFields = new Map<string, Set<string>>();
+const _searchableFields = new Map<string, string[]>();
 
 const OFFLINE_SYSTEM_COLUMNS = new Set([
   'id', '_off_uuid', '_off_device_id', '_off_status', '_off_version',
   '_off_deleted', '_off_created_at', '_off_updated_at', '_off_hlc', '_off_envelope_id',
 ]);
 
+const SEARCHABLE_TYPES = new Set(['string', 'text', 'email', 'url', 'phone', 'varchar', 'char']);
+
 function registerSchemaFields(tableName: string, fields: SchemaFieldDef[]): void {
   const names = new Set<string>(OFFLINE_SYSTEM_COLUMNS);
+  const searchable: string[] = [];
   for (const f of fields) {
     names.add(f.name);
+    if (SEARCHABLE_TYPES.has(f.type.toLowerCase())) {
+      searchable.push(f.name);
+    }
   }
   _schemaFields.set(tableName, names);
+  if (searchable.length > 0) {
+    _searchableFields.set(tableName, searchable);
+  }
 }
 
 const SAFE_IDENTIFIER_RE = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
@@ -92,8 +102,18 @@ function buildSelectSQL(table: string, params?: FetchParams): { sql: string; val
   }
 
   if (params?.search) {
-    clauses.push(`(id LIKE ? OR _off_uuid LIKE ?)`);
-    values.push(`%${params.search}%`, `%${params.search}%`);
+    const escaped = escapeLike(params.search);
+    const searchFields = _searchableFields.get(table);
+    if (searchFields && searchFields.length > 0) {
+      const likeParts = searchFields.map(f => `${f} LIKE ?`);
+      likeParts.push('id LIKE ?');
+      clauses.push(`(${likeParts.join(' OR ')})`);
+      for (let i = 0; i < searchFields.length; i++) values.push(`%${escaped}%`);
+      values.push(`%${escaped}%`);
+    } else {
+      clauses.push(`(id LIKE ? OR _off_uuid LIKE ?)`);
+      values.push(`%${escaped}%`, `%${escaped}%`);
+    }
   }
 
   if (clauses.length > 0) {
@@ -134,8 +154,18 @@ function buildCountSQL(table: string, params?: FetchParams): { sql: string; valu
   }
 
   if (params?.search) {
-    clauses.push(`(id LIKE ? OR _off_uuid LIKE ?)`);
-    values.push(`%${params.search}%`, `%${params.search}%`);
+    const escaped = escapeLike(params.search);
+    const searchFields = _searchableFields.get(table);
+    if (searchFields && searchFields.length > 0) {
+      const likeParts = searchFields.map(f => `${f} LIKE ?`);
+      likeParts.push('id LIKE ?');
+      clauses.push(`(${likeParts.join(' OR ')})`);
+      for (let i = 0; i < searchFields.length; i++) values.push(`%${escaped}%`);
+      values.push(`%${escaped}%`);
+    } else {
+      clauses.push(`(id LIKE ? OR _off_uuid LIKE ?)`);
+      values.push(`%${escaped}%`, `%${escaped}%`);
+    }
   }
 
   if (clauses.length > 0) {
@@ -437,23 +467,46 @@ export const OfflineStore = {
     return { success: true };
   },
 
-  async initFromServer(baseUrl?: string): Promise<void> {
+  async initFromServer(baseUrl?: string): Promise<{ source: 'server' | 'cache' | 'none'; modelCount: number }> {
     const url = baseUrl || BcSetup.getConfig().baseUrl;
     const headers = buildHeaders();
 
-    try {
-      const resp = await fetch(`${url}/api/v1/sync/schema`, { headers });
-      if (!resp.ok) return;
+    const maxAttempts = 3;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        const resp = await fetch(`${url}/api/v1/sync/schema`, { headers });
+        if (!resp.ok) {
+          if (attempt < maxAttempts) {
+            await sleep(1000 * Math.pow(2, attempt - 1));
+            continue;
+          }
+          break;
+        }
 
-      const body = await resp.json();
-      const models = body.models as Array<{ name: string; table_name: string; fields?: SchemaFieldDef[] }> | undefined;
-      if (!models || models.length === 0) return;
+        const body = await resp.json();
+        const models = body.models as Array<{ name: string; table_name: string; fields?: SchemaFieldDef[] }> | undefined;
+        if (!models || models.length === 0) break;
 
-      BcSetup.registerOfflineModels(models.map(m => m.name));
-      OfflineStore.registerTableMap(models);
-    } catch {
-      // Server unreachable — keep existing offline model config
+        BcSetup.registerOfflineModels(models.map(m => m.name));
+        OfflineStore.registerTableMap(models);
+        await persistModelRegistry(models);
+        return { source: 'server', modelCount: models.length };
+      } catch {
+        if (attempt < maxAttempts) {
+          await sleep(1000 * Math.pow(2, attempt - 1));
+          continue;
+        }
+      }
     }
+
+    const cached = await loadModelRegistryFromCache();
+    if (cached.length > 0) {
+      BcSetup.registerOfflineModels(cached.map(m => m.name));
+      OfflineStore.registerTableMap(cached);
+      return { source: 'cache', modelCount: cached.length };
+    }
+
+    return { source: 'none', modelCount: 0 };
   },
 
   async registerDevice(baseUrl?: string, platform?: string, appVersion?: string, storeId?: string): Promise<{ deviceId: string; devicePrefix: string } | null> {
@@ -884,6 +937,45 @@ async function incrementFailedAuth(): Promise<void> {
     'UPDATE _off_sync_state SET failed_auth_attempts = ?, locked_until = ? WHERE device_id = ?',
     [next, lockedUntil, _deviceId],
   );
+}
+
+function escapeLike(input: string): string {
+  return input.replace(/[%_\\]/g, ch => `\\${ch}`);
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function persistModelRegistry(
+  models: Array<{ name: string; table_name: string; fields?: SchemaFieldDef[] }>,
+): Promise<void> {
+  try {
+    await BcNative.dbExecute('DELETE FROM _off_model_registry', []);
+    for (const m of models) {
+      await BcNative.dbExecute(
+        `INSERT OR REPLACE INTO _off_model_registry (model_name, table_name, fields_json, cached_at) VALUES (?, ?, ?, ?)`,
+        [m.name, m.table_name, JSON.stringify(m.fields || []), new Date().toISOString()],
+      );
+    }
+  } catch { /* table may not exist on first run before migration */ }
+}
+
+async function loadModelRegistryFromCache(): Promise<Array<{ name: string; table_name: string; fields?: SchemaFieldDef[] }>> {
+  try {
+    const rows = await BcNative.dbSelect(
+      'SELECT model_name, table_name, fields_json FROM _off_model_registry',
+      [],
+    );
+    return rows.map(row => {
+      const r = row as Record<string, string>;
+      let fields: SchemaFieldDef[] | undefined;
+      try { fields = JSON.parse(r.fields_json); } catch { fields = undefined; }
+      return { name: r.model_name, table_name: r.table_name, fields };
+    });
+  } catch {
+    return [];
+  }
 }
 
 async function maybeCompress(

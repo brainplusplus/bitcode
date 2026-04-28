@@ -83,6 +83,18 @@ fn offline_migrations() -> Vec<Migration> {
             )",
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 6,
+            description: "create_off_model_registry",
+            sql: "CREATE TABLE IF NOT EXISTS _off_model_registry (
+                model_name TEXT NOT NULL,
+                table_name TEXT NOT NULL,
+                fields_json TEXT NOT NULL DEFAULT '[]',
+                cached_at TEXT NOT NULL DEFAULT (datetime('now')),
+                PRIMARY KEY (model_name)
+            )",
+            kind: MigrationKind::Up,
+        },
     ]
 }
 

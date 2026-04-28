@@ -15,6 +15,7 @@ import (
 
 	domainModel "github.com/bitcode-framework/bitcode/internal/domain/model"
 	"github.com/bitcode-framework/bitcode/internal/infrastructure/persistence"
+	syncPkg "github.com/bitcode-framework/bitcode/internal/runtime/sync"
 	"github.com/bitcode-framework/bitcode/pkg/security"
 )
 
@@ -142,6 +143,9 @@ func (h *SyncHandler) PushEnvelope(c *fiber.Ctx) error {
 	}
 
 	var maxVersion int64
+	var allConflicts []syncPkg.FieldConflict
+	var oversellAlerts []syncPkg.OversellAlert
+
 	for _, op := range req.Operations {
 		if !isValidTableName(op.TableName) {
 			tx.Rollback()
@@ -163,6 +167,18 @@ func (h *SyncHandler) PushEnvelope(c *fiber.Ctx) error {
 				})
 			}
 		case "UPDATE":
+			var serverRecord map[string]interface{}
+			tx.Table(op.TableName).Where("id = ?", op.RecordID).Take(&serverRecord)
+
+			if serverRecord != nil && len(serverRecord) > 0 {
+				deviceHLC, _ := op.Payload["_off_hlc"].(string)
+				mergeResult := syncPkg.ResolveFieldConflicts(serverRecord, op.Payload, serverRecord, deviceHLC, "")
+				if len(mergeResult.Conflicts) > 0 {
+					allConflicts = append(allConflicts, mergeResult.Conflicts...)
+					op.Payload = mergeResult.MergedData
+				}
+			}
+
 			if err := applyUpdate(tx, op); err != nil {
 				tx.Rollback()
 				logSyncEnvelope(h.db, req.EnvelopeID, req.DeviceID, "ERROR", len(req.Operations), time.Since(startTime), err.Error())
@@ -171,6 +187,29 @@ func (h *SyncHandler) PushEnvelope(c *fiber.Ctx) error {
 					"status":      "error",
 					"message":     err.Error(),
 				})
+			}
+
+			deltas := syncPkg.DetectInventoryFields(op.Payload)
+			for field, qty := range deltas {
+				alert, err := syncPkg.ApplyInventoryDelta(tx, syncPkg.InventoryDelta{
+					TableName: op.TableName,
+					RecordID:  op.RecordID,
+					Field:     field,
+					Delta:     qty,
+					DeviceID:  req.DeviceID,
+				}, req.EnvelopeID)
+				if err != nil {
+					tx.Rollback()
+					logSyncEnvelope(h.db, req.EnvelopeID, req.DeviceID, "ERROR", len(req.Operations), time.Since(startTime), err.Error())
+					return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+						"envelope_id": req.EnvelopeID,
+						"status":      "error",
+						"message":     err.Error(),
+					})
+				}
+				if alert != nil {
+					oversellAlerts = append(oversellAlerts, *alert)
+				}
 			}
 		case "DELETE":
 			if err := applyDelete(tx, op); err != nil {
@@ -211,17 +250,39 @@ func (h *SyncHandler) PushEnvelope(c *fiber.Ctx) error {
 		})
 	}
 
-	logSyncEnvelope(h.db, req.EnvelopeID, req.DeviceID, "APPLIED", len(req.Operations), time.Since(startTime), "")
+	if len(allConflicts) > 0 {
+		for _, op := range req.Operations {
+			if strings.ToUpper(op.Operation) == "UPDATE" {
+				_ = syncPkg.RecordConflictsToServer(h.db, req.EnvelopeID, req.DeviceID, "", op.TableName, op.RecordID, allConflicts)
+				break
+			}
+		}
+	}
+
+	status := "applied"
+	if len(allConflicts) > 0 {
+		status = "applied_with_conflicts"
+	}
+
+	logSyncEnvelope(h.db, req.EnvelopeID, req.DeviceID, strings.ToUpper(status), len(req.Operations), time.Since(startTime), "")
 
 	h.db.Exec("UPDATE _sync_devices SET last_sync_at = ?, last_sync_version = ? WHERE device_id = ?",
 		time.Now().UTC(), maxVersion, req.DeviceID)
 
-	return c.JSON(fiber.Map{
+	result := fiber.Map{
 		"envelope_id": req.EnvelopeID,
-		"status":      "applied",
+		"status":      status,
 		"version":     maxVersion,
 		"operations":  len(req.Operations),
-	})
+	}
+	if len(allConflicts) > 0 {
+		result["conflicts"] = len(allConflicts)
+	}
+	if len(oversellAlerts) > 0 {
+		result["oversell_alerts"] = len(oversellAlerts)
+	}
+
+	return c.JSON(result)
 }
 
 func (h *SyncHandler) PullChanges(c *fiber.Ctx) error {

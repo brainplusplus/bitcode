@@ -638,4 +638,119 @@ describe('OfflineStore', () => {
       expect(params[0]).toBe(50);
     });
   });
+
+  describe('initFromServer with retry and cache', () => {
+    it('returns server source on success', async () => {
+      BcSetup.configure({ baseUrl: 'http://localhost:8080' });
+
+      (global.fetch as jest.Mock).mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({
+          models: [
+            { name: 'lead', table_name: 'crm_lead', fields: [{ name: 'name', type: 'string' }] },
+          ],
+        }),
+      });
+
+      jest.spyOn(BcNative, 'dbExecute').mockResolvedValue({ rowsAffected: 1 });
+
+      const result = await OfflineStore.initFromServer();
+
+      expect(result.source).toBe('server');
+      expect(result.modelCount).toBe(1);
+      expect(BcSetup.isModelOffline('lead')).toBe(true);
+    });
+
+    it('falls back to cache when server is unreachable', async () => {
+      BcSetup.configure({ baseUrl: 'http://localhost:8080' });
+
+      (global.fetch as jest.Mock).mockRejectedValue(new Error('Network error'));
+
+      jest.spyOn(BcNative, 'dbExecute').mockResolvedValue({ rowsAffected: 1 });
+      jest.spyOn(BcNative, 'dbSelect').mockResolvedValueOnce([
+        { model_name: 'product', table_name: 'pos_product', fields_json: '[{"name":"name","type":"string"}]' },
+      ]);
+
+      const result = await OfflineStore.initFromServer();
+
+      expect(result.source).toBe('cache');
+      expect(result.modelCount).toBe(1);
+      expect(BcSetup.isModelOffline('product')).toBe(true);
+    });
+
+    it('returns none when both server and cache are empty', async () => {
+      BcSetup.configure({ baseUrl: 'http://localhost:8080' });
+
+      (global.fetch as jest.Mock).mockRejectedValue(new Error('Network error'));
+
+      jest.spyOn(BcNative, 'dbSelect').mockResolvedValueOnce([]);
+
+      const result = await OfflineStore.initFromServer();
+
+      expect(result.source).toBe('none');
+      expect(result.modelCount).toBe(0);
+    });
+  });
+
+  describe('search by text fields', () => {
+    it('searches across registered text fields', async () => {
+      BcSetup.registerOfflineModels(['product']);
+      OfflineStore.registerTableMap([{
+        name: 'product',
+        table_name: 'pos_product',
+        fields: [
+          { name: 'name', type: 'string' },
+          { name: 'sku', type: 'string' },
+          { name: 'price', type: 'integer' },
+          { name: 'description', type: 'text' },
+        ],
+      }]);
+
+      const dbSelectSpy = jest.spyOn(BcNative, 'dbSelect')
+        .mockResolvedValueOnce([{ cnt: 1 }])
+        .mockResolvedValueOnce([{ id: '1', name: 'Indomie', sku: 'SKU-001', price: 3000 }]);
+
+      await OfflineStore.find('product', { search: 'Indomie' });
+
+      const countSql = dbSelectSpy.mock.calls[0][0] as string;
+      expect(countSql).toContain('name LIKE');
+      expect(countSql).toContain('sku LIKE');
+      expect(countSql).toContain('description LIKE');
+      expect(countSql).not.toContain('price LIKE');
+    });
+
+    it('falls back to id/uuid search when no schema registered', async () => {
+      BcSetup.registerOfflineModels(['unknown']);
+      OfflineStore.registerTableMap([{ name: 'unknown', table_name: 'tbl_unknown' }]);
+
+      const dbSelectSpy = jest.spyOn(BcNative, 'dbSelect')
+        .mockResolvedValueOnce([{ cnt: 0 }])
+        .mockResolvedValueOnce([]);
+
+      await OfflineStore.find('unknown', { search: 'test' });
+
+      const countSql = dbSelectSpy.mock.calls[0][0] as string;
+      expect(countSql).toContain('id LIKE');
+      expect(countSql).toContain('_off_uuid LIKE');
+    });
+
+    it('escapes special LIKE characters in search term', async () => {
+      BcSetup.registerOfflineModels(['product']);
+      OfflineStore.registerTableMap([{
+        name: 'product',
+        table_name: 'pos_product',
+        fields: [{ name: 'name', type: 'string' }],
+      }]);
+
+      const dbSelectSpy = jest.spyOn(BcNative, 'dbSelect')
+        .mockResolvedValueOnce([{ cnt: 0 }])
+        .mockResolvedValueOnce([]);
+
+      await OfflineStore.find('product', { search: '100%_off' });
+
+      const params = dbSelectSpy.mock.calls[0][1] as string[];
+      const searchParam = params.find(p => typeof p === 'string' && p.includes('100'));
+      expect(searchParam).toContain('100\\%\\_off');
+    });
+  });
 });

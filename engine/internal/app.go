@@ -43,6 +43,7 @@ import (
 	"github.com/bitcode-framework/bitcode/internal/runtime/pkgen"
 	"github.com/bitcode-framework/bitcode/internal/runtime/plugin"
 	"github.com/bitcode-framework/bitcode/internal/runtime/validation"
+	syncPkg "github.com/bitcode-framework/bitcode/internal/runtime/sync"
 	wfEngine "github.com/bitcode-framework/bitcode/internal/runtime/workflow"
 	"github.com/bitcode-framework/bitcode/pkg/security"
 	"gorm.io/gorm"
@@ -1515,6 +1516,10 @@ func (a *App) initSyncInfrastructure() {
 		log.Printf("[SYNC] warning: failed to create sync infrastructure tables: %v", err)
 	} else {
 		log.Println("[SYNC] sync infrastructure tables ready")
+	}
+
+	if err := syncPkg.CreateOversellAlertsTable(a.DB); err != nil {
+		log.Printf("[SYNC] warning: failed to create oversell alerts table: %v", err)
 	}
 
 	syncHandler := api.NewSyncHandler(a.DB, a.ModelRegistry)
