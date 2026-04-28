@@ -3,6 +3,7 @@ package steps
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/bitcode-framework/bitcode/internal/compiler/parser"
 	"github.com/bitcode-framework/bitcode/internal/runtime/executor"
@@ -72,14 +73,16 @@ func (h *ScriptHandler) selectRunner(step parser.StepDefinition) ScriptRunner {
 
 func detectRuntimeFromExtension(script string) string {
 	switch {
-	case len(script) > 3 && script[len(script)-3:] == ".js":
+	case strings.HasSuffix(script, ".js"):
 		return "javascript"
-	case len(script) > 3 && script[len(script)-3:] == ".go":
+	case strings.HasSuffix(script, ".go"):
 		return "go"
-	case len(script) > 3 && script[len(script)-3:] == ".ts":
+	case strings.HasSuffix(script, ".ts"):
 		return "node"
-	case len(script) > 3 && script[len(script)-3:] == ".py":
+	case strings.HasSuffix(script, ".py"):
 		return "python"
+	case strings.HasSuffix(script, ".json"):
+		return "go-json"
 	default:
 		return ""
 	}
