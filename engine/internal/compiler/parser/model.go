@@ -502,8 +502,21 @@ type ModelDefinition struct {
 	APIRaw json.RawMessage `json:"api,omitempty"`
 	API    *APIConfig      `json:"-"`
 
+	App *ModelAppConfig `json:"app,omitempty"`
+
 	ModulePath    string `json:"-"`
 	OfflineModule bool   `json:"-"`
+}
+
+type ModelAppConfig struct {
+	Mode string `json:"mode,omitempty"` // "online" (default) | "offline"
+}
+
+func (m *ModelDefinition) IsOffline() bool {
+	if m.App == nil {
+		return false
+	}
+	return m.App.Mode == "offline"
 }
 
 func (m *ModelDefinition) IsVersion() bool {

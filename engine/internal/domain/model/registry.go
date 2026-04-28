@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"log"
 	"sync"
 
 	"github.com/bitcode-framework/bitcode/internal/compiler/parser"
@@ -9,11 +10,12 @@ import (
 )
 
 type Registry struct {
-	models       map[string]*parser.ModelDefinition
-	tableNames   map[string]string
-	moduleNames  map[string][]string
-	mu           sync.RWMutex
-	TableNaming  string // "singular" (default) or "plural"
+	models         map[string]*parser.ModelDefinition
+	tableNames     map[string]string
+	moduleNames    map[string][]string
+	mu             sync.RWMutex
+	TableNaming    string
+	ProjectAppMode string // "online" (default) | "offline" — set from bitcode.toml [app] mode
 }
 
 func NewRegistry() *Registry {
@@ -51,6 +53,18 @@ func (r *Registry) Register(model *parser.ModelDefinition) error {
 }
 
 func (r *Registry) RegisterWithModule(model *parser.ModelDefinition, moduleDef *parser.ModuleDefinition) error {
+	if model.IsOffline() {
+		model.OfflineModule = true
+	} else if moduleDef != nil && moduleDef.IsOffline() {
+		model.OfflineModule = true
+	} else if r.ProjectAppMode == "offline" {
+		model.OfflineModule = true
+	}
+	if model.OfflineModule {
+		if err := validateOfflinePK(model); err != nil {
+			return err
+		}
+	}
 	if err := r.Register(model); err != nil {
 		return err
 	}
@@ -147,6 +161,26 @@ func (r *Registry) ModulesForModel(modelName string) []string {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	return r.moduleNames[modelName]
+}
+
+func validateOfflinePK(model *parser.ModelDefinition) error {
+	if model.PrimaryKey == nil {
+		return nil
+	}
+	switch model.PrimaryKey.Strategy {
+	case parser.PKUUID:
+		return nil
+	case parser.PKAutoIncrement, parser.PKNaturalKey, parser.PKNamingSeries, parser.PKManual:
+		log.Printf("[SYNC] ⚠️  WARNING: Model %q uses pk:%q with offline mode. "+
+			"This requires _off_uuid column for sync identity. "+
+			"Consider using pk:\"uuid\" for simpler offline support.",
+			model.Name, model.PrimaryKey.Strategy)
+		return nil
+	case parser.PKComposite:
+		return fmt.Errorf("model %q uses pk:\"composite\" which is not supported in offline mode. "+
+			"Use pk:\"uuid\" or pk:\"natural_key\" instead", model.Name)
+	}
+	return nil
 }
 
 func appendUnique(slice []string, val string) []string {
