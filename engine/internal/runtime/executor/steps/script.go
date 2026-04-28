@@ -12,14 +12,17 @@ type ScriptRunner interface {
 	Run(ctx context.Context, script string, params map[string]any) (any, error)
 }
 
+type EmbeddedRunner interface {
+	CanHandle(runtime string) bool
+	Run(ctx context.Context, script string, params map[string]any) (any, error)
+}
+
 type ScriptHandler struct {
-	Runner ScriptRunner
+	Runner         ScriptRunner
+	EmbeddedRunner EmbeddedRunner
 }
 
 func (h *ScriptHandler) Execute(ctx context.Context, execCtx *executor.Context, step parser.StepDefinition) error {
-	if h.Runner == nil {
-		return fmt.Errorf("no script runner configured")
-	}
 	if step.Script == "" {
 		return fmt.Errorf("script step requires a script path")
 	}
@@ -31,7 +34,16 @@ func (h *ScriptHandler) Execute(ctx context.Context, execCtx *executor.Context, 
 		"user_id":   execCtx.UserID,
 	}
 
-	result, err := h.Runner.Run(ctx, step.Script, params)
+	runner := h.selectRunner(step)
+	if runner == nil {
+		return fmt.Errorf("no script runner configured for runtime %q", step.Runtime)
+	}
+
+	if step.Runtime != "" {
+		params["__runtime"] = step.Runtime
+	}
+
+	result, err := runner.Run(ctx, step.Script, params)
 	if err != nil {
 		return fmt.Errorf("script %s failed: %w", step.Script, err)
 	}
@@ -43,4 +55,32 @@ func (h *ScriptHandler) Execute(ctx context.Context, execCtx *executor.Context, 
 	execCtx.Variables[varName] = result
 	execCtx.Result = result
 	return nil
+}
+
+func (h *ScriptHandler) selectRunner(step parser.StepDefinition) ScriptRunner {
+	rt := step.Runtime
+	if rt == "" {
+		rt = detectRuntimeFromExtension(step.Script)
+	}
+
+	if h.EmbeddedRunner != nil && h.EmbeddedRunner.CanHandle(rt) {
+		return h.EmbeddedRunner
+	}
+
+	return h.Runner
+}
+
+func detectRuntimeFromExtension(script string) string {
+	switch {
+	case len(script) > 3 && script[len(script)-3:] == ".js":
+		return "javascript"
+	case len(script) > 3 && script[len(script)-3:] == ".go":
+		return "go"
+	case len(script) > 3 && script[len(script)-3:] == ".ts":
+		return "node"
+	case len(script) > 3 && script[len(script)-3:] == ".py":
+		return "python"
+	default:
+		return ""
+	}
 }

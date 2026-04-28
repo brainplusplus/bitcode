@@ -73,6 +73,21 @@ engine/
 │   │   │   ├── tx.go                       # Transaction manager
 │   │   │   ├── (12 more bridge files)      # db, cache, config, event, process, logger, email, notify, storage, i18n, security, audit, crypto
 │   │   │   └── bridge_test.go              # 27 tests
+│   │   ├── embedded/                        # Embedded JS runtimes — shared executor + per-engine VMs
+│   │   │   ├── runtime.go                  # EmbeddedRuntime + VM interfaces
+│   │   │   ├── executor.go                 # ExecuteEmbedded() — timeout, panic recovery, context cancel
+│   │   │   ├── registry.go                 # Engine registry + runtime resolution
+│   │   │   ├── bridge_helper.go            # Shared conversion: ParseSearchOpts, ParseHTTPOpts, etc.
+│   │   │   ├── script_runner.go            # EmbeddedScriptRunner — adapts to ScriptRunner interface
+│   │   │   ├── embedded_test.go            # 10 tests (registry, helpers)
+│   │   │   ├── goja/                       # goja runtime (pure Go, ES6+)
+│   │   │   │   ├── runtime.go, vm.go       # GojaVM — InjectBridge, Execute, Interrupt, compilation cache
+│   │   │   │   ├── proxy.go                # All 20 bridge namespaces as Go function maps
+│   │   │   │   └── goja_test.go            # 11 tests (execution, params, patterns, interrupt)
+│   │   │   └── qjs/                        # QuickJS runtime (Wazero WASM, ES2023)
+│   │   │       ├── runtime.go, vm.go       # QJSVM — host functions + JS wrapper
+│   │   │       ├── proxy.go                # Host function registration (__bc_* flat functions)
+│   │   │       └── bitcode_init.go         # JS wrapper creating bitcode.* API
 │   │   ├── agent/
 │   │   │   ├── worker.go                   # Agent worker — subscribe to events, execute with retry
 │   │   │   └── cron.go                     # Cron scheduler — periodic job execution

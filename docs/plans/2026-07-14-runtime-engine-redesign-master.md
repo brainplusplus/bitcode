@@ -465,7 +465,7 @@ Step 1 → Python **background** pool (step-level override).
 | **6A** | Schema Compatibility | — (independent) | ✅ Done | 8 new field types, storage hints, plural table naming, display labels, auto-validators |
 | **1** | Bridge API Design | — | ✅ Done | 20 namespace interfaces, tls-client HTTP, bulk ops, execution log, factory |
 | **1.5** | Multi-Tenancy Architecture | Phase 1 | ✅ Done | shared_table strategy, auto tenant_id column, tenant_scoped per model, conditional filtering |
-| **4** | Embedded Runtime: goja + quickjs | Phase 1 | 🔲 Next | `runtime: "javascript"` — single binary, no Node.js needed |
+| **4** | Embedded Runtime: goja + quickjs | Phase 1 | ✅ Done | goja (ES6+) + QuickJS (ES2023), 20 bridge namespaces, shared executor, compilation cache |
 | **5** | Embedded Runtime: yaegi | Phase 1 | 🔲 Pending | `runtime: "go"` — goroutines, bridges/, go.mod, exec whitelist |
 | **2** | Fix Node.js Child Process | Phase 1, 1.5 | 🔲 Pending | 6 TS scripts in samples/erp work with real bridge |
 | **3** | Fix Python Child Process | Phase 1, 1.5 | 🔲 Pending | 6 PY scripts in samples/erp work with real bridge |

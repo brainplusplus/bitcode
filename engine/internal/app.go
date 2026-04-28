@@ -31,6 +31,9 @@ import (
 	gqlPkg "github.com/bitcode-framework/bitcode/internal/presentation/graphql"
 	ws "github.com/bitcode-framework/bitcode/internal/presentation/websocket"
 	"github.com/bitcode-framework/bitcode/pkg/email"
+	jsrt "github.com/bitcode-framework/bitcode/internal/runtime/embedded"
+	gojaRT "github.com/bitcode-framework/bitcode/internal/runtime/embedded/goja"
+	qjsRT "github.com/bitcode-framework/bitcode/internal/runtime/embedded/qjs"
 	"github.com/bitcode-framework/bitcode/internal/runtime/executor"
 	"github.com/bitcode-framework/bitcode/internal/runtime/executor/steps"
 	"github.com/bitcode-framework/bitcode/internal/runtime/expression"
@@ -112,6 +115,7 @@ type App struct {
 	Validator       *validation.ValidatorAdapter
 	Sanitizer       *validation.Sanitizer
 	MigrationEngine *module.MigrationEngine
+	EmbeddedRegistry *jsrt.EngineRegistry
 	viewDefs        map[string]*viewEntry
 	moduleMenus     map[string][]parser.MenuItemDefinition
 	moduleOrder     []string
@@ -143,11 +147,16 @@ func NewApp(cfg AppConfig) (*App, error) {
 	translator := i18n.NewTranslator("en")
 	settingStore := setting.NewStore()
 
+	embeddedReg := jsrt.NewRegistry()
+	embeddedReg.Register("goja", gojaRT.New())
+	embeddedReg.Register("quickjs", qjsRT.New())
+
 	templateEngine.RegisterHelper("t", func(locale string, key string) string {
 		return translator.Translate(locale, key)
 	})
 
 	modelReg := domainModel.NewRegistry()
+	modelReg.ProjectAppMode = cfg.AppMode
 
 	var db *gorm.DB
 	var mongoConn *persistence.MongoConnection
@@ -235,9 +244,10 @@ func NewApp(cfg AppConfig) (*App, error) {
 		Hydrator:        hydrator,
 		AuditLogRepo:    auditLogRepo,
 		MongoConn:       mongoConn,
-		DBDriver:        driver,
-		viewDefs:        make(map[string]*viewEntry),
-		moduleMenus:     make(map[string][]parser.MenuItemDefinition),
+		DBDriver:         driver,
+		EmbeddedRegistry: embeddedReg,
+		viewDefs:         make(map[string]*viewEntry),
+		moduleMenus:      make(map[string][]parser.MenuItemDefinition),
 	}
 
 	if cfg.EncryptionKey != "" {
@@ -446,7 +456,15 @@ func (a *App) registerStepHandlers() {
 	a.Executor.RegisterHandler(parser.StepAssign, &steps.AssignHandler{})
 	a.Executor.RegisterHandler(parser.StepLog, &steps.LogHandler{})
 	a.Executor.RegisterHandler(parser.StepHTTP, &steps.HTTPHandler{})
-	a.Executor.RegisterHandler(parser.StepScript, &steps.ScriptHandler{Runner: a.PluginManager})
+	embeddedRunner := jsrt.NewScriptRunner(jsrt.ScriptRunnerConfig{
+		Registry:       a.EmbeddedRegistry,
+		DefaultEngine:  "goja",
+		ModulePath:     a.Config.ModuleDir,
+	})
+	a.Executor.RegisterHandler(parser.StepScript, &steps.ScriptHandler{
+		Runner:         a.PluginManager,
+		EmbeddedRunner: embeddedRunner,
+	})
 	a.Executor.RegisterHandler(parser.StepCall, &steps.CallHandler{Executor: a.Executor, Loader: a.ProcessRegistry})
 }
 
@@ -1491,13 +1509,14 @@ func (a *App) initSyncInfrastructure() {
 		log.Println("[SYNC] sync infrastructure tables ready")
 	}
 
-	syncHandler := api.NewSyncHandler(a.DB)
+	syncHandler := api.NewSyncHandler(a.DB, a.ModelRegistry)
 	syncGroup := a.Fiber.Group("/api/v1/sync")
 	syncGroup.Post("/register", syncHandler.RegisterDevice)
 	syncGroup.Post("/push", syncHandler.PushEnvelope)
 	syncGroup.Get("/pull", syncHandler.PullChanges)
 	syncGroup.Post("/auth/cache", syncHandler.CacheAuth)
 	syncGroup.Get("/status", syncHandler.DeviceStatus)
+	syncGroup.Get("/schema", syncHandler.GetSchema)
 	log.Println("[SYNC] sync API endpoints registered")
 }
 
