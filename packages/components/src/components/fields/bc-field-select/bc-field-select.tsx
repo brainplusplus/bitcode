@@ -52,6 +52,7 @@ export class BcFieldSelect {
   @State() private _highlightIndex: number = -1;
   @State() private _loadedOptions: SelectOption[] = [];
   @State() private _fetchError: string = '';
+  @State() private _visibleLimit: number = 100;
 
   private _inputEl?: HTMLInputElement;
   private _dependListener?: (e: Event) => void;
@@ -180,6 +181,7 @@ export class BcFieldSelect {
     this._highlightIndex = -1;
     this._searchQuery = '';
     this._filteredOptions = [...this._loadedOptions];
+    this._visibleLimit = 100;
     this.lcDropdownOpen.emit();
     this.lcFieldFocus.emit({ name: this.name, value: this.value });
     setTimeout(() => this._inputEl?.focus(), 10);
@@ -267,6 +269,14 @@ export class BcFieldSelect {
     }
   }
 
+  private _removeValue(val: string) {
+    const old = this.value;
+    const vals = this._getSelectedValues().filter(v => v !== val);
+    this.value = JSON.stringify(vals);
+    this._fieldState = markDirty(this._fieldState, this.value);
+    this.lcFieldChange.emit({ name: this.name, value: this.value, oldValue: old });
+  }
+
   private handleClear() { const old = this.value; this.value = this.multiple ? '[]' : ''; this._fieldState = markDirty(this._fieldState, this.value); this.lcFieldClear.emit({ name: this.name, oldValue: old }); this.lcFieldChange.emit({ name: this.name, value: this.value, oldValue: old }); }
 
   private _getDisplayLabel(): string {
@@ -319,8 +329,22 @@ export class BcFieldSelect {
         {this.label && <label class="bc-field-label" htmlFor={this.name}>{this.label}{this.required && <span class="required">*</span>}{this.tooltip && <span class="bc-field-tooltip" title={this.tooltip}>?</span>}</label>}
 
         <div class="bc-select-wrapper" onKeyDown={(e) => this._handleKeyDown(e)}>
-          <button type="button" class={{ 'bc-select-trigger': true, 'bc-select-open': this._isOpen, 'bc-field-input': true, [`bc-field-input-${this.size}`]: this.size !== 'md' }} disabled={this.disabled || this.readonly} onClick={() => this._isOpen ? this._closeDropdown() : this._openDropdown()} {...ariaAttrs} role="combobox" aria-expanded={String(this._isOpen)} aria-haspopup="listbox">
-            <span class={{ 'bc-select-value': true, 'bc-select-placeholder': !displayLabel }}>{displayLabel || this.placeholder}</span>
+          <button type="button" class={{ 'bc-select-trigger': true, 'bc-select-open': this._isOpen, 'bc-select-multi': this.multiple, 'bc-field-input': true, [`bc-field-input-${this.size}`]: this.size !== 'md' }} disabled={this.disabled || this.readonly} onClick={() => this._isOpen ? this._closeDropdown() : this._openDropdown()} {...ariaAttrs} role="combobox" aria-expanded={String(this._isOpen)} aria-haspopup="listbox">
+            {this.multiple && this._getSelectedValues().length > 0 ? (
+              <span class="bc-select-tags">
+                {this._getSelectedValues().map(v => {
+                  const opt = this._loadedOptions.find(o => o.value === v);
+                  return (
+                    <span class="bc-select-tag">
+                      {opt ? opt.label : v}
+                      {!this.disabled && !this.readonly && <span class="bc-select-tag-remove" onClick={(e) => { e.stopPropagation(); this._removeValue(v); }}>&times;</span>}
+                    </span>
+                  );
+                })}
+              </span>
+            ) : (
+              <span class={{ 'bc-select-value': true, 'bc-select-placeholder': !displayLabel }}>{displayLabel || this.placeholder}</span>
+            )}
             <span class="bc-select-arrow">{this._isOpen ? '\u25B2' : '\u25BC'}</span>
           </button>
 
@@ -342,12 +366,17 @@ export class BcFieldSelect {
                     {this.creatable && this._searchQuery && <button type="button" class="bc-select-create" onClick={() => this._handleCreate()}>Create "{this._searchQuery}"</button>}
                   </div>
                 )}
-                {!this.loading && this._filteredOptions.map((opt, i) => (
+                {!this.loading && this._filteredOptions.slice(0, this._visibleLimit).map((opt, i) => (
                   <div class={{ 'bc-select-option': true, 'bc-select-option-selected': this._isSelected(opt.value), 'bc-select-option-highlighted': i === this._highlightIndex }} onMouseDown={() => this._selectOption(opt)} onMouseEnter={() => { this._highlightIndex = i; }} role="option" aria-selected={String(this._isSelected(opt.value))}>
                     {this.multiple && <span class="bc-select-check">{this._isSelected(opt.value) ? '\u2611' : '\u2610'}</span>}
                     {opt.label}
                   </div>
                 ))}
+                {!this.loading && this._filteredOptions.length > this._visibleLimit && (
+                  <div class="bc-select-load-more" onMouseDown={() => { this._visibleLimit += 100; }}>
+                    Show more ({this._filteredOptions.length - this._visibleLimit} remaining)
+                  </div>
+                )}
               </div>
             </div>
           )}

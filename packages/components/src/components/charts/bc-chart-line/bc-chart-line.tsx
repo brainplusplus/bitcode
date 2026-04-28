@@ -1,5 +1,6 @@
 import { Component, Prop, Element, Watch, Method, Event, EventEmitter, h } from '@stencil/core';
-import { ChartClickEvent } from '../../../core/types';
+import { ChartClickEvent, DataFetcher } from '../../../core/types';
+import { fetchData } from '../../../core/data-fetcher';
 import * as echarts from 'echarts';
 
 @Component({ tag: 'bc-chart-line', styleUrl: 'bc-chart-line.css', shadow: false })
@@ -18,10 +19,19 @@ export class BcChartLine {
   @Prop() refreshInterval: number = 0;
   @Event() lcChartClick!: EventEmitter<ChartClickEvent>;
   private chart: echarts.ECharts | null = null;
+  private _refreshTimer: ReturnType<typeof setInterval> | null = null;
+  dataFetcher?: DataFetcher;
 
-  componentDidLoad() { this.renderChart(); }
+  componentDidLoad() { this.renderChart(); if (this.dataSource || this.dataFetcher) this._fetchRemoteData(); if (this.refreshInterval > 0) this._refreshTimer = setInterval(() => this._fetchRemoteData(), this.refreshInterval); }
   @Watch('data') onDataChange() { this.renderChart(); }
-  disconnectedCallback() { this.chart?.dispose(); }
+  disconnectedCallback() { this.chart?.dispose(); if (this._refreshTimer) clearInterval(this._refreshTimer); }
+
+  private async _fetchRemoteData() {
+    this.loading = true;
+    try { const result = await fetchData({ fetcher: this.dataFetcher, element: this.el, dataSource: this.dataSource, fetchHeaders: this.fetchHeaders }); this.data = JSON.stringify(result.data); }
+    catch { /* keep existing data */ }
+    this.loading = false;
+  }
 
   private renderChart() {
     const container = this.el.querySelector('.bc-echart') as HTMLElement;
@@ -38,7 +48,7 @@ export class BcChartLine {
     });
   }  @Method() async updateData(newData: unknown): Promise<void> { this.data = typeof newData === 'string' ? newData : JSON.stringify(newData); }
   @Method() async setData(newData: unknown): Promise<void> { this.data = typeof newData === 'string' ? newData : JSON.stringify(newData); }
-  @Method() async refresh(): Promise<void> { this.renderChart(); }
+  @Method() async refresh(): Promise<void> { if (this.dataSource || this.dataFetcher) await this._fetchRemoteData(); else this.renderChart(); }
   @Method() async resize(): Promise<void> { this.chart?.resize(); }
   @Method() async exportImage(format: string = 'png'): Promise<string> { return this.chart?.getDataURL({ type: format as 'png' | 'jpeg' | 'svg', pixelRatio: 2 }) || ''; }
 
@@ -46,5 +56,6 @@ export class BcChartLine {
 
   render() { return (<div class="bc-chart-wrap"><div class="bc-echart"></div></div>); }
 }
+
 
 
