@@ -27,6 +27,15 @@
 | default-value | varies | | Default for reset |
 | validate-on | string | 'blur' | Validation trigger |
 
+
+### Component-Specific Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| min | string | '' | Min time |
+| max | string | '' | Max time |
+| step | number | 60 | Step in seconds |
+
 ## Events
 
 | Event | Payload |
@@ -55,4 +64,5 @@
 | clearError() | Promise<void> |
 
 See [validation](../validation.md), [theming](../theming.md), [data-fetching](../data-fetching.md).
+
 

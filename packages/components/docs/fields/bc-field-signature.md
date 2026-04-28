@@ -27,6 +27,14 @@
 | default-value | varies | | Default for reset |
 | validate-on | string | 'blur' | Validation trigger |
 
+
+### Component-Specific Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| width | number | 400 | Canvas width |
+| height | number | 200 | Canvas height |
+
 ## Events
 
 | Event | Payload |
@@ -55,4 +63,5 @@
 | clearError() | Promise<void> |
 
 See [validation](../validation.md), [theming](../theming.md), [data-fetching](../data-fetching.md).
+
 

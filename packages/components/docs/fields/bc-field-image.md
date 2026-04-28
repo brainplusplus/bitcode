@@ -27,6 +27,16 @@
 | default-value | varies | | Default for reset |
 | validate-on | string | 'blur' | Validation trigger |
 
+
+### Component-Specific Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| accept | string | 'image/*' | Accepted types |
+| max-size | string | '10MB' | Max file size |
+| preview | boolean | true | Show preview |
+| model | string | '' | Upload model |
+
 ## Events
 
 | Event | Payload |
@@ -55,4 +65,5 @@
 | clearError() | Promise<void> |
 
 See [validation](../validation.md), [theming](../theming.md), [data-fetching](../data-fetching.md).
+
 

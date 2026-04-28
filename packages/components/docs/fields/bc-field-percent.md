@@ -27,6 +27,16 @@
 | default-value | varies | | Default for reset |
 | validate-on | string | 'blur' | Validation trigger |
 
+
+### Component-Specific Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| min | number | 0 | Minimum (default 0) |
+| max | number | 100 | Maximum (default 100) |
+| step | number | 1 | Step increment |
+| suffix-text | string | '%' | Suffix (default %) |
+
 ## Events
 
 | Event | Payload |
@@ -55,4 +65,5 @@
 | clearError() | Promise<void> |
 
 See [validation](../validation.md), [theming](../theming.md), [data-fetching](../data-fetching.md).
+
 

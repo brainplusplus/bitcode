@@ -27,6 +27,14 @@
 | default-value | varies | | Default for reset |
 | validate-on | string | 'blur' | Validation trigger |
 
+
+### Component-Specific Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| model | string | '' | Related model |
+| modelfield | string | '' | Field that determines model |
+
 ## Events
 
 | Event | Payload |
@@ -55,4 +63,5 @@
 | clearError() | Promise<void> |
 
 See [validation](../validation.md), [theming](../theming.md), [data-fetching](../data-fetching.md).
+
 
