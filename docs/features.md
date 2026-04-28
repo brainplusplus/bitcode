@@ -142,7 +142,7 @@ Before the gap list — what's already **production-solid**:
 | 35 | Web Form (Public) | ❌ | M | — | All forms require auth. Need public form route (bypass auth) + CAPTCHA + rate limiting. |
 | 36 | View Types (List/Kanban/Calendar) | ✅ | — | 6 view types: list, form, kanban, calendar, chart, custom. All implemented in `view/renderer.go` + templates. Stencil has 9 view components (+ gantt, map, tree, report, activity). | — |
 | 37 | Dashboard Builder | ✅ | — | Custom view type with `data_sources`. Admin dashboard at `/admin`. | — |
-| 72 | Enterprise Component Infrastructure | ✅ | — | BcSetup (global config: auth, headers, theme, validators), 4-level data fetching (local/URL/event-intercept/custom-fetcher), 3-level validation (built-in/custom-JS/server-side), field utilities (dirty/touched/ARIA/FormProxy), theming (light/dark/system-detect/custom via CSS custom properties). All standalone — no BitCode dependency. All 34 field components upgraded with enterprise props/events/methods. shadow:false for all. | Phase 3-6 remaining (select data features, datatable, charts, reactivity). |
+| 72 | Enterprise Component Infrastructure | ✅ | — | All 6 phases complete. BcSetup (global config + reactivity runtime), 4-level data fetching, 3-level validation, theming (light/dark/system/custom), 34 field components, 5 select-family with searchable dropdown + cascading, datatable with enterprise methods, 11 charts with enterprise features. All standalone — no BitCode dependency. | — |
 | 73 | Theming System | ✅ | — | CSS custom properties (`--bc-*`), light/dark themes, `prefers-color-scheme` auto-detect, `data-bc-theme` attribute for scoped themes, size tokens (sm/md/lg), `BcSetup.configure({ theme })` for programmatic switching. | — |
 
 ---

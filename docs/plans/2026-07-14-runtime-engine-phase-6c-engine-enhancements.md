@@ -896,8 +896,11 @@ All changes are additive. Existing queries without `conditions` or `nested` work
 table_naming = "plural"         # "singular" (default) | "plural" — from Phase 6A
 
 [locale]
-currency = "IDR"                # Default currency code — from Phase 6A discussion
+currency = "IDR"                # Default currency code — from Phase 6A
 timezone = "Asia/Jakarta"       # Default timezone
+number_format = "id-ID"         # BCP 47 locale — auto-resolve number separators
+thousand_separator = "."        # Explicit override (takes precedence over number_format)
+decimal_separator = ","         # Explicit override (takes precedence over number_format)
 
 [meta_api]
 enabled = true                  # Enable metadata API
@@ -914,6 +917,9 @@ max_depth = 3                   # Maximum nested eager loading depth
 v.SetDefault("database.table_naming", "singular")
 v.SetDefault("locale.currency", "USD")
 v.SetDefault("locale.timezone", "UTC")
+v.SetDefault("locale.number_format", "en-US")
+v.SetDefault("locale.thousand_separator", "")  // empty = auto from number_format
+v.SetDefault("locale.decimal_separator", "")   // empty = auto from number_format
 v.SetDefault("meta_api.enabled", true)
 v.SetDefault("meta_api.auth", true)
 v.SetDefault("meta_api.admin_only", true)

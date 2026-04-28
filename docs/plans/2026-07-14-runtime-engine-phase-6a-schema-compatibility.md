@@ -450,13 +450,14 @@ type FieldDefinition struct {
     // ... existing fields ...
 
     // New modifiers
-    Hidden       bool   `json:"hidden,omitempty"`        // Field exists in DB but never shown in UI by default
-    Storage      string `json:"storage,omitempty"`        // Storage hint (see §5)
-    Scale        int    `json:"scale,omitempty"`          // Decimal places (new, proper name)
-    DisplayField string `json:"display_field,omitempty"`  // Override title_field for many2one (see §8)
-    CurrencyField string `json:"currency_field,omitempty"` // Dynamic currency reference (see §9)
-    Dimensions   int    `json:"dimensions,omitempty"`     // Vector dimensions (required for vector type)
-    Index        any    `json:"index,omitempty"`          // true/false/"hnsw"/"ivfflat" (for vector)
+    Hidden        bool              `json:"hidden,omitempty"`         // Field exists in DB but never shown in UI by default
+    Storage       string            `json:"storage,omitempty"`        // Storage hint (see §5)
+    Scale         int               `json:"scale,omitempty"`          // Decimal places (new, proper name)
+    DisplayField  string            `json:"display_field,omitempty"`  // Override title_field for many2one (see §8)
+    CurrencyField string            `json:"currency_field,omitempty"` // Dynamic currency reference (see §9)
+    Dimensions    int               `json:"dimensions,omitempty"`     // Vector dimensions (required for vector type)
+    Index         any               `json:"index,omitempty"`          // true/false/"hnsw"/"ivfflat" (for vector)
+    Mask          *FieldMaskConfig  `json:"mask,omitempty"`           // Number/currency input mask override (see §9.5)
 }
 ```
 
@@ -496,6 +497,7 @@ type FieldDefinition struct {
 | `currency_field` | `string` | **NEW** | Dynamic currency from another field |
 | `dimensions` | `int` | **NEW** | Vector dimensions (required for vector) |
 | `index` | `any` | **NEW** | Vector index type |
+| `mask` | `*FieldMaskConfig` | **NEW** | Number/currency input mask override |
 
 ---
 
@@ -740,6 +742,106 @@ Currency type storage is **always DECIMAL-family**, regardless of mode:
 - `currency` and `currency_field` are mutually exclusive on the same field. Parser error if both set.
 - `currency_field` must reference a field that exists in the same model. Parser warning if not found (may be added by inheritance).
 - `currency_field` typically references a `many2one` to a currency model, but can also reference a `selection` or `string` field containing a currency code.
+
+### 9.5 Number/Currency Formatting
+
+#### Three-Layer Formatting System
+
+**Layer 1: Currency table** (for `currency` type fields)
+
+The `base.currency` model should include formatting fields:
+
+```json
+{
+  "name": "currency",
+  "source": "array",
+  "primary_key": { "strategy": "natural_key", "field": "code" },
+  "fields": {
+    "code":               { "type": "string", "max": 3 },
+    "name":               { "type": "string" },
+    "symbol":             { "type": "string", "max": 5 },
+    "decimals":           { "type": "integer", "default": 2 },
+    "thousand_separator": { "type": "string", "max": 1, "default": "," },
+    "decimal_separator":  { "type": "string", "max": 1, "default": "." },
+    "symbol_position":    { "type": "selection", "options": ["before", "after"], "default": "before" }
+  },
+  "rows": [
+    { "code": "IDR", "name": "Indonesian Rupiah", "symbol": "Rp", "decimals": 0, "thousand_separator": ".", "decimal_separator": ",", "symbol_position": "before" },
+    { "code": "USD", "name": "US Dollar", "symbol": "$", "decimals": 2, "thousand_separator": ",", "decimal_separator": ".", "symbol_position": "before" },
+    { "code": "EUR", "name": "Euro", "symbol": "€", "decimals": 2, "thousand_separator": ".", "decimal_separator": ",", "symbol_position": "before" }
+  ]
+}
+```
+
+Currency fields resolve formatting from this table automatically. Developer does not need to specify separators per field.
+
+**Layer 2: Project locale config** (for non-currency numeric fields)
+
+```toml
+# bitcode.toml
+[locale]
+currency = "IDR"
+number_format = "id-ID"          # BCP 47 locale tag — auto-resolve separators
+# OR explicit:
+thousand_separator = "."
+decimal_separator = ","
+```
+
+If `number_format` is set, `thousand_separator` and `decimal_separator` are auto-resolved from the locale. Explicit values override auto-resolution.
+
+Applies to: `integer`, `decimal`, `float`, `percent`, `rating` — any numeric field that is NOT `currency`.
+
+**Layer 3: Per-field mask override** (rare, for special cases)
+
+```go
+type FieldMaskConfig struct {
+    ThousandSeparator string `json:"thousand_separator,omitempty"`
+    DecimalSeparator  string `json:"decimal_separator,omitempty"`
+    Precision         int    `json:"precision,omitempty"`
+    Prefix            string `json:"prefix,omitempty"`   // e.g., "$", "Rp "
+    Suffix            string `json:"suffix,omitempty"`   // e.g., "%", " kg"
+}
+```
+
+```json
+{
+  "weight": {
+    "type": "decimal",
+    "scale": 3,
+    "mask": {
+      "thousand_separator": ",",
+      "precision": 3,
+      "suffix": " kg"
+    }
+  }
+}
+```
+
+#### Formatting Resolution
+
+For `currency` type:
+```
+1. field.mask (per-field override)         → if set, use this
+2. currency table (from resolved currency) → symbol, decimals, separators
+3. locale config (project-level)           → fallback
+```
+
+For other numeric types (`decimal`, `float`, `integer`, `percent`):
+```
+1. field.mask (per-field override)         → if set, use this
+2. locale config (project-level)           → thousand_separator, decimal_separator
+3. hardcoded                               → thousand: ",", decimal: "."
+```
+
+#### Input Masking (Client-Side)
+
+The `mask` config is also used for **live input masking** in form fields. The `bc-field-currency` and `bc-field-number` web components read the mask config and apply formatting as the user types:
+
+```
+User types: 1500000
+Display:    1.500.000 (with thousand separator)
+Stored:     1500000 (raw number in DB)
+```
 
 ---
 

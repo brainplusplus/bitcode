@@ -9,7 +9,7 @@ cron
 
 repository => can used by another process
 datasources
-field model/form bisa dependent, misal province, city, dll
+
 
 create components stencil
 agent => coder tools, models tools, form tools, report tools
@@ -39,3 +39,11 @@ data seeder mendukung xlsx, csv maupun json, xml ala odoo dan bisa custom proces
 CRUD component stencil with export, pdf, etc support
 openapi/swagger
 rest api, websocket, graphql
+
+
+ingat ya moto saya, dan jangan lupa WAJIB berpikir kritis, detail, mateng, lengkap dan jujur (dalam bikin plan, design, implementation, dan execution, diskusi, etc)
+
+
+lanjutkan, dan ingat ya moto saya, serta jangan lupa WAJIB berpikir kritis, detail, mateng, lengkap dan jujur (dalam bikin plan, design, implementation, dan execution, diskusi, etc)
+
+jawab dengan pikiran yg kritis, detail, matang, lengkap dan jujur dan sesuai moto saya. ada yg masih kurang gak? atau perlu di improve?
