@@ -5,8 +5,8 @@
  * It contains typing information for all components that exist in this project.
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
-import { FieldBlurEvent, FieldChangeEvent, FieldClearEvent, FieldFocusEvent, FieldValidationEvent, FieldValidEvent, OptionCreateEvent, OptionsErrorEvent, OptionsLoadEvent, ValidateOn, ValidationResult } from "./core/types";
-export { FieldBlurEvent, FieldChangeEvent, FieldClearEvent, FieldFocusEvent, FieldValidationEvent, FieldValidEvent, OptionCreateEvent, OptionsErrorEvent, OptionsLoadEvent, ValidateOn, ValidationResult } from "./core/types";
+import { ChartClickEvent, FieldBlurEvent, FieldChangeEvent, FieldClearEvent, FieldFocusEvent, FieldValidationEvent, FieldValidEvent, FilterChangeEvent as FilterChangeEventType, OptionCreateEvent, OptionsErrorEvent, OptionsLoadEvent, PageChangeEvent, SortChangeEvent as SortChangeEventType, ValidateOn, ValidationResult } from "./core/types";
+export { ChartClickEvent, FieldBlurEvent, FieldChangeEvent, FieldClearEvent, FieldFocusEvent, FieldValidationEvent, FieldValidEvent, FilterChangeEvent as FilterChangeEventType, OptionCreateEvent, OptionsErrorEvent, OptionsLoadEvent, PageChangeEvent, SortChangeEvent as SortChangeEventType, ValidateOn, ValidationResult } from "./core/types";
 export namespace Components {
     interface BcActivity {
         /**
@@ -26,43 +26,182 @@ export namespace Components {
     }
     interface BcChartArea {
         /**
+          * @default true
+         */
+        "animate": boolean;
+        /**
           * @default ''
          */
         "chartTitle": string;
         /**
+          * @default ''
+         */
+        "colors": string;
+        /**
           * @default '[]'
          */
         "data": string;
+        /**
+          * @default ''
+         */
+        "dataSource": string;
+        "exportImage": (format?: string) => Promise<string>;
+        /**
+          * @default ''
+         */
+        "fetchHeaders": string;
+        /**
+          * @default '300px'
+         */
+        "height": string;
+        /**
+          * @default true
+         */
+        "legend": boolean;
+        /**
+          * @default false
+         */
+        "loading": boolean;
+        "refresh": () => Promise<void>;
+        /**
+          * @default 0
+         */
+        "refreshInterval": number;
+        "resize": () => Promise<void>;
+        "setData": (newData: unknown) => Promise<void>;
+        /**
+          * @default true
+         */
+        "tooltipEnabled": boolean;
+        "updateData": (newData: unknown) => Promise<void>;
     }
     interface BcChartBar {
         /**
+          * @default true
+         */
+        "animate": boolean;
+        /**
           * @default ''
          */
         "chartTitle": string;
         /**
+          * @default ''
+         */
+        "colors": string;
+        /**
           * @default '[]'
          */
         "data": string;
+        /**
+          * @default ''
+         */
+        "dataSource": string;
+        "exportImage": (format?: string) => Promise<string>;
+        /**
+          * @default ''
+         */
+        "fetchHeaders": string;
+        /**
+          * @default '300px'
+         */
+        "height": string;
+        /**
+          * @default true
+         */
+        "legend": boolean;
+        /**
+          * @default false
+         */
+        "loading": boolean;
+        "refresh": () => Promise<void>;
+        /**
+          * @default 0
+         */
+        "refreshInterval": number;
+        "resize": () => Promise<void>;
+        "setData": (newData: unknown) => Promise<void>;
+        /**
+          * @default true
+         */
+        "tooltipEnabled": boolean;
+        "updateData": (newData: unknown) => Promise<void>;
     }
     interface BcChartFunnel {
         /**
+          * @default true
+         */
+        "animate": boolean;
+        /**
           * @default ''
          */
         "chartTitle": string;
+        /**
+          * @default ''
+         */
+        "colors": string;
         /**
           * @default '[]'
          */
         "data": string;
+        /**
+          * @default ''
+         */
+        "dataSource": string;
+        "exportImage": (format?: string) => Promise<string>;
+        /**
+          * @default ''
+         */
+        "fetchHeaders": string;
+        /**
+          * @default '300px'
+         */
+        "height": string;
+        /**
+          * @default true
+         */
+        "legend": boolean;
+        /**
+          * @default false
+         */
+        "loading": boolean;
+        "refresh": () => Promise<void>;
+        /**
+          * @default 0
+         */
+        "refreshInterval": number;
+        "resize": () => Promise<void>;
+        "setData": (newData: unknown) => Promise<void>;
+        /**
+          * @default true
+         */
+        "tooltipEnabled": boolean;
+        "updateData": (newData: unknown) => Promise<void>;
     }
     interface BcChartGauge {
+        /**
+          * @default true
+         */
+        "animate": boolean;
         /**
           * @default ''
          */
         "chartTitle": string;
+        "exportImage": (format?: string) => Promise<string>;
+        /**
+          * @default '300px'
+         */
+        "height": string;
+        /**
+          * @default false
+         */
+        "loading": boolean;
         /**
           * @default '100'
          */
         "max": string;
+        "refresh": () => Promise<void>;
+        "resize": () => Promise<void>;
+        "updateData": (newData: unknown) => Promise<void>;
         /**
           * @default '0'
          */
@@ -70,13 +209,54 @@ export namespace Components {
     }
     interface BcChartHeatmap {
         /**
+          * @default true
+         */
+        "animate": boolean;
+        /**
           * @default ''
          */
         "chartTitle": string;
         /**
+          * @default ''
+         */
+        "colors": string;
+        /**
           * @default '[]'
          */
         "data": string;
+        /**
+          * @default ''
+         */
+        "dataSource": string;
+        "exportImage": (format?: string) => Promise<string>;
+        /**
+          * @default ''
+         */
+        "fetchHeaders": string;
+        /**
+          * @default '300px'
+         */
+        "height": string;
+        /**
+          * @default true
+         */
+        "legend": boolean;
+        /**
+          * @default false
+         */
+        "loading": boolean;
+        "refresh": () => Promise<void>;
+        /**
+          * @default 0
+         */
+        "refreshInterval": number;
+        "resize": () => Promise<void>;
+        "setData": (newData: unknown) => Promise<void>;
+        /**
+          * @default true
+         */
+        "tooltipEnabled": boolean;
+        "updateData": (newData: unknown) => Promise<void>;
     }
     interface BcChartKpi {
         /**
@@ -88,9 +268,15 @@ export namespace Components {
          */
         "label": string;
         /**
+          * @default false
+         */
+        "loading": boolean;
+        "refresh": () => Promise<void>;
+        /**
           * @default ''
          */
         "trend": string;
+        "updateData": (newData: unknown) => Promise<void>;
         /**
           * @default '0'
          */
@@ -106,23 +292,105 @@ export namespace Components {
     }
     interface BcChartLine {
         /**
+          * @default true
+         */
+        "animate": boolean;
+        /**
           * @default ''
          */
         "chartTitle": string;
         /**
+          * @default ''
+         */
+        "colors": string;
+        /**
           * @default '[]'
          */
         "data": string;
+        /**
+          * @default ''
+         */
+        "dataSource": string;
+        "exportImage": (format?: string) => Promise<string>;
+        /**
+          * @default ''
+         */
+        "fetchHeaders": string;
+        /**
+          * @default '300px'
+         */
+        "height": string;
+        /**
+          * @default true
+         */
+        "legend": boolean;
+        /**
+          * @default false
+         */
+        "loading": boolean;
+        "refresh": () => Promise<void>;
+        /**
+          * @default 0
+         */
+        "refreshInterval": number;
+        "resize": () => Promise<void>;
+        "setData": (newData: unknown) => Promise<void>;
+        /**
+          * @default true
+         */
+        "tooltipEnabled": boolean;
+        "updateData": (newData: unknown) => Promise<void>;
     }
     interface BcChartPie {
         /**
+          * @default true
+         */
+        "animate": boolean;
+        /**
           * @default ''
          */
         "chartTitle": string;
         /**
+          * @default ''
+         */
+        "colors": string;
+        /**
           * @default '[]'
          */
         "data": string;
+        /**
+          * @default ''
+         */
+        "dataSource": string;
+        "exportImage": (format?: string) => Promise<string>;
+        /**
+          * @default ''
+         */
+        "fetchHeaders": string;
+        /**
+          * @default '300px'
+         */
+        "height": string;
+        /**
+          * @default true
+         */
+        "legend": boolean;
+        /**
+          * @default false
+         */
+        "loading": boolean;
+        "refresh": () => Promise<void>;
+        /**
+          * @default 0
+         */
+        "refreshInterval": number;
+        "resize": () => Promise<void>;
+        "setData": (newData: unknown) => Promise<void>;
+        /**
+          * @default true
+         */
+        "tooltipEnabled": boolean;
+        "updateData": (newData: unknown) => Promise<void>;
     }
     interface BcChartPivot {
         /**
@@ -137,10 +405,12 @@ export namespace Components {
           * @default '[]'
          */
         "data": string;
+        "refresh": () => Promise<void>;
         /**
           * @default ''
          */
         "rows": string;
+        "updateData": (newData: unknown) => Promise<void>;
         /**
           * @default 'value'
          */
@@ -159,24 +429,34 @@ export namespace Components {
           * @default '100'
          */
         "max": string;
+        "refresh": () => Promise<void>;
         /**
           * @default true
          */
         "showPercent": boolean;
+        "updateData": (newData: unknown) => Promise<void>;
         /**
           * @default '0'
          */
         "value": string;
     }
     interface BcChartScorecard {
+        "exportImage": (format?: string) => Promise<string>;
+        /**
+          * @default '200px'
+         */
+        "height": string;
         /**
           * @default ''
          */
         "label": string;
+        "refresh": () => Promise<void>;
+        "resize": () => Promise<void>;
         /**
           * @default '100'
          */
         "target": string;
+        "updateData": (newData: unknown) => Promise<void>;
         /**
           * @default '0'
          */
@@ -229,6 +509,7 @@ export namespace Components {
           * @default ''
          */
         "apiUrl": string;
+        "clearSelection": () => Promise<void>;
         /**
           * @default '[]'
          */
@@ -237,6 +518,10 @@ export namespace Components {
           * @default ''
          */
         "createUrl": string;
+        /**
+          * @default ''
+         */
+        "dataSource": string;
         /**
           * @default ''
          */
@@ -250,13 +535,29 @@ export namespace Components {
          */
         "editUrl": string;
         /**
+          * @default ''
+         */
+        "emptyText": string;
+        "exportCSV": () => Promise<void>;
+        /**
           * @default true
          */
         "exportXls": boolean;
         /**
+          * @default ''
+         */
+        "fetchHeaders": string;
+        /**
           * @default '[]'
          */
         "formFields": string;
+        "getData": () => Promise<Array<Record<string, unknown>>>;
+        "getSelected": () => Promise<string[]>;
+        "goToPage": (p: number) => Promise<void>;
+        /**
+          * @default ''
+         */
+        "localData": string;
         /**
           * @default false
          */
@@ -277,10 +578,13 @@ export namespace Components {
           * @default '{}'
          */
         "permissions": string;
+        "refresh": () => Promise<void>;
         /**
           * @default '[]'
          */
         "savedPresets": string;
+        "scrollToRow": (id: string) => Promise<void>;
+        "selectAll": () => Promise<void>;
         /**
           * @default true
          */
@@ -289,6 +593,7 @@ export namespace Components {
           * @default true
          */
         "serverSide": boolean;
+        "setData": (newData: Array<Record<string, unknown>>) => Promise<void>;
         /**
           * @default true
          */
@@ -297,6 +602,7 @@ export namespace Components {
           * @default false
          */
         "showJsonFilter": boolean;
+        "sortBy": (column: string, direction: "asc" | "desc") => Promise<void>;
         /**
           * @default ''
          */
@@ -4220,6 +4526,38 @@ export interface BcActivityCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLBcActivityElement;
 }
+export interface BcChartAreaCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLBcChartAreaElement;
+}
+export interface BcChartBarCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLBcChartBarElement;
+}
+export interface BcChartFunnelCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLBcChartFunnelElement;
+}
+export interface BcChartGaugeCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLBcChartGaugeElement;
+}
+export interface BcChartHeatmapCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLBcChartHeatmapElement;
+}
+export interface BcChartLineCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLBcChartLineElement;
+}
+export interface BcChartPieCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLBcChartPieElement;
+}
+export interface BcChartScorecardCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLBcChartScorecardElement;
+}
 export interface BcChatterCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLBcChatterElement;
@@ -4460,31 +4798,86 @@ declare global {
         prototype: HTMLBcButtonBoxElement;
         new (): HTMLBcButtonBoxElement;
     };
+    interface HTMLBcChartAreaElementEventMap {
+        "lcChartClick": ChartClickEvent;
+    }
     interface HTMLBcChartAreaElement extends Components.BcChartArea, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcChartAreaElementEventMap>(type: K, listener: (this: HTMLBcChartAreaElement, ev: BcChartAreaCustomEvent<HTMLBcChartAreaElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcChartAreaElementEventMap>(type: K, listener: (this: HTMLBcChartAreaElement, ev: BcChartAreaCustomEvent<HTMLBcChartAreaElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
     var HTMLBcChartAreaElement: {
         prototype: HTMLBcChartAreaElement;
         new (): HTMLBcChartAreaElement;
     };
+    interface HTMLBcChartBarElementEventMap {
+        "lcChartClick": ChartClickEvent;
+    }
     interface HTMLBcChartBarElement extends Components.BcChartBar, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcChartBarElementEventMap>(type: K, listener: (this: HTMLBcChartBarElement, ev: BcChartBarCustomEvent<HTMLBcChartBarElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcChartBarElementEventMap>(type: K, listener: (this: HTMLBcChartBarElement, ev: BcChartBarCustomEvent<HTMLBcChartBarElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
     var HTMLBcChartBarElement: {
         prototype: HTMLBcChartBarElement;
         new (): HTMLBcChartBarElement;
     };
+    interface HTMLBcChartFunnelElementEventMap {
+        "lcChartClick": ChartClickEvent;
+    }
     interface HTMLBcChartFunnelElement extends Components.BcChartFunnel, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcChartFunnelElementEventMap>(type: K, listener: (this: HTMLBcChartFunnelElement, ev: BcChartFunnelCustomEvent<HTMLBcChartFunnelElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcChartFunnelElementEventMap>(type: K, listener: (this: HTMLBcChartFunnelElement, ev: BcChartFunnelCustomEvent<HTMLBcChartFunnelElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
     var HTMLBcChartFunnelElement: {
         prototype: HTMLBcChartFunnelElement;
         new (): HTMLBcChartFunnelElement;
     };
+    interface HTMLBcChartGaugeElementEventMap {
+        "lcChartClick": ChartClickEvent;
+    }
     interface HTMLBcChartGaugeElement extends Components.BcChartGauge, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcChartGaugeElementEventMap>(type: K, listener: (this: HTMLBcChartGaugeElement, ev: BcChartGaugeCustomEvent<HTMLBcChartGaugeElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcChartGaugeElementEventMap>(type: K, listener: (this: HTMLBcChartGaugeElement, ev: BcChartGaugeCustomEvent<HTMLBcChartGaugeElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
     var HTMLBcChartGaugeElement: {
         prototype: HTMLBcChartGaugeElement;
         new (): HTMLBcChartGaugeElement;
     };
+    interface HTMLBcChartHeatmapElementEventMap {
+        "lcChartClick": ChartClickEvent;
+    }
     interface HTMLBcChartHeatmapElement extends Components.BcChartHeatmap, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcChartHeatmapElementEventMap>(type: K, listener: (this: HTMLBcChartHeatmapElement, ev: BcChartHeatmapCustomEvent<HTMLBcChartHeatmapElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcChartHeatmapElementEventMap>(type: K, listener: (this: HTMLBcChartHeatmapElement, ev: BcChartHeatmapCustomEvent<HTMLBcChartHeatmapElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
     var HTMLBcChartHeatmapElement: {
         prototype: HTMLBcChartHeatmapElement;
@@ -4496,13 +4889,35 @@ declare global {
         prototype: HTMLBcChartKpiElement;
         new (): HTMLBcChartKpiElement;
     };
+    interface HTMLBcChartLineElementEventMap {
+        "lcChartClick": ChartClickEvent;
+    }
     interface HTMLBcChartLineElement extends Components.BcChartLine, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcChartLineElementEventMap>(type: K, listener: (this: HTMLBcChartLineElement, ev: BcChartLineCustomEvent<HTMLBcChartLineElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcChartLineElementEventMap>(type: K, listener: (this: HTMLBcChartLineElement, ev: BcChartLineCustomEvent<HTMLBcChartLineElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
     var HTMLBcChartLineElement: {
         prototype: HTMLBcChartLineElement;
         new (): HTMLBcChartLineElement;
     };
+    interface HTMLBcChartPieElementEventMap {
+        "lcChartClick": ChartClickEvent;
+    }
     interface HTMLBcChartPieElement extends Components.BcChartPie, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcChartPieElementEventMap>(type: K, listener: (this: HTMLBcChartPieElement, ev: BcChartPieCustomEvent<HTMLBcChartPieElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcChartPieElementEventMap>(type: K, listener: (this: HTMLBcChartPieElement, ev: BcChartPieCustomEvent<HTMLBcChartPieElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
     var HTMLBcChartPieElement: {
         prototype: HTMLBcChartPieElement;
@@ -4520,7 +4935,18 @@ declare global {
         prototype: HTMLBcChartProgressElement;
         new (): HTMLBcChartProgressElement;
     };
+    interface HTMLBcChartScorecardElementEventMap {
+        "lcChartClick": ChartClickEvent;
+    }
     interface HTMLBcChartScorecardElement extends Components.BcChartScorecard, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLBcChartScorecardElementEventMap>(type: K, listener: (this: HTMLBcChartScorecardElement, ev: BcChartScorecardCustomEvent<HTMLBcChartScorecardElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLBcChartScorecardElementEventMap>(type: K, listener: (this: HTMLBcChartScorecardElement, ev: BcChartScorecardCustomEvent<HTMLBcChartScorecardElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
     var HTMLBcChartScorecardElement: {
         prototype: HTMLBcChartScorecardElement;
@@ -4570,6 +4996,9 @@ declare global {
         "lcRowClick": { record: Record<string, unknown> };
         "lcSelectionChange": { ids: string[] };
         "lcBulkAction": { action: string; ids: string[] };
+        "lcPageChange": PageChangeEvent;
+        "lcSortChange": SortChangeEventType;
+        "lcFilterChange": FilterChangeEventType;
     }
     interface HTMLBcDatatableElement extends Components.BcDatatable, HTMLStencilElement {
         addEventListener<K extends keyof HTMLBcDatatableElementEventMap>(type: K, listener: (this: HTMLBcDatatableElement, ev: BcDatatableCustomEvent<HTMLBcDatatableElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -5968,43 +6397,167 @@ declare namespace LocalJSX {
     }
     interface BcChartArea {
         /**
+          * @default true
+         */
+        "animate"?: boolean;
+        /**
           * @default ''
          */
         "chartTitle"?: string;
         /**
+          * @default ''
+         */
+        "colors"?: string;
+        /**
           * @default '[]'
          */
         "data"?: string;
+        /**
+          * @default ''
+         */
+        "dataSource"?: string;
+        /**
+          * @default ''
+         */
+        "fetchHeaders"?: string;
+        /**
+          * @default '300px'
+         */
+        "height"?: string;
+        /**
+          * @default true
+         */
+        "legend"?: boolean;
+        /**
+          * @default false
+         */
+        "loading"?: boolean;
+        "onLcChartClick"?: (event: BcChartAreaCustomEvent<ChartClickEvent>) => void;
+        /**
+          * @default 0
+         */
+        "refreshInterval"?: number;
+        /**
+          * @default true
+         */
+        "tooltipEnabled"?: boolean;
     }
     interface BcChartBar {
         /**
+          * @default true
+         */
+        "animate"?: boolean;
+        /**
           * @default ''
          */
         "chartTitle"?: string;
         /**
+          * @default ''
+         */
+        "colors"?: string;
+        /**
           * @default '[]'
          */
         "data"?: string;
+        /**
+          * @default ''
+         */
+        "dataSource"?: string;
+        /**
+          * @default ''
+         */
+        "fetchHeaders"?: string;
+        /**
+          * @default '300px'
+         */
+        "height"?: string;
+        /**
+          * @default true
+         */
+        "legend"?: boolean;
+        /**
+          * @default false
+         */
+        "loading"?: boolean;
+        "onLcChartClick"?: (event: BcChartBarCustomEvent<ChartClickEvent>) => void;
+        /**
+          * @default 0
+         */
+        "refreshInterval"?: number;
+        /**
+          * @default true
+         */
+        "tooltipEnabled"?: boolean;
     }
     interface BcChartFunnel {
         /**
+          * @default true
+         */
+        "animate"?: boolean;
+        /**
           * @default ''
          */
         "chartTitle"?: string;
+        /**
+          * @default ''
+         */
+        "colors"?: string;
         /**
           * @default '[]'
          */
         "data"?: string;
+        /**
+          * @default ''
+         */
+        "dataSource"?: string;
+        /**
+          * @default ''
+         */
+        "fetchHeaders"?: string;
+        /**
+          * @default '300px'
+         */
+        "height"?: string;
+        /**
+          * @default true
+         */
+        "legend"?: boolean;
+        /**
+          * @default false
+         */
+        "loading"?: boolean;
+        "onLcChartClick"?: (event: BcChartFunnelCustomEvent<ChartClickEvent>) => void;
+        /**
+          * @default 0
+         */
+        "refreshInterval"?: number;
+        /**
+          * @default true
+         */
+        "tooltipEnabled"?: boolean;
     }
     interface BcChartGauge {
+        /**
+          * @default true
+         */
+        "animate"?: boolean;
         /**
           * @default ''
          */
         "chartTitle"?: string;
+        /**
+          * @default '300px'
+         */
+        "height"?: string;
+        /**
+          * @default false
+         */
+        "loading"?: boolean;
         /**
           * @default '100'
          */
         "max"?: string;
+        "onLcChartClick"?: (event: BcChartGaugeCustomEvent<ChartClickEvent>) => void;
         /**
           * @default '0'
          */
@@ -6012,13 +6565,50 @@ declare namespace LocalJSX {
     }
     interface BcChartHeatmap {
         /**
+          * @default true
+         */
+        "animate"?: boolean;
+        /**
           * @default ''
          */
         "chartTitle"?: string;
         /**
+          * @default ''
+         */
+        "colors"?: string;
+        /**
           * @default '[]'
          */
         "data"?: string;
+        /**
+          * @default ''
+         */
+        "dataSource"?: string;
+        /**
+          * @default ''
+         */
+        "fetchHeaders"?: string;
+        /**
+          * @default '300px'
+         */
+        "height"?: string;
+        /**
+          * @default true
+         */
+        "legend"?: boolean;
+        /**
+          * @default false
+         */
+        "loading"?: boolean;
+        "onLcChartClick"?: (event: BcChartHeatmapCustomEvent<ChartClickEvent>) => void;
+        /**
+          * @default 0
+         */
+        "refreshInterval"?: number;
+        /**
+          * @default true
+         */
+        "tooltipEnabled"?: boolean;
     }
     interface BcChartKpi {
         /**
@@ -6029,6 +6619,10 @@ declare namespace LocalJSX {
           * @default ''
          */
         "label"?: string;
+        /**
+          * @default false
+         */
+        "loading"?: boolean;
         /**
           * @default ''
          */
@@ -6048,23 +6642,97 @@ declare namespace LocalJSX {
     }
     interface BcChartLine {
         /**
+          * @default true
+         */
+        "animate"?: boolean;
+        /**
           * @default ''
          */
         "chartTitle"?: string;
         /**
+          * @default ''
+         */
+        "colors"?: string;
+        /**
           * @default '[]'
          */
         "data"?: string;
+        /**
+          * @default ''
+         */
+        "dataSource"?: string;
+        /**
+          * @default ''
+         */
+        "fetchHeaders"?: string;
+        /**
+          * @default '300px'
+         */
+        "height"?: string;
+        /**
+          * @default true
+         */
+        "legend"?: boolean;
+        /**
+          * @default false
+         */
+        "loading"?: boolean;
+        "onLcChartClick"?: (event: BcChartLineCustomEvent<ChartClickEvent>) => void;
+        /**
+          * @default 0
+         */
+        "refreshInterval"?: number;
+        /**
+          * @default true
+         */
+        "tooltipEnabled"?: boolean;
     }
     interface BcChartPie {
         /**
+          * @default true
+         */
+        "animate"?: boolean;
+        /**
           * @default ''
          */
         "chartTitle"?: string;
         /**
+          * @default ''
+         */
+        "colors"?: string;
+        /**
           * @default '[]'
          */
         "data"?: string;
+        /**
+          * @default ''
+         */
+        "dataSource"?: string;
+        /**
+          * @default ''
+         */
+        "fetchHeaders"?: string;
+        /**
+          * @default '300px'
+         */
+        "height"?: string;
+        /**
+          * @default true
+         */
+        "legend"?: boolean;
+        /**
+          * @default false
+         */
+        "loading"?: boolean;
+        "onLcChartClick"?: (event: BcChartPieCustomEvent<ChartClickEvent>) => void;
+        /**
+          * @default 0
+         */
+        "refreshInterval"?: number;
+        /**
+          * @default true
+         */
+        "tooltipEnabled"?: boolean;
     }
     interface BcChartPivot {
         /**
@@ -6112,9 +6780,14 @@ declare namespace LocalJSX {
     }
     interface BcChartScorecard {
         /**
+          * @default '200px'
+         */
+        "height"?: string;
+        /**
           * @default ''
          */
         "label"?: string;
+        "onLcChartClick"?: (event: BcChartScorecardCustomEvent<ChartClickEvent>) => void;
         /**
           * @default '100'
          */
@@ -6184,6 +6857,10 @@ declare namespace LocalJSX {
         /**
           * @default ''
          */
+        "dataSource"?: string;
+        /**
+          * @default ''
+         */
         "detailUrl"?: string;
         /**
           * @default true
@@ -6194,13 +6871,25 @@ declare namespace LocalJSX {
          */
         "editUrl"?: string;
         /**
+          * @default ''
+         */
+        "emptyText"?: string;
+        /**
           * @default true
          */
         "exportXls"?: boolean;
         /**
+          * @default ''
+         */
+        "fetchHeaders"?: string;
+        /**
           * @default '[]'
          */
         "formFields"?: string;
+        /**
+          * @default ''
+         */
+        "localData"?: string;
         /**
           * @default false
          */
@@ -6214,8 +6903,11 @@ declare namespace LocalJSX {
          */
         "moduleName"?: string;
         "onLcBulkAction"?: (event: BcDatatableCustomEvent<{ action: string; ids: string[] }>) => void;
+        "onLcFilterChange"?: (event: BcDatatableCustomEvent<FilterChangeEventType>) => void;
+        "onLcPageChange"?: (event: BcDatatableCustomEvent<PageChangeEvent>) => void;
         "onLcRowClick"?: (event: BcDatatableCustomEvent<{ record: Record<string, unknown> }>) => void;
         "onLcSelectionChange"?: (event: BcDatatableCustomEvent<{ ids: string[] }>) => void;
+        "onLcSortChange"?: (event: BcDatatableCustomEvent<SortChangeEventType>) => void;
         /**
           * @default 20
          */
@@ -10023,23 +10715,62 @@ declare namespace LocalJSX {
     interface BcChartAreaAttributes {
         "data": string;
         "chartTitle": string;
+        "colors": string;
+        "legend": boolean;
+        "tooltipEnabled": boolean;
+        "animate": boolean;
+        "height": string;
+        "loading": boolean;
+        "dataSource": string;
+        "fetchHeaders": string;
+        "refreshInterval": number;
     }
     interface BcChartBarAttributes {
         "data": string;
         "chartTitle": string;
+        "colors": string;
+        "legend": boolean;
+        "tooltipEnabled": boolean;
+        "animate": boolean;
+        "height": string;
+        "loading": boolean;
+        "dataSource": string;
+        "fetchHeaders": string;
+        "refreshInterval": number;
     }
     interface BcChartFunnelAttributes {
         "data": string;
         "chartTitle": string;
+        "colors": string;
+        "legend": boolean;
+        "tooltipEnabled": boolean;
+        "animate": boolean;
+        "height": string;
+        "loading": boolean;
+        "dataSource": string;
+        "fetchHeaders": string;
+        "refreshInterval": number;
     }
     interface BcChartGaugeAttributes {
         "value": string;
         "max": string;
         "chartTitle": string;
+        "height": string;
+        "loading": boolean;
+        "animate": boolean;
     }
     interface BcChartHeatmapAttributes {
         "data": string;
         "chartTitle": string;
+        "colors": string;
+        "legend": boolean;
+        "tooltipEnabled": boolean;
+        "animate": boolean;
+        "height": string;
+        "loading": boolean;
+        "dataSource": string;
+        "fetchHeaders": string;
+        "refreshInterval": number;
     }
     interface BcChartKpiAttributes {
         "value": string;
@@ -10048,14 +10779,33 @@ declare namespace LocalJSX {
         "valuePrefix": string;
         "valueSuffix": string;
         "color": string;
+        "loading": boolean;
     }
     interface BcChartLineAttributes {
         "data": string;
         "chartTitle": string;
+        "colors": string;
+        "legend": boolean;
+        "tooltipEnabled": boolean;
+        "animate": boolean;
+        "height": string;
+        "loading": boolean;
+        "dataSource": string;
+        "fetchHeaders": string;
+        "refreshInterval": number;
     }
     interface BcChartPieAttributes {
         "data": string;
         "chartTitle": string;
+        "colors": string;
+        "legend": boolean;
+        "tooltipEnabled": boolean;
+        "animate": boolean;
+        "height": string;
+        "loading": boolean;
+        "dataSource": string;
+        "fetchHeaders": string;
+        "refreshInterval": number;
     }
     interface BcChartPivotAttributes {
         "data": string;
@@ -10073,6 +10823,7 @@ declare namespace LocalJSX {
     }
     interface BcChartScorecardAttributes {
         "value": string;
+        "height": string;
         "target": string;
         "label": string;
     }
@@ -10111,6 +10862,10 @@ declare namespace LocalJSX {
         "modalMode": boolean;
         "formFields": string;
         "viewTitle": string;
+        "dataSource": string;
+        "localData": string;
+        "fetchHeaders": string;
+        "emptyText": string;
     }
     interface BcDialogConfirmAttributes {
         "open": boolean;

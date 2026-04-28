@@ -195,3 +195,21 @@
 *::after {
   box-sizing: border-box;
 }
+
+.bc-chart-wrap {
+  position: relative;
+}
+
+.bc-chart-loading-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.7);
+  z-index: 1;
+}
+
+[data-bc-theme="dark"] .bc-chart-loading-overlay {
+  background: rgba(15, 23, 42, 0.7);
+}
