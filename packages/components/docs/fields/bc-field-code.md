@@ -27,6 +27,16 @@
 | default-value | varies | | Default for reset |
 | validate-on | string | 'blur' | Validation trigger |
 
+
+### Component-Specific Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| language | string | 'javascript' | Code language (javascript, python, json, html, sql) |
+| toolbar | string | 'full' | Toolbar mode |
+| min-length | number | 0 | Min length |
+| max-length | number | 0 | Max length |
+
 ## Events
 
 | Event | Payload |
@@ -55,4 +65,5 @@
 | clearError() | Promise<void> |
 
 See [validation](../validation.md), [theming](../theming.md), [data-fetching](../data-fetching.md).
+
 

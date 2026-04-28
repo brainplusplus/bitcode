@@ -27,6 +27,18 @@
 | default-value | varies | | Default for reset |
 | validate-on | string | 'blur' | Validation trigger |
 
+
+### Component-Specific Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| currency | string | 'USD' | Currency code |
+| precision | number | 2 | Decimal places |
+| min | number | 0 | Minimum value |
+| max | number | 0 | Maximum value |
+| prefix-text | string | '' | Override currency symbol |
+| suffix-text | string | '' | Visual suffix |
+
 ## Events
 
 | Event | Payload |
@@ -55,4 +67,5 @@
 | clearError() | Promise<void> |
 
 See [validation](../validation.md), [theming](../theming.md), [data-fetching](../data-fetching.md).
+
 

@@ -27,6 +27,15 @@
 | default-value | varies | | Default for reset |
 | validate-on | string | 'blur' | Validation trigger |
 
+
+### Component-Specific Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| min | string | '' | Min date (YYYY-MM-DD) |
+| max | string | '' | Max date |
+| depend-on | string | '' | Parent field |
+
 ## Events
 
 | Event | Payload |
@@ -55,4 +64,5 @@
 | clearError() | Promise<void> |
 
 See [validation](../validation.md), [theming](../theming.md), [data-fetching](../data-fetching.md).
+
 

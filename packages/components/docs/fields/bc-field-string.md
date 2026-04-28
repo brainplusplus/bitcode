@@ -27,6 +27,23 @@
 | default-value | varies | | Default for reset |
 | validate-on | string | 'blur' | Validation trigger |
 
+
+### Component-Specific Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| max | number | 0 | Max length |
+| widget | string | '' | Embed widget (youtube, instagram, tiktok) |
+| prefix-text | string | '' | Visual prefix |
+| suffix-text | string | '' | Visual suffix |
+| min-length | number | 0 | Min characters |
+| max-length | number | 0 | Max characters |
+| show-count | boolean | false | Character counter |
+| pattern | string | '' | Regex validation |
+| pattern-message | string | '' | Custom pattern error |
+| depend-on | string | '' | Parent field for cascading |
+| data-source | string | '' | API endpoint with {field} placeholders |
+
 ## Events
 
 | Event | Payload |
@@ -55,4 +72,5 @@
 | clearError() | Promise<void> |
 
 See [validation](../validation.md), [theming](../theming.md), [data-fetching](../data-fetching.md).
+
 

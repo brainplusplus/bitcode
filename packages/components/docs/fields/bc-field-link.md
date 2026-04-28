@@ -27,6 +27,18 @@
 | default-value | varies | | Default for reset |
 | validate-on | string | 'blur' | Validation trigger |
 
+
+### Component-Specific Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| model | string | '' | Related model name |
+| display-field | string | 'name' | Display field |
+| lookup-columns | string | '[]' | Lookup modal columns |
+| depend-on | string | '' | Parent field |
+| data-source | string | '' | API endpoint |
+| fetch-headers | string | '' | Custom headers |
+
 ## Events
 
 | Event | Payload |
@@ -55,4 +67,5 @@
 | clearError() | Promise<void> |
 
 See [validation](../validation.md), [theming](../theming.md), [data-fetching](../data-fetching.md).
+
 

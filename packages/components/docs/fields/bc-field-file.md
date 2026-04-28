@@ -27,6 +27,19 @@
 | default-value | varies | | Default for reset |
 | validate-on | string | 'blur' | Validation trigger |
 
+
+### Component-Specific Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| accept | string | '' | Accepted file types |
+| max-size | string | '10MB' | Max file size |
+| multiple | boolean | false | Allow multiple files |
+| preview | boolean | false | Show file preview |
+| show-download | boolean | true | Show download button |
+| model | string | '' | Model for upload API |
+| record-id | string | '' | Record ID |
+
 ## Events
 
 | Event | Payload |
@@ -55,4 +68,5 @@
 | clearError() | Promise<void> |
 
 See [validation](../validation.md), [theming](../theming.md), [data-fetching](../data-fetching.md).
+
 

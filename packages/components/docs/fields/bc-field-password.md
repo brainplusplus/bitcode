@@ -27,6 +27,17 @@
 | default-value | varies | | Default for reset |
 | validate-on | string | 'blur' | Validation trigger |
 
+
+### Component-Specific Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| show-reveal | boolean | false | Show/hide toggle |
+| min-length | number | 0 | Min characters |
+| max-length | number | 0 | Max characters |
+| prefix-text | string | '' | Visual prefix |
+| suffix-text | string | '' | Visual suffix |
+
 ## Events
 
 | Event | Payload |
@@ -55,4 +66,5 @@
 | clearError() | Promise<void> |
 
 See [validation](../validation.md), [theming](../theming.md), [data-fetching](../data-fetching.md).
+
 
