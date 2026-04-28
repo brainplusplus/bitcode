@@ -93,22 +93,16 @@
 | `docs/features.md` | Offline Mode → ✅ COMPLETE, updated counts |
 | `docs/plans/impl/offline-mode-implementation.md` | Phase 4+5 → ✅ COMPLETE |
 
-## Known Issues (remaining from Phase 4 + new)
+## Known Limitations
 
-1. `offline-store.ts` search is naive — only checks `id` and `_off_uuid` with LIKE
-2. No local table creation from schema — tables still hardcoded in Rust migrations
-3. `takePhoto()` and `getLocation()` Tauri plugin commands unverified on mobile
-4. `generateUUIDv7()` is custom implementation — not battle-tested library
-5. No retry logic for `OfflineStore.initFromServer()`
-6. `offline-store.ts` doesn't handle module-qualified model names
-7. `_sync_oversell_alerts` table not yet auto-created during server init
-8. `DetectInventoryFields()` / `ApplyInventoryDelta()` not yet wired into `PushEnvelope`
-9. Server-side `RecordConflictsToServer()` not yet called from push handler
-10. Offline auth uses SHA-256 (not bcrypt) — acceptable tradeoff for client-side verification
-11. `CompressionStream` API not available in all browsers — graceful fallback to uncompressed
-12. `'unsafe-inline'` still needed in CSP for Stencil's inline event handlers
-13. Mobile platform testing (Android/iOS) not yet performed — requires physical devices
-14. App Store / Play Store submission not yet attempted
+See `engine/docs/features/offline-mode.md` § Known Limitations for the canonical list. Summary:
+
+1. `takePhoto()` / `getLocation()` unverified on mobile (requires physical device)
+2. `generateUUIDv7()` is custom implementation (works, not battle-tested at scale)
+3. Module-qualified model names (`crm.lead`) not handled — only bare names (`lead`)
+4. Local table creation hardcoded in Rust migrations (not dynamic from schema)
+5. `'unsafe-inline'` still required in CSP (Stencil limitation)
+6. Offline auth uses SHA-256 not bcrypt (deliberate tradeoff, mitigated by expiry + lockout)
 
 ## Critical Context
 

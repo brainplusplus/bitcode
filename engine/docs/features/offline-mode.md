@@ -474,3 +474,14 @@ Single file at `packages/components/src/core/bc-native.ts`. Detects environment 
 | `engine/internal/runtime/sync/inventory_test.go` | Inventory tests (8 tests — delta detection, multiple deltas, type coercion, validation) |
 | `packages/components/src/components/widgets/bc-sync-status/bc-sync-status.tsx` | Sync status UI component — online/offline indicator, pending/error/conflict counts, last sync time, manual sync trigger |
 | `packages/components/src/components/widgets/bc-sync-status/bc-sync-status.css` | Sync status component styles |
+
+## Known Limitations
+
+| # | Issue | Severity | Notes |
+|---|-------|----------|-------|
+| 1 | `takePhoto()` / `getLocation()` unverified on mobile | ⚠️ Medium | Tauri mobile plugins are less mature. Requires physical Android/iOS device to test. Desktop works. |
+| 2 | `generateUUIDv7()` is a custom implementation | Low | Works correctly but not a battle-tested library. Consider replacing with a well-known UUID library if issues arise at scale. |
+| 3 | Module-qualified model names not handled | Low | `offline-store.ts` does not strip `module.model` prefix (e.g. `crm.lead`). Only bare model names (e.g. `lead`) work. |
+| 4 | Local table creation hardcoded in Rust migrations | ⚠️ Medium | Business tables must be manually added to `main.rs` migrations. Ideally should be dynamically created from server schema. Large effort to fix. |
+| 5 | `'unsafe-inline'` still required in CSP | Low | Stencil generates inline event handlers and styles. Cannot remove without major Stencil refactor or migration to a different framework. |
+| 6 | Offline auth uses SHA-256 instead of bcrypt | Low | Deliberate tradeoff — bcrypt cannot run in the browser. SHA-256 hash is stored locally on device (not transmitted). Mitigated by 72h expiry + 5-attempt lockout. |
