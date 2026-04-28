@@ -10,7 +10,8 @@ BitCode is a **JSON-driven low-code platform** for building business application
 bitcode/
 ├── engine/          Go runtime — reads JSON, runs the app
 ├── packages/        Shared libraries
-│   └── components/  Stencil Web Components (@bitcode/components)
+│   ├── components/  Stencil Web Components (@bitcode/components)
+│   └── tauri/       Tauri native shell (desktop + mobile)
 ├── samples/         Example applications
 │   └── erp/         Full ERP sample (CRM + HRM)
 ├── docs/            Project-level documentation
@@ -54,9 +55,17 @@ bitcode/
 │  │  └─────┬──────┘ └────────────┘ └────┬─────┘ └─────┬──────┘  │  │
 │  │        │                            │              │          │  │
 │  │  ┌─────▼──────┐  ┌─────────────────▼──┐  ┌───────▼───────┐  │  │
-│  │  │  Database  │  │  Agent Worker      │  │  TS / Python  │  │  │
-│  │  │  (GORM)   │  │  + Cron Scheduler  │  │  Processes    │  │  │
-│  │  └────────────┘  └────────────────────┘  └───────────────┘  │  │
+│  │  │  Database  │  │  Agent Worker      │  │  Bridge API   │  │  │
+│  │  │  (GORM)   │  │  + Cron Scheduler  │  │  (20 ns)      │  │  │
+│  │  └────────────┘  └────────────────────┘  └───────┬───────┘  │  │
+│  │                                                   │          │  │
+│  │  ┌────────────────────────────────────────────────▼───────┐  │  │
+│  │  │              Script Runtimes                            │  │  │
+│  │  │  ┌─────────┐ ┌──────────┐ ┌─────────┐ ┌────────────┐  │  │  │
+│  │  │  │  goja   │ │ quickjs  │ │  yaegi  │ │ Node.js /  │  │  │  │
+│  │  │  │  (JS)   │ │  (JS)   │ │  (Go)   │ │ Python     │  │  │  │
+│  │  │  └─────────┘ └──────────┘ └─────────┘ └────────────┘  │  │  │
+│  │  └────────────────────────────────────────────────────────┘  │  │
 │  └──────────────────────────────────────────────────────────────┘  │
 │                                                                     │
 │  ┌──────────────────────────────────────────────────────────────┐  │
@@ -71,6 +80,14 @@ bitcode/
 │                    @bitcode/components (Stencil)                     │
 │  Web Components: fields, layout, views, charts, dialogs, widgets    │
 │  Served as static assets from /assets/components/                   │
+└─────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────┐
+│                    @bitcode/tauri (Native Shell)                     │
+│  Tauri 2.0 — Stencil components run inside native WebView           │
+│  Plugins: SQLite, filesystem, notifications, barcode, biometric     │
+│  Bridge: bc-native.ts routes to Tauri IPC or Web API fallback       │
+│  Platforms: Windows, macOS, Linux, iOS, Android                     │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -120,7 +137,7 @@ JSON definitions that map to database tables. The engine auto-creates tables, ha
 }
 ```
 
-**Auto-generated columns**: `id` (UUID), `created_at`, `updated_at`, `created_by`, `updated_by`, `active` (soft delete).
+**Auto-generated columns**: `id` (UUID), `created_at`, `updated_at`, `created_by`, `updated_by`, `active` (soft delete), `tenant_id` (when `tenant.enabled = true` and model is `tenant_scoped`).
 
 **Relationship types**:
 | Type | DB Implementation |
@@ -221,8 +238,51 @@ A Stencil.js component library providing 103 enterprise-grade UI widgets. **Stan
 - **Field Utils** — Shared field logic (dirty/touched tracking, ARIA, render helpers).
 - **Theming** — Light/dark/system-detect/custom themes via CSS custom properties. No Tailwind.
 - **Event Bus** — Cross-component communication.
+- **BcNative** — Bridge abstraction for native capabilities (camera, GPS, SQLite, barcode, biometrics). Detects Tauri vs browser, routes to Tauri IPC or Web API fallback.
 - **Form Engine** — Form state management (optional, BitCode-specific).
 - **API Client** — HTTP client for BitCode REST APIs (optional fallback).
+
+### 8. Bridge API (`engine/internal/runtime/bridge/`)
+
+The Bridge API is the unified interface between the Go engine and all script runtimes (goja, quickjs, yaegi, Node.js, Python). Scripts access engine services through a single `bitcode.*` namespace with 20 namespaces:
+
+| Namespace | Purpose |
+|-----------|---------|
+| `bitcode.model("name")` | Permission-aware CRUD, bulk ops, relations |
+| `bitcode.db` | Raw SQL queries |
+| `bitcode.http` | TLS-fingerprinted HTTP client (tls-client) |
+| `bitcode.cache` | Key-value cache (memory/Redis) |
+| `bitcode.fs` | Sandboxed filesystem (path escape prevention) |
+| `bitcode.env("KEY")` | Environment variables (engine secrets denied) |
+| `bitcode.config("key")` | Module settings via Viper |
+| `bitcode.emit(event, data)` | Event bus publishing |
+| `bitcode.call(process, input)` | Cross-process invocation |
+| `bitcode.exec(cmd, args)` | OS command execution (whitelist-only) |
+| `bitcode.log(level, msg)` | Structured logging per module |
+| `bitcode.email` | SMTP email sending |
+| `bitcode.notify` | WebSocket notifications |
+| `bitcode.storage` | File upload/download (local/S3) |
+| `bitcode.t("key")` | i18n translation |
+| `bitcode.security` | Permission checks, group membership |
+| `bitcode.audit` | Audit log writing |
+| `bitcode.crypto` | Encrypt/decrypt/hash/verify |
+| `bitcode.execution` | Process execution log (search/get/cancel) |
+| `bitcode.tx(fn)` | Database transactions |
+
+Security is enforced per-module via `SecurityRules` in `module.json` (env_allow/deny, exec_allow/deny, fs_allow/deny, sudo_allow).
+
+### 9. Multi-Tenancy
+
+Engine-level tenant isolation using `shared_table` strategy. All tenant-scoped models automatically get a `tenant_id` column and filtered queries.
+
+| Config | Behavior |
+|--------|----------|
+| `tenant.enabled: false` | Single tenant, zero overhead |
+| `tenant.enabled: true` | Auto-add `tenant_id` column, auto-filter queries, auto-set on create |
+| `tenant_scoped: false` on model | Shared across tenants (e.g. plans, global settings) |
+| `sudo().withTenant("x")` | Cross-tenant access in scripts |
+
+Tenant detection: header (`X-Tenant-ID`), subdomain, or path — configured via `tenant.strategy`.
 
 ---
 
@@ -438,6 +498,7 @@ See the root [`README.md`](../README.md) for the full configuration reference.
 | **Calendar** | FullCalendar |
 | **Gantt** | frappe-gantt |
 | **Maps** | Leaflet |
+| **Native Shell** | Tauri 2.0 (Rust) — desktop + mobile |
 | **Plugins** | Node.js (TS) + Python 3 via JSON-RPC |
 | **Real-time** | WebSocket (Fiber contrib) |
 | **Containerization** | Docker + docker-compose |

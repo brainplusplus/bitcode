@@ -31,10 +31,15 @@
 │  └────┬─────┘ └──────────┘ └────┬─────┘ └──────┬───────┘   │
 │       │                         │               │            │
 │  ┌────▼─────┐            ┌──────▼──────┐ ┌─────▼────────┐  │
-│  │ Database │            │Agent Worker │ │TS/Python     │  │
-│  │SQLite/PG │            │Cron Scheduler│ │Process       │  │
-│  │  /MySQL  │            └─────────────┘ └──────────────┘  │
-│  └──────────┘                                               │
+│  │ Database │            │Agent Worker │ │ Bridge API   │  │
+│  │SQLite/PG │            │Cron Scheduler│ │ (20 ns)      │  │
+│  │  /MySQL  │            └─────────────┘ └──────┬───────┘  │
+│  │  /Mongo  │                             ┌─────▼───────┐  │
+│  └──────────┘                             │  Runtimes   │  │
+│                                           │ goja|qjs|   │  │
+│                                           │ yaegi|node| │  │
+│                                           │ python      │  │
+│                                           └─────────────┘  │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -71,6 +76,7 @@ Execution engines.
 
 | Package | Responsibility |
 |---------|---------------|
+| `bridge/` | Bridge API — 20 namespace interfaces, Context struct, Factory, SecurityRules enforcement. Unified `bitcode.*` API for all script runtimes. |
 | `executor/` | Process executor — dispatches steps, manages context |
 | `executor/steps/` | Step handlers: validate, data (CRUD), control (if/switch/loop), emit, call, script, http, assign, log |
 | `agent/` | Agent worker (event subscription) + cron scheduler |
@@ -83,7 +89,7 @@ External concerns.
 
 | Package | Responsibility |
 |---------|---------------|
-| `persistence/` | Database connection (SQLite/Postgres/MySQL), dynamic table migration, generic repository |
+| `persistence/` | Database connection (SQLite/Postgres/MySQL), dynamic table migration, generic repository, offline schema generation (`_off_*` columns + `_sync_*` tables) |
 | `cache/` | Cache interface + MemoryCache (default) + RedisCache (optional) |
 | `module/` | Module registry, dependency resolver, module loader, ModuleFS (DiskFS/EmbedFS/LayeredFS), 3-layer resolution |
 | `i18n/` | Translation loader and translator |
@@ -95,7 +101,7 @@ HTTP-facing code.
 
 | Package | Responsibility |
 |---------|---------------|
-| `api/` | Dynamic route registration, auto-CRUD handler |
+| `api/` | Dynamic route registration, auto-CRUD handler, sync API endpoints (register, push, pull, auth/cache, status) |
 | `middleware/` | Auth (JWT), Permission (RBAC), RecordRule (RLS), Audit logging |
 | `template/` | Go html/template engine with helpers (formatDate, formatCurrency, truncate, dict, eq) |
 | `view/` | View renderer — list, form, custom (SSR HTML) |

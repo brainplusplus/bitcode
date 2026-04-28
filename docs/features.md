@@ -10,11 +10,11 @@
 
 | Metric | Count |
 |--------|-------|
-| Total Features Tracked | 73 |
+| Total Features Tracked | 75 |
 | ✅ Implemented | 46 |
-| ⚠️ Partial | 2 |
+| ⚠️ Partial | 4 |
 | ❌ Not Yet | 25 |
-| **Completion** | **63.0%** (effective ~64.4% counting partials as 0.5) |
+| **Completion** | **61.3%** (effective ~64.0% counting partials as 0.5) |
 
 ### Per-Category Summary
 
@@ -62,10 +62,11 @@ Before the gap list — what's already **production-solid**:
 5. **Workflow engine** — State machines with permission-gated transitions, initial state on create, process linking.
 6. **Plugin system** — Dual runtime (TypeScript + Python), JSON-RPC over stdin/stdout, health monitoring, auto-restart.
 7. **View system** — 6 view types (list, form, kanban, calendar, chart, custom) with SSR rendering + layout system.
-8. **Web Components** — 102 Stencil.js components: 30+ field types, layout, views, charts, dialogs, widgets (incl. 8 media viewers/players), search, social, print.
+8. **Web Components** — 103 Stencil.js components: 30+ field types, layout, views, charts, dialogs, widgets (incl. 8 media viewers/players), search, social, print.
 9. **Multi-database** — SQLite (zero-config default), PostgreSQL, MySQL, MongoDB. Auto-migration from JSON definitions. Per-module table prefix, Postgres schema support. Comprehensive query builder with JSON DSL, OQL (Object Query Language — 3 syntax styles), JOINs, OR/AND/NOT groups, HAVING, DISTINCT, aggregates (COUNT/SUM/AVG/MIN/MAX), subqueries, UNION, raw expressions, scopes, eager loading (WITH/preload), locking, soft delete scopes, transactions.
 10. **Real-time** — WebSocket hub broadcasting domain events to connected clients.
 11. **File Storage** — Local + S3 storage with attachments table, path/name formatting, thumbnails, versioning, duplicate detection.
+12. **Native Shell (Tauri)** — Tauri 2.0 wraps Stencil components for desktop (Win/Mac/Linux) and mobile (iOS/Android). `bc-native.ts` bridge abstracts native capabilities (SQLite, camera, GPS, barcode, biometrics) with Web API fallback. One toggle (`mode:"offline"`) enables offline-first with auto-generated sync infrastructure.
 
 ---
 
@@ -144,6 +145,8 @@ Before the gap list — what's already **production-solid**:
 | 37 | Dashboard Builder | ✅ | — | Custom view type with `data_sources`. Admin dashboard at `/admin`. | — |
 | 72 | Enterprise Component Infrastructure | ✅ | — | All 6 phases complete. BcSetup (global config + reactivity runtime), 4-level data fetching, 3-level validation, theming (light/dark/system/custom), 34 field components, 5 select-family with searchable dropdown + cascading, datatable with enterprise methods, 11 charts with enterprise features. All standalone — no BitCode dependency. | — |
 | 73 | Theming System | ✅ | — | CSS custom properties (`--bc-*`), light/dark themes, `prefers-color-scheme` auto-detect, `data-bc-theme` attribute for scoped themes, size tokens (sm/md/lg), `BcSetup.configure({ theme })` for programmatic switching. | — |
+| 74 | Offline Mode | ⚠️ | XL | **Phase 1 ✅ + Phase 2 ✅ (of 5).** Engine understands `mode:"offline"` in module.json/bitcode.toml. Auto-generates `_off_*` columns (device_id, status, version, deleted, hlc, envelope_id) on SQLite tables. 4 client-side infrastructure tables (`_off_outbox`, `_off_sync_state`, `_off_conflict_log`, `_off_number_sequence`). 4 server-side sync tables (`_sync_log`, `_sync_devices`, `_sync_conflicts`, `_sync_versions`). PK validation (uuid recommended, composite rejected). 5 sync API stubs (501). Tauri 2.0 native shell at `packages/tauri/` with SQLite, filesystem, notification plugins. `bc-native.ts` bridge (13 methods) with Tauri/Web fallback. | Phase 3: Sync engine (outbox, push, pull, envelope grouping). Phase 4: HLC, field-level conflict merge, receipt numbering, inventory deltas. Phase 5: Encryption, offline auth, cross-platform testing. |
+| 75 | Native Shell (Tauri) | ⚠️ | L | **Phase 2 ✅.** Tauri 2.0 project at `packages/tauri/`. Stencil components run inside native WebView. Plugins: tauri-plugin-sql (SQLite), tauri-plugin-fs, tauri-plugin-notification. Mobile plugins (barcode-scanner, biometric) behind feature flag. Build pipeline: `npm run dev:desktop`, `build:desktop`, `dev:android`, `build:android`, `dev:ios`, `build:ios`. Icons generated for all platforms. | Mobile platform testing (Android/iOS). Camera/GPS plugins (less mature on mobile). App Store submission. |
 
 ---
 
@@ -352,12 +355,13 @@ Detailed per-feature documentation lives in `engine/docs/features/`:
 | Multi-tenancy | [multitenancy.md](../engine/docs/features/multitenancy.md) | ✅ |
 | Admin UI | [admin.md](../engine/docs/features/admin.md) | ✅ |
 | File Storage | [storage.md](../engine/docs/features/storage.md) | ✅ |
+| Offline Mode | [offline-mode.md](../engine/docs/features/offline-mode.md) | ⚠️ Phase 1-2 of 5 |
 
 ---
 
 ## Test Coverage
 
-541 tests across 38 packages. All passing. See [engine/docs/codebase.md](../engine/docs/codebase.md) for the full breakdown.
+549 Go tests across 38 packages + 63 Stencil component tests. All passing. See [engine/docs/codebase.md](../engine/docs/codebase.md) for the full breakdown.
 
 ```bash
 cd engine && go test ./... -v

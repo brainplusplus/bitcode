@@ -29,6 +29,16 @@ This creates a `customers` table with `id`, `name`, `email`, `created_at`, `upda
 | `datetime` | TEXT | TIMESTAMPTZ | DATETIME | Date + time |
 | `selection` | TEXT | VARCHAR(50) | VARCHAR(50) | Enum. Requires `options` array. |
 | `email` | TEXT | VARCHAR(255) | VARCHAR(255) | Email (validated) |
+| `uuid` | TEXT | UUID | CHAR(36) | UUID v4 (auto-validated) |
+| `ip` | TEXT | INET | VARCHAR(45) | IPv4 or IPv6 address |
+| `ipv6` / `ip:v6` | TEXT | INET | VARCHAR(45) | Strict IPv6 only |
+| `year` | INTEGER | SMALLINT | YEAR | 4-digit year (1900-2100) |
+| `color` | TEXT | VARCHAR(30) | VARCHAR(30) | CSS color (#hex, rgb, hsl) |
+| `currency` | REAL | DECIMAL(18,n) | DECIMAL(18,n) | Money amount with currency resolution |
+| `vector` | TEXT | VECTOR(n) | JSON | Embedding vector. Requires `dimensions`. |
+| `binary` | BLOB | BYTEA | LONGBLOB | Raw binary data |
+| `json:object` | TEXT | JSONB | JSON | JSON object (validated as object) |
+| `json:array` | TEXT | JSONB | JSON | JSON array (validated as array) |
 | `many2one` | TEXT | UUID | CHAR(36) | FK to another model. Requires `model`. |
 | `one2many` | - | - | - | Reverse FK. Requires `model` + `inverse`. No column created. |
 | `many2many` | - | - | - | Junction table. Requires `model`. |
@@ -53,6 +63,15 @@ This creates a `customers` table with `id`, `name`, `email`, `created_at`, `upda
 | `inverse` | string | Inverse FK field name (one2many) |
 | `computed` | string | Computation expression (computed) |
 | `auto` | bool | Auto-set value (datetime) |
+| `storage` | string | Storage hint override (e.g. `"bigint"`, `"smallint"`, `"numeric"`, `"longtext"`) |
+| `scale` | int | Decimal scale (alias for `precision` in decimal/currency) |
+| `hidden` | bool | Exclude from auto-generated views |
+| `display_field` | string | Override target model's `title_field` for many2one display |
+| `currency_field` | string | Field name containing currency code (for currency type) |
+| `dimensions` | int | Vector dimensions (required for vector type) |
+| `number_format` | object | Number formatting config (`thousand_separator`, `decimal_separator`, `symbol`, `symbol_position`) |
+| `models` | string[] | Allowed morph target models (for morph_to type) |
+| `morph` | string | Morph name identifier (for polymorphic relations) |
 
 ## Model Options
 
@@ -65,6 +84,7 @@ Control auto-generated columns and behavior at the model level:
   "timestamps": true,
   "timestamps_by": true,
   "soft_deletes": true,
+  "tenant_scoped": true,
   "fields": { ... }
 }
 ```
@@ -76,6 +96,7 @@ Control auto-generated columns and behavior at the model level:
 | `timestamps_by` | bool | `true` | `created_by`, `updated_by` |
 | `soft_deletes` | bool | `false` | `deleted_at` (nullable datetime) |
 | `soft_deletes_by` | bool | `false` | `deleted_by` (UUID FK) |
+| `tenant_scoped` | bool | `true` | `tenant_id` (when `tenant.enabled = true`). Set `false` for shared tables. |
 
 ### Optimistic Locking (`version: true`)
 

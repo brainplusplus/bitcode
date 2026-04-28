@@ -460,18 +460,18 @@ Step 1 → Python **background** pool (step-level override).
 
 ## 5. Phase Overview
 
-| Phase | Title | Depends On | Deliverable |
-|-------|-------|------------|-------------|
-| **1** | Bridge API Design | — | Interface contracts, env/session/config rules, sudo(), tls-client |
-| **1.5** | Multi-Tenancy Architecture | Phase 1 | 3 strategies (shared_table, shared_schema, separate_db), auto tenant_id column, tenant_scoped per model |
-| **2** | Fix Node.js Child Process | Phase 1, 1.5 | 6 TS scripts in samples/erp work with real bridge |
-| **3** | Fix Python Child Process | Phase 1, 1.5 | 6 PY scripts in samples/erp work with real bridge |
-| **4** | Embedded Runtime: goja | Phase 1 | `runtime: "javascript"` — single binary, no Node.js needed |
-| **5** | Embedded Runtime: yaegi | Phase 1 | `runtime: "go"` — goroutines, bridges/, go.mod, exec whitelist |
-| **6A** | Schema Compatibility | — (independent) | Field types, storage hints, modifiers, display, table naming, duplicate detection |
-| **6B** | Polymorphic Relations | Phase 6A | morph_to, morph_one, morph_many, morph_to_many, morph_by_many |
-| **6C** | Engine Enhancements | Phase 6A, Phase 1 | Array-backed models (Sushi-style), view modifiers, metadata API, eager loading fixes |
-| **7** | Module "setting" | All phases (1-6C) | Admin panel as JSON module, 4+ runtimes stress test, admin.go deprecation |
+| Phase | Title | Depends On | Status | Deliverable |
+|-------|-------|------------|--------|-------------|
+| **6A** | Schema Compatibility | — (independent) | ✅ Done | 8 new field types, storage hints, plural table naming, display labels, auto-validators |
+| **1** | Bridge API Design | — | ✅ Done | 20 namespace interfaces, tls-client HTTP, bulk ops, execution log, factory |
+| **1.5** | Multi-Tenancy Architecture | Phase 1 | ✅ Done | shared_table strategy, auto tenant_id column, tenant_scoped per model, conditional filtering |
+| **4** | Embedded Runtime: goja + quickjs | Phase 1 | 🔲 Next | `runtime: "javascript"` — single binary, no Node.js needed |
+| **5** | Embedded Runtime: yaegi | Phase 1 | 🔲 Pending | `runtime: "go"` — goroutines, bridges/, go.mod, exec whitelist |
+| **2** | Fix Node.js Child Process | Phase 1, 1.5 | 🔲 Pending | 6 TS scripts in samples/erp work with real bridge |
+| **3** | Fix Python Child Process | Phase 1, 1.5 | 🔲 Pending | 6 PY scripts in samples/erp work with real bridge |
+| **6B** | Polymorphic Relations | Phase 6A | 🔲 Pending | morph_to, morph_one, morph_many, morph_to_many, morph_by_many |
+| **6C** | Engine Enhancements | Phase 6A, Phase 1 | 🔲 Pending | Array-backed models (Sushi-style), view modifiers, metadata API, eager loading fixes |
+| **7** | Module "setting" | All phases (1-6C) | 🔲 Pending | Admin panel as JSON module, 4+ runtimes stress test, admin.go deprecation |
 
 ### Dependency Graph
 

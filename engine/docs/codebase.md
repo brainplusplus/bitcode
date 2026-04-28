@@ -58,6 +58,21 @@ engine/
 │   │   │       ├── http.go                 # HTTP step — external API calls
 │   │   │       ├── util.go                 # Assign + Log steps
 │   │   │       └── steps_test.go           # 9 tests (validate, emit, assign, if, parse)
+│   │   ├── bridge/                          # Bridge API — unified interface for all script runtimes
+│   │   │   ├── interfaces.go               # 20 namespace interfaces (ModelHandle, DB, HTTPClient, Cache, FS, etc.)
+│   │   │   ├── context.go                  # Context struct — single entry point for scripts (bitcode.*)
+│   │   │   ├── factory.go                  # Factory — wires all 20 bridges into Context
+│   │   │   ├── errors.go                   # BridgeError type + 20 error codes
+│   │   │   ├── types.go                    # SearchOptions, HTTPOptions, Session, SecurityRules
+│   │   │   ├── model.go                    # ModelHandle + SudoModelHandle (CRUD, bulk, relations, sudo)
+│   │   │   ├── http.go                     # TLS-fingerprinted HTTP (tls-client, proxy, cookie jar)
+│   │   │   ├── fs.go                       # Sandboxed filesystem (path escape prevention)
+│   │   │   ├── env.go                      # Environment reader (engine secrets deny, module prefix)
+│   │   │   ├── exec.go                     # Command executor (global deny list, allow list)
+│   │   │   ├── execution.go                # Execution log (search, get, cancel, recording helpers)
+│   │   │   ├── tx.go                       # Transaction manager
+│   │   │   ├── (12 more bridge files)      # db, cache, config, event, process, logger, email, notify, storage, i18n, security, audit, crypto
+│   │   │   └── bridge_test.go              # 27 tests
 │   │   ├── agent/
 │   │   │   ├── worker.go                   # Agent worker — subscribe to events, execute with retry
 │   │   │   └── cron.go                     # Cron scheduler — periodic job execution
@@ -69,7 +84,9 @@ engine/
 │   ├── infrastructure/                     # External concerns
 │   │   ├── persistence/
 │   │   │   ├── database.go                 # NewDatabase() — SQLite/Postgres/MySQL via config
-│   │   │   ├── dynamic_model.go            # MigrateModel() — CREATE TABLE from ModelDefinition, dialect-aware
+│   │   │   ├── dynamic_model.go            # MigrateModel() — CREATE TABLE from ModelDefinition, dialect-aware. Appends _off_* columns for offline modules.
+│   │   │   ├── offline_schema.go           # OfflineColumns(), OfflineUUIDColumn(), 4 client-side _off_* table DDLs
+│   │   │   ├── sync_schema.go              # 4 server-side _sync_* table DDLs (PostgreSQL/MySQL/SQLite)
 │   │   │   ├── repository.go               # GenericRepository — Create/FindByID/FindAll/Update/Delete/HardDelete
 │   │   │   ├── view_revision.go            # ViewRevision model + repository (CRUD, cleanup, auto-migrate)
 │   │   │   └── view_revision_test.go       # 6 tests (create, list, get, cleanup)
@@ -95,7 +112,8 @@ engine/
 │   └── presentation/                       # HTTP layer
 │       ├── api/
 │       │   ├── router.go                   # Dynamic route registration from API definitions
-│       │   └── crud_handler.go             # Auto-CRUD handler — List/Read/Create/Update/Delete
+│       │   ├── crud_handler.go             # Auto-CRUD handler — List/Read/Create/Update/Delete
+│       │   └── sync_handler.go             # 5 sync API endpoints (register, push, pull, auth/cache, status) — stubs returning 501
 │       ├── admin/
 │       │   ├── admin.go                    # Admin panel — sidebar, dashboard, models (tabs), modules (tabs), views (list+detail+editor), health
 │       │   └── admin_api.go                # Admin JSON API — view save, rollback, preview, publish
