@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"sync"
 
+	goio "github.com/bitcode-framework/go-json/io"
 	"github.com/bitcode-framework/go-json/lang"
 	"github.com/expr-lang/expr"
 )
@@ -49,6 +50,30 @@ func WithRuntimeContext(ctx context.Context) Option {
 	return func(r *Runtime) { r.ctx = ctx }
 }
 
+// WithIO registers I/O modules for use in go-json programs.
+// Programs must also import the module via "io:name" to access its functions.
+func WithIO(modules ...goio.IOModule) Option {
+	return func(r *Runtime) {
+		for _, mod := range modules {
+			r.ioRegistry.RegisterModule(mod.Name(), mod)
+		}
+	}
+}
+
+// WithoutIO explicitly disables all I/O modules.
+// This is the default behavior — calling this is a no-op but documents intent.
+func WithoutIO() Option {
+	return func(r *Runtime) {
+		r.ioRegistry = goio.NewIORegistry()
+		r.ioDisabled = true
+	}
+}
+
+// WithIOSecurity sets the security configuration for I/O modules.
+func WithIOSecurity(cfg *goio.SecurityConfig) Option {
+	return func(r *Runtime) { r.ioSecurity = cfg }
+}
+
 type Runtime struct {
 	engine       *lang.ExprLangEngine
 	limits       Limits
@@ -60,17 +85,22 @@ type Runtime struct {
 	stdlibOpts   []expr.Option
 	stdlibEnv    map[string]any
 
+	ioRegistry *goio.IORegistry
+	ioSecurity *goio.SecurityConfig
+	ioDisabled bool
+
 	cache   map[string]*lang.CompiledProgram
 	cacheMu sync.RWMutex
 }
 
 func NewRuntime(opts ...Option) *Runtime {
 	r := &Runtime{
-		engine:    lang.NewExprLangEngine(),
-		limits:    DefaultLimits(),
-		cache:     make(map[string]*lang.CompiledProgram),
-		ctx:       context.Background(),
-		stdlibEnv: make(map[string]any),
+		engine:     lang.NewExprLangEngine(),
+		limits:     DefaultLimits(),
+		cache:      make(map[string]*lang.CompiledProgram),
+		ctx:        context.Background(),
+		stdlibEnv:  make(map[string]any),
+		ioRegistry: goio.NewIORegistry(),
 	}
 
 	for _, opt := range opts {
@@ -81,7 +111,28 @@ func NewRuntime(opts ...Option) *Runtime {
 		r.engine.AddOptions(r.stdlibOpts...)
 	}
 
+	// Register I/O module functions in expr-lang engine.
+	if !r.ioDisabled {
+		ioOpts := r.ioRegistry.ExprOptions()
+		if len(ioOpts) > 0 {
+			r.engine.AddOptions(ioOpts...)
+		}
+		for k, v := range r.ioRegistry.EnvVars() {
+			r.stdlibEnv[k] = v
+		}
+	}
+
 	return r
+}
+
+// IORegistry returns the runtime's I/O module registry.
+func (r *Runtime) IORegistry() *goio.IORegistry {
+	return r.ioRegistry
+}
+
+// IODisabled returns whether I/O is explicitly disabled.
+func (r *Runtime) IODisabled() bool {
+	return r.ioDisabled
 }
 
 // Compile parses and compiles a go-json program (no import resolution).
