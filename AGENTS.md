@@ -27,7 +27,8 @@ bitcode/
 │   ├── embedded/        Go-embedded modules compiled into binary
 │   └── plugins/         Plugin runtimes (TypeScript, Python)
 ├── packages/
-│   └── components/      Stencil Web Components (@bitcode/components, 103 components)
+│   ├── components/      Stencil Web Components (@bitcode/components, 103 components)
+│   └── tauri/           Tauri 2.0 native shell (desktop + mobile)
 ├── samples/
 │   └── erp/             Sample ERP application (CRM + HRM)
 ├── docs/                Project-level documentation
@@ -59,7 +60,7 @@ bitcode/
 ## File Structure Rules (Components)
 
 - `packages/components/src/components/` — Stencil Web Components (each has `.tsx` + `.css`).
-- `packages/components/src/core/` — Shared infrastructure (types, API client, event bus, form engine, i18n, BcSetup, data-fetcher, validation-engine, field-utils).
+- `packages/components/src/core/` — Shared infrastructure (types, API client, event bus, form engine, i18n, BcSetup, data-fetcher, validation-engine, field-utils, bc-native, offline-store).
 - `packages/components/src/utils/` — Shared utilities (expression eval, format, validators).
 - `packages/components/src/global/themes/` — Theme CSS files (dark.css, custom themes).
 - `packages/components/docs/` — Per-component documentation (self-contained for future repo split).
@@ -193,7 +194,42 @@ All 11 locale files must be provided for every module that has user-facing text.
 - [ ] Marketplace — Community module sharing
 - [ ] NATS event bus — Replace in-process bus for distributed deployments
 
-> **Full roadmap with 71 features**: see [`docs/features.md`](docs/features.md)
+### Offline Mode (In Progress — Phase 1-2 of 5 complete)
+
+**Design doc:** `docs/plans/2026-04-28-offline-mode-design.md`
+**Implementation plan:** `docs/plans/impl/offline-mode-implementation.md`
+**Feature ref:** `engine/docs/features/offline-mode.md`
+
+**Architecture:** Stencil components (unchanged) run inside Tauri's native WebView. `bc-native.ts` bridge routes native capability calls to Tauri IPC or Web API fallback. Go engine generates `_off_*` columns/tables for offline tracking and provides sync API endpoints.
+
+**What's done:**
+- [x] Phase 1: Foundation — Engine understands `mode:"offline"`, generates `_off_*` columns, creates infrastructure tables, sync API stubs
+- [x] Phase 2: Tauri Shell — Tauri 2.0 project, `bc-native.ts` bridge (13 methods), build pipeline (desktop/android/ios)
+- [x] Phase 2.5: Per-model `app.mode` in model.json — resolution chain: model → module → project → default("online")
+- [x] Phase 2.5: `offline-store.ts` — intercept layer that routes CRUD to local SQLite (offline models) or fetch() (online models)
+- [x] Phase 2.5: Schema sync endpoint — `GET /api/v1/sync/schema` returns offline model list + field definitions for device registration
+
+**What's NOT done (Phase 3-5):**
+- [ ] Phase 3: Sync Engine — device registration flow, outbox recording, sync push/pull, envelope grouping
+- [ ] Phase 4: Conflict Resolution — HLC, field-level merge, receipt numbering, inventory deltas
+- [ ] Phase 5: Polish — SQLite encryption, offline auth, cross-platform testing
+
+**CRITICAL CONTEXT for future sessions:**
+
+1. **Server-side `_sync_*` tables are Go-generated, NOT JSON models.** They are infrastructure tables (like `audit_log`, `data_revisions`, `ir_migration`) created directly via `sync_schema.go` DDL. They do NOT appear in admin panel, do NOT get auto-CRUD, and developers never define them. **Future task:** When the base/core module is migrated from Go code to JSON model definitions, these sync tables should be evaluated for migration too — but they may intentionally stay as Go-generated infrastructure.
+
+2. **Client-side `_off_*` tables are defined in TWO places** (known duplication):
+   - `engine/internal/infrastructure/persistence/offline_schema.go` — Go DDL for server-side schema generation
+   - `packages/tauri/src-tauri/src/main.rs` — Rust SQLite migrations for client-side
+   This duplication exists because Phase 3 (schema sync) is not yet implemented. Once Phase 3 is done, the Tauri client should receive schema from server during device registration, eliminating the Rust-side hardcoded migrations.
+
+3. **`bc-native.ts` uses `window.__TAURI__` global** (requires `withGlobalTauri: true` in `tauri.conf.json`). This avoids npm dependency on `@tauri-apps/api` — Stencil components stay framework-agnostic.
+
+4. **Mobile plugins (barcode-scanner, biometric) are behind Cargo feature flag** `mobile-plugins` because they require platform-specific SDKs that don't compile on desktop. Enable with `cargo build --features mobile-plugins`.
+
+5. **`offline-store.ts` intercepts at the data-fetcher level.** It checks `BcSetup.isModelOffline(modelName)` and routes to `BcNative.dbSelect()`/`BcNative.dbExecute()` for offline models, or falls through to normal `fetch()` for online models. This means existing Stencil components work without modification.
+
+> **Full roadmap with 75 features**: see [`docs/features.md`](docs/features.md)
 
 ## Testing
 
@@ -204,7 +240,7 @@ go test ./pkg/ddd/        # Specific package
 go test ./... -count=1    # No cache
 ```
 
-Current: 497 tests, 0 failures. Build: OK.
+Current: 570 Go tests + 74 Stencil tests, 0 failures. Build: OK.
 
 ## Build
 

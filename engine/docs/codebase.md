@@ -128,7 +128,7 @@ engine/
 │       ├── api/
 │       │   ├── router.go                   # Dynamic route registration from API definitions
 │       │   ├── crud_handler.go             # Auto-CRUD handler — List/Read/Create/Update/Delete
-│       │   └── sync_handler.go             # 5 sync API endpoints (register, push, pull, auth/cache, status) — stubs returning 501
+│       │   └── sync_handler.go             # 6 sync API endpoints: 5 stubs (register, push, pull, auth/cache, status) + GetSchema (returns offline models + fields)
 │       ├── admin/
 │       │   ├── admin.go                    # Admin panel — sidebar, dashboard, models (tabs), modules (tabs), views (list+detail+editor), health
 │       │   └── admin_api.go                # Admin JSON API — view save, rollback, preview, publish

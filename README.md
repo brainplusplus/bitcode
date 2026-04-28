@@ -10,7 +10,8 @@ A JSON-driven low-code platform for building business applications. Define model
 bitcode/
 ├── engine/              Go runtime — reads JSON, runs the app
 ├── packages/
-│   └── components/      Stencil Web Components (@bitcode/components)
+│   ├── components/      Stencil Web Components (@bitcode/components)
+│   └── tauri/           Tauri native shell (desktop + mobile)
 ├── samples/
 │   └── erp/             Sample ERP application (CRM + HRM)
 ├── docs/                Project-level documentation
@@ -179,6 +180,8 @@ docker-compose up -d
 - **i18n** — Multi-language (11 languages in components)
 - **Admin UI** — Built-in panel at `/admin`
 - **Hot reload** — File watcher in dev mode
+- **Native shell (Tauri)** — Tauri 2.0 wraps Stencil components for desktop (Win/Mac/Linux) and mobile (iOS/Android). `bc-native.ts` bridge abstracts native capabilities with Web API fallback
+- **Offline mode** — One toggle (`mode:"offline"`) enables offline-first with auto-generated sync infrastructure, local SQLite, outbox pattern, and delta sync (in progress)
 
 ## Documentation
 
@@ -225,6 +228,7 @@ docker-compose up -d
 | Charts | ECharts |
 | Rich Text | Tiptap |
 | Code Editor | CodeMirror |
+| Native Shell | Tauri 2.0 (Rust) |
 | Plugins | Node.js + Python via JSON-RPC |
 
 ## License

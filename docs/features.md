@@ -145,7 +145,7 @@ Before the gap list — what's already **production-solid**:
 | 37 | Dashboard Builder | ✅ | — | Custom view type with `data_sources`. Admin dashboard at `/admin`. | — |
 | 72 | Enterprise Component Infrastructure | ✅ | — | All 6 phases complete. BcSetup (global config + reactivity runtime), 4-level data fetching, 3-level validation, theming (light/dark/system/custom), 34 field components, 5 select-family with searchable dropdown + cascading, datatable with enterprise methods, 11 charts with enterprise features. All standalone — no BitCode dependency. | — |
 | 73 | Theming System | ✅ | — | CSS custom properties (`--bc-*`), light/dark themes, `prefers-color-scheme` auto-detect, `data-bc-theme` attribute for scoped themes, size tokens (sm/md/lg), `BcSetup.configure({ theme })` for programmatic switching. | — |
-| 74 | Offline Mode | ⚠️ | XL | **Phase 1 ✅ + Phase 2 ✅ (of 5).** Engine understands `mode:"offline"` in module.json/bitcode.toml. Auto-generates `_off_*` columns (device_id, status, version, deleted, hlc, envelope_id) on SQLite tables. 4 client-side infrastructure tables (`_off_outbox`, `_off_sync_state`, `_off_conflict_log`, `_off_number_sequence`). 4 server-side sync tables (`_sync_log`, `_sync_devices`, `_sync_conflicts`, `_sync_versions`). PK validation (uuid recommended, composite rejected). 5 sync API stubs (501). Tauri 2.0 native shell at `packages/tauri/` with SQLite, filesystem, notification plugins. `bc-native.ts` bridge (13 methods) with Tauri/Web fallback. | Phase 3: Sync engine (outbox, push, pull, envelope grouping). Phase 4: HLC, field-level conflict merge, receipt numbering, inventory deltas. Phase 5: Encryption, offline auth, cross-platform testing. |
+| 74 | Offline Mode | ⚠️ | XL | **Phase 1 ✅ + Phase 2 ✅ + Phase 2.5 ✅ (of 5).** Engine understands `mode:"offline"` in model.json/module.json/bitcode.toml with resolution chain (model→module→project→default). Auto-generates `_off_*` columns on SQLite tables. 4 client + 4 server infrastructure tables. PK validation. 6 sync API endpoints (5 stubs + `GetSchema`). Tauri 2.0 native shell. `bc-native.ts` bridge (13 methods). `offline-store.ts` routes CRUD to SQLite (offline) or fetch() (online) with outbox recording. | Phase 3: Sync engine (device registration, push, pull, envelope grouping). Phase 4: HLC, field-level conflict merge, receipt numbering, inventory deltas. Phase 5: Encryption, offline auth, cross-platform testing. |
 | 75 | Native Shell (Tauri) | ⚠️ | L | **Phase 2 ✅.** Tauri 2.0 project at `packages/tauri/`. Stencil components run inside native WebView. Plugins: tauri-plugin-sql (SQLite), tauri-plugin-fs, tauri-plugin-notification. Mobile plugins (barcode-scanner, biometric) behind feature flag. Build pipeline: `npm run dev:desktop`, `build:desktop`, `dev:android`, `build:android`, `dev:ios`, `build:ios`. Icons generated for all platforms. | Mobile platform testing (Android/iOS). Camera/GPS plugins (less mature on mobile). App Store submission. |
 
 ---
@@ -361,7 +361,7 @@ Detailed per-feature documentation lives in `engine/docs/features/`:
 
 ## Test Coverage
 
-549 Go tests across 38 packages + 63 Stencil component tests. All passing. See [engine/docs/codebase.md](../engine/docs/codebase.md) for the full breakdown.
+570 Go tests across 41 packages + 74 Stencil component tests. All passing. See [engine/docs/codebase.md](../engine/docs/codebase.md) for the full breakdown.
 
 ```bash
 cd engine && go test ./... -v

@@ -19,7 +19,8 @@ bitcode/
 │
 ├── engine/                                     # Go runtime (the core)
 ├── packages/                                   # Shared libraries
-│   └── components/                             # Stencil Web Components
+│   ├── components/                             # Stencil Web Components
+│   └── tauri/                                  # Tauri native shell (desktop + mobile)
 ├── samples/                                    # Example applications
 │   └── erp/                                    # Full ERP sample
 ├── sprints/                                    # Sprint tracking
@@ -349,6 +350,10 @@ packages/components/
     ├── core/                                   # Shared infrastructure
     │   ├── types.ts                            # FieldType (30+ types), WidgetType, event interfaces, FetchParams/FetchResult, ValidationResult, BcConfig
     │   ├── bc-setup.ts                         # BcSetup singleton — global config (auth, headers, theme, validators, reactivity rules)
+    │   ├── bc-native.ts                        # BcNative — bridge abstraction for native capabilities (camera, GPS, SQLite, barcode, biometrics). Detects Tauri vs browser.
+    │   ├── bc-native.spec.ts                   # BcNative tests (10 tests — environment detection, browser fallbacks)
+    │   ├── offline-store.ts                    # OfflineStore — CRUD routing layer. SQLite for offline models, fetch() for online. Outbox recording.
+    │   ├── offline-store.spec.ts               # OfflineStore tests (11 tests — routing, CRUD, outbox, table mapping)
     │   ├── data-fetcher.ts                     # 4-level data fetching (local, URL, event intercept, custom fetcher). Standalone — uses native fetch()
     │   ├── validation-engine.ts                # 3-level validation pipeline (built-in, custom JS, server-side). Uses validators.ts
     │   ├── field-utils.ts                      # Shared field utilities (dirty/touched tracking, ARIA attrs, CSS classes, FormProxy, debounce)
@@ -506,6 +511,28 @@ packages/components/
             ├── bc-activity/                    # Activity log
             ├── bc-chatter/                     # Comment thread
             └── bc-timeline/                    # Timeline view
+```
+
+---
+
+## Tauri Native Shell (`packages/tauri/`)
+
+Tauri 2.0 project that wraps Stencil components in a native WebView for desktop and mobile.
+
+```
+packages/tauri/
+├── package.json                                # @bitcode/tauri — npm scripts for dev/build (desktop, android, ios)
+├── .gitignore                                  # Excludes target/, gen/, node_modules/
+│
+└── src-tauri/
+    ├── Cargo.toml                              # Tauri 2.10 + plugins (sql, fs, notification, barcode, biometric)
+    ├── build.rs                                # Tauri build script
+    ├── tauri.conf.json                         # frontendDist → ../../components/www, withGlobalTauri, CSP, window config
+    ├── capabilities/
+    │   └── default.json                        # Permissions: core, sql, fs, notification
+    ├── icons/                                  # App icons for all platforms (generated via cargo tauri icon)
+    └── src/
+        └── main.rs                             # Entry point — plugin registration, SQLite migrations for _off_* tables
 ```
 
 ---
