@@ -223,11 +223,27 @@ export class BcFieldSelect {
     } finally { this.loading = false; }
   }
 
+  private _getSelectedValues(): string[] {
+    if (!this.multiple) return this.value ? [this.value] : [];
+    try { return JSON.parse(this.value); } catch { return this.value ? [this.value] : []; }
+  }
+
+  private _isSelected(val: string): boolean {
+    return this._getSelectedValues().includes(val);
+  }
+
   private _selectOption(opt: SelectOption) {
     const old = this.value;
-    this.value = opt.value;
+    if (this.multiple) {
+      const vals = this._getSelectedValues();
+      const idx = vals.indexOf(opt.value);
+      if (idx >= 0) vals.splice(idx, 1); else vals.push(opt.value);
+      this.value = JSON.stringify(vals);
+    } else {
+      this.value = opt.value;
+      this._closeDropdown();
+    }
     this._fieldState = markDirty(this._fieldState, this.value);
-    this._closeDropdown();
     this.lcFieldChange.emit({ name: this.name, value: this.value, oldValue: old });
     if (this._getValidateOn() === 'change') this._runValidation();
   }
@@ -251,9 +267,14 @@ export class BcFieldSelect {
     }
   }
 
-  private handleClear() { const old = this.value; this.value = ''; this._fieldState = markDirty(this._fieldState, ''); this.lcFieldClear.emit({ name: this.name, oldValue: old }); this.lcFieldChange.emit({ name: this.name, value: '', oldValue: old }); }
+  private handleClear() { const old = this.value; this.value = this.multiple ? '[]' : ''; this._fieldState = markDirty(this._fieldState, this.value); this.lcFieldClear.emit({ name: this.name, oldValue: old }); this.lcFieldChange.emit({ name: this.name, value: this.value, oldValue: old }); }
 
   private _getDisplayLabel(): string {
+    if (this.multiple) {
+      const vals = this._getSelectedValues();
+      if (vals.length === 0) return '';
+      return vals.map(v => { const o = this._loadedOptions.find(opt => opt.value === v); return o ? o.label : v; }).join(', ');
+    }
     if (!this.value) return '';
     const opt = this._loadedOptions.find(o => o.value === this.value);
     return opt ? opt.label : this.value;
@@ -282,7 +303,7 @@ export class BcFieldSelect {
   @Method() async loadOptions(query?: string): Promise<void> { if (query !== undefined) await this._fetchSearchResults(query); else await this._fetchInitialOptions(); }
   @Method() async reloadOptions(): Promise<void> { await this._fetchInitialOptions(); }
   @Method() async getOptions(): Promise<SelectOption[]> { return this._loadedOptions; }
-  @Method() async getSelectedOptions(): Promise<SelectOption[]> { return this._loadedOptions.filter(o => o.value === this.value); }
+  @Method() async getSelectedOptions(): Promise<SelectOption[]> { const vals = this._getSelectedValues(); return this._loadedOptions.filter(o => vals.includes(o.value)); }
   @Method() async open(): Promise<void> { this._openDropdown(); }
   @Method() async close(): Promise<void> { this._closeDropdown(); }
 
@@ -299,7 +320,7 @@ export class BcFieldSelect {
 
         <div class="bc-select-wrapper" onKeyDown={(e) => this._handleKeyDown(e)}>
           <button type="button" class={{ 'bc-select-trigger': true, 'bc-select-open': this._isOpen, 'bc-field-input': true, [`bc-field-input-${this.size}`]: this.size !== 'md' }} disabled={this.disabled || this.readonly} onClick={() => this._isOpen ? this._closeDropdown() : this._openDropdown()} {...ariaAttrs} role="combobox" aria-expanded={String(this._isOpen)} aria-haspopup="listbox">
-            <span class={{ 'bc-select-value': true, 'bc-select-placeholder': !this.value }}>{displayLabel || this.placeholder}</span>
+            <span class={{ 'bc-select-value': true, 'bc-select-placeholder': !displayLabel }}>{displayLabel || this.placeholder}</span>
             <span class="bc-select-arrow">{this._isOpen ? '\u25B2' : '\u25BC'}</span>
           </button>
 
@@ -322,7 +343,8 @@ export class BcFieldSelect {
                   </div>
                 )}
                 {!this.loading && this._filteredOptions.map((opt, i) => (
-                  <div class={{ 'bc-select-option': true, 'bc-select-option-selected': opt.value === this.value, 'bc-select-option-highlighted': i === this._highlightIndex }} onMouseDown={() => this._selectOption(opt)} onMouseEnter={() => { this._highlightIndex = i; }} role="option" aria-selected={String(opt.value === this.value)}>
+                  <div class={{ 'bc-select-option': true, 'bc-select-option-selected': this._isSelected(opt.value), 'bc-select-option-highlighted': i === this._highlightIndex }} onMouseDown={() => this._selectOption(opt)} onMouseEnter={() => { this._highlightIndex = i; }} role="option" aria-selected={String(this._isSelected(opt.value))}>
+                    {this.multiple && <span class="bc-select-check">{this._isSelected(opt.value) ? '\u2611' : '\u2610'}</span>}
                     {opt.label}
                   </div>
                 ))}
