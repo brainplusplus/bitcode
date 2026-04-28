@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BitCode Components — Gallery</title>
+  <script type="module" src="/build/bc-components.esm.js"></script>
+  <script nomodule src="/build/bc-components.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--bc-font-family, 'Inter', system-ui, sans-serif); background: var(--bc-bg, #fff); color: var(--bc-text, #111827); display: flex; min-height: 100vh; }
+
+    .sidebar { width: 260px; border-right: 1px solid var(--bc-border-color, #e5e7eb); padding: 1rem 0; overflow-y: auto; position: fixed; top: 0; bottom: 0; background: var(--bc-bg-secondary, #f9fafb); z-index: 10; }
+    .sidebar-header { padding: 0 1rem 1rem; border-bottom: 1px solid var(--bc-border-color, #e5e7eb); }
+    .sidebar-header h1 { font-size: 1.125rem; font-weight: 700; }
+    .sidebar-header p { font-size: 0.75rem; color: var(--bc-text-secondary, #6b7280); margin-top: 0.25rem; }
+    .sidebar-search { padding: 0.75rem 1rem; }
+    .sidebar-search input { width: 100%; padding: 0.5rem 0.75rem; border: 1px solid var(--bc-border-color, #e5e7eb); border-radius: 0.375rem; font-size: 0.875rem; outline: none; background: var(--bc-input-bg, #fff); }
+    .sidebar-search input:focus { border-color: var(--bc-primary, #4f46e5); box-shadow: 0 0 0 3px rgba(79,70,229,0.15); }
+    .sidebar-group { padding: 0.5rem 0; }
+    .sidebar-group-title { padding: 0.25rem 1rem; font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--bc-text-secondary, #6b7280); }
+    .sidebar-link { display: block; padding: 0.375rem 1rem 0.375rem 1.5rem; font-size: 0.8125rem; color: var(--bc-text, #111827); text-decoration: none; cursor: pointer; transition: background 0.15s; }
+    .sidebar-link:hover { background: var(--bc-bg-hover, #f3f4f6); }
+    .sidebar-link.active { background: var(--bc-primary-light, #eef2ff); color: var(--bc-primary, #4f46e5); font-weight: 500; }
+    .sidebar-link.hidden { display: none; }
+
+    .main { margin-left: 260px; flex: 1; padding: 2rem; max-width: 900px; }
+    .toolbar { display: flex; gap: 1rem; align-items: center; margin-bottom: 2rem; padding: 1rem; background: var(--bc-bg-secondary, #f9fafb); border-radius: 0.5rem; border: 1px solid var(--bc-border-color, #e5e7eb); flex-wrap: wrap; }
+    .toolbar label { font-size: 0.8125rem; font-weight: 500; }
+    .toolbar select, .toolbar button { padding: 0.375rem 0.75rem; border: 1px solid var(--bc-border-color, #e5e7eb); border-radius: 0.375rem; font-size: 0.8125rem; background: var(--bc-input-bg, #fff); cursor: pointer; }
+    .toolbar button.active { background: var(--bc-primary, #4f46e5); color: #fff; border-color: var(--bc-primary, #4f46e5); }
+
+    .demo-section { margin-bottom: 3rem; scroll-margin-top: 1rem; }
+    .demo-section h2 { font-size: 1.25rem; font-weight: 600; margin-bottom: 0.25rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--bc-border-color, #e5e7eb); }
+    .demo-section h2 code { font-size: 1rem; background: var(--bc-bg-tertiary, #f3f4f6); padding: 0.125rem 0.375rem; border-radius: 0.25rem; }
+    .demo-section p { font-size: 0.875rem; color: var(--bc-text-secondary, #6b7280); margin-bottom: 1rem; }
+    .demo-box { padding: 1.5rem; border: 1px solid var(--bc-border-color, #e5e7eb); border-radius: 0.5rem; margin-bottom: 1rem; background: var(--bc-bg, #fff); }
+    .demo-row { display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-start; }
+    .demo-row > * { flex: 1; min-width: 200px; }
+  </style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <h1>BC Components</h1>
+    <p>103 enterprise components</p>
+  </div>
+  <div class="sidebar-search">
+    <input type="text" id="search" placeholder="Search components..." oninput="filterSidebar(this.value)">
+  </div>
+  <div class="sidebar-group">
+    <div class="sidebar-group-title">Fields — Text</div>
+    <a class="sidebar-link" data-section="string" onclick="scrollTo('string')">bc-field-string</a>
+    <a class="sidebar-link" data-section="password" onclick="scrollTo('password')">bc-field-password</a>
+    <a class="sidebar-link" data-section="text" onclick="scrollTo('text')">bc-field-text</a>
+    <a class="sidebar-link" data-section="smalltext" onclick="scrollTo('smalltext')">bc-field-smalltext</a>
+  </div>
+  <div class="sidebar-group">
+    <div class="sidebar-group-title">Fields — Number</div>
+    <a class="sidebar-link" data-section="integer" onclick="scrollTo('integer')">bc-field-integer</a>
+    <a class="sidebar-link" data-section="float" onclick="scrollTo('float')">bc-field-float</a>
+    <a class="sidebar-link" data-section="decimal" onclick="scrollTo('decimal')">bc-field-decimal</a>
+    <a class="sidebar-link" data-section="currency" onclick="scrollTo('currency')">bc-field-currency</a>
+    <a class="sidebar-link" data-section="percent" onclick="scrollTo('percent')">bc-field-percent</a>
+  </div>
+  <div class="sidebar-group">
+    <div class="sidebar-group-title">Fields — Date/Time</div>
+    <a class="sidebar-link" data-section="date" onclick="scrollTo('date')">bc-field-date</a>
+    <a class="sidebar-link" data-section="datetime" onclick="scrollTo('datetime')">bc-field-datetime</a>
+    <a class="sidebar-link" data-section="time" onclick="scrollTo('time')">bc-field-time</a>
+    <a class="sidebar-link" data-section="duration" onclick="scrollTo('duration')">bc-field-duration</a>
+  </div>
+  <div class="sidebar-group">
+    <div class="sidebar-group-title">Fields — Choice</div>
+    <a class="sidebar-link" data-section="select" onclick="scrollTo('select')">bc-field-select</a>
+    <a class="sidebar-link" data-section="checkbox" onclick="scrollTo('checkbox')">bc-field-checkbox</a>
+    <a class="sidebar-link" data-section="toggle" onclick="scrollTo('toggle')">bc-field-toggle</a>
+    <a class="sidebar-link" data-section="radio" onclick="scrollTo('radio')">bc-field-radio</a>
+    <a class="sidebar-link" data-section="multicheck" onclick="scrollTo('multicheck')">bc-field-multicheck</a>
+    <a class="sidebar-link" data-section="rating" onclick="scrollTo('rating')">bc-field-rating</a>
+    <a class="sidebar-link" data-section="color" onclick="scrollTo('color')">bc-field-color</a>
+  </div>
+  <div class="sidebar-group">
+    <div class="sidebar-group-title">Fields — Rich</div>
+    <a class="sidebar-link" data-section="richtext" onclick="scrollTo('richtext')">bc-field-richtext</a>
+    <a class="sidebar-link" data-section="markdown" onclick="scrollTo('markdown')">bc-field-markdown</a>
+    <a class="sidebar-link" data-section="html" onclick="scrollTo('html')">bc-field-html</a>
+    <a class="sidebar-link" data-section="code" onclick="scrollTo('code')">bc-field-code</a>
+    <a class="sidebar-link" data-section="json" onclick="scrollTo('json')">bc-field-json</a>
+  </div>
+  <div class="sidebar-group">
+    <div class="sidebar-group-title">Fields — Special</div>
+    <a class="sidebar-link" data-section="file" onclick="scrollTo('file')">bc-field-file</a>
+    <a class="sidebar-link" data-section="image" onclick="scrollTo('image')">bc-field-image</a>
+    <a class="sidebar-link" data-section="signature" onclick="scrollTo('signature')">bc-field-signature</a>
+    <a class="sidebar-link" data-section="barcode" onclick="scrollTo('barcode')">bc-field-barcode</a>
+  </div>
+  <div class="sidebar-group">
+    <div class="sidebar-group-title">Layout</div>
+    <a class="sidebar-link" data-section="section" onclick="scrollTo('section')">bc-section</a>
+    <a class="sidebar-link" data-section="tabs" onclick="scrollTo('tabs')">bc-tabs</a>
+  </div>
+  <div class="sidebar-group">
+    <div class="sidebar-group-title">Dialogs</div>
+    <a class="sidebar-link" data-section="dialog" onclick="scrollTo('dialog')">bc-dialog-modal</a>
+    <a class="sidebar-link" data-section="toast" onclick="scrollTo('toast')">bc-toast</a>
+  </div>
+  <div class="sidebar-group">
+    <div class="sidebar-group-title">Widgets</div>
+    <a class="sidebar-link" data-section="badge" onclick="scrollTo('badge')">bc-widget-badge</a>
+    <a class="sidebar-link" data-section="progress" onclick="scrollTo('progress')">bc-widget-progress</a>
+  </div>
+</nav>
+
+<main class="main">
+  <div class="toolbar">
+    <label>Theme:</label>
+    <select onchange="setTheme(this.value)">
+      <option value="light">Light</option>
+      <option value="dark">Dark</option>
+      <option value="system">System</option>
+    </select>
+    <label>Size:</label>
+    <select id="sizeSelect" onchange="setSize(this.value)">
+      <option value="sm">Small</option>
+      <option value="md" selected>Medium</option>
+      <option value="lg">Large</option>
+    </select>
+  </div>
+
+  <!-- TEXT FIELDS -->
+  <div class="demo-section" id="string">
+    <h2><code>bc-field-string</code></h2>
+    <p>Single-line text input with validation, prefix/suffix, clearable, character count.</p>
+    <div class="demo-box">
+      <div class="demo-row">
+        <bc-field-string name="demo-string" label="Basic" placeholder="Type something..." hint="This is a hint text" clearable></bc-field-string>
+        <bc-field-string name="demo-string-req" label="Required + Pattern" required pattern="^[a-zA-Z]+$" pattern-message="Letters only" hint="Only letters allowed"></bc-field-string>
+      </div>
+      <div class="demo-row" style="margin-top:1rem">
+        <bc-field-string name="demo-string-prefix" label="With Prefix/Suffix" prefix-text="https://" suffix-text=".com" placeholder="example"></bc-field-string>
+        <bc-field-string name="demo-string-count" label="With Counter" max-length="50" show-count clearable></bc-field-string>
+      </div>
+      <div class="demo-row" style="margin-top:1rem">
+        <bc-field-string name="demo-string-disabled" label="Disabled" value="Cannot edit" disabled></bc-field-string>
+        <bc-field-string name="demo-string-readonly" label="Readonly" value="Read only value" readonly></bc-field-string>
+      </div>
+    </div>
+  </div>
+
+  <div class="demo-section" id="password">
+    <h2><code>bc-field-password</code></h2>
+    <div class="demo-box">
+      <bc-field-password name="demo-pass" label="Password" placeholder="Enter password" required min-length="8" hint="Minimum 8 characters" show-reveal clearable></bc-field-password>
+    </div>
+  </div>
+
+  <div class="demo-section" id="text">
+    <h2><code>bc-field-text</code></h2>
+    <div class="demo-box">
+      <bc-field-text name="demo-text" label="Description" placeholder="Write a description..." rows="4" max-length="500" show-count hint="Max 500 characters" clearable></bc-field-text>
+    </div>
+  </div>
+
+  <div class="demo-section" id="smalltext">
+    <h2><code>bc-field-smalltext</code></h2>
+    <div class="demo-box">
+      <bc-field-smalltext name="demo-smalltext" label="Short Note" placeholder="Brief note..." rows="2" clearable></bc-field-smalltext>
+    </div>
+  </div>
+
+  <!-- NUMBER FIELDS -->
+  <div class="demo-section" id="integer">
+    <h2><code>bc-field-integer</code></h2>
+    <div class="demo-box">
+      <div class="demo-row">
+        <bc-field-integer name="demo-int" label="Quantity" min="0" max="100" step="1" hint="0-100" clearable></bc-field-integer>
+        <bc-field-integer name="demo-int-req" label="Age (required)" required min="0" max="150" suffix-text="years"></bc-field-integer>
+      </div>
+    </div>
+  </div>
+
+  <div class="demo-section" id="float">
+    <h2><code>bc-field-float</code></h2>
+    <div class="demo-box">
+      <bc-field-float name="demo-float" label="Weight" placeholder="0.00" precision="2" suffix-text="kg" clearable></bc-field-float>
+    </div>
+  </div>
+
+  <div class="demo-section" id="decimal">
+    <h2><code>bc-field-decimal</code></h2>
+    <div class="demo-box">
+      <bc-field-decimal name="demo-decimal" label="Price" placeholder="0.00" precision="2" prefix-text="$" clearable></bc-field-decimal>
+    </div>
+  </div>
+
+  <div class="demo-section" id="currency">
+    <h2><code>bc-field-currency</code></h2>
+    <div class="demo-box">
+      <div class="demo-row">
+        <bc-field-currency name="demo-currency-usd" label="Amount (USD)" currency="USD" clearable></bc-field-currency>
+        <bc-field-currency name="demo-currency-idr" label="Amount (IDR)" currency="IDR" clearable></bc-field-currency>
+      </div>
+    </div>
+  </div>
+
+  <div class="demo-section" id="percent">
+    <h2><code>bc-field-percent</code></h2>
+    <div class="demo-box">
+      <bc-field-percent name="demo-percent" label="Discount" min="0" max="100" hint="0-100%" clearable></bc-field-percent>
+    </div>
+  </div>
+
+  <!-- DATE/TIME -->
+  <div class="demo-section" id="date">
+    <h2><code>bc-field-date</code></h2>
+    <div class="demo-box">
+      <div class="demo-row">
+        <bc-field-date name="demo-date" label="Start Date" required clearable hint="Select a date"></bc-field-date>
+        <bc-field-date name="demo-date-range" label="End Date" clearable></bc-field-date>
+      </div>
+    </div>
+  </div>
+
+  <div class="demo-section" id="datetime">
+    <h2><code>bc-field-datetime</code></h2>
+    <div class="demo-box">
+      <bc-field-datetime name="demo-datetime" label="Event DateTime" clearable></bc-field-datetime>
+    </div>
+  </div>
+
+  <div class="demo-section" id="time">
+    <h2><code>bc-field-time</code></h2>
+    <div class="demo-box">
+      <bc-field-time name="demo-time" label="Meeting Time" clearable></bc-field-time>
+    </div>
+  </div>
+
+  <div class="demo-section" id="duration">
+    <h2><code>bc-field-duration</code></h2>
+    <div class="demo-box">
+      <bc-field-duration name="demo-duration" label="Duration" hint="Hours and minutes" clearable></bc-field-duration>
+    </div>
+  </div>
+
+  <!-- CHOICE -->
+  <div class="demo-section" id="select">
+    <h2><code>bc-field-select</code></h2>
+    <p>Custom searchable dropdown with 4-level data support.</p>
+    <div class="demo-box">
+      <div class="demo-row">
+        <bc-field-select name="demo-select" label="Country" options='[{"label":"Indonesia","value":"ID"},{"label":"Japan","value":"JP"},{"label":"United States","value":"US"},{"label":"Germany","value":"DE"},{"label":"Australia","value":"AU"}]' searchable clearable hint="Searchable dropdown"></bc-field-select>
+        <bc-field-select name="demo-select-req" label="Status (required)" options='[{"label":"Active","value":"active"},{"label":"Inactive","value":"inactive"},{"label":"Pending","value":"pending"}]' required></bc-field-select>
+      </div>
+      <div class="demo-row" style="margin-top:1rem">
+        <bc-field-select name="demo-select-creatable" label="Tags (creatable)" options='[{"label":"Bug","value":"bug"},{"label":"Feature","value":"feature"}]' searchable creatable hint="Type to create new option"></bc-field-select>
+      </div>
+    </div>
+  </div>
+
+  <div class="demo-section" id="checkbox">
+    <h2><code>bc-field-checkbox</code></h2>
+    <div class="demo-box">
+      <div class="demo-row">
+        <bc-field-checkbox name="demo-check" label="I agree to terms" required hint="You must agree"></bc-field-checkbox>
+        <bc-field-checkbox name="demo-check-disabled" label="Disabled checkbox" disabled></bc-field-checkbox>
+      </div>
+    </div>
+  </div>
+
+  <div class="demo-section" id="toggle">
+    <h2><code>bc-field-toggle</code></h2>
+    <div class="demo-box">
+      <div class="demo-row">
+        <bc-field-toggle name="demo-toggle" label="Enable notifications"></bc-field-toggle>
+        <bc-field-toggle name="demo-toggle-on" label="Active" value="true"></bc-field-toggle>
+      </div>
+    </div>
+  </div>
+
+  <div class="demo-section" id="radio">
+    <h2><code>bc-field-radio</code></h2>
+    <div class="demo-box">
+      <bc-field-radio name="demo-radio" label="Gender" options='[{"label":"Male","value":"male"},{"label":"Female","value":"female"},{"label":"Other","value":"other"}]' required></bc-field-radio>
+    </div>
+  </div>
+
+  <div class="demo-section" id="multicheck">
+    <h2><code>bc-field-multicheck</code></h2>
+    <div class="demo-box">
+      <bc-field-multicheck name="demo-multicheck" label="Interests" options='[{"label":"Sports","value":"sports"},{"label":"Music","value":"music"},{"label":"Tech","value":"tech"},{"label":"Art","value":"art"}]' clearable></bc-field-multicheck>
+    </div>
+  </div>
+
+  <div class="demo-section" id="rating">
+    <h2><code>bc-field-rating</code></h2>
+    <div class="demo-box">
+      <div class="demo-row">
+        <bc-field-rating name="demo-rating" label="Rating" required clearable hint="Click a star"></bc-field-rating>
+        <bc-field-rating name="demo-rating-10" label="Rating (10 stars)" max-stars="10"></bc-field-rating>
+      </div>
+    </div>
+  </div>
+
+  <div class="demo-section" id="color">
+    <h2><code>bc-field-color</code></h2>
+    <div class="demo-box">
+      <bc-field-color name="demo-color" label="Brand Color" hint="Pick a color" clearable></bc-field-color>
+    </div>
+  </div>
+
+  <!-- RICH EDITORS -->
+  <div class="demo-section" id="richtext">
+    <h2><code>bc-field-richtext</code></h2>
+    <div class="demo-box">
+      <bc-field-richtext name="demo-richtext" label="Content" hint="Rich text editor with toolbar"></bc-field-richtext>
+    </div>
+  </div>
+
+  <div class="demo-section" id="markdown">
+    <h2><code>bc-field-markdown</code></h2>
+    <div class="demo-box">
+      <bc-field-markdown name="demo-markdown" label="README" hint="Write/Preview toggle" max-length="2000" show-count></bc-field-markdown>
+    </div>
+  </div>
+
+  <div class="demo-section" id="html">
+    <h2><code>bc-field-html</code></h2>
+    <div class="demo-box">
+      <bc-field-html name="demo-html" label="HTML Content" value="<h3>Hello</h3><p>World</p>" hint="Source/Preview toggle"></bc-field-html>
+    </div>
+  </div>
+
+  <div class="demo-section" id="code">
+    <h2><code>bc-field-code</code></h2>
+    <div class="demo-box">
+      <bc-field-code name="demo-code" label="JavaScript" language="javascript" value="function hello() { return 'world'; }"></bc-field-code>
+    </div>
+  </div>
+
+  <div class="demo-section" id="json">
+    <h2><code>bc-field-json</code></h2>
+    <div class="demo-box">
+      <bc-field-json name="demo-json" label="Config" value='{"key": "value", "count": 42}'></bc-field-json>
+    </div>
+  </div>
+
+  <!-- SPECIAL -->
+  <div class="demo-section" id="file">
+    <h2><code>bc-field-file</code></h2>
+    <div class="demo-box">
+      <bc-field-file name="demo-file" label="Attachment" accept=".pdf,.doc,.docx" max-size="5MB" hint="PDF or Word, max 5MB"></bc-field-file>
+    </div>
+  </div>
+
+  <div class="demo-section" id="image">
+    <h2><code>bc-field-image</code></h2>
+    <div class="demo-box">
+      <bc-field-image name="demo-image" label="Avatar" max-size="2MB" hint="Drag or click to upload"></bc-field-image>
+    </div>
+  </div>
+
+  <div class="demo-section" id="signature">
+    <h2><code>bc-field-signature</code></h2>
+    <div class="demo-box">
+      <bc-field-signature name="demo-sig" label="Signature" hint="Draw your signature" width="400" height="150"></bc-field-signature>
+    </div>
+  </div>
+
+  <div class="demo-section" id="barcode">
+    <h2><code>bc-field-barcode</code></h2>
+    <div class="demo-box">
+      <div class="demo-row">
+        <bc-field-barcode name="demo-barcode" label="Barcode" value="1234567890" format="code128"></bc-field-barcode>
+        <bc-field-barcode name="demo-qr" label="QR Code" value="https://bitcode.dev" format="qr"></bc-field-barcode>
+      </div>
+    </div>
+  </div>
+
+  <!-- LAYOUT -->
+  <div class="demo-section" id="section">
+    <h2><code>bc-section</code></h2>
+    <div class="demo-box">
+      <bc-section section-title="Collapsible Section" description="Click to toggle" collapsible>
+        <p style="padding:1rem">Section content here. Can be collapsed.</p>
+      </bc-section>
+    </div>
+  </div>
+
+  <div class="demo-section" id="tabs">
+    <h2><code>bc-tabs</code></h2>
+    <div class="demo-box">
+      <bc-tabs>
+        <bc-tab label="Tab 1"><div style="padding:1rem">Content of Tab 1</div></bc-tab>
+        <bc-tab label="Tab 2"><div style="padding:1rem">Content of Tab 2</div></bc-tab>
+        <bc-tab label="Tab 3"><div style="padding:1rem">Content of Tab 3</div></bc-tab>
+      </bc-tabs>
+    </div>
+  </div>
+
+  <!-- DIALOGS -->
+  <div class="demo-section" id="dialog">
+    <h2><code>bc-dialog-modal</code></h2>
+    <div class="demo-box">
+      <button type="button" onclick="document.getElementById('demo-modal').open=true" style="padding:0.5rem 1rem;border:1px solid #e5e7eb;border-radius:0.375rem;cursor:pointer">Open Modal</button>
+      <bc-dialog-modal id="demo-modal" dialog-title="Demo Modal">
+        <p style="padding:1rem">This is modal content. Click X or overlay to close.</p>
+      </bc-dialog-modal>
+    </div>
+  </div>
+
+  <div class="demo-section" id="toast">
+    <h2><code>bc-toast</code></h2>
+    <div class="demo-box">
+      <div class="demo-row">
+        <button type="button" onclick="showToast('success','Operation completed!')" style="padding:0.5rem 1rem;border:1px solid #10b981;border-radius:0.375rem;color:#10b981;cursor:pointer">Success Toast</button>
+        <button type="button" onclick="showToast('error','Something went wrong!')" style="padding:0.5rem 1rem;border:1px solid #ef4444;border-radius:0.375rem;color:#ef4444;cursor:pointer">Error Toast</button>
+        <button type="button" onclick="showToast('warning','Please check your input')" style="padding:0.5rem 1rem;border:1px solid #f59e0b;border-radius:0.375rem;color:#f59e0b;cursor:pointer">Warning Toast</button>
+      </div>
+      <bc-toast id="demo-toast" duration="3000"></bc-toast>
+    </div>
+  </div>
+
+  <!-- WIDGETS -->
+  <div class="demo-section" id="badge">
+    <h2><code>bc-widget-badge</code></h2>
+    <div class="demo-box">
+      <div class="demo-row">
+        <bc-widget-badge value="Active" variant="success"></bc-widget-badge>
+        <bc-widget-badge value="Pending" variant="warning"></bc-widget-badge>
+        <bc-widget-badge value="Closed" variant="danger"></bc-widget-badge>
+        <bc-widget-badge value="Draft" variant="secondary"></bc-widget-badge>
+      </div>
+    </div>
+  </div>
+
+  <div class="demo-section" id="progress">
+    <h2><code>bc-widget-progress</code></h2>
+    <div class="demo-box">
+      <bc-widget-progress value="65" max="100"></bc-widget-progress>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  function scrollTo(id) {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+    document.querySelector(`.sidebar-link[data-section="${id}"]`)?.classList.add('active');
+  }
+
+  function filterSidebar(query) {
+    const q = query.toLowerCase();
+    document.querySelectorAll('.sidebar-link').forEach(link => {
+      const text = link.textContent.toLowerCase();
+      link.classList.toggle('hidden', q && !text.includes(q));
+    });
+  }
+
+  function setTheme(theme) {
+    if (theme === 'system') {
+      document.documentElement.removeAttribute('data-bc-theme');
+    } else if (theme === 'light') {
+      document.documentElement.removeAttribute('data-bc-theme');
+    } else {
+      document.documentElement.setAttribute('data-bc-theme', theme);
+    }
+  }
+
+  function setSize(size) {
+    document.querySelectorAll('[size]').forEach(el => el.setAttribute('size', size));
+  }
+
+  function showToast(variant, message) {
+    const toast = document.getElementById('demo-toast');
+    toast.setAttribute('variant', variant);
+    toast.setAttribute('message', message);
+    toast.setAttribute('dialog-title', variant.charAt(0).toUpperCase() + variant.slice(1));
+    toast.open = true;
+  }
+</script>
+
+</body>
+</html>
