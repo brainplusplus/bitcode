@@ -12,26 +12,25 @@ import (
 	"github.com/traefik/yaegi/interp"
 )
 
+const orphanedGoroutineGracePeriod = 500 * time.Millisecond
+
 type YaegiVM struct {
 	interp    *interp.Interpreter
 	opts      embedded.VMOptions
 	cancelled atomic.Bool
 	params    map[string]any
+	holder    *bridgeHolder
 }
 
 func (v *YaegiVM) InjectBridge(bc *bridge.Context) error {
-	symbols := BuildBridgeSymbols(bc)
+	symbols, holder := BuildBridgeSymbols(bc)
+	v.holder = holder
 	return v.interp.Use(symbols)
 }
 
 func (v *YaegiVM) InjectParams(params map[string]any) error {
 	v.params = params
-	symbols := interp.Exports{
-		"params/params": map[string]reflect.Value{
-			"Get": reflect.ValueOf(func() map[string]any { return params }),
-		},
-	}
-	return v.interp.Use(symbols)
+	return nil
 }
 
 func (v *YaegiVM) Execute(code string, filename string) (any, error) {
@@ -97,14 +96,23 @@ func (v *YaegiVM) callWithTimeout(fn reflect.Value) (any, error) {
 		done <- result{val, callErr}
 	}()
 
+	var val any
+	var execErr error
+
 	select {
 	case res := <-done:
-		return res.value, res.err
+		val, execErr = res.value, res.err
 	case <-ctx.Done():
 		v.cancelled.Store(true)
 		return nil, bridge.NewError("STEP_TIMEOUT",
 			fmt.Sprintf("Go script timed out after %s. Scripts should check ctx.Done() for cooperative cancellation.", timeout))
 	}
+
+	// Grace period: wait briefly for orphaned goroutines that may still be
+	// making bridge calls. After this, the bridge context may be reclaimed.
+	time.Sleep(orphanedGoroutineGracePeriod)
+
+	return val, execErr
 }
 
 // callExecuteFunc detects the function signature and calls accordingly.

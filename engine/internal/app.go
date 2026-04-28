@@ -151,7 +151,13 @@ func NewApp(cfg AppConfig) (*App, error) {
 	embeddedReg := jsrt.NewRegistry()
 	embeddedReg.Register("goja", gojaRT.New())
 	embeddedReg.Register("quickjs", qjsRT.New())
-	embeddedReg.Register("yaegi", yaegiRT.New(nil))
+
+	yaegiProjectDir := filepath.Dir(cfg.ModuleDir)
+	yaegiBridges, err := yaegiRT.LoadCustomBridges(yaegiProjectDir, nil, cfg.ModuleDir)
+	if err != nil {
+		log.Printf("[WARN] failed to load yaegi bridges: %v", err)
+	}
+	embeddedReg.Register("yaegi", yaegiRT.New(yaegiBridges))
 
 	templateEngine.RegisterHelper("t", func(locale string, key string) string {
 		return translator.Translate(locale, key)

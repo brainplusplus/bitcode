@@ -551,6 +551,233 @@ func TestYaegiInterrupt(t *testing.T) {
 	vm.Interrupt("test interrupt")
 }
 
+func TestYaegiBridgeModelCall(t *testing.T) {
+	rt := New(nil)
+	vm, err := rt.NewVM(embedded.VMOptions{Timeout: 5 * time.Second})
+	if err != nil {
+		t.Fatalf("NewVM failed: %v", err)
+	}
+	defer vm.Close()
+
+	bc := newMockBridgeContext()
+	if err := vm.InjectBridge(bc); err != nil {
+		t.Fatalf("InjectBridge failed: %v", err)
+	}
+	if err := vm.InjectParams(map[string]any{}); err != nil {
+		t.Fatalf("InjectParams failed: %v", err)
+	}
+
+	code := `package main
+
+import "bitcode"
+
+func Execute(params map[string]any) (any, error) {
+	record, err := bitcode.Model("contact").Create(map[string]any{
+		"name":  "Alice",
+		"email": "alice@test.com",
+	})
+	if err != nil {
+		return nil, err
+	}
+	return record, nil
+}
+`
+	result, err := vm.Execute(code, "test_bridge_model.go")
+	if err != nil {
+		t.Fatalf("Execute failed: %v", err)
+	}
+
+	m, ok := result.(map[string]any)
+	if !ok {
+		t.Fatalf("expected map result, got %T", result)
+	}
+	if m["name"] != "Alice" {
+		t.Errorf("expected name 'Alice', got %v", m["name"])
+	}
+}
+
+func TestYaegiBridgeLogAndEnv(t *testing.T) {
+	rt := New(nil)
+	vm, err := rt.NewVM(embedded.VMOptions{Timeout: 5 * time.Second})
+	if err != nil {
+		t.Fatalf("NewVM failed: %v", err)
+	}
+	defer vm.Close()
+
+	bc := newMockBridgeContext()
+	if err := vm.InjectBridge(bc); err != nil {
+		t.Fatalf("InjectBridge failed: %v", err)
+	}
+	if err := vm.InjectParams(map[string]any{}); err != nil {
+		t.Fatalf("InjectParams failed: %v", err)
+	}
+
+	code := `package main
+
+import "bitcode"
+
+func Execute(params map[string]any) (any, error) {
+	bitcode.Log("info", "test message")
+	val, err := bitcode.Env("APP_KEY")
+	if err != nil {
+		return nil, err
+	}
+	cfg := bitcode.Config("app.name")
+	translated := bitcode.T("hello")
+	return map[string]any{
+		"env":        val,
+		"config":     cfg,
+		"translated": translated,
+	}, nil
+}
+`
+	result, err := vm.Execute(code, "test_bridge_log.go")
+	if err != nil {
+		t.Fatalf("Execute failed: %v", err)
+	}
+
+	_, ok := result.(map[string]any)
+	if !ok {
+		t.Fatalf("expected map result, got %T", result)
+	}
+}
+
+func TestYaegiBridgeTxSwapsContext(t *testing.T) {
+	rt := New(nil)
+	vm, err := rt.NewVM(embedded.VMOptions{Timeout: 5 * time.Second})
+	if err != nil {
+		t.Fatalf("NewVM failed: %v", err)
+	}
+	defer vm.Close()
+
+	bc := newMockBridgeContext()
+	if err := vm.InjectBridge(bc); err != nil {
+		t.Fatalf("InjectBridge failed: %v", err)
+	}
+	if err := vm.InjectParams(map[string]any{}); err != nil {
+		t.Fatalf("InjectParams failed: %v", err)
+	}
+
+	code := `package main
+
+import "bitcode"
+
+func Execute(params map[string]any) (any, error) {
+	err := bitcode.Tx(func() error {
+		_, err := bitcode.Model("contact").Create(map[string]any{"name": "InTx"})
+		return err
+	})
+	if err != nil {
+		return nil, err
+	}
+	return map[string]any{"tx": "ok"}, nil
+}
+`
+	result, err := vm.Execute(code, "test_bridge_tx.go")
+	if err != nil {
+		t.Fatalf("Execute failed: %v", err)
+	}
+
+	m, ok := result.(map[string]any)
+	if !ok {
+		t.Fatalf("expected map result, got %T", result)
+	}
+	if m["tx"] != "ok" {
+		t.Errorf("expected tx 'ok', got %v", m["tx"])
+	}
+}
+
+func TestYaegiBridgeHTTP(t *testing.T) {
+	rt := New(nil)
+	vm, err := rt.NewVM(embedded.VMOptions{Timeout: 5 * time.Second})
+	if err != nil {
+		t.Fatalf("NewVM failed: %v", err)
+	}
+	defer vm.Close()
+
+	bc := newMockBridgeContext()
+	if err := vm.InjectBridge(bc); err != nil {
+		t.Fatalf("InjectBridge failed: %v", err)
+	}
+	if err := vm.InjectParams(map[string]any{}); err != nil {
+		t.Fatalf("InjectParams failed: %v", err)
+	}
+
+	code := `package main
+
+import "bitcode"
+
+func Execute(params map[string]any) (any, error) {
+	resp, err := bitcode.HTTP().Get("https://example.com")
+	if err != nil {
+		return nil, err
+	}
+	return map[string]any{"status": resp.Status}, nil
+}
+`
+	result, err := vm.Execute(code, "test_bridge_http.go")
+	if err != nil {
+		t.Fatalf("Execute failed: %v", err)
+	}
+
+	m, ok := result.(map[string]any)
+	if !ok {
+		t.Fatalf("expected map result, got %T", result)
+	}
+	if m["status"] != 200 {
+		t.Errorf("expected status 200, got %v", m["status"])
+	}
+}
+
+func TestYaegiBridgeCrypto(t *testing.T) {
+	rt := New(nil)
+	vm, err := rt.NewVM(embedded.VMOptions{Timeout: 5 * time.Second})
+	if err != nil {
+		t.Fatalf("NewVM failed: %v", err)
+	}
+	defer vm.Close()
+
+	bc := newMockBridgeContext()
+	if err := vm.InjectBridge(bc); err != nil {
+		t.Fatalf("InjectBridge failed: %v", err)
+	}
+	if err := vm.InjectParams(map[string]any{}); err != nil {
+		t.Fatalf("InjectParams failed: %v", err)
+	}
+
+	code := `package main
+
+import "bitcode"
+
+func Execute(params map[string]any) (any, error) {
+	hashed, err := bitcode.Crypto().Hash("password123")
+	if err != nil {
+		return nil, err
+	}
+	ok, err := bitcode.Crypto().Verify("password123", hashed)
+	if err != nil {
+		return nil, err
+	}
+	return map[string]any{"hashed": hashed, "verified": ok}, nil
+}
+`
+	result, err := vm.Execute(code, "test_bridge_crypto.go")
+	if err != nil {
+		t.Fatalf("Execute failed: %v", err)
+	}
+
+	m, ok := result.(map[string]any)
+	if !ok {
+		t.Fatalf("expected map result, got %T", result)
+	}
+	if m["hashed"] != "hashed" {
+		t.Errorf("expected hashed 'hashed', got %v", m["hashed"])
+	}
+	if m["verified"] != true {
+		t.Errorf("expected verified true, got %v", m["verified"])
+	}
+}
+
 // --- mock bridge context ---
 
 func newMockBridgeContext() *bridge.Context {

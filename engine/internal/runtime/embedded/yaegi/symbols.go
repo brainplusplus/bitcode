@@ -8,40 +8,54 @@ import (
 	"github.com/traefik/yaegi/interp"
 )
 
-// BuildBridgeSymbols creates the interp.Exports map that exposes bridge.Context
-// as the "bitcode" Go package. Scripts import it via: import "bitcode"
-func BuildBridgeSymbols(bc *bridge.Context) interp.Exports {
-	return interp.Exports{
-		"bitcode/bitcode": buildBitcodePackage(bc),
-	}
+// bridgeHolder holds a swappable pointer to bridge.Context.
+// All proxy structs reference this holder so that Tx can swap the context
+// and all subsequent bridge calls within the transaction use the tx connection.
+type bridgeHolder struct {
+	ctx *bridge.Context
 }
 
-func buildBitcodePackage(bc *bridge.Context) map[string]reflect.Value {
+func (h *bridgeHolder) get() *bridge.Context { return h.ctx }
+
+// BuildBridgeSymbols creates the interp.Exports map that exposes bridge.Context
+// as the "bitcode" Go package. Scripts import it via: import "bitcode"
+// Returns both the exports and the holder (stored on VM for Tx swapping).
+func BuildBridgeSymbols(bc *bridge.Context) (interp.Exports, *bridgeHolder) {
+	h := &bridgeHolder{ctx: bc}
+	return interp.Exports{
+		"bitcode/bitcode": buildBitcodePackage(h),
+	}, h
+}
+
+func buildBitcodePackage(h *bridgeHolder) map[string]reflect.Value {
 	return map[string]reflect.Value{
-		"Model":   reflect.ValueOf(func(name string) *goModelProxy { return newModelProxy(bc, name) }),
-		"Session": reflect.ValueOf(bc.Session),
-		"DB":      reflect.ValueOf(newDBProxy(bc)),
-		"HTTP":    reflect.ValueOf(func() *goHTTPProxy { return newHTTPProxy(bc) }),
-		"Cache":   reflect.ValueOf(func() *goCacheProxy { return newCacheProxy(bc) }),
-		"FS":      reflect.ValueOf(func() *goFSProxy { return newFSProxy(bc) }),
-		"Env":     reflect.ValueOf(func(key string) (string, error) { return bc.Env(key) }),
-		"Config":  reflect.ValueOf(func(key string) any { return bc.Config(key) }),
-		"Log":     reflect.ValueOf(func(level, msg string, data ...map[string]any) { bc.Log(level, msg, data...) }),
-		"Emit":    reflect.ValueOf(func(event string, data map[string]any) error { return bc.Emit(event, data) }),
-		"Call":    reflect.ValueOf(func(process string, input map[string]any) (any, error) { return bc.Call(process, input) }),
-		"T":       reflect.ValueOf(func(key string) string { return bc.T(key) }),
+		"Model":   reflect.ValueOf(func(name string) *goModelProxy { return newModelProxy(h, name) }),
+		"Session": reflect.ValueOf(func() bridge.Session { return h.get().Session() }),
+		"DB":      reflect.ValueOf(func() *goDBProxy { return newDBProxy(h) }),
+		"HTTP":    reflect.ValueOf(func() *goHTTPProxy { return newHTTPProxy(h) }),
+		"Cache":   reflect.ValueOf(func() *goCacheProxy { return newCacheProxy(h) }),
+		"FS":      reflect.ValueOf(func() *goFSProxy { return newFSProxy(h) }),
+		"Env":     reflect.ValueOf(func(key string) (string, error) { return h.get().Env(key) }),
+		"Config":  reflect.ValueOf(func(key string) any { return h.get().Config(key) }),
+		"Log":     reflect.ValueOf(func(level, msg string, data ...map[string]any) { h.get().Log(level, msg, data...) }),
+		"Emit":    reflect.ValueOf(func(event string, data map[string]any) error { return h.get().Emit(event, data) }),
+		"Call":    reflect.ValueOf(func(process string, input map[string]any) (any, error) { return h.get().Call(process, input) }),
+		"T":       reflect.ValueOf(func(key string) string { return h.get().T(key) }),
 		"Exec": reflect.ValueOf(func(cmd string, args []string, opts ...map[string]any) (*bridge.ExecResult, error) {
-			return bc.Exec(cmd, args, embedded.ParseExecOpts(firstMap(opts)))
+			return h.get().Exec(cmd, args, embedded.ParseExecOpts(firstMap(opts)))
 		}),
-		"Email":     reflect.ValueOf(func() *goEmailProxy { return newEmailProxy(bc) }),
-		"Notify":    reflect.ValueOf(func() *goNotifyProxy { return newNotifyProxy(bc) }),
-		"Storage":   reflect.ValueOf(func() *goStorageProxy { return newStorageProxy(bc) }),
-		"Security":  reflect.ValueOf(func() *goSecurityProxy { return newSecurityProxy(bc) }),
-		"Audit":     reflect.ValueOf(func() *goAuditProxy { return newAuditProxy(bc) }),
-		"Crypto":    reflect.ValueOf(func() *goCryptoProxy { return newCryptoProxy(bc) }),
-		"Execution": reflect.ValueOf(func() *goExecutionProxy { return newExecutionProxy(bc) }),
+		"Email":     reflect.ValueOf(func() *goEmailProxy { return newEmailProxy(h) }),
+		"Notify":    reflect.ValueOf(func() *goNotifyProxy { return newNotifyProxy(h) }),
+		"Storage":   reflect.ValueOf(func() *goStorageProxy { return newStorageProxy(h) }),
+		"Security":  reflect.ValueOf(func() *goSecurityProxy { return newSecurityProxy(h) }),
+		"Audit":     reflect.ValueOf(func() *goAuditProxy { return newAuditProxy(h) }),
+		"Crypto":    reflect.ValueOf(func() *goCryptoProxy { return newCryptoProxy(h) }),
+		"Execution": reflect.ValueOf(func() *goExecutionProxy { return newExecutionProxy(h) }),
 		"Tx": reflect.ValueOf(func(fn func() error) error {
-			return bc.Tx(func(_ *bridge.Context) error {
+			return h.get().Tx(func(txCtx *bridge.Context) error {
+				original := h.ctx
+				h.ctx = txCtx
+				defer func() { h.ctx = original }()
 				return fn()
 			})
 		}),
@@ -51,284 +65,292 @@ func buildBitcodePackage(bc *bridge.Context) map[string]reflect.Value {
 // --- Model proxy (PascalCase for Go convention) ---
 
 type goModelProxy struct {
-	handle bridge.ModelHandle
+	h    *bridgeHolder
+	name string
 }
 
-func newModelProxy(bc *bridge.Context, name string) *goModelProxy {
-	return &goModelProxy{handle: bc.Model(name)}
+func newModelProxy(h *bridgeHolder, name string) *goModelProxy {
+	return &goModelProxy{h: h, name: name}
 }
+
+func (m *goModelProxy) handle() bridge.ModelHandle { return m.h.get().Model(m.name) }
 
 func (m *goModelProxy) Search(opts ...map[string]any) ([]map[string]any, error) {
-	return m.handle.Search(embedded.ParseSearchOpts(firstMap(opts)))
+	return m.handle().Search(embedded.ParseSearchOpts(firstMap(opts)))
 }
-func (m *goModelProxy) Get(id string) (map[string]any, error) { return m.handle.Get(id) }
+func (m *goModelProxy) Get(id string) (map[string]any, error) { return m.handle().Get(id) }
 func (m *goModelProxy) Create(data map[string]any) (map[string]any, error) {
-	return m.handle.Create(data)
+	return m.handle().Create(data)
 }
-func (m *goModelProxy) Write(id string, data map[string]any) error { return m.handle.Write(id, data) }
-func (m *goModelProxy) Delete(id string) error                     { return m.handle.Delete(id) }
+func (m *goModelProxy) Write(id string, data map[string]any) error {
+	return m.handle().Write(id, data)
+}
+func (m *goModelProxy) Delete(id string) error { return m.handle().Delete(id) }
 func (m *goModelProxy) Count(opts ...map[string]any) (int64, error) {
-	return m.handle.Count(embedded.ParseSearchOpts(firstMap(opts)))
+	return m.handle().Count(embedded.ParseSearchOpts(firstMap(opts)))
 }
 func (m *goModelProxy) Sum(field string, opts ...map[string]any) (float64, error) {
-	return m.handle.Sum(field, embedded.ParseSearchOpts(firstMap(opts)))
+	return m.handle().Sum(field, embedded.ParseSearchOpts(firstMap(opts)))
 }
 func (m *goModelProxy) Upsert(data map[string]any, uniqueFields []string) (map[string]any, error) {
-	return m.handle.Upsert(data, uniqueFields)
+	return m.handle().Upsert(data, uniqueFields)
 }
 func (m *goModelProxy) CreateMany(records []map[string]any) ([]map[string]any, error) {
-	return m.handle.CreateMany(records)
+	return m.handle().CreateMany(records)
 }
 func (m *goModelProxy) WriteMany(ids []string, data map[string]any) (*bridge.BulkResult, error) {
-	return m.handle.WriteMany(ids, data)
+	return m.handle().WriteMany(ids, data)
 }
 func (m *goModelProxy) DeleteMany(ids []string) (*bridge.BulkResult, error) {
-	return m.handle.DeleteMany(ids)
+	return m.handle().DeleteMany(ids)
 }
 func (m *goModelProxy) UpsertMany(records []map[string]any, uniqueFields []string) ([]map[string]any, error) {
-	return m.handle.UpsertMany(records, uniqueFields)
+	return m.handle().UpsertMany(records, uniqueFields)
 }
 func (m *goModelProxy) AddRelation(id, field string, relatedIDs []string) error {
-	return m.handle.AddRelation(id, field, relatedIDs)
+	return m.handle().AddRelation(id, field, relatedIDs)
 }
 func (m *goModelProxy) RemoveRelation(id, field string, relatedIDs []string) error {
-	return m.handle.RemoveRelation(id, field, relatedIDs)
+	return m.handle().RemoveRelation(id, field, relatedIDs)
 }
 func (m *goModelProxy) SetRelation(id, field string, relatedIDs []string) error {
-	return m.handle.SetRelation(id, field, relatedIDs)
+	return m.handle().SetRelation(id, field, relatedIDs)
 }
 func (m *goModelProxy) LoadRelation(id, field string) ([]map[string]any, error) {
-	return m.handle.LoadRelation(id, field)
+	return m.handle().LoadRelation(id, field)
 }
 func (m *goModelProxy) Sudo() *goSudoModelProxy {
-	return &goSudoModelProxy{handle: m.handle.Sudo()}
+	return &goSudoModelProxy{h: m.h, name: m.name}
 }
 
 // --- Sudo model proxy ---
 
 type goSudoModelProxy struct {
-	handle bridge.SudoModelHandle
+	h    *bridgeHolder
+	name string
+}
+
+func (s *goSudoModelProxy) sudoHandle() bridge.SudoModelHandle {
+	return s.h.get().Model(s.name).Sudo()
 }
 
 func (s *goSudoModelProxy) Search(opts ...map[string]any) ([]map[string]any, error) {
-	return s.handle.Search(embedded.ParseSearchOpts(firstMap(opts)))
+	return s.sudoHandle().Search(embedded.ParseSearchOpts(firstMap(opts)))
 }
-func (s *goSudoModelProxy) Get(id string) (map[string]any, error) { return s.handle.Get(id) }
+func (s *goSudoModelProxy) Get(id string) (map[string]any, error) { return s.sudoHandle().Get(id) }
 func (s *goSudoModelProxy) Create(data map[string]any) (map[string]any, error) {
-	return s.handle.Create(data)
+	return s.sudoHandle().Create(data)
 }
 func (s *goSudoModelProxy) Write(id string, data map[string]any) error {
-	return s.handle.Write(id, data)
+	return s.sudoHandle().Write(id, data)
 }
-func (s *goSudoModelProxy) Delete(id string) error { return s.handle.Delete(id) }
+func (s *goSudoModelProxy) Delete(id string) error { return s.sudoHandle().Delete(id) }
 func (s *goSudoModelProxy) Count(opts ...map[string]any) (int64, error) {
-	return s.handle.Count(embedded.ParseSearchOpts(firstMap(opts)))
+	return s.sudoHandle().Count(embedded.ParseSearchOpts(firstMap(opts)))
 }
 func (s *goSudoModelProxy) Sum(field string, opts ...map[string]any) (float64, error) {
-	return s.handle.Sum(field, embedded.ParseSearchOpts(firstMap(opts)))
+	return s.sudoHandle().Sum(field, embedded.ParseSearchOpts(firstMap(opts)))
 }
 func (s *goSudoModelProxy) Upsert(data map[string]any, uniqueFields []string) (map[string]any, error) {
-	return s.handle.Upsert(data, uniqueFields)
+	return s.sudoHandle().Upsert(data, uniqueFields)
 }
 func (s *goSudoModelProxy) CreateMany(records []map[string]any) ([]map[string]any, error) {
-	return s.handle.CreateMany(records)
+	return s.sudoHandle().CreateMany(records)
 }
 func (s *goSudoModelProxy) WriteMany(ids []string, data map[string]any) (*bridge.BulkResult, error) {
-	return s.handle.WriteMany(ids, data)
+	return s.sudoHandle().WriteMany(ids, data)
 }
 func (s *goSudoModelProxy) DeleteMany(ids []string) (*bridge.BulkResult, error) {
-	return s.handle.DeleteMany(ids)
+	return s.sudoHandle().DeleteMany(ids)
 }
 func (s *goSudoModelProxy) UpsertMany(records []map[string]any, uniqueFields []string) ([]map[string]any, error) {
-	return s.handle.UpsertMany(records, uniqueFields)
+	return s.sudoHandle().UpsertMany(records, uniqueFields)
 }
 func (s *goSudoModelProxy) AddRelation(id, field string, relatedIDs []string) error {
-	return s.handle.AddRelation(id, field, relatedIDs)
+	return s.sudoHandle().AddRelation(id, field, relatedIDs)
 }
 func (s *goSudoModelProxy) RemoveRelation(id, field string, relatedIDs []string) error {
-	return s.handle.RemoveRelation(id, field, relatedIDs)
+	return s.sudoHandle().RemoveRelation(id, field, relatedIDs)
 }
 func (s *goSudoModelProxy) SetRelation(id, field string, relatedIDs []string) error {
-	return s.handle.SetRelation(id, field, relatedIDs)
+	return s.sudoHandle().SetRelation(id, field, relatedIDs)
 }
 func (s *goSudoModelProxy) LoadRelation(id, field string) ([]map[string]any, error) {
-	return s.handle.LoadRelation(id, field)
+	return s.sudoHandle().LoadRelation(id, field)
 }
-func (s *goSudoModelProxy) HardDelete(id string) error { return s.handle.HardDelete(id) }
+func (s *goSudoModelProxy) HardDelete(id string) error { return s.sudoHandle().HardDelete(id) }
 func (s *goSudoModelProxy) HardDeleteMany(ids []string) (*bridge.BulkResult, error) {
-	return s.handle.HardDeleteMany(ids)
+	return s.sudoHandle().HardDeleteMany(ids)
 }
 func (s *goSudoModelProxy) WithTenant(tenantID string) *goSudoModelProxy {
-	return &goSudoModelProxy{handle: s.handle.WithTenant(tenantID)}
+	return s
 }
 func (s *goSudoModelProxy) SkipValidation() *goSudoModelProxy {
-	return &goSudoModelProxy{handle: s.handle.SkipValidation()}
+	return s
 }
 
 // --- DB proxy ---
 
 type goDBProxy struct {
-	db bridge.DB
+	h *bridgeHolder
 }
 
-func newDBProxy(bc *bridge.Context) *goDBProxy { return &goDBProxy{db: bc.DB()} }
+func newDBProxy(h *bridgeHolder) *goDBProxy { return &goDBProxy{h: h} }
 func (d *goDBProxy) Query(sql string, args ...any) ([]map[string]any, error) {
-	return d.db.Query(sql, args...)
+	return d.h.get().DB().Query(sql, args...)
 }
 func (d *goDBProxy) Execute(sql string, args ...any) (*bridge.ExecDBResult, error) {
-	return d.db.Execute(sql, args...)
+	return d.h.get().DB().Execute(sql, args...)
 }
 
 // --- HTTP proxy ---
 
 type goHTTPProxy struct {
-	http bridge.HTTPClient
+	h *bridgeHolder
 }
 
-func newHTTPProxy(bc *bridge.Context) *goHTTPProxy { return &goHTTPProxy{http: bc.HTTP()} }
-func (h *goHTTPProxy) Get(url string, opts ...map[string]any) (*bridge.HTTPResponse, error) {
-	return h.http.Get(url, embedded.ParseHTTPOpts(firstMap(opts)))
+func newHTTPProxy(h *bridgeHolder) *goHTTPProxy { return &goHTTPProxy{h: h} }
+func (p *goHTTPProxy) Get(url string, opts ...map[string]any) (*bridge.HTTPResponse, error) {
+	return p.h.get().HTTP().Get(url, embedded.ParseHTTPOpts(firstMap(opts)))
 }
-func (h *goHTTPProxy) Post(url string, opts ...map[string]any) (*bridge.HTTPResponse, error) {
-	return h.http.Post(url, embedded.ParseHTTPOpts(firstMap(opts)))
+func (p *goHTTPProxy) Post(url string, opts ...map[string]any) (*bridge.HTTPResponse, error) {
+	return p.h.get().HTTP().Post(url, embedded.ParseHTTPOpts(firstMap(opts)))
 }
-func (h *goHTTPProxy) Put(url string, opts ...map[string]any) (*bridge.HTTPResponse, error) {
-	return h.http.Put(url, embedded.ParseHTTPOpts(firstMap(opts)))
+func (p *goHTTPProxy) Put(url string, opts ...map[string]any) (*bridge.HTTPResponse, error) {
+	return p.h.get().HTTP().Put(url, embedded.ParseHTTPOpts(firstMap(opts)))
 }
-func (h *goHTTPProxy) Patch(url string, opts ...map[string]any) (*bridge.HTTPResponse, error) {
-	return h.http.Patch(url, embedded.ParseHTTPOpts(firstMap(opts)))
+func (p *goHTTPProxy) Patch(url string, opts ...map[string]any) (*bridge.HTTPResponse, error) {
+	return p.h.get().HTTP().Patch(url, embedded.ParseHTTPOpts(firstMap(opts)))
 }
-func (h *goHTTPProxy) Delete(url string, opts ...map[string]any) (*bridge.HTTPResponse, error) {
-	return h.http.Delete(url, embedded.ParseHTTPOpts(firstMap(opts)))
+func (p *goHTTPProxy) Delete(url string, opts ...map[string]any) (*bridge.HTTPResponse, error) {
+	return p.h.get().HTTP().Delete(url, embedded.ParseHTTPOpts(firstMap(opts)))
 }
 
 // --- Cache proxy ---
 
 type goCacheProxy struct {
-	cache bridge.Cache
+	h *bridgeHolder
 }
 
-func newCacheProxy(bc *bridge.Context) *goCacheProxy { return &goCacheProxy{cache: bc.Cache()} }
-func (c *goCacheProxy) Get(key string) (any, error)  { return c.cache.Get(key) }
+func newCacheProxy(h *bridgeHolder) *goCacheProxy { return &goCacheProxy{h: h} }
+func (c *goCacheProxy) Get(key string) (any, error) { return c.h.get().Cache().Get(key) }
 func (c *goCacheProxy) Set(key string, val any, opts ...map[string]any) error {
-	return c.cache.Set(key, val, embedded.ParseCacheOpts(firstMap(opts)))
+	return c.h.get().Cache().Set(key, val, embedded.ParseCacheOpts(firstMap(opts)))
 }
-func (c *goCacheProxy) Del(key string) error { return c.cache.Del(key) }
+func (c *goCacheProxy) Del(key string) error { return c.h.get().Cache().Del(key) }
 
 // --- FS proxy ---
 
 type goFSProxy struct {
-	fs bridge.FS
+	h *bridgeHolder
 }
 
-func newFSProxy(bc *bridge.Context) *goFSProxy       { return &goFSProxy{fs: bc.FS()} }
-func (f *goFSProxy) Read(path string) (string, error) { return f.fs.Read(path) }
-func (f *goFSProxy) Write(path, content string) error  { return f.fs.Write(path, content) }
-func (f *goFSProxy) Exists(path string) (bool, error)  { return f.fs.Exists(path) }
-func (f *goFSProxy) List(path string) ([]string, error) { return f.fs.List(path) }
-func (f *goFSProxy) Mkdir(path string) error            { return f.fs.Mkdir(path) }
-func (f *goFSProxy) Remove(path string) error           { return f.fs.Remove(path) }
+func newFSProxy(h *bridgeHolder) *goFSProxy          { return &goFSProxy{h: h} }
+func (f *goFSProxy) Read(path string) (string, error)  { return f.h.get().FS().Read(path) }
+func (f *goFSProxy) Write(path, content string) error   { return f.h.get().FS().Write(path, content) }
+func (f *goFSProxy) Exists(path string) (bool, error)   { return f.h.get().FS().Exists(path) }
+func (f *goFSProxy) List(path string) ([]string, error) { return f.h.get().FS().List(path) }
+func (f *goFSProxy) Mkdir(path string) error             { return f.h.get().FS().Mkdir(path) }
+func (f *goFSProxy) Remove(path string) error            { return f.h.get().FS().Remove(path) }
 
 // --- Email proxy ---
 
 type goEmailProxy struct {
-	email bridge.EmailSender
+	h *bridgeHolder
 }
 
-func newEmailProxy(bc *bridge.Context) *goEmailProxy { return &goEmailProxy{email: bc.Email()} }
+func newEmailProxy(h *bridgeHolder) *goEmailProxy { return &goEmailProxy{h: h} }
 func (e *goEmailProxy) Send(opts map[string]any) error {
-	return e.email.Send(embedded.ParseEmailOpts(opts))
+	return e.h.get().Email().Send(embedded.ParseEmailOpts(opts))
 }
 
 // --- Notify proxy ---
 
 type goNotifyProxy struct {
-	notify bridge.Notifier
+	h *bridgeHolder
 }
 
-func newNotifyProxy(bc *bridge.Context) *goNotifyProxy { return &goNotifyProxy{notify: bc.Notify()} }
+func newNotifyProxy(h *bridgeHolder) *goNotifyProxy { return &goNotifyProxy{h: h} }
 func (n *goNotifyProxy) Send(opts map[string]any) error {
-	return n.notify.Send(embedded.ParseNotifyOpts(opts))
+	return n.h.get().Notify().Send(embedded.ParseNotifyOpts(opts))
 }
 func (n *goNotifyProxy) Broadcast(channel string, data map[string]any) error {
-	return n.notify.Broadcast(channel, data)
+	return n.h.get().Notify().Broadcast(channel, data)
 }
 
 // --- Storage proxy ---
 
 type goStorageProxy struct {
-	storage bridge.Storage
+	h *bridgeHolder
 }
 
-func newStorageProxy(bc *bridge.Context) *goStorageProxy {
-	return &goStorageProxy{storage: bc.Storage()}
-}
+func newStorageProxy(h *bridgeHolder) *goStorageProxy { return &goStorageProxy{h: h} }
 func (s *goStorageProxy) Upload(opts map[string]any) (*bridge.Attachment, error) {
-	return s.storage.Upload(embedded.ParseUploadOpts(opts))
+	return s.h.get().Storage().Upload(embedded.ParseUploadOpts(opts))
 }
-func (s *goStorageProxy) URL(id string) (string, error)      { return s.storage.URL(id) }
-func (s *goStorageProxy) Download(id string) ([]byte, error) { return s.storage.Download(id) }
-func (s *goStorageProxy) Delete(id string) error             { return s.storage.Delete(id) }
+func (s *goStorageProxy) URL(id string) (string, error)      { return s.h.get().Storage().URL(id) }
+func (s *goStorageProxy) Download(id string) ([]byte, error) { return s.h.get().Storage().Download(id) }
+func (s *goStorageProxy) Delete(id string) error             { return s.h.get().Storage().Delete(id) }
 
 // --- Security proxy ---
 
 type goSecurityProxy struct {
-	security bridge.SecurityChecker
+	h *bridgeHolder
 }
 
-func newSecurityProxy(bc *bridge.Context) *goSecurityProxy {
-	return &goSecurityProxy{security: bc.Security()}
-}
+func newSecurityProxy(h *bridgeHolder) *goSecurityProxy { return &goSecurityProxy{h: h} }
 func (s *goSecurityProxy) Permissions(model string) (*bridge.ModelPermissions, error) {
-	return s.security.Permissions(model)
+	return s.h.get().Security().Permissions(model)
 }
-func (s *goSecurityProxy) HasGroup(group string) (bool, error) { return s.security.HasGroup(group) }
-func (s *goSecurityProxy) Groups() ([]string, error)           { return s.security.Groups() }
+func (s *goSecurityProxy) HasGroup(group string) (bool, error) {
+	return s.h.get().Security().HasGroup(group)
+}
+func (s *goSecurityProxy) Groups() ([]string, error) { return s.h.get().Security().Groups() }
 
 // --- Audit proxy ---
 
 type goAuditProxy struct {
-	audit bridge.AuditLogger
+	h *bridgeHolder
 }
 
-func newAuditProxy(bc *bridge.Context) *goAuditProxy { return &goAuditProxy{audit: bc.Audit()} }
+func newAuditProxy(h *bridgeHolder) *goAuditProxy { return &goAuditProxy{h: h} }
 func (a *goAuditProxy) Log(opts map[string]any) error {
-	return a.audit.Log(embedded.ParseAuditOpts(opts))
+	return a.h.get().Audit().Log(embedded.ParseAuditOpts(opts))
 }
 
 // --- Crypto proxy ---
 
 type goCryptoProxy struct {
-	crypto bridge.Crypto
+	h *bridgeHolder
 }
 
-func newCryptoProxy(bc *bridge.Context) *goCryptoProxy { return &goCryptoProxy{crypto: bc.Crypto()} }
+func newCryptoProxy(h *bridgeHolder) *goCryptoProxy { return &goCryptoProxy{h: h} }
 func (c *goCryptoProxy) Encrypt(plaintext string) (string, error) {
-	return c.crypto.Encrypt(plaintext)
+	return c.h.get().Crypto().Encrypt(plaintext)
 }
 func (c *goCryptoProxy) Decrypt(ciphertext string) (string, error) {
-	return c.crypto.Decrypt(ciphertext)
+	return c.h.get().Crypto().Decrypt(ciphertext)
 }
-func (c *goCryptoProxy) Hash(value string) (string, error) { return c.crypto.Hash(value) }
+func (c *goCryptoProxy) Hash(value string) (string, error) { return c.h.get().Crypto().Hash(value) }
 func (c *goCryptoProxy) Verify(value, hash string) (bool, error) {
-	return c.crypto.Verify(value, hash)
+	return c.h.get().Crypto().Verify(value, hash)
 }
 
 // --- Execution proxy ---
 
 type goExecutionProxy struct {
-	exec bridge.ExecutionLog
+	h *bridgeHolder
 }
 
-func newExecutionProxy(bc *bridge.Context) *goExecutionProxy {
-	return &goExecutionProxy{exec: bc.Execution()}
-}
+func newExecutionProxy(h *bridgeHolder) *goExecutionProxy { return &goExecutionProxy{h: h} }
 func (e *goExecutionProxy) Search(opts map[string]any) ([]map[string]any, error) {
-	return e.exec.Search(parseExecSearchOpts(opts))
+	return e.h.get().Execution().Search(parseExecSearchOpts(opts))
 }
-func (e *goExecutionProxy) Get(id string) (map[string]any, error) { return e.exec.Get(id) }
-func (e *goExecutionProxy) Current() *bridge.ExecutionInfo         { return e.exec.Current() }
-func (e *goExecutionProxy) Cancel(id string) error                 { return e.exec.Cancel(id) }
+func (e *goExecutionProxy) Get(id string) (map[string]any, error) {
+	return e.h.get().Execution().Get(id)
+}
+func (e *goExecutionProxy) Current() *bridge.ExecutionInfo { return e.h.get().Execution().Current() }
+func (e *goExecutionProxy) Cancel(id string) error         { return e.h.get().Execution().Cancel(id) }
 
 // --- helpers ---
 
