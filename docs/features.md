@@ -363,7 +363,7 @@ Detailed per-feature documentation lives in `engine/docs/features/`:
 
 ## Test Coverage
 
-540 Go tests across 31 packages + 120 Stencil component tests (7 suites). All passing. See [engine/docs/codebase.md](../engine/docs/codebase.md) for the full breakdown.
+540 Go tests across 31 packages + 131 Stencil component tests (7 suites). All passing. See [engine/docs/codebase.md](../engine/docs/codebase.md) for the full breakdown.
 
 ```bash
 cd engine && go test ./... -v

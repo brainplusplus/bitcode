@@ -449,19 +449,21 @@ Single file at `packages/components/src/core/bc-native.ts`. Detects environment 
 | `engine/internal/compiler/parser/module.go` | `ModuleAppConfig`, `OfflineConfig` structs, `IsOffline()`, `GetOfflineConfig()` |
 | `engine/internal/compiler/parser/model.go` | `ModelAppConfig` struct, `IsOffline()`, `OfflineModule` bool field on `ModelDefinition` |
 | `engine/internal/config.go` | `AppMode` field in `AppConfig`, `app.mode` viper default |
-| `engine/internal/app.go` | `initSyncInfrastructure()`, sync route registration, `modelReg.ProjectAppMode` wiring |
+| `engine/internal/app.go` | `initSyncInfrastructure()`, sync route registration, `modelReg.ProjectAppMode` wiring, auto-create `_sync_oversell_alerts` table |
 | `engine/internal/domain/model/registry.go` | `RegisterWithModule` resolution chain (model→module→project), `ProjectAppMode`, `validateOfflinePK()` |
 | `engine/internal/infrastructure/persistence/offline_schema.go` | `OfflineColumns()`, `OfflineUUIDColumn()`, 4 client `_off_*` table DDLs (with `device_id` column) |
 | `engine/internal/infrastructure/persistence/sync_schema.go` | 4 server `_sync_*` table DDLs (PostgreSQL/MySQL/SQLite) |
 | `engine/internal/infrastructure/persistence/dynamic_model.go` | `buildColumns()` appends `_off_*` columns when `OfflineModule=true` |
-| `engine/internal/presentation/api/sync_handler.go` | 7 sync API endpoints: `RegisterDevice`, `PushEnvelope`, `PullChanges`, `DeviceStatus`, `GetSchema`, `CacheAuth`, `UpdateDevice` |
+| `engine/internal/presentation/api/sync_handler.go` | 7 sync API endpoints: `RegisterDevice`, `PushEnvelope` (with inventory delta + conflict detection wiring), `PullChanges`, `DeviceStatus`, `GetSchema`, `CacheAuth`, `UpdateDevice` |
 | `packages/components/src/core/bc-native.ts` | Bridge abstraction layer (16 methods, Tauri/Web fallback) — includes `isOnline()`, `onConnectivityChange()`, `getPlatformInfo()` |
 | `packages/components/src/core/bc-native.spec.ts` | Bridge unit tests (10 tests) |
-| `packages/components/src/core/bc-setup.ts` | `registerOfflineModels()`, `isModelOffline()`, `getOfflineModels()` |
-| `packages/components/src/core/offline-store.ts` | Full sync client: CRUD routing, SQL injection prevention, transactions, outbox, `syncPush()` with batch size + gzip compression, `syncPull()` with pagination, `cacheAuth()`, `authenticateOffline()` with brute-force protection + lockout, `getSyncStatus()`, `syncAll()`, `configureSyncOptions()`, `getNextReceiptNumber()`, HLC wiring, conflict detection |
-| `packages/components/src/core/offline-store.spec.ts` | Offline store tests (34 tests — routing, CRUD, transactions, rollback, SQL injection, envelope grouping, HLC wiring, conflict detection, edit-vs-delete, receipt numbering, auth caching, offline auth, sync status, batch config) |
+| `packages/components/src/core/bc-setup.ts` | `registerOfflineModels()`, `isModelOffline()`, `getOfflineModels()`, `initOffline()` bootstrap (auto-calls `initFromServer` + `registerDevice`), `isOfflineReady()` |
+| `packages/components/src/core/data-fetcher.ts` | `fetchData()` and `fetchOptions()` route to `OfflineStore` when `isModelOffline(model)` is true, with HTTP fallback |
+| `packages/components/src/core/offline-store.ts` | Full sync client: CRUD routing, SQL injection prevention, transactions, outbox, `syncPush()` with batch size + gzip compression, `syncPull()` with pagination, `cacheAuth()`, `authenticateOffline()` with brute-force protection + lockout, `getSyncStatus()`, `syncAll()`, `configureSyncOptions()`, `getNextReceiptNumber()`, HLC wiring, conflict detection, `initFromServer()` with retry + model registry persistence |
+| `packages/components/src/core/offline-store.spec.ts` | Offline store tests (40 tests) |
+| `packages/components/src/index.ts` | Exports `OfflineStore`, `BcNative`, and native bridge types |
 | `packages/tauri/src-tauri/Cargo.toml` | Tauri 2.0 + plugins (sql, fs, notification, barcode, biometric) + `encryption` feature flag |
-| `packages/tauri/src-tauri/src/main.rs` | Tauri entry point, plugin registration, SQLite migrations (5 migrations incl. `_off_auth_cache`), encrypted DB support via `BITCODE_DB_KEY` env var |
+| `packages/tauri/src-tauri/src/main.rs` | Tauri entry point, plugin registration, SQLite migrations (6 migrations incl. `_off_auth_cache`, `_off_model_registry`), encrypted DB support via `BITCODE_DB_KEY` env var |
 | `packages/tauri/src-tauri/tauri.conf.json` | Tauri config — hardened CSP (no `unsafe-eval`, `object-src 'none'`, `frame-ancestors 'none'`) |
 | `packages/tauri/src-tauri/capabilities/default.json` | Permissions for core, sql, fs, notification |
 | `packages/tauri/src-tauri/build.rs` | Tauri build script |
@@ -485,3 +487,4 @@ Single file at `packages/components/src/core/bc-native.ts`. Detects environment 
 | 4 | Local table creation hardcoded in Rust migrations | ⚠️ Medium | Business tables must be manually added to `main.rs` migrations. Ideally should be dynamically created from server schema. Large effort to fix. |
 | 5 | `'unsafe-inline'` still required in CSP | Low | Stencil generates inline event handlers and styles. Cannot remove without major Stencil refactor or migration to a different framework. |
 | 6 | Offline auth uses SHA-256 instead of bcrypt | Low | Deliberate tradeoff — bcrypt cannot run in the browser. SHA-256 hash is stored locally on device (not transmitted). Mitigated by 72h expiry + 5-attempt lockout. |
+| 7 | Sync API routes have no auth middleware | ⚠️ Medium | `/api/v1/sync/*` endpoints are currently open. Should add JWT validation middleware before production deployment. |

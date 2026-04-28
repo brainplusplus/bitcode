@@ -2,7 +2,7 @@
 
 **Date:** 2026-05-01
 **Previous:** Phase 4 (see `2026-05-01-offline-mode-phase-4-complete.md`)
-**Status:** ALL 5 PHASES COMPLETE — Offline mode is production-ready infrastructure.
+**Status:** ALL 5 PHASES COMPLETE + FULLY WIRED into bitcode framework data pipeline.
 
 ## What Was Done
 
@@ -104,6 +104,14 @@ See `engine/docs/features/offline-mode.md` § Known Limitations for the canonica
 5. `'unsafe-inline'` still required in CSP (Stencil limitation)
 6. Offline auth uses SHA-256 not bcrypt (deliberate tradeoff, mitigated by expiry + lockout)
 
+## Framework Wiring (post-Phase 5)
+
+- **`data-fetcher.ts`** — `fetchData()` and `fetchOptions()` check `BcSetup.isModelOffline(model)` before routing. Offline models go to `OfflineStore.find()`, online models go to `api-client.ts` HTTP. Errors logged to console (not swallowed).
+- **`bc-setup.ts`** — `initOffline()` auto-triggers when `configure({baseUrl})` is called or `<meta name="bc-offline">` is present. Calls `initFromServer()` (3 retries) + `registerDevice()` (Tauri only). Idempotent.
+- **`index.ts`** — `OfflineStore`, `BcNative`, and native bridge types exported.
+- **`PushEnvelope`** — inventory deltas detected and applied, conflicts detected and logged to `_sync_conflicts`.
+- **`initSyncInfrastructure`** — auto-creates `_sync_oversell_alerts` table.
+
 ## Critical Context
 
 1. **`CacheAuth` is now fully implemented** — no longer returns 501. Callers should call it after successful online login to cache credentials for offline use.
@@ -116,6 +124,8 @@ See `engine/docs/features/offline-mode.md` § Known Limitations for the canonica
 
 5. **CSP change may break dev workflows** — removed `http:` and `ws:` from `connect-src`. Dev servers using HTTP/WS will need to temporarily relax CSP or use HTTPS/WSS.
 
-6. **Do NOT touch** `engine/internal/runtime/bridge/`, `engine/internal/runtime/embedded/`, `engine/internal/runtime/goja/` — separate work in progress by another agent.
+6. **Sync API routes (`/api/v1/sync/*`) have no auth middleware** — currently open. Should add JWT validation before production deployment.
 
-7. **`sprints/` folder** is owner's personal notes — never commit generated content there.
+7. **Do NOT touch** `engine/internal/runtime/bridge/`, `engine/internal/runtime/embedded/`, `engine/internal/runtime/goja/` — separate work in progress by another agent.
+
+8. **`sprints/` folder** is owner's personal notes — never commit generated content there.
