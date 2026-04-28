@@ -1,6 +1,8 @@
-import { Component, Prop, State, Event, EventEmitter, Element, h } from '@stencil/core';
+import { Component, Prop, State, Event, EventEmitter, Element, Method, h } from '@stencil/core';
 import { getApiClient } from '../../../core/api-client';
 import { i18n } from '../../../core/i18n';
+import { DataFetcher, PageChangeEvent, SortChangeEvent as SortChangeEventType, FilterChangeEvent as FilterChangeEventType } from '../../../core/types';
+import { BcSetup } from '../../../core/bc-setup';
 import Sortable from 'sortablejs';
 import * as XLSX from 'xlsx';
 
@@ -63,6 +65,12 @@ export class BcDatatable {
   @Prop() modalMode: boolean = false;
   @Prop() formFields: string = '[]';
   @Prop() viewTitle: string = '';
+  @Prop() dataSource: string = '';
+  @Prop() localData: string = '';
+  @Prop() fetchHeaders: string = '';
+  @Prop() emptyText: string = '';
+
+  dataFetcher?: DataFetcher;
 
   @State() data: Array<Record<string, unknown>> = [];
   @State() total: number = 0;
@@ -89,6 +97,9 @@ export class BcDatatable {
   @Event() lcRowClick!: EventEmitter<{ record: Record<string, unknown> }>;
   @Event() lcSelectionChange!: EventEmitter<{ ids: string[] }>;
   @Event() lcBulkAction!: EventEmitter<{ action: string; ids: string[] }>;
+  @Event() lcPageChange!: EventEmitter<PageChangeEvent>;
+  @Event() lcSortChange!: EventEmitter<SortChangeEventType>;
+  @Event() lcFilterChange!: EventEmitter<FilterChangeEventType>;
 
   private getCols(): ColumnDef[] { try { return JSON.parse(this.columns); } catch { return []; } }
   private getActions(): BulkAction[] { try { return JSON.parse(this.actions); } catch { return []; } }
@@ -124,17 +135,41 @@ export class BcDatatable {
   }
 
   private async fetchData() {
-    const url = this.getApiUrl();
+    if (this.dataFetcher) {
+      this.loading = true;
+      try {
+        const result = await this.dataFetcher({ page: this.page, pageSize: this.limit, sort: this.sorts, filters: this.filter.filters.length > 0 ? this.filter as unknown as Record<string, unknown> : undefined });
+        this.data = result.data as Array<Record<string, unknown>>;
+        this.total = result.total;
+      } catch { this.data = []; this.total = 0; }
+      this.loading = false;
+      return;
+    }
+
+    if (this.localData) {
+      try {
+        const parsed = JSON.parse(this.localData);
+        this.data = Array.isArray(parsed) ? parsed : [];
+        this.total = this.data.length;
+      } catch { this.data = []; this.total = 0; }
+      return;
+    }
+
+    const url = this.dataSource || this.getApiUrl();
     if (!url) return;
     this.loading = true;
     try {
+      const headers = { 'Content-Type': 'application/json', ...BcSetup.getHeaders() };
       const body: Record<string, unknown> = { page: this.page, limit: this.limit };
       if (this.sorts.length > 0) body['sort'] = this.sorts;
       if (this.filter.filters.length > 0) body['filter'] = this.filter;
 
-      const res = await fetch(url, {
+      const beforeEvent = new CustomEvent('lcBeforeFetch', { detail: { url, headers, params: body }, bubbles: true, cancelable: true });
+      this.el.dispatchEvent(beforeEvent);
+
+      const res = await fetch(beforeEvent.detail.url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: beforeEvent.detail.headers,
         body: JSON.stringify(body),
       });
 
@@ -152,8 +187,16 @@ export class BcDatatable {
         }
       } else {
         const json = await res.json();
-        this.data = json.data || [];
-        this.total = json.total || 0;
+
+        const afterEvent = new CustomEvent('lcAfterFetch', { detail: { response: json, data: null as unknown[] | null, total: 0 }, bubbles: true });
+        this.el.dispatchEvent(afterEvent);
+        if (afterEvent.detail.data) {
+          this.data = afterEvent.detail.data as Array<Record<string, unknown>>;
+          this.total = afterEvent.detail.total;
+        } else {
+          this.data = json.data || [];
+          this.total = json.total || 0;
+        }
         if (json.permissions) {
           this.perms = { ...this.perms, ...json.permissions };
         }
@@ -399,6 +442,25 @@ export class BcDatatable {
   private hasRowActions(): boolean {
     return this.can('write') || this.can('delete') || this.can('clone');
   }
+
+  @Method() async refresh(): Promise<void> { await this.fetchData(); }
+  @Method() async getData(): Promise<Array<Record<string, unknown>>> { return this.data; }
+  @Method() async setData(newData: Array<Record<string, unknown>>): Promise<void> { this.data = newData; this.total = newData.length; }
+  @Method() async getSelected(): Promise<string[]> { return Array.from(this.selected); }
+  @Method() async clearSelection(): Promise<void> { this.selected = new Set(); this.lcSelectionChange.emit({ ids: [] }); }
+  @Method() async selectAll(): Promise<void> { this.selected = new Set(this.data.map(r => String(r['id'] || ''))); this.lcSelectionChange.emit({ ids: Array.from(this.selected) }); }
+  @Method() async goToPage(p: number): Promise<void> { this.page = p; this.lcPageChange.emit({ page: p, pageSize: this.limit }); await this.fetchData(); }
+  @Method() async sortBy(column: string, direction: 'asc' | 'desc'): Promise<void> { this.sorts = [{ field: column, direction }]; this.lcSortChange.emit({ sorts: this.sorts }); this.page = 1; await this.fetchData(); }
+  @Method() async exportCSV(): Promise<void> {
+    const visibleDefs = this.colDefs.filter(c => this.visibleCols.has(c.field));
+    const header = visibleDefs.map(c => c.label || c.field).join(',');
+    const rows = this.data.map(r => visibleDefs.map(c => { const v = r[c.field]; return typeof v === 'string' && v.includes(',') ? `"${v}"` : String(v ?? ''); }).join(','));
+    const csv = [header, ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = `${this.model || 'export'}.csv`; a.click(); URL.revokeObjectURL(url);
+  }
+  @Method() async scrollToRow(id: string): Promise<void> { const row = this.el.querySelector(`[data-row-id="${id}"]`); if (row) row.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
 
   render() {
     const visibleDefs = this.colDefs.filter(c => this.visibleCols.has(c.field));
