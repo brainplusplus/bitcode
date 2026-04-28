@@ -314,6 +314,23 @@ Enterprise-grade capabilities:
 
 ---
 
+## Bridge API Tech Debt (Phase 1)
+
+Known limitations in the Bridge API (`engine/internal/runtime/bridge/`) that will be addressed in subsequent phases:
+
+| # | Item | Current State | Target | Phase |
+|---|------|--------------|--------|-------|
+| 1 | Storage + AttachmentRepository | `storage_bridge.go` wraps `StorageDriver` only | Integrate `AttachmentRepository` for metadata tracking, thumbnails, versioning | 1 (iteration 2) |
+| 2 | Email template rendering | `email.go` sends raw HTML body only | Support `template` + `data` fields via Go `html/template` engine | 1 (iteration 2) |
+| 3 | Notify user targeting | `notify.go` broadcasts to channel `notification:{userID}` | Add `SendToUser(userID, msg)` method on Hub that filters by `Client.UserID` | 1 (iteration 2) |
+| 4 | Execution log cleanup cron | `execution.go` has config but no cleanup goroutine | Add cron-based cleanup using `max_age` + `max_records` from `ExecutionLogConfig` | 1 (iteration 2) |
+| 5 | Execution retry | `execution.Retry()` returns "not yet implemented" | Re-run process with same input, link via `parent_id` | 1 (iteration 2) |
+| 6 | Executor integration | `executor.go` not yet wrapped with execution log recording | Wrap `Execute()` to auto-record `process_execution` + per-step logging | 1 (iteration 2) |
+| 7 | BulkUpdate hooks | `BulkUpdate` skips before/after hooks for performance | Add opt-in hook dispatch for bulk operations | 6B |
+| 8 | BulkDelete hooks | `BulkDelete` skips before/after hooks for performance | Same as above | 6B |
+
+---
+
 ## Engine-Specific Feature Docs
 
 Detailed per-feature documentation lives in `engine/docs/features/`:
@@ -340,7 +357,7 @@ Detailed per-feature documentation lives in `engine/docs/features/`:
 
 ## Test Coverage
 
-181 tests across 28 packages. All passing. See [engine/docs/codebase.md](../engine/docs/codebase.md) for the full breakdown.
+541 tests across 38 packages. All passing. See [engine/docs/codebase.md](../engine/docs/codebase.md) for the full breakdown.
 
 ```bash
 cd engine && go test ./... -v

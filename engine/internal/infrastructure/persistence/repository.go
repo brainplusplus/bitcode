@@ -1204,6 +1204,128 @@ func (r *GenericRepository) BulkCreate(ctx context.Context, records []map[string
 	return records, nil
 }
 
+func (r *GenericRepository) BulkUpdate(ctx context.Context, ids []string, data map[string]any) (int64, error) {
+	if len(ids) == 0 {
+		return 0, nil
+	}
+
+	if r.modelDef != nil && r.sanitizer != nil {
+		r.sanitizer.SanitizeRecord(r.modelDef, data)
+	}
+
+	r.encryptFields(data)
+
+	result := r.db.WithContext(ctx).Table(r.tableName).
+		Where(fmt.Sprintf("%s IN ?", r.pkCol), ids).
+		Updates(data)
+	if result.Error != nil {
+		return 0, fmt.Errorf("failed to bulk update in %s: %w", r.tableName, result.Error)
+	}
+
+	if r.eventBus != nil && r.modelName != "" {
+		for _, id := range ids {
+			r.eventBus.Publish(ctx, "model."+r.modelName+".updated", map[string]any{"id": id})
+		}
+	}
+
+	return result.RowsAffected, nil
+}
+
+func (r *GenericRepository) BulkDelete(ctx context.Context, ids []string) (int64, error) {
+	if len(ids) == 0 {
+		return 0, nil
+	}
+
+	result := r.db.WithContext(ctx).Table(r.tableName).
+		Where(fmt.Sprintf("%s IN ?", r.pkCol), ids).
+		Update("active", false)
+	if result.Error != nil {
+		return 0, fmt.Errorf("failed to bulk soft-delete in %s: %w", r.tableName, result.Error)
+	}
+
+	if r.eventBus != nil && r.modelName != "" {
+		for _, id := range ids {
+			r.eventBus.Publish(ctx, "model."+r.modelName+".deleted", map[string]any{"id": id})
+		}
+	}
+
+	return result.RowsAffected, nil
+}
+
+func (r *GenericRepository) BulkHardDelete(ctx context.Context, ids []string) (int64, error) {
+	if len(ids) == 0 {
+		return 0, nil
+	}
+
+	result := r.db.WithContext(ctx).Table(r.tableName).
+		Where(fmt.Sprintf("%s IN ?", r.pkCol), ids).
+		Delete(nil)
+	if result.Error != nil {
+		return 0, fmt.Errorf("failed to bulk hard-delete in %s: %w", r.tableName, result.Error)
+	}
+
+	if r.eventBus != nil && r.modelName != "" {
+		for _, id := range ids {
+			r.eventBus.Publish(ctx, "model."+r.modelName+".deleted", map[string]any{"id": id})
+		}
+	}
+
+	return result.RowsAffected, nil
+}
+
+func (r *GenericRepository) BulkUpsert(ctx context.Context, records []map[string]any, uniqueFields []string) ([]map[string]any, error) {
+	if len(records) == 0 {
+		return nil, nil
+	}
+
+	for i := range records {
+		if r.tenantID != "" {
+			records[i]["tenant_id"] = r.tenantID
+		}
+		if r.modelDef != nil && r.sanitizer != nil {
+			r.sanitizer.SanitizeRecord(r.modelDef, records[i])
+		}
+		r.encryptFields(records[i])
+	}
+
+	conflictCols := make([]clause.Column, len(uniqueFields))
+	for i, f := range uniqueFields {
+		conflictCols[i] = clause.Column{Name: f}
+	}
+
+	updateCols := []string{}
+	if len(records) > 0 {
+		for k := range records[0] {
+			isUnique := false
+			for _, uf := range uniqueFields {
+				if k == uf {
+					isUnique = true
+					break
+				}
+			}
+			if !isUnique && k != "id" {
+				updateCols = append(updateCols, k)
+			}
+		}
+	}
+
+	err := r.db.WithContext(ctx).Table(r.tableName).
+		Clauses(clause.OnConflict{
+			Columns:   conflictCols,
+			DoUpdates: clause.AssignmentColumns(updateCols),
+		}).
+		Create(&records).Error
+	if err != nil {
+		return nil, fmt.Errorf("failed to bulk upsert in %s: %w", r.tableName, err)
+	}
+
+	for i := range records {
+		r.decryptFields(records[i])
+	}
+
+	return records, nil
+}
+
 func (r *GenericRepository) AddMany2Many(ctx context.Context, id string, field string, relatedIDs []string) error {
 	junctionTable := r.tableName + "_" + field
 	for _, relID := range relatedIDs {

@@ -21,6 +21,10 @@ type Repository interface {
 	Min(ctx context.Context, field string, query *Query) (float64, error)
 	Max(ctx context.Context, field string, query *Query) (float64, error)
 	BulkCreate(ctx context.Context, records []map[string]any) ([]map[string]any, error)
+	BulkUpdate(ctx context.Context, ids []string, data map[string]any) (int64, error)
+	BulkDelete(ctx context.Context, ids []string) (int64, error)
+	BulkHardDelete(ctx context.Context, ids []string) (int64, error)
+	BulkUpsert(ctx context.Context, records []map[string]any, uniqueFields []string) ([]map[string]any, error)
 
 	Pluck(ctx context.Context, field string, query *Query) ([]any, error)
 	Exists(ctx context.Context, query *Query) (bool, error)

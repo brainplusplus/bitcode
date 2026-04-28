@@ -590,6 +590,84 @@ func (r *MongoRepository) BulkCreate(ctx context.Context, records []map[string]a
 	return records, nil
 }
 
+func (r *MongoRepository) BulkUpdate(ctx context.Context, ids []string, data map[string]any) (int64, error) {
+	if len(ids) == 0 {
+		return 0, nil
+	}
+	filter := bson.M{"_id": bson.M{"$in": ids}}
+	if r.tenantID != "" {
+		filter["tenant_id"] = r.tenantID
+	}
+	update := bson.M{"$set": data}
+	result, err := r.coll().UpdateMany(ctx, filter, update)
+	if err != nil {
+		return 0, fmt.Errorf("failed to bulk update in %s: %w", r.collection, err)
+	}
+	return result.ModifiedCount, nil
+}
+
+func (r *MongoRepository) BulkDelete(ctx context.Context, ids []string) (int64, error) {
+	if len(ids) == 0 {
+		return 0, nil
+	}
+	filter := bson.M{"_id": bson.M{"$in": ids}}
+	if r.tenantID != "" {
+		filter["tenant_id"] = r.tenantID
+	}
+	update := bson.M{"$set": bson.M{"active": false}}
+	result, err := r.coll().UpdateMany(ctx, filter, update)
+	if err != nil {
+		return 0, fmt.Errorf("failed to bulk soft-delete in %s: %w", r.collection, err)
+	}
+	return result.ModifiedCount, nil
+}
+
+func (r *MongoRepository) BulkHardDelete(ctx context.Context, ids []string) (int64, error) {
+	if len(ids) == 0 {
+		return 0, nil
+	}
+	filter := bson.M{"_id": bson.M{"$in": ids}}
+	if r.tenantID != "" {
+		filter["tenant_id"] = r.tenantID
+	}
+	result, err := r.coll().DeleteMany(ctx, filter)
+	if err != nil {
+		return 0, fmt.Errorf("failed to bulk hard-delete in %s: %w", r.collection, err)
+	}
+	return result.DeletedCount, nil
+}
+
+func (r *MongoRepository) BulkUpsert(ctx context.Context, records []map[string]any, uniqueFields []string) ([]map[string]any, error) {
+	if len(records) == 0 {
+		return nil, nil
+	}
+	var models []mongo.WriteModel
+	for _, rec := range records {
+		if r.tenantID != "" {
+			rec["tenant_id"] = r.tenantID
+		}
+		filter := bson.M{}
+		for _, uf := range uniqueFields {
+			if v, ok := rec[uf]; ok {
+				filter[uf] = v
+			}
+		}
+		if r.tenantID != "" {
+			filter["tenant_id"] = r.tenantID
+		}
+		model := mongo.NewUpdateOneModel().
+			SetFilter(filter).
+			SetUpdate(bson.M{"$set": rec}).
+			SetUpsert(true)
+		models = append(models, model)
+	}
+	_, err := r.coll().BulkWrite(ctx, models)
+	if err != nil {
+		return nil, fmt.Errorf("failed to bulk upsert in %s: %w", r.collection, err)
+	}
+	return records, nil
+}
+
 func (r *MongoRepository) AddMany2Many(ctx context.Context, id string, field string, relatedIDs []string) error {
 	refs, err := r.buildM2MRefs(ctx, field, relatedIDs)
 	if err != nil {

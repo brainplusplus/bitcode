@@ -1,8 +1,6 @@
 module github.com/bitcode-framework/bitcode
 
-go 1.24.0
-
-toolchain go1.24.1
+go 1.24.1
 
 require (
 	github.com/aws/aws-sdk-go-v2 v1.41.6
@@ -28,7 +26,7 @@ require (
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
-	github.com/andybalholm/brotli v1.1.0 // indirect
+	github.com/andybalholm/brotli v1.2.0 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.7.9 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.18.22 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.4.22 // indirect
@@ -43,6 +41,13 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.35.20 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.42.0 // indirect
 	github.com/aws/smithy-go v1.25.0 // indirect
+	github.com/bdandy/go-errors v1.2.2 // indirect
+	github.com/bdandy/go-socks4 v1.2.3 // indirect
+	github.com/bogdanfinn/fhttp v0.6.8 // indirect
+	github.com/bogdanfinn/quic-go-utls v1.0.9-utls // indirect
+	github.com/bogdanfinn/tls-client v1.14.0 // indirect
+	github.com/bogdanfinn/utls v1.7.7-barnius // indirect
+	github.com/bogdanfinn/websocket v1.5.5-barnius // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
@@ -60,12 +65,13 @@ require (
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
-	github.com/klauspost/compress v1.17.9 // indirect
+	github.com/klauspost/compress v1.18.2 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.16 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/philhofer/fwd v1.1.3-0.20240916144458-20a13a1f6b7c // indirect
+	github.com/quic-go/qpack v0.6.0 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/richardlehane/mscfb v1.0.6 // indirect
 	github.com/richardlehane/msoleps v1.0.6 // indirect
@@ -78,6 +84,7 @@ require (
 	github.com/spf13/cast v1.10.0 // indirect
 	github.com/spf13/pflag v1.0.10 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
+	github.com/tam7t/hpkp v0.0.0-20160821193359-2b70b4024ed5 // indirect
 	github.com/tiendc/go-deepcopy v1.7.2 // indirect
 	github.com/tinylib/msgp v1.2.5 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect

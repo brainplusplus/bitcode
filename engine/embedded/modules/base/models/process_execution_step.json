@@ -1,0 +1,29 @@
+{
+  "name": "process_execution_step",
+  "module": "base",
+  "label": "Process Execution Step",
+  "tenant_scoped": true,
+  "timestamps": false,
+  "soft_deletes": false,
+  "fields": {
+    "execution_id": { "type": "many2one", "model": "process_execution", "required": true, "index": true },
+    "step_index": { "type": "integer", "required": true },
+    "step_name": { "type": "string", "max": 200 },
+    "step_type": { "type": "string", "required": true, "max": 50 },
+    "status": { "type": "select", "options": ["success", "error", "skipped", "running"], "default": "running" },
+    "started_at": { "type": "datetime" },
+    "duration_ms": { "type": "integer", "default": 0 },
+    "input": { "type": "json" },
+    "output": { "type": "json" },
+    "error": { "type": "json" },
+    "meta": { "type": "json" }
+  },
+  "indexes": [
+    ["execution_id", "step_index"]
+  ],
+  "api": {
+    "enabled": true,
+    "operations": ["read", "list"],
+    "auth": true
+  }
+}

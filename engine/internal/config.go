@@ -58,6 +58,19 @@ func LoadConfig(explicitPath string) (AppConfig, error) {
 
 	v.SetDefault("auth.register_enabled", false)
 
+	v.SetDefault("app.mode", "online")
+
+	v.SetDefault("execution_log.enabled", true)
+	v.SetDefault("execution_log.save_input", true)
+	v.SetDefault("execution_log.save_output", true)
+	v.SetDefault("execution_log.save_steps", true)
+	v.SetDefault("execution_log.save_on_success", true)
+	v.SetDefault("execution_log.max_age", "30d")
+	v.SetDefault("execution_log.max_records", 100000)
+	v.SetDefault("execution_log.cleanup_interval", "1h")
+	v.SetDefault("execution_log.max_input_size", 10240)
+	v.SetDefault("execution_log.max_output_size", 10240)
+
 	v.SetDefault("storage.driver", "local")
 	v.SetDefault("storage.max_size", 10*1024*1024)
 	v.SetDefault("storage.allowed_extensions", []string{".jpg", ".jpeg", ".png", ".gif", ".webp", ".pdf", ".doc", ".docx", ".xls", ".xlsx", ".csv", ".txt", ".zip"})
@@ -251,6 +264,7 @@ func LoadConfig(explicitPath string) (AppConfig, error) {
 				Quality: v.GetInt("storage.thumbnail.quality"),
 			},
 		},
+		AppMode: v.GetString("app.mode"),
 	}
 
 	return cfg, nil

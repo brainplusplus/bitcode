@@ -1,0 +1,35 @@
+{
+  "name": "process_execution",
+  "module": "base",
+  "label": "Process Execution",
+  "tenant_scoped": true,
+  "timestamps": true,
+  "soft_deletes": false,
+  "fields": {
+    "process_name": { "type": "string", "required": true, "max": 200, "index": true },
+    "module": { "type": "string", "max": 100 },
+    "trigger": { "type": "select", "options": ["api", "cron", "event", "script", "manual", "hook"], "default": "manual" },
+    "status": { "type": "select", "options": ["running", "success", "error", "timeout", "cancelled"], "default": "running", "index": true },
+    "started_at": { "type": "datetime", "required": true },
+    "finished_at": { "type": "datetime" },
+    "duration_ms": { "type": "integer", "default": 0 },
+    "user_id": { "type": "string", "max": 100, "index": true },
+    "input": { "type": "json" },
+    "output": { "type": "json" },
+    "error": { "type": "json" },
+    "parent_id": { "type": "many2one", "model": "process_execution" },
+    "mode": { "type": "select", "options": ["user", "sudo"], "default": "user" },
+    "step_count": { "type": "integer", "default": 0 },
+    "runtime": { "type": "string", "max": 20 }
+  },
+  "indexes": [
+    ["process_name", "status"],
+    ["started_at"],
+    ["user_id", "started_at"]
+  ],
+  "api": {
+    "enabled": true,
+    "operations": ["read", "list"],
+    "auth": true
+  }
+}
