@@ -1,8 +1,11 @@
-import { Component, Prop, State, h } from '@stencil/core';
+import { Component, Prop, State, Method, h } from '@stencil/core';
 
 @Component({ tag: 'bc-chart-pivot', styleUrl: 'bc-chart-pivot.css', shadow: false })
 export class BcChartPivot {
-  @Prop() data: string = '[]';
+  @Prop({ mutable: true }) data: string = '[]';
+
+  @Method() async updateData(newData: unknown): Promise<void> { this.data = typeof newData === 'string' ? newData : JSON.stringify(newData); this.computePivot(); }
+  @Method() async refresh(): Promise<void> { this.computePivot(); }
   @Prop() rows: string = '';
   @Prop() cols: string = '';
   @Prop() valueField: string = 'value';

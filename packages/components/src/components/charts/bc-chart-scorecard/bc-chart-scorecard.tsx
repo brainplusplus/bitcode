@@ -1,10 +1,13 @@
-import { Component, Prop, Element, Watch, h } from '@stencil/core';
+import { Component, Prop, Element, Watch, Method, Event, EventEmitter, h } from '@stencil/core';
+import { ChartClickEvent } from '../../../core/types';
 import * as echarts from 'echarts';
 
 @Component({ tag: 'bc-chart-scorecard', styleUrl: 'bc-chart-scorecard.css', shadow: false })
 export class BcChartScorecard {
   @Element() el!: HTMLElement;
-  @Prop() value: string = '0';
+  @Prop({ mutable: true }) value: string = '0';
+  @Prop() height: string = '200px';
+  @Event() lcChartClick!: EventEmitter<ChartClickEvent>;
   @Prop() target: string = '100';
   @Prop() label: string = '';
   private chart: echarts.ECharts | null = null;
@@ -25,5 +28,10 @@ export class BcChartScorecard {
     });
   }
 
-  render() { return (<div class="bc-chart-wrap"><div class="bc-echart"></div></div>); }
+  @Method() async updateData(newData: unknown): Promise<void> { this.value = String(newData); }
+  @Method() async refresh(): Promise<void> { this.renderChart(); }
+  @Method() async resize(): Promise<void> { this.chart?.resize(); }
+  @Method() async exportImage(format: string = 'png'): Promise<string> { return this.chart?.getDataURL({ type: format as 'png' | 'jpeg' | 'svg', pixelRatio: 2 }) || ''; }
+
+  render() { return (<div class="bc-chart-wrap"><div class="bc-echart" style={{ height: this.height }}></div></div>); }
 }

@@ -1,8 +1,11 @@
-import { Component, Prop, h } from '@stencil/core';
+import { Component, Prop, Method, h } from '@stencil/core';
 
 @Component({ tag: 'bc-chart-progress', styleUrl: 'bc-chart-progress.css', shadow: false })
 export class BcChartProgress {
-  @Prop() value: string = '0';
+  @Prop({ mutable: true }) value: string = '0';
+
+  @Method() async updateData(newData: unknown): Promise<void> { this.value = String(typeof newData === 'object' ? (newData as Record<string, unknown>).value : newData); }
+  @Method() async refresh(): Promise<void> { }
   @Prop() max: string = '100';
   @Prop() label: string = '';
   @Prop() color: string = 'primary';
