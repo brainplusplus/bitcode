@@ -141,8 +141,8 @@ export async function fetchData(opts: {
       try {
         const { OfflineStore } = await import('./offline-store');
         return await OfflineStore.find(opts.model, opts.params);
-      } catch {
-        /* OfflineStore unavailable — fall through to HTTP */
+      } catch (err) {
+        console.warn('[fetchData] offline fetch failed for model "%s":', opts.model, err);
       }
     }
 
@@ -158,8 +158,8 @@ export async function fetchData(opts: {
         filters: opts.params?.filters as Record<string, unknown>,
       });
       return { data: result.data, total: result.total };
-    } catch {
-      /* api-client not available — standalone mode */
+    } catch (err) {
+      console.warn('[fetchData] HTTP fetch failed for model "%s":', opts.model, err);
     }
   }
 
@@ -221,8 +221,8 @@ export async function fetchOptions(opts: {
           pageSize: 20,
         });
         return result.data;
-      } catch {
-        /* OfflineStore unavailable — fall through to HTTP */
+      } catch (err) {
+        console.warn('[fetchOptions] offline fetch failed for model "%s":', opts.model, err);
       }
     }
 
@@ -230,8 +230,8 @@ export async function fetchOptions(opts: {
       const { getApiClient } = await import('./api-client');
       const api = getApiClient();
       return api.search(opts.model, opts.query || '');
-    } catch {
-      /* api-client not available — standalone mode */
+    } catch (err) {
+      console.warn('[fetchOptions] HTTP fetch failed for model "%s":', opts.model, err);
     }
   }
 
