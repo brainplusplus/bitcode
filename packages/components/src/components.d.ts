@@ -4309,6 +4309,10 @@ export namespace Components {
          */
         "controls": boolean;
         /**
+          * @default ''
+         */
+        "dataSource": string;
+        /**
           * @default true
          */
         "download": boolean;
@@ -4326,11 +4330,19 @@ export namespace Components {
          */
         "src": string;
         /**
+          * @default 'url'
+         */
+        "srcField": string;
+        /**
           * @default ''
          */
         "type": string;
     }
     interface BcViewerDocument {
+        /**
+          * @default ''
+         */
+        "dataSource": string;
         /**
           * @default true
          */
@@ -4352,12 +4364,20 @@ export namespace Components {
           * @default ''
          */
         "src": string;
+        /**
+          * @default 'url'
+         */
+        "srcField": string;
     }
     interface BcViewerImage {
         /**
           * @default ''
          */
         "alt": string;
+        /**
+          * @default ''
+         */
+        "dataSource": string;
         /**
           * @default false
          */
@@ -4380,6 +4400,10 @@ export namespace Components {
          */
         "src": string;
         /**
+          * @default 'url'
+         */
+        "srcField": string;
+        /**
           * @default '100%'
          */
         "width": string;
@@ -4394,6 +4418,10 @@ export namespace Components {
          */
         "captioned": boolean;
         /**
+          * @default ''
+         */
+        "dataSource": string;
+        /**
           * @default false
          */
         "loading": boolean;
@@ -4402,6 +4430,10 @@ export namespace Components {
           * @default ''
          */
         "src": string;
+        /**
+          * @default 'url'
+         */
+        "srcField": string;
         /**
           * @default '400px'
          */
@@ -4440,6 +4472,10 @@ export namespace Components {
     }
     interface BcViewerTiktok {
         /**
+          * @default ''
+         */
+        "dataSource": string;
+        /**
           * @default false
          */
         "loading": boolean;
@@ -4448,6 +4484,10 @@ export namespace Components {
           * @default ''
          */
         "src": string;
+        /**
+          * @default 'url'
+         */
+        "srcField": string;
         /**
           * @default '325px'
          */
@@ -4462,6 +4502,10 @@ export namespace Components {
           * @default true
          */
         "controls": boolean;
+        /**
+          * @default ''
+         */
+        "dataSource": string;
         /**
           * @default true
          */
@@ -4492,6 +4536,10 @@ export namespace Components {
          */
         "src": string;
         /**
+          * @default 'url'
+         */
+        "srcField": string;
+        /**
           * @default ''
          */
         "type": string;
@@ -4510,6 +4558,10 @@ export namespace Components {
          */
         "controls": boolean;
         /**
+          * @default ''
+         */
+        "dataSource": string;
+        /**
           * @default 'auto'
          */
         "height": string;
@@ -4522,6 +4574,10 @@ export namespace Components {
           * @default ''
          */
         "src": string;
+        /**
+          * @default 'url'
+         */
+        "srcField": string;
         /**
           * @default 0
          */
@@ -10567,6 +10623,10 @@ declare namespace LocalJSX {
          */
         "controls"?: boolean;
         /**
+          * @default ''
+         */
+        "dataSource"?: string;
+        /**
           * @default true
          */
         "download"?: boolean;
@@ -10583,11 +10643,19 @@ declare namespace LocalJSX {
          */
         "src"?: string;
         /**
+          * @default 'url'
+         */
+        "srcField"?: string;
+        /**
           * @default ''
          */
         "type"?: string;
     }
     interface BcViewerDocument {
+        /**
+          * @default ''
+         */
+        "dataSource"?: string;
         /**
           * @default true
          */
@@ -10608,12 +10676,20 @@ declare namespace LocalJSX {
           * @default ''
          */
         "src"?: string;
+        /**
+          * @default 'url'
+         */
+        "srcField"?: string;
     }
     interface BcViewerImage {
         /**
           * @default ''
          */
         "alt"?: string;
+        /**
+          * @default ''
+         */
+        "dataSource"?: string;
         /**
           * @default false
          */
@@ -10635,6 +10711,10 @@ declare namespace LocalJSX {
          */
         "src"?: string;
         /**
+          * @default 'url'
+         */
+        "srcField"?: string;
+        /**
           * @default '100%'
          */
         "width"?: string;
@@ -10649,6 +10729,10 @@ declare namespace LocalJSX {
          */
         "captioned"?: boolean;
         /**
+          * @default ''
+         */
+        "dataSource"?: string;
+        /**
           * @default false
          */
         "loading"?: boolean;
@@ -10656,6 +10740,10 @@ declare namespace LocalJSX {
           * @default ''
          */
         "src"?: string;
+        /**
+          * @default 'url'
+         */
+        "srcField"?: string;
         /**
           * @default '400px'
          */
@@ -10693,6 +10781,10 @@ declare namespace LocalJSX {
     }
     interface BcViewerTiktok {
         /**
+          * @default ''
+         */
+        "dataSource"?: string;
+        /**
           * @default false
          */
         "loading"?: boolean;
@@ -10700,6 +10792,10 @@ declare namespace LocalJSX {
           * @default ''
          */
         "src"?: string;
+        /**
+          * @default 'url'
+         */
+        "srcField"?: string;
         /**
           * @default '325px'
          */
@@ -10714,6 +10810,10 @@ declare namespace LocalJSX {
           * @default true
          */
         "controls"?: boolean;
+        /**
+          * @default ''
+         */
+        "dataSource"?: string;
         /**
           * @default true
          */
@@ -10743,6 +10843,10 @@ declare namespace LocalJSX {
          */
         "src"?: string;
         /**
+          * @default 'url'
+         */
+        "srcField"?: string;
+        /**
           * @default ''
          */
         "type"?: string;
@@ -10761,6 +10865,10 @@ declare namespace LocalJSX {
          */
         "controls"?: boolean;
         /**
+          * @default ''
+         */
+        "dataSource"?: string;
+        /**
           * @default 'auto'
          */
         "height"?: string;
@@ -10772,6 +10880,10 @@ declare namespace LocalJSX {
           * @default ''
          */
         "src"?: string;
+        /**
+          * @default 'url'
+         */
+        "srcField"?: string;
         /**
           * @default 0
          */
@@ -11951,6 +12063,8 @@ declare namespace LocalJSX {
         "loop": boolean;
         "download": boolean;
         "loading": boolean;
+        "dataSource": string;
+        "srcField": string;
     }
     interface BcViewerDocumentAttributes {
         "src": string;
@@ -11958,6 +12072,8 @@ declare namespace LocalJSX {
         "provider": 'microsoft' | 'google';
         "download": boolean;
         "loading": boolean;
+        "dataSource": string;
+        "srcField": string;
     }
     interface BcViewerImageAttributes {
         "src": string;
@@ -11968,12 +12084,16 @@ declare namespace LocalJSX {
         "lightbox": boolean;
         "download": boolean;
         "loading": boolean;
+        "dataSource": string;
+        "srcField": string;
     }
     interface BcViewerInstagramAttributes {
         "src": string;
         "width": string;
         "captioned": boolean;
         "loading": boolean;
+        "dataSource": string;
+        "srcField": string;
     }
     interface BcViewerPdfAttributes {
         "src": string;
@@ -11988,6 +12108,8 @@ declare namespace LocalJSX {
         "src": string;
         "width": string;
         "loading": boolean;
+        "dataSource": string;
+        "srcField": string;
     }
     interface BcViewerVideoAttributes {
         "src": string;
@@ -12001,6 +12123,8 @@ declare namespace LocalJSX {
         "height": string;
         "download": boolean;
         "loading": boolean;
+        "dataSource": string;
+        "srcField": string;
     }
     interface BcViewerYoutubeAttributes {
         "src": string;
@@ -12010,6 +12134,8 @@ declare namespace LocalJSX {
         "controls": boolean;
         "start": number;
         "loading": boolean;
+        "dataSource": string;
+        "srcField": string;
     }
     interface BcWidgetBadgeAttributes {
         "value": string;
