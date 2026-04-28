@@ -2,7 +2,7 @@ import { Component, Prop, State, Event, EventEmitter, Method, Element, h } from 
 import { FieldChangeEvent, FieldFocusEvent, FieldBlurEvent, FieldClearEvent, FieldValidationEvent, FieldValidEvent, ValidationResult, ValidateOn } from '../../../core/types';
 import { FieldState, createFieldState, markDirty, markTouched, getFieldClasses, validateFieldValue } from '../../../core/field-utils';
 import { BcSetup } from '../../../core/bc-setup';
-import { getApiClient } from '../../../core/api-client';
+import { fetchOptions } from '../../../core/data-fetcher';
 
 @Component({ tag: 'bc-field-dynlink', styleUrl: 'bc-field-dynlink.css', shadow: false })
 export class BcFieldDynlink {
@@ -51,7 +51,7 @@ export class BcFieldDynlink {
     if (this.debounceTimer) clearTimeout(this.debounceTimer);
     if (q.length < 1 || !this.model) { this.results = []; this.showDropdown = false; return; }
     this.debounceTimer = setTimeout(async () => {
-      try { const api = getApiClient(); this.results = await api.search(this.model, q); this.showDropdown = this.results.length > 0; }
+      try { this.results = await fetchOptions({ element: this.el, model: this.model, query: q }) as Array<Record<string, unknown>>; this.showDropdown = this.results.length > 0; }
       catch { this.results = []; this.showDropdown = false; }
     }, 300);
   }

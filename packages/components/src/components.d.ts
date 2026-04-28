@@ -5,8 +5,8 @@
  * It contains typing information for all components that exist in this project.
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
-import { FieldBlurEvent, FieldChangeEvent, FieldClearEvent, FieldFocusEvent, FieldValidationEvent, FieldValidEvent, ValidateOn, ValidationResult } from "./core/types";
-export { FieldBlurEvent, FieldChangeEvent, FieldClearEvent, FieldFocusEvent, FieldValidationEvent, FieldValidEvent, ValidateOn, ValidationResult } from "./core/types";
+import { FieldBlurEvent, FieldChangeEvent, FieldClearEvent, FieldFocusEvent, FieldValidationEvent, FieldValidEvent, OptionCreateEvent, OptionsErrorEvent, OptionsLoadEvent, ValidateOn, ValidationResult } from "./core/types";
+export { FieldBlurEvent, FieldChangeEvent, FieldClearEvent, FieldFocusEvent, FieldValidationEvent, FieldValidEvent, OptionCreateEvent, OptionsErrorEvent, OptionsLoadEvent, ValidateOn, ValidationResult } from "./core/types";
 export namespace Components {
     interface BcActivity {
         /**
@@ -378,29 +378,107 @@ export namespace Components {
         /**
           * @default false
          */
+        "autofocus": boolean;
+        "blurField": () => Promise<void>;
+        "clear": () => Promise<void>;
+        "clearError": () => Promise<void>;
+        /**
+          * @default false
+         */
+        "clearable": boolean;
+        /**
+          * @default ''
+         */
+        "defaultValue": string;
+        /**
+          * @default false
+         */
         "disabled": boolean;
+        "focusField": () => Promise<void>;
         /**
           * @default 'code128'
          */
         "format": string;
+        "getValue": () => Promise<string>;
+        /**
+          * @default ''
+         */
+        "hint": string;
+        "isDirty": () => Promise<boolean>;
+        "isTouched": () => Promise<boolean>;
         /**
           * @default ''
          */
         "label": string;
         /**
+          * @default false
+         */
+        "loading": boolean;
+        /**
           * @default ''
          */
         "name": string;
+        /**
+          * @default ''
+         */
+        "placeholder": string;
+        /**
+          * @default false
+         */
+        "readonly": boolean;
+        /**
+          * @default false
+         */
+        "required": boolean;
+        "reset": () => Promise<void>;
+        "setError": (message: string) => Promise<void>;
+        "setValue": (value: string, emit?: boolean) => Promise<void>;
+        /**
+          * @default 'md'
+         */
+        "size": 'sm' | 'md' | 'lg';
+        /**
+          * @default ''
+         */
+        "tooltip": string;
+        "validate": () => Promise<ValidationResult>;
+        /**
+          * @default ''
+         */
+        "validateOn": ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage": string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
         /**
           * @default ''
          */
         "value": string;
     }
     interface BcFieldCheckbox {
+        "blurField": () => Promise<void>;
+        "clear": () => Promise<void>;
+        "clearError": () => Promise<void>;
+        /**
+          * @default false
+         */
+        "defaultValue": boolean;
         /**
           * @default false
          */
         "disabled": boolean;
+        "focusField": () => Promise<void>;
+        "getValue": () => Promise<boolean>;
+        /**
+          * @default ''
+         */
+        "hint": string;
+        "isDirty": () => Promise<boolean>;
+        "isTouched": () => Promise<boolean>;
         /**
           * @default ''
          */
@@ -412,13 +490,64 @@ export namespace Components {
         /**
           * @default false
          */
+        "readonly": boolean;
+        /**
+          * @default false
+         */
+        "required": boolean;
+        "reset": () => Promise<void>;
+        "setError": (message: string) => Promise<void>;
+        "setValue": (value: boolean, emit?: boolean) => Promise<void>;
+        /**
+          * @default 'md'
+         */
+        "size": 'sm' | 'md' | 'lg';
+        /**
+          * @default ''
+         */
+        "tooltip": string;
+        "validate": () => Promise<ValidationResult>;
+        /**
+          * @default ''
+         */
+        "validateOn": ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage": string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
+        /**
+          * @default false
+         */
         "value": boolean;
     }
     interface BcFieldCode {
+        "blurField": () => Promise<void>;
+        "clear": () => Promise<void>;
+        "clearError": () => Promise<void>;
+        /**
+          * @default false
+         */
+        "clearable": boolean;
+        /**
+          * @default ''
+         */
+        "defaultValue": string;
         /**
           * @default false
          */
         "disabled": boolean;
+        "focusField": () => Promise<void>;
+        "getValue": () => Promise<string>;
+        /**
+          * @default ''
+         */
+        "hint": string;
+        "isDirty": () => Promise<boolean>;
+        "isTouched": () => Promise<boolean>;
         /**
           * @default ''
          */
@@ -428,6 +557,18 @@ export namespace Components {
          */
         "language": string;
         /**
+          * @default false
+         */
+        "loading": boolean;
+        /**
+          * @default 0
+         */
+        "maxLength": number;
+        /**
+          * @default 0
+         */
+        "minLength": number;
+        /**
           * @default ''
          */
         "name": string;
@@ -443,6 +584,17 @@ export namespace Components {
           * @default false
          */
         "required": boolean;
+        "reset": () => Promise<void>;
+        "setError": (message: string) => Promise<void>;
+        "setValue": (value: string, emit?: boolean) => Promise<void>;
+        /**
+          * @default false
+         */
+        "showCount": boolean;
+        /**
+          * @default 'md'
+         */
+        "size": 'sm' | 'md' | 'lg';
         /**
           * @default 'full'
          */
@@ -450,13 +602,49 @@ export namespace Components {
         /**
           * @default ''
          */
+        "tooltip": string;
+        "validate": () => Promise<ValidationResult>;
+        /**
+          * @default ''
+         */
+        "validateOn": ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage": string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
+        /**
+          * @default ''
+         */
         "value": string;
     }
     interface BcFieldColor {
+        "blurField": () => Promise<void>;
+        "clear": () => Promise<void>;
+        "clearError": () => Promise<void>;
+        /**
+          * @default false
+         */
+        "clearable": boolean;
+        /**
+          * @default '#000000'
+         */
+        "defaultValue": string;
         /**
           * @default false
          */
         "disabled": boolean;
+        "focusField": () => Promise<void>;
+        "getValue": () => Promise<string>;
+        /**
+          * @default ''
+         */
+        "hint": string;
+        "isDirty": () => Promise<boolean>;
+        "isTouched": () => Promise<boolean>;
         /**
           * @default ''
          */
@@ -466,23 +654,90 @@ export namespace Components {
          */
         "name": string;
         /**
+          * @default false
+         */
+        "readonly": boolean;
+        /**
+          * @default false
+         */
+        "required": boolean;
+        "reset": () => Promise<void>;
+        "setError": (message: string) => Promise<void>;
+        "setValue": (value: string, emit?: boolean) => Promise<void>;
+        /**
+          * @default 'md'
+         */
+        "size": 'sm' | 'md' | 'lg';
+        /**
+          * @default ''
+         */
+        "tooltip": string;
+        "validate": () => Promise<ValidationResult>;
+        /**
+          * @default ''
+         */
+        "validateOn": ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage": string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
+        /**
           * @default '#000000'
          */
         "value": string;
     }
     interface BcFieldCurrency {
         /**
-          * @default "USD"
+          * @default false
+         */
+        "autofocus": boolean;
+        "blurField": () => Promise<void>;
+        "clear": () => Promise<void>;
+        "clearError": () => Promise<void>;
+        /**
+          * @default false
+         */
+        "clearable": boolean;
+        /**
+          * @default 'USD'
          */
         "currency": string;
+        /**
+          * @default 0
+         */
+        "defaultValue": number;
         /**
           * @default false
          */
         "disabled": boolean;
+        "focusField": () => Promise<void>;
+        "getValue": () => Promise<number>;
+        /**
+          * @default ''
+         */
+        "hint": string;
+        "isDirty": () => Promise<boolean>;
+        "isTouched": () => Promise<boolean>;
         /**
           * @default ''
          */
         "label": string;
+        /**
+          * @default false
+         */
+        "loading": boolean;
+        /**
+          * @default 0
+         */
+        "max": number;
+        /**
+          * @default 0
+         */
+        "min": number;
         /**
           * @default ''
          */
@@ -496,6 +751,10 @@ export namespace Components {
          */
         "precision": number;
         /**
+          * @default ''
+         */
+        "prefixText": string;
+        /**
           * @default false
          */
         "readonly": boolean;
@@ -503,6 +762,38 @@ export namespace Components {
           * @default false
          */
         "required": boolean;
+        "reset": () => Promise<void>;
+        "setError": (message: string) => Promise<void>;
+        "setValue": (value: number, emit?: boolean) => Promise<void>;
+        /**
+          * @default 'md'
+         */
+        "size": 'sm' | 'md' | 'lg';
+        /**
+          * @default 0
+         */
+        "step": number;
+        /**
+          * @default ''
+         */
+        "suffixText": string;
+        /**
+          * @default ''
+         */
+        "tooltip": string;
+        "validate": () => Promise<ValidationResult>;
+        /**
+          * @default ''
+         */
+        "validateOn": ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage": string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
         /**
           * @default 0
          */
@@ -512,11 +803,50 @@ export namespace Components {
         /**
           * @default false
          */
+        "autofocus": boolean;
+        "blurField": () => Promise<void>;
+        "clear": () => Promise<void>;
+        "clearError": () => Promise<void>;
+        /**
+          * @default false
+         */
+        "clearable": boolean;
+        /**
+          * @default ''
+         */
+        "defaultValue": string;
+        /**
+          * @default ''
+         */
+        "dependOn": string;
+        /**
+          * @default false
+         */
         "disabled": boolean;
+        "focusField": () => Promise<void>;
+        "getValue": () => Promise<string>;
+        /**
+          * @default ''
+         */
+        "hint": string;
+        "isDirty": () => Promise<boolean>;
+        "isTouched": () => Promise<boolean>;
         /**
           * @default ''
          */
         "label": string;
+        /**
+          * @default false
+         */
+        "loading": boolean;
+        /**
+          * @default ''
+         */
+        "max": string;
+        /**
+          * @default ''
+         */
+        "min": string;
         /**
           * @default ''
          */
@@ -533,6 +863,30 @@ export namespace Components {
           * @default false
          */
         "required": boolean;
+        "reset": () => Promise<void>;
+        "setError": (message: string) => Promise<void>;
+        "setValue": (value: string, emit?: boolean) => Promise<void>;
+        /**
+          * @default 'md'
+         */
+        "size": 'sm' | 'md' | 'lg';
+        /**
+          * @default ''
+         */
+        "tooltip": string;
+        "validate": () => Promise<ValidationResult>;
+        /**
+          * @default ''
+         */
+        "validateOn": ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage": string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
         /**
           * @default ''
          */
@@ -542,11 +896,46 @@ export namespace Components {
         /**
           * @default false
          */
+        "autofocus": boolean;
+        "blurField": () => Promise<void>;
+        "clear": () => Promise<void>;
+        "clearError": () => Promise<void>;
+        /**
+          * @default false
+         */
+        "clearable": boolean;
+        /**
+          * @default ''
+         */
+        "defaultValue": string;
+        /**
+          * @default false
+         */
         "disabled": boolean;
+        "focusField": () => Promise<void>;
+        "getValue": () => Promise<string>;
+        /**
+          * @default ''
+         */
+        "hint": string;
+        "isDirty": () => Promise<boolean>;
+        "isTouched": () => Promise<boolean>;
         /**
           * @default ''
          */
         "label": string;
+        /**
+          * @default false
+         */
+        "loading": boolean;
+        /**
+          * @default ''
+         */
+        "max": string;
+        /**
+          * @default ''
+         */
+        "min": string;
         /**
           * @default ''
          */
@@ -563,6 +952,30 @@ export namespace Components {
           * @default false
          */
         "required": boolean;
+        "reset": () => Promise<void>;
+        "setError": (message: string) => Promise<void>;
+        "setValue": (value: string, emit?: boolean) => Promise<void>;
+        /**
+          * @default 'md'
+         */
+        "size": 'sm' | 'md' | 'lg';
+        /**
+          * @default ''
+         */
+        "tooltip": string;
+        "validate": () => Promise<ValidationResult>;
+        /**
+          * @default ''
+         */
+        "validateOn": ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage": string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
         /**
           * @default ''
          */
@@ -572,11 +985,46 @@ export namespace Components {
         /**
           * @default false
          */
+        "autofocus": boolean;
+        "blurField": () => Promise<void>;
+        "clear": () => Promise<void>;
+        "clearError": () => Promise<void>;
+        /**
+          * @default false
+         */
+        "clearable": boolean;
+        /**
+          * @default 0
+         */
+        "defaultValue": number;
+        /**
+          * @default false
+         */
         "disabled": boolean;
+        "focusField": () => Promise<void>;
+        "getValue": () => Promise<number>;
+        /**
+          * @default ''
+         */
+        "hint": string;
+        "isDirty": () => Promise<boolean>;
+        "isTouched": () => Promise<boolean>;
         /**
           * @default ''
          */
         "label": string;
+        /**
+          * @default false
+         */
+        "loading": boolean;
+        /**
+          * @default 0
+         */
+        "max": number;
+        /**
+          * @default 0
+         */
+        "min": number;
         /**
           * @default ''
          */
@@ -590,6 +1038,10 @@ export namespace Components {
          */
         "precision": number;
         /**
+          * @default ''
+         */
+        "prefixText": string;
+        /**
           * @default false
          */
         "readonly": boolean;
@@ -597,16 +1049,67 @@ export namespace Components {
           * @default false
          */
         "required": boolean;
+        "reset": () => Promise<void>;
+        "setError": (message: string) => Promise<void>;
+        "setValue": (value: number, emit?: boolean) => Promise<void>;
+        /**
+          * @default 'md'
+         */
+        "size": 'sm' | 'md' | 'lg';
+        /**
+          * @default 0
+         */
+        "step": number;
+        /**
+          * @default ''
+         */
+        "suffixText": string;
+        /**
+          * @default ''
+         */
+        "tooltip": string;
+        "validate": () => Promise<ValidationResult>;
+        /**
+          * @default ''
+         */
+        "validateOn": ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage": string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
         /**
           * @default 0
          */
         "value": number;
     }
     interface BcFieldDuration {
+        "blurField": () => Promise<void>;
+        "clear": () => Promise<void>;
+        "clearError": () => Promise<void>;
+        /**
+          * @default false
+         */
+        "clearable": boolean;
+        /**
+          * @default 0
+         */
+        "defaultValue": number;
         /**
           * @default false
          */
         "disabled": boolean;
+        "focusField": () => Promise<void>;
+        "getValue": () => Promise<number>;
+        /**
+          * @default ''
+         */
+        "hint": string;
+        "isDirty": () => Promise<boolean>;
+        "isTouched": () => Promise<boolean>;
         /**
           * @default ''
          */
@@ -616,19 +1119,78 @@ export namespace Components {
          */
         "name": string;
         /**
+          * @default ''
+         */
+        "placeholder": string;
+        /**
+          * @default false
+         */
+        "readonly": boolean;
+        /**
+          * @default false
+         */
+        "required": boolean;
+        "reset": () => Promise<void>;
+        "setError": (message: string) => Promise<void>;
+        "setValue": (value: number, emit?: boolean) => Promise<void>;
+        /**
+          * @default 'md'
+         */
+        "size": 'sm' | 'md' | 'lg';
+        /**
+          * @default ''
+         */
+        "tooltip": string;
+        "validate": () => Promise<ValidationResult>;
+        /**
+          * @default ''
+         */
+        "validateOn": ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage": string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
+        /**
           * @default 0
          */
         "value": number;
     }
     interface BcFieldDynlink {
+        "blurField": () => Promise<void>;
+        "clear": () => Promise<void>;
+        "clearError": () => Promise<void>;
+        /**
+          * @default false
+         */
+        "clearable": boolean;
+        /**
+          * @default ''
+         */
+        "defaultValue": string;
         /**
           * @default false
          */
         "disabled": boolean;
+        "focusField": () => Promise<void>;
+        "getValue": () => Promise<string>;
+        /**
+          * @default ''
+         */
+        "hint": string;
+        "isDirty": () => Promise<boolean>;
+        "isTouched": () => Promise<boolean>;
         /**
           * @default ''
          */
         "label": string;
+        /**
+          * @default false
+         */
+        "loading": boolean;
         /**
           * @default ''
          */
@@ -657,6 +1219,30 @@ export namespace Components {
           * @default false
          */
         "required": boolean;
+        "reset": () => Promise<void>;
+        "setError": (message: string) => Promise<void>;
+        "setValue": (value: string, emit?: boolean) => Promise<void>;
+        /**
+          * @default 'md'
+         */
+        "size": 'sm' | 'md' | 'lg';
+        /**
+          * @default ''
+         */
+        "tooltip": string;
+        "validate": () => Promise<ValidationResult>;
+        /**
+          * @default ''
+         */
+        "validateOn": ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage": string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
         /**
           * @default ''
          */
@@ -671,6 +1257,13 @@ export namespace Components {
           * @default '/api'
          */
         "apiBase": string;
+        "blurField": () => Promise<void>;
+        "clear": () => Promise<void>;
+        "clearError": () => Promise<void>;
+        /**
+          * @default ''
+         */
+        "defaultValue": string;
         /**
           * @default false
          */
@@ -679,10 +1272,22 @@ export namespace Components {
           * @default ''
          */
         "fieldName": string;
+        "focusField": () => Promise<void>;
+        "getValue": () => Promise<string>;
+        /**
+          * @default ''
+         */
+        "hint": string;
+        "isDirty": () => Promise<boolean>;
+        "isTouched": () => Promise<boolean>;
         /**
           * @default ''
          */
         "label": string;
+        /**
+          * @default false
+         */
+        "loading": boolean;
         /**
           * @default '10MB'
          */
@@ -719,10 +1324,34 @@ export namespace Components {
           * @default false
          */
         "required": boolean;
+        "reset": () => Promise<void>;
+        "setError": (message: string) => Promise<void>;
+        "setValue": (value: string, emit?: boolean) => Promise<void>;
         /**
           * @default true
          */
         "showDownload": boolean;
+        /**
+          * @default 'md'
+         */
+        "size": 'sm' | 'md' | 'lg';
+        /**
+          * @default ''
+         */
+        "tooltip": string;
+        "validate": () => Promise<ValidationResult>;
+        /**
+          * @default ''
+         */
+        "validateOn": ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage": string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
         /**
           * @default ''
          */
@@ -732,159 +1361,38 @@ export namespace Components {
         /**
           * @default false
          */
-        "disabled": boolean;
-        /**
-          * @default ''
-         */
-        "label": string;
-        /**
-          * @default ''
-         */
-        "name": string;
-        /**
-          * @default ''
-         */
-        "placeholder": string;
-        /**
-          * @default 2
-         */
-        "precision": number;
+        "autofocus": boolean;
+        "blurField": () => Promise<void>;
+        "clear": () => Promise<void>;
+        "clearError": () => Promise<void>;
         /**
           * @default false
          */
-        "readonly": boolean;
-        /**
-          * @default false
-         */
-        "required": boolean;
+        "clearable": boolean;
         /**
           * @default 0
          */
-        "value": number;
-    }
-    interface BcFieldGeo {
+        "defaultValue": number;
         /**
           * @default false
          */
         "disabled": boolean;
+        "focusField": () => Promise<void>;
+        "getValue": () => Promise<number>;
         /**
-          * @default 'point'
+          * @default ''
          */
-        "drawMode": string;
+        "hint": string;
+        "isDirty": () => Promise<boolean>;
+        "isTouched": () => Promise<boolean>;
         /**
           * @default ''
          */
         "label": string;
         /**
-          * @default ''
-         */
-        "name": string;
-        /**
-          * @default ''
-         */
-        "value": string;
-        /**
-          * @default 13
-         */
-        "zoom": number;
-    }
-    interface BcFieldHtml {
-        /**
           * @default false
          */
-        "disabled": boolean;
-        /**
-          * @default ''
-         */
-        "label": string;
-        /**
-          * @default ''
-         */
-        "language": string;
-        /**
-          * @default ''
-         */
-        "name": string;
-        /**
-          * @default ''
-         */
-        "placeholder": string;
-        /**
-          * @default false
-         */
-        "readonly": boolean;
-        /**
-          * @default false
-         */
-        "required": boolean;
-        /**
-          * @default 'full'
-         */
-        "toolbar": string;
-        /**
-          * @default ''
-         */
-        "value": string;
-    }
-    interface BcFieldImage {
-        /**
-          * @default 'image/*'
-         */
-        "accept": string;
-        /**
-          * @default false
-         */
-        "disabled": boolean;
-        /**
-          * @default ''
-         */
-        "fieldName": string;
-        /**
-          * @default ''
-         */
-        "label": string;
-        /**
-          * @default '10MB'
-         */
-        "maxSize": string;
-        /**
-          * @default ''
-         */
-        "model": string;
-        /**
-          * @default ''
-         */
-        "name": string;
-        /**
-          * @default true
-         */
-        "preview": boolean;
-        /**
-          * @default ''
-         */
-        "recordId": string;
-        /**
-          * @default false
-         */
-        "required": boolean;
-        /**
-          * @default false
-         */
-        "showDownload": boolean;
-        /**
-          * @default ''
-         */
-        "value": string;
-    }
-    interface BcFieldInteger {
-        /**
-          * @default false
-         */
-        "disabled": boolean;
-        /**
-          * @default ''
-         */
-        "label": string;
+        "loading": boolean;
         /**
           * @default 0
          */
@@ -902,6 +1410,14 @@ export namespace Components {
          */
         "placeholder": string;
         /**
+          * @default 2
+         */
+        "precision": number;
+        /**
+          * @default ''
+         */
+        "prefixText": string;
+        /**
           * @default false
          */
         "readonly": boolean;
@@ -909,28 +1425,75 @@ export namespace Components {
           * @default false
          */
         "required": boolean;
+        "reset": () => Promise<void>;
+        "setError": (message: string) => Promise<void>;
+        "setValue": (value: number, emit?: boolean) => Promise<void>;
         /**
-          * @default 1
+          * @default 'md'
+         */
+        "size": 'sm' | 'md' | 'lg';
+        /**
+          * @default 0
          */
         "step": number;
+        /**
+          * @default ''
+         */
+        "suffixText": string;
+        /**
+          * @default ''
+         */
+        "tooltip": string;
+        "validate": () => Promise<ValidationResult>;
+        /**
+          * @default ''
+         */
+        "validateOn": ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage": string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
         /**
           * @default 0
          */
         "value": number;
     }
-    interface BcFieldJson {
+    interface BcFieldGeo {
+        "blurField": () => Promise<void>;
+        "clear": () => Promise<void>;
+        "clearError": () => Promise<void>;
+        /**
+          * @default false
+         */
+        "clearable": boolean;
+        /**
+          * @default ''
+         */
+        "defaultValue": string;
         /**
           * @default false
          */
         "disabled": boolean;
         /**
-          * @default ''
+          * @default 'point'
          */
-        "label": string;
+        "drawMode": string;
+        "focusField": () => Promise<void>;
+        "getValue": () => Promise<string>;
         /**
           * @default ''
          */
-        "language": string;
+        "hint": string;
+        "isDirty": () => Promise<boolean>;
+        "isTouched": () => Promise<boolean>;
+        /**
+          * @default ''
+         */
+        "label": string;
         /**
           * @default ''
          */
@@ -947,6 +1510,110 @@ export namespace Components {
           * @default false
          */
         "required": boolean;
+        "reset": () => Promise<void>;
+        "setError": (message: string) => Promise<void>;
+        "setValue": (value: string, emit?: boolean) => Promise<void>;
+        /**
+          * @default 'md'
+         */
+        "size": 'sm' | 'md' | 'lg';
+        /**
+          * @default ''
+         */
+        "tooltip": string;
+        "validate": () => Promise<ValidationResult>;
+        /**
+          * @default ''
+         */
+        "validateOn": ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage": string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
+        /**
+          * @default ''
+         */
+        "value": string;
+        /**
+          * @default 13
+         */
+        "zoom": number;
+    }
+    interface BcFieldHtml {
+        "blurField": () => Promise<void>;
+        "clear": () => Promise<void>;
+        "clearError": () => Promise<void>;
+        /**
+          * @default false
+         */
+        "clearable": boolean;
+        /**
+          * @default ''
+         */
+        "defaultValue": string;
+        /**
+          * @default false
+         */
+        "disabled": boolean;
+        "focusField": () => Promise<void>;
+        "getValue": () => Promise<string>;
+        /**
+          * @default ''
+         */
+        "hint": string;
+        "isDirty": () => Promise<boolean>;
+        "isTouched": () => Promise<boolean>;
+        /**
+          * @default ''
+         */
+        "label": string;
+        /**
+          * @default ''
+         */
+        "language": string;
+        /**
+          * @default false
+         */
+        "loading": boolean;
+        /**
+          * @default 0
+         */
+        "maxLength": number;
+        /**
+          * @default 0
+         */
+        "minLength": number;
+        /**
+          * @default ''
+         */
+        "name": string;
+        /**
+          * @default ''
+         */
+        "placeholder": string;
+        /**
+          * @default false
+         */
+        "readonly": boolean;
+        /**
+          * @default false
+         */
+        "required": boolean;
+        "reset": () => Promise<void>;
+        "setError": (message: string) => Promise<void>;
+        "setValue": (value: string, emit?: boolean) => Promise<void>;
+        /**
+          * @default false
+         */
+        "showCount": boolean;
+        /**
+          * @default 'md'
+         */
+        "size": 'sm' | 'md' | 'lg';
         /**
           * @default 'full'
          */
@@ -954,9 +1621,324 @@ export namespace Components {
         /**
           * @default ''
          */
+        "tooltip": string;
+        "validate": () => Promise<ValidationResult>;
+        /**
+          * @default ''
+         */
+        "validateOn": ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage": string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
+        /**
+          * @default ''
+         */
+        "value": string;
+    }
+    interface BcFieldImage {
+        /**
+          * @default 'image/*'
+         */
+        "accept": string;
+        "blurField": () => Promise<void>;
+        "clear": () => Promise<void>;
+        "clearError": () => Promise<void>;
+        /**
+          * @default ''
+         */
+        "defaultValue": string;
+        /**
+          * @default false
+         */
+        "disabled": boolean;
+        /**
+          * @default ''
+         */
+        "fieldName": string;
+        "focusField": () => Promise<void>;
+        "getValue": () => Promise<string>;
+        /**
+          * @default ''
+         */
+        "hint": string;
+        "isDirty": () => Promise<boolean>;
+        "isTouched": () => Promise<boolean>;
+        /**
+          * @default ''
+         */
+        "label": string;
+        /**
+          * @default false
+         */
+        "loading": boolean;
+        /**
+          * @default '10MB'
+         */
+        "maxSize": string;
+        /**
+          * @default ''
+         */
+        "model": string;
+        /**
+          * @default ''
+         */
+        "name": string;
+        /**
+          * @default true
+         */
+        "preview": boolean;
+        /**
+          * @default false
+         */
+        "readonly": boolean;
+        /**
+          * @default ''
+         */
+        "recordId": string;
+        /**
+          * @default false
+         */
+        "required": boolean;
+        "reset": () => Promise<void>;
+        "setError": (message: string) => Promise<void>;
+        "setValue": (value: string, emit?: boolean) => Promise<void>;
+        /**
+          * @default false
+         */
+        "showDownload": boolean;
+        /**
+          * @default 'md'
+         */
+        "size": 'sm' | 'md' | 'lg';
+        /**
+          * @default ''
+         */
+        "tooltip": string;
+        "validate": () => Promise<ValidationResult>;
+        /**
+          * @default ''
+         */
+        "validateOn": ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage": string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
+        /**
+          * @default ''
+         */
+        "value": string;
+    }
+    interface BcFieldInteger {
+        /**
+          * @default false
+         */
+        "autofocus": boolean;
+        "blurField": () => Promise<void>;
+        "clear": () => Promise<void>;
+        "clearError": () => Promise<void>;
+        /**
+          * @default false
+         */
+        "clearable": boolean;
+        /**
+          * @default 0
+         */
+        "defaultValue": number;
+        /**
+          * @default false
+         */
+        "disabled": boolean;
+        "focusField": () => Promise<void>;
+        "getValue": () => Promise<number>;
+        /**
+          * @default ''
+         */
+        "hint": string;
+        "isDirty": () => Promise<boolean>;
+        "isTouched": () => Promise<boolean>;
+        /**
+          * @default ''
+         */
+        "label": string;
+        /**
+          * @default false
+         */
+        "loading": boolean;
+        /**
+          * @default 0
+         */
+        "max": number;
+        /**
+          * @default 0
+         */
+        "min": number;
+        /**
+          * @default ''
+         */
+        "name": string;
+        /**
+          * @default ''
+         */
+        "placeholder": string;
+        /**
+          * @default ''
+         */
+        "prefixText": string;
+        /**
+          * @default false
+         */
+        "readonly": boolean;
+        /**
+          * @default false
+         */
+        "required": boolean;
+        "reset": () => Promise<void>;
+        "setError": (message: string) => Promise<void>;
+        "setValue": (value: number, emit?: boolean) => Promise<void>;
+        /**
+          * @default 'md'
+         */
+        "size": 'sm' | 'md' | 'lg';
+        /**
+          * @default 1
+         */
+        "step": number;
+        /**
+          * @default ''
+         */
+        "suffixText": string;
+        /**
+          * @default ''
+         */
+        "tooltip": string;
+        "validate": () => Promise<ValidationResult>;
+        /**
+          * @default ''
+         */
+        "validateOn": ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage": string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
+        /**
+          * @default 0
+         */
+        "value": number;
+    }
+    interface BcFieldJson {
+        "blurField": () => Promise<void>;
+        "clear": () => Promise<void>;
+        "clearError": () => Promise<void>;
+        /**
+          * @default false
+         */
+        "clearable": boolean;
+        /**
+          * @default ''
+         */
+        "defaultValue": string;
+        /**
+          * @default false
+         */
+        "disabled": boolean;
+        "focusField": () => Promise<void>;
+        "getValue": () => Promise<string>;
+        /**
+          * @default ''
+         */
+        "hint": string;
+        "isDirty": () => Promise<boolean>;
+        "isTouched": () => Promise<boolean>;
+        /**
+          * @default ''
+         */
+        "label": string;
+        /**
+          * @default ''
+         */
+        "language": string;
+        /**
+          * @default false
+         */
+        "loading": boolean;
+        /**
+          * @default ''
+         */
+        "name": string;
+        /**
+          * @default ''
+         */
+        "placeholder": string;
+        /**
+          * @default false
+         */
+        "readonly": boolean;
+        /**
+          * @default false
+         */
+        "required": boolean;
+        "reset": () => Promise<void>;
+        "setError": (message: string) => Promise<void>;
+        "setValue": (value: string, emit?: boolean) => Promise<void>;
+        /**
+          * @default 'md'
+         */
+        "size": 'sm' | 'md' | 'lg';
+        /**
+          * @default 'full'
+         */
+        "toolbar": string;
+        /**
+          * @default ''
+         */
+        "tooltip": string;
+        "validate": () => Promise<ValidationResult>;
+        /**
+          * @default ''
+         */
+        "validateOn": ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage": string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
+        /**
+          * @default ''
+         */
         "value": string;
     }
     interface BcFieldLink {
+        "blurField": () => Promise<void>;
+        "clear": () => Promise<void>;
+        "clearError": () => Promise<void>;
+        /**
+          * @default ''
+         */
+        "dataSource": string;
+        /**
+          * @default ''
+         */
+        "defaultValue": string;
+        /**
+          * @default ''
+         */
+        "dependOn": string;
         /**
           * @default false
          */
@@ -968,7 +1950,23 @@ export namespace Components {
         /**
           * @default ''
          */
+        "fetchHeaders": string;
+        "focusField": () => Promise<void>;
+        "getValue": () => Promise<string>;
+        /**
+          * @default ''
+         */
+        "hint": string;
+        "isDirty": () => Promise<boolean>;
+        "isTouched": () => Promise<boolean>;
+        /**
+          * @default ''
+         */
         "label": string;
+        /**
+          * @default false
+         */
+        "loading": boolean;
         /**
           * @default '[]'
          */
@@ -997,16 +1995,59 @@ export namespace Components {
           * @default false
          */
         "required": boolean;
+        "reset": () => Promise<void>;
+        "setError": (message: string) => Promise<void>;
+        "setValue": (value: string, emit?: boolean) => Promise<void>;
+        /**
+          * @default 'md'
+         */
+        "size": 'sm' | 'md' | 'lg';
+        /**
+          * @default ''
+         */
+        "tooltip": string;
+        "validate": () => Promise<ValidationResult>;
+        /**
+          * @default ''
+         */
+        "validateOn": ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage": string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
         /**
           * @default ''
          */
         "value": string;
     }
     interface BcFieldMarkdown {
+        "blurField": () => Promise<void>;
+        "clear": () => Promise<void>;
+        "clearError": () => Promise<void>;
+        /**
+          * @default false
+         */
+        "clearable": boolean;
+        /**
+          * @default ''
+         */
+        "defaultValue": string;
         /**
           * @default false
          */
         "disabled": boolean;
+        "focusField": () => Promise<void>;
+        "getValue": () => Promise<string>;
+        /**
+          * @default ''
+         */
+        "hint": string;
+        "isDirty": () => Promise<boolean>;
+        "isTouched": () => Promise<boolean>;
         /**
           * @default ''
          */
@@ -1015,6 +2056,18 @@ export namespace Components {
           * @default ''
          */
         "language": string;
+        /**
+          * @default false
+         */
+        "loading": boolean;
+        /**
+          * @default 0
+         */
+        "maxLength": number;
+        /**
+          * @default 0
+         */
+        "minLength": number;
         /**
           * @default ''
          */
@@ -1031,6 +2084,17 @@ export namespace Components {
           * @default false
          */
         "required": boolean;
+        "reset": () => Promise<void>;
+        "setError": (message: string) => Promise<void>;
+        "setValue": (value: string, emit?: boolean) => Promise<void>;
+        /**
+          * @default false
+         */
+        "showCount": boolean;
+        /**
+          * @default 'md'
+         */
+        "size": 'sm' | 'md' | 'lg';
         /**
           * @default 'full'
          */
@@ -1038,13 +2102,49 @@ export namespace Components {
         /**
           * @default ''
          */
+        "tooltip": string;
+        "validate": () => Promise<ValidationResult>;
+        /**
+          * @default ''
+         */
+        "validateOn": ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage": string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
+        /**
+          * @default ''
+         */
         "value": string;
     }
     interface BcFieldMulticheck {
+        "blurField": () => Promise<void>;
+        "clear": () => Promise<void>;
+        "clearError": () => Promise<void>;
+        /**
+          * @default false
+         */
+        "clearable": boolean;
+        /**
+          * @default '[]'
+         */
+        "defaultValue": string;
         /**
           * @default false
          */
         "disabled": boolean;
+        "focusField": () => Promise<void>;
+        "getValue": () => Promise<string>;
+        /**
+          * @default ''
+         */
+        "hint": string;
+        "isDirty": () => Promise<boolean>;
+        "isTouched": () => Promise<boolean>;
         /**
           * @default ''
          */
@@ -1065,6 +2165,30 @@ export namespace Components {
           * @default false
          */
         "required": boolean;
+        "reset": () => Promise<void>;
+        "setError": (message: string) => Promise<void>;
+        "setValue": (value: string, emit?: boolean) => Promise<void>;
+        /**
+          * @default 'md'
+         */
+        "size": 'sm' | 'md' | 'lg';
+        /**
+          * @default ''
+         */
+        "tooltip": string;
+        "validate": () => Promise<ValidationResult>;
+        /**
+          * @default ''
+         */
+        "validateOn": ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage": string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
         /**
           * @default '[]'
          */
@@ -1074,11 +2198,46 @@ export namespace Components {
         /**
           * @default false
          */
+        "autofocus": boolean;
+        "blurField": () => Promise<void>;
+        "clear": () => Promise<void>;
+        "clearError": () => Promise<void>;
+        /**
+          * @default false
+         */
+        "clearable": boolean;
+        /**
+          * @default ''
+         */
+        "defaultValue": string;
+        /**
+          * @default false
+         */
         "disabled": boolean;
+        "focusField": () => Promise<void>;
+        "getValue": () => Promise<string>;
+        /**
+          * @default ''
+         */
+        "hint": string;
+        "isDirty": () => Promise<boolean>;
+        "isTouched": () => Promise<boolean>;
         /**
           * @default ''
          */
         "label": string;
+        /**
+          * @default false
+         */
+        "loading": boolean;
+        /**
+          * @default 0
+         */
+        "maxLength": number;
+        /**
+          * @default 0
+         */
+        "minLength": number;
         /**
           * @default ''
          */
@@ -1086,7 +2245,19 @@ export namespace Components {
         /**
           * @default ''
          */
+        "pattern": string;
+        /**
+          * @default ''
+         */
+        "patternMessage": string;
+        /**
+          * @default ''
+         */
         "placeholder": string;
+        /**
+          * @default ''
+         */
+        "prefixText": string;
         /**
           * @default false
          */
@@ -1095,6 +2266,42 @@ export namespace Components {
           * @default false
          */
         "required": boolean;
+        "reset": () => Promise<void>;
+        "setError": (message: string) => Promise<void>;
+        "setValue": (value: string, emit?: boolean) => Promise<void>;
+        /**
+          * @default false
+         */
+        "showCount": boolean;
+        /**
+          * @default false
+         */
+        "showReveal": boolean;
+        /**
+          * @default 'md'
+         */
+        "size": 'sm' | 'md' | 'lg';
+        /**
+          * @default ''
+         */
+        "suffixText": string;
+        /**
+          * @default ''
+         */
+        "tooltip": string;
+        "validate": () => Promise<ValidationResult>;
+        /**
+          * @default ''
+         */
+        "validateOn": ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage": string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
         /**
           * @default ''
          */
@@ -1104,11 +2311,38 @@ export namespace Components {
         /**
           * @default false
          */
+        "autofocus": boolean;
+        "blurField": () => Promise<void>;
+        "clear": () => Promise<void>;
+        "clearError": () => Promise<void>;
+        /**
+          * @default false
+         */
+        "clearable": boolean;
+        /**
+          * @default 0
+         */
+        "defaultValue": number;
+        /**
+          * @default false
+         */
         "disabled": boolean;
+        "focusField": () => Promise<void>;
+        "getValue": () => Promise<number>;
+        /**
+          * @default ''
+         */
+        "hint": string;
+        "isDirty": () => Promise<boolean>;
+        "isTouched": () => Promise<boolean>;
         /**
           * @default ''
          */
         "label": string;
+        /**
+          * @default false
+         */
+        "loading": boolean;
         /**
           * @default 100
          */
@@ -1126,6 +2360,10 @@ export namespace Components {
          */
         "placeholder": string;
         /**
+          * @default ''
+         */
+        "prefixText": string;
+        /**
           * @default false
          */
         "readonly": boolean;
@@ -1133,12 +2371,51 @@ export namespace Components {
           * @default false
          */
         "required": boolean;
+        "reset": () => Promise<void>;
+        "setError": (message: string) => Promise<void>;
+        "setValue": (value: number, emit?: boolean) => Promise<void>;
+        /**
+          * @default 'md'
+         */
+        "size": 'sm' | 'md' | 'lg';
+        /**
+          * @default 1
+         */
+        "step": number;
+        /**
+          * @default ''
+         */
+        "suffixText": string;
+        /**
+          * @default ''
+         */
+        "tooltip": string;
+        "validate": () => Promise<ValidationResult>;
+        /**
+          * @default ''
+         */
+        "validateOn": ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage": string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
         /**
           * @default 0
          */
         "value": number;
     }
     interface BcFieldRadio {
+        "blurField": () => Promise<void>;
+        "clear": () => Promise<void>;
+        "clearError": () => Promise<void>;
+        /**
+          * @default ''
+         */
+        "defaultValue": string;
         /**
           * @default 'vertical'
          */
@@ -1147,6 +2424,14 @@ export namespace Components {
           * @default false
          */
         "disabled": boolean;
+        "focusField": () => Promise<void>;
+        "getValue": () => Promise<string>;
+        /**
+          * @default ''
+         */
+        "hint": string;
+        "isDirty": () => Promise<boolean>;
+        "isTouched": () => Promise<boolean>;
         /**
           * @default ''
          */
@@ -1160,15 +2445,66 @@ export namespace Components {
          */
         "options": string;
         /**
+          * @default false
+         */
+        "readonly": boolean;
+        /**
+          * @default false
+         */
+        "required": boolean;
+        "reset": () => Promise<void>;
+        "setError": (message: string) => Promise<void>;
+        "setValue": (value: string, emit?: boolean) => Promise<void>;
+        /**
+          * @default 'md'
+         */
+        "size": 'sm' | 'md' | 'lg';
+        /**
+          * @default ''
+         */
+        "tooltip": string;
+        "validate": () => Promise<ValidationResult>;
+        /**
+          * @default ''
+         */
+        "validateOn": ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage": string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
+        /**
           * @default ''
          */
         "value": string;
     }
     interface BcFieldRating {
+        "blurField": () => Promise<void>;
+        "clear": () => Promise<void>;
+        "clearError": () => Promise<void>;
+        /**
+          * @default false
+         */
+        "clearable": boolean;
+        /**
+          * @default 0
+         */
+        "defaultValue": number;
         /**
           * @default false
          */
         "disabled": boolean;
+        "focusField": () => Promise<void>;
+        "getValue": () => Promise<number>;
+        /**
+          * @default ''
+         */
+        "hint": string;
+        "isDirty": () => Promise<boolean>;
+        "isTouched": () => Promise<boolean>;
         /**
           * @default ''
          */
@@ -1182,19 +2518,82 @@ export namespace Components {
          */
         "name": string;
         /**
+          * @default false
+         */
+        "readonly": boolean;
+        /**
+          * @default false
+         */
+        "required": boolean;
+        "reset": () => Promise<void>;
+        "setError": (message: string) => Promise<void>;
+        "setValue": (value: number, emit?: boolean) => Promise<void>;
+        /**
+          * @default 'md'
+         */
+        "size": 'sm' | 'md' | 'lg';
+        /**
+          * @default ''
+         */
+        "tooltip": string;
+        "validate": () => Promise<ValidationResult>;
+        /**
+          * @default ''
+         */
+        "validateOn": ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage": string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
+        /**
           * @default 0
          */
         "value": number;
     }
     interface BcFieldRichtext {
+        "blurField": () => Promise<void>;
+        "clear": () => Promise<void>;
+        "clearError": () => Promise<void>;
+        /**
+          * @default false
+         */
+        "clearable": boolean;
+        /**
+          * @default ''
+         */
+        "defaultValue": string;
         /**
           * @default false
          */
         "disabled": boolean;
+        "focusField": () => Promise<void>;
+        "getValue": () => Promise<string>;
+        /**
+          * @default ''
+         */
+        "hint": string;
+        "isDirty": () => Promise<boolean>;
+        "isTouched": () => Promise<boolean>;
         /**
           * @default ''
          */
         "label": string;
+        /**
+          * @default false
+         */
+        "loading": boolean;
+        /**
+          * @default 0
+         */
+        "maxLength": number;
+        /**
+          * @default 0
+         */
+        "minLength": number;
         /**
           * @default ''
          */
@@ -1211,6 +2610,17 @@ export namespace Components {
           * @default false
          */
         "required": boolean;
+        "reset": () => Promise<void>;
+        "setError": (message: string) => Promise<void>;
+        "setValue": (value: string, emit?: boolean) => Promise<void>;
+        /**
+          * @default false
+         */
+        "showCount": boolean;
+        /**
+          * @default 'md'
+         */
+        "size": 'sm' | 'md' | 'lg';
         /**
           * @default 'full'
          */
@@ -1218,25 +2628,122 @@ export namespace Components {
         /**
           * @default ''
          */
+        "tooltip": string;
+        "validate": () => Promise<ValidationResult>;
+        /**
+          * @default ''
+         */
+        "validateOn": ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage": string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
+        /**
+          * @default ''
+         */
         "value": string;
     }
     interface BcFieldSelect {
+        "blurField": () => Promise<void>;
+        "clear": () => Promise<void>;
+        "clearError": () => Promise<void>;
+        /**
+          * @default false
+         */
+        "clearable": boolean;
+        "close": () => Promise<void>;
+        /**
+          * @default false
+         */
+        "creatable": boolean;
+        /**
+          * @default ''
+         */
+        "dataSource": string;
+        /**
+          * @default 300
+         */
+        "debounceMs": number;
+        /**
+          * @default ''
+         */
+        "defaultValue": string;
+        /**
+          * @default ''
+         */
+        "dependOn": string;
         /**
           * @default false
          */
         "disabled": boolean;
         /**
+          * @default 'label'
+         */
+        "displayField": string;
+        /**
+          * @default ''
+         */
+        "fetchHeaders": string;
+        "focusField": () => Promise<void>;
+        "getOptions": () => Promise<SelectOption[]>;
+        "getSelectedOptions": () => Promise<SelectOption[]>;
+        "getValue": () => Promise<string>;
+        /**
+          * @default ''
+         */
+        "groupBy": string;
+        /**
+          * @default ''
+         */
+        "hint": string;
+        "isDirty": () => Promise<boolean>;
+        "isTouched": () => Promise<boolean>;
+        /**
           * @default ''
          */
         "label": string;
+        "loadOptions": (query?: string) => Promise<void>;
+        /**
+          * @default false
+         */
+        "loading": boolean;
+        /**
+          * @default 'Loading...'
+         */
+        "loadingText": string;
+        /**
+          * @default 1
+         */
+        "minSearchLength": number;
+        /**
+          * @default ''
+         */
+        "model": string;
+        /**
+          * @default false
+         */
+        "multiple": boolean;
         /**
           * @default ''
          */
         "name": string;
         /**
+          * @default 'No results'
+         */
+        "noResultsText": string;
+        "open": () => Promise<void>;
+        /**
           * @default '[]'
          */
         "options": string;
+        /**
+          * @default 50
+         */
+        "pageSize": number;
         /**
           * @default 'Select...'
          */
@@ -1245,24 +2752,77 @@ export namespace Components {
           * @default false
          */
         "readonly": boolean;
+        "reloadOptions": () => Promise<void>;
         /**
           * @default false
          */
         "required": boolean;
+        "reset": () => Promise<void>;
+        /**
+          * @default false
+         */
+        "searchable": boolean;
+        /**
+          * @default false
+         */
+        "serverSide": boolean;
+        "setError": (message: string) => Promise<void>;
+        "setOptions": (opts: unknown[]) => Promise<void>;
+        "setValue": (value: string, emit?: boolean) => Promise<void>;
+        /**
+          * @default 'md'
+         */
+        "size": 'sm' | 'md' | 'lg';
+        /**
+          * @default ''
+         */
+        "tooltip": string;
+        "validate": () => Promise<ValidationResult>;
+        /**
+          * @default ''
+         */
+        "validateOn": ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage": string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
         /**
           * @default ''
          */
         "value": string;
+        /**
+          * @default 'value'
+         */
+        "valueField": string;
     }
     interface BcFieldSignature {
+        "blurField": () => Promise<void>;
+        "clear": () => Promise<void>;
+        "clearError": () => Promise<void>;
+        /**
+          * @default ''
+         */
+        "defaultValue": string;
         /**
           * @default false
          */
         "disabled": boolean;
+        "focusField": () => Promise<void>;
+        "getValue": () => Promise<string>;
         /**
           * @default 200
          */
         "height": number;
+        /**
+          * @default ''
+         */
+        "hint": string;
+        "isDirty": () => Promise<boolean>;
+        "isTouched": () => Promise<boolean>;
         /**
           * @default ''
          */
@@ -1271,6 +2831,38 @@ export namespace Components {
           * @default ''
          */
         "name": string;
+        /**
+          * @default false
+         */
+        "readonly": boolean;
+        /**
+          * @default false
+         */
+        "required": boolean;
+        "reset": () => Promise<void>;
+        "setError": (message: string) => Promise<void>;
+        "setValue": (value: string, emit?: boolean) => Promise<void>;
+        /**
+          * @default 'md'
+         */
+        "size": 'sm' | 'md' | 'lg';
+        /**
+          * @default ''
+         */
+        "tooltip": string;
+        "validate": () => Promise<ValidationResult>;
+        /**
+          * @default ''
+         */
+        "validateOn": ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage": string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
         /**
           * @default ''
          */
@@ -1284,11 +2876,46 @@ export namespace Components {
         /**
           * @default false
          */
+        "autofocus": boolean;
+        "blurField": () => Promise<void>;
+        "clear": () => Promise<void>;
+        "clearError": () => Promise<void>;
+        /**
+          * @default false
+         */
+        "clearable": boolean;
+        /**
+          * @default ''
+         */
+        "defaultValue": string;
+        /**
+          * @default false
+         */
         "disabled": boolean;
+        "focusField": () => Promise<void>;
+        "getValue": () => Promise<string>;
+        /**
+          * @default ''
+         */
+        "hint": string;
+        "isDirty": () => Promise<boolean>;
+        "isTouched": () => Promise<boolean>;
         /**
           * @default ''
          */
         "label": string;
+        /**
+          * @default false
+         */
+        "loading": boolean;
+        /**
+          * @default 0
+         */
+        "maxLength": number;
+        /**
+          * @default 0
+         */
+        "minLength": number;
         /**
           * @default ''
          */
@@ -1305,10 +2932,38 @@ export namespace Components {
           * @default false
          */
         "required": boolean;
+        "reset": () => Promise<void>;
         /**
           * @default 3
          */
         "rows": number;
+        "setError": (message: string) => Promise<void>;
+        "setValue": (value: string, emit?: boolean) => Promise<void>;
+        /**
+          * @default false
+         */
+        "showCount": boolean;
+        /**
+          * @default 'md'
+         */
+        "size": 'sm' | 'md' | 'lg';
+        /**
+          * @default ''
+         */
+        "tooltip": string;
+        "validate": () => Promise<ValidationResult>;
+        /**
+          * @default ''
+         */
+        "validateOn": ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage": string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
         /**
           * @default ''
          */
@@ -1440,14 +3095,37 @@ export namespace Components {
         "widget": string;
     }
     interface BcFieldTableselect {
+        "blurField": () => Promise<void>;
+        "clear": () => Promise<void>;
+        "clearError": () => Promise<void>;
+        /**
+          * @default false
+         */
+        "clearable": boolean;
+        /**
+          * @default '[]'
+         */
+        "defaultValue": string;
         /**
           * @default false
          */
         "disabled": boolean;
+        "focusField": () => Promise<void>;
+        "getValue": () => Promise<string>;
+        /**
+          * @default ''
+         */
+        "hint": string;
+        "isDirty": () => Promise<boolean>;
+        "isTouched": () => Promise<boolean>;
         /**
           * @default ''
          */
         "label": string;
+        /**
+          * @default false
+         */
+        "loading": boolean;
         /**
           * @default ''
          */
@@ -1472,20 +3150,67 @@ export namespace Components {
           * @default false
          */
         "required": boolean;
+        "reset": () => Promise<void>;
+        "setError": (message: string) => Promise<void>;
+        "setValue": (value: string, emit?: boolean) => Promise<void>;
+        /**
+          * @default 'md'
+         */
+        "size": 'sm' | 'md' | 'lg';
+        /**
+          * @default ''
+         */
+        "tooltip": string;
+        "validate": () => Promise<ValidationResult>;
+        /**
+          * @default ''
+         */
+        "validateOn": ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage": string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
         /**
           * @default '[]'
          */
         "value": string;
     }
     interface BcFieldTags {
+        "blurField": () => Promise<void>;
+        "clear": () => Promise<void>;
+        "clearError": () => Promise<void>;
+        /**
+          * @default false
+         */
+        "clearable": boolean;
+        /**
+          * @default '[]'
+         */
+        "defaultValue": string;
         /**
           * @default false
          */
         "disabled": boolean;
+        "focusField": () => Promise<void>;
+        "getValue": () => Promise<string>;
+        /**
+          * @default ''
+         */
+        "hint": string;
+        "isDirty": () => Promise<boolean>;
+        "isTouched": () => Promise<boolean>;
         /**
           * @default ''
          */
         "label": string;
+        /**
+          * @default false
+         */
+        "loading": boolean;
         /**
           * @default ''
          */
@@ -1510,6 +3235,30 @@ export namespace Components {
           * @default false
          */
         "required": boolean;
+        "reset": () => Promise<void>;
+        "setError": (message: string) => Promise<void>;
+        "setValue": (value: string, emit?: boolean) => Promise<void>;
+        /**
+          * @default 'md'
+         */
+        "size": 'sm' | 'md' | 'lg';
+        /**
+          * @default ''
+         */
+        "tooltip": string;
+        "validate": () => Promise<ValidationResult>;
+        /**
+          * @default ''
+         */
+        "validateOn": ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage": string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
         /**
           * @default '[]'
          */
@@ -1519,15 +3268,58 @@ export namespace Components {
         /**
           * @default false
          */
+        "autofocus": boolean;
+        "blurField": () => Promise<void>;
+        "clear": () => Promise<void>;
+        "clearError": () => Promise<void>;
+        /**
+          * @default false
+         */
+        "clearable": boolean;
+        /**
+          * @default ''
+         */
+        "defaultValue": string;
+        /**
+          * @default false
+         */
         "disabled": boolean;
+        "focusField": () => Promise<void>;
+        "getValue": () => Promise<string>;
+        /**
+          * @default ''
+         */
+        "hint": string;
+        "isDirty": () => Promise<boolean>;
+        "isTouched": () => Promise<boolean>;
         /**
           * @default ''
          */
         "label": string;
         /**
+          * @default false
+         */
+        "loading": boolean;
+        /**
+          * @default 0
+         */
+        "maxLength": number;
+        /**
+          * @default 0
+         */
+        "minLength": number;
+        /**
           * @default ''
          */
         "name": string;
+        /**
+          * @default ''
+         */
+        "pattern": string;
+        /**
+          * @default ''
+         */
+        "patternMessage": string;
         /**
           * @default ''
          */
@@ -1540,6 +3332,38 @@ export namespace Components {
           * @default false
          */
         "required": boolean;
+        "reset": () => Promise<void>;
+        /**
+          * @default 5
+         */
+        "rows": number;
+        "setError": (message: string) => Promise<void>;
+        "setValue": (value: string, emit?: boolean) => Promise<void>;
+        /**
+          * @default false
+         */
+        "showCount": boolean;
+        /**
+          * @default 'md'
+         */
+        "size": 'sm' | 'md' | 'lg';
+        /**
+          * @default ''
+         */
+        "tooltip": string;
+        "validate": () => Promise<ValidationResult>;
+        /**
+          * @default ''
+         */
+        "validateOn": ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage": string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
         /**
           * @default ''
          */
@@ -1549,11 +3373,46 @@ export namespace Components {
         /**
           * @default false
          */
+        "autofocus": boolean;
+        "blurField": () => Promise<void>;
+        "clear": () => Promise<void>;
+        "clearError": () => Promise<void>;
+        /**
+          * @default false
+         */
+        "clearable": boolean;
+        /**
+          * @default ''
+         */
+        "defaultValue": string;
+        /**
+          * @default false
+         */
         "disabled": boolean;
+        "focusField": () => Promise<void>;
+        "getValue": () => Promise<string>;
+        /**
+          * @default ''
+         */
+        "hint": string;
+        "isDirty": () => Promise<boolean>;
+        "isTouched": () => Promise<boolean>;
         /**
           * @default ''
          */
         "label": string;
+        /**
+          * @default false
+         */
+        "loading": boolean;
+        /**
+          * @default ''
+         */
+        "max": string;
+        /**
+          * @default ''
+         */
+        "min": string;
         /**
           * @default ''
          */
@@ -1570,16 +3429,59 @@ export namespace Components {
           * @default false
          */
         "required": boolean;
+        "reset": () => Promise<void>;
+        "setError": (message: string) => Promise<void>;
+        "setValue": (value: string, emit?: boolean) => Promise<void>;
+        /**
+          * @default 'md'
+         */
+        "size": 'sm' | 'md' | 'lg';
+        /**
+          * @default 60
+         */
+        "step": number;
+        /**
+          * @default ''
+         */
+        "tooltip": string;
+        "validate": () => Promise<ValidationResult>;
+        /**
+          * @default ''
+         */
+        "validateOn": ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage": string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
         /**
           * @default ''
          */
         "value": string;
     }
     interface BcFieldToggle {
+        "blurField": () => Promise<void>;
+        "clear": () => Promise<void>;
+        "clearError": () => Promise<void>;
+        /**
+          * @default false
+         */
+        "defaultValue": boolean;
         /**
           * @default false
          */
         "disabled": boolean;
+        "focusField": () => Promise<void>;
+        "getValue": () => Promise<boolean>;
+        /**
+          * @default ''
+         */
+        "hint": string;
+        "isDirty": () => Promise<boolean>;
+        "isTouched": () => Promise<boolean>;
         /**
           * @default ''
          */
@@ -1588,6 +3490,38 @@ export namespace Components {
           * @default ''
          */
         "name": string;
+        /**
+          * @default false
+         */
+        "readonly": boolean;
+        /**
+          * @default false
+         */
+        "required": boolean;
+        "reset": () => Promise<void>;
+        "setError": (message: string) => Promise<void>;
+        "setValue": (value: boolean, emit?: boolean) => Promise<void>;
+        /**
+          * @default 'md'
+         */
+        "size": 'sm' | 'md' | 'lg';
+        /**
+          * @default ''
+         */
+        "tooltip": string;
+        "validate": () => Promise<ValidationResult>;
+        /**
+          * @default ''
+         */
+        "validateOn": ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage": string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
         /**
           * @default false
          */
@@ -2746,6 +4680,11 @@ declare global {
     };
     interface HTMLBcFieldBarcodeElementEventMap {
         "lcFieldChange": FieldChangeEvent;
+        "lcFieldFocus": FieldFocusEvent;
+        "lcFieldBlur": FieldBlurEvent;
+        "lcFieldClear": FieldClearEvent;
+        "lcFieldInvalid": FieldValidationEvent;
+        "lcFieldValid": FieldValidEvent;
     }
     interface HTMLBcFieldBarcodeElement extends Components.BcFieldBarcode, HTMLStencilElement {
         addEventListener<K extends keyof HTMLBcFieldBarcodeElementEventMap>(type: K, listener: (this: HTMLBcFieldBarcodeElement, ev: BcFieldBarcodeCustomEvent<HTMLBcFieldBarcodeElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -2763,6 +4702,11 @@ declare global {
     };
     interface HTMLBcFieldCheckboxElementEventMap {
         "lcFieldChange": FieldChangeEvent;
+        "lcFieldFocus": FieldFocusEvent;
+        "lcFieldBlur": FieldBlurEvent;
+        "lcFieldClear": FieldClearEvent;
+        "lcFieldInvalid": FieldValidationEvent;
+        "lcFieldValid": FieldValidEvent;
     }
     interface HTMLBcFieldCheckboxElement extends Components.BcFieldCheckbox, HTMLStencilElement {
         addEventListener<K extends keyof HTMLBcFieldCheckboxElementEventMap>(type: K, listener: (this: HTMLBcFieldCheckboxElement, ev: BcFieldCheckboxCustomEvent<HTMLBcFieldCheckboxElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -2780,6 +4724,11 @@ declare global {
     };
     interface HTMLBcFieldCodeElementEventMap {
         "lcFieldChange": FieldChangeEvent;
+        "lcFieldFocus": FieldFocusEvent;
+        "lcFieldBlur": FieldBlurEvent;
+        "lcFieldClear": FieldClearEvent;
+        "lcFieldInvalid": FieldValidationEvent;
+        "lcFieldValid": FieldValidEvent;
     }
     interface HTMLBcFieldCodeElement extends Components.BcFieldCode, HTMLStencilElement {
         addEventListener<K extends keyof HTMLBcFieldCodeElementEventMap>(type: K, listener: (this: HTMLBcFieldCodeElement, ev: BcFieldCodeCustomEvent<HTMLBcFieldCodeElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -2797,6 +4746,11 @@ declare global {
     };
     interface HTMLBcFieldColorElementEventMap {
         "lcFieldChange": FieldChangeEvent;
+        "lcFieldFocus": FieldFocusEvent;
+        "lcFieldBlur": FieldBlurEvent;
+        "lcFieldClear": FieldClearEvent;
+        "lcFieldInvalid": FieldValidationEvent;
+        "lcFieldValid": FieldValidEvent;
     }
     interface HTMLBcFieldColorElement extends Components.BcFieldColor, HTMLStencilElement {
         addEventListener<K extends keyof HTMLBcFieldColorElementEventMap>(type: K, listener: (this: HTMLBcFieldColorElement, ev: BcFieldColorCustomEvent<HTMLBcFieldColorElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -2814,6 +4768,11 @@ declare global {
     };
     interface HTMLBcFieldCurrencyElementEventMap {
         "lcFieldChange": FieldChangeEvent;
+        "lcFieldFocus": FieldFocusEvent;
+        "lcFieldBlur": FieldBlurEvent;
+        "lcFieldClear": FieldClearEvent;
+        "lcFieldInvalid": FieldValidationEvent;
+        "lcFieldValid": FieldValidEvent;
     }
     interface HTMLBcFieldCurrencyElement extends Components.BcFieldCurrency, HTMLStencilElement {
         addEventListener<K extends keyof HTMLBcFieldCurrencyElementEventMap>(type: K, listener: (this: HTMLBcFieldCurrencyElement, ev: BcFieldCurrencyCustomEvent<HTMLBcFieldCurrencyElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -2831,6 +4790,11 @@ declare global {
     };
     interface HTMLBcFieldDateElementEventMap {
         "lcFieldChange": FieldChangeEvent;
+        "lcFieldFocus": FieldFocusEvent;
+        "lcFieldBlur": FieldBlurEvent;
+        "lcFieldClear": FieldClearEvent;
+        "lcFieldInvalid": FieldValidationEvent;
+        "lcFieldValid": FieldValidEvent;
     }
     interface HTMLBcFieldDateElement extends Components.BcFieldDate, HTMLStencilElement {
         addEventListener<K extends keyof HTMLBcFieldDateElementEventMap>(type: K, listener: (this: HTMLBcFieldDateElement, ev: BcFieldDateCustomEvent<HTMLBcFieldDateElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -2848,6 +4812,11 @@ declare global {
     };
     interface HTMLBcFieldDatetimeElementEventMap {
         "lcFieldChange": FieldChangeEvent;
+        "lcFieldFocus": FieldFocusEvent;
+        "lcFieldBlur": FieldBlurEvent;
+        "lcFieldClear": FieldClearEvent;
+        "lcFieldInvalid": FieldValidationEvent;
+        "lcFieldValid": FieldValidEvent;
     }
     interface HTMLBcFieldDatetimeElement extends Components.BcFieldDatetime, HTMLStencilElement {
         addEventListener<K extends keyof HTMLBcFieldDatetimeElementEventMap>(type: K, listener: (this: HTMLBcFieldDatetimeElement, ev: BcFieldDatetimeCustomEvent<HTMLBcFieldDatetimeElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -2865,6 +4834,11 @@ declare global {
     };
     interface HTMLBcFieldDecimalElementEventMap {
         "lcFieldChange": FieldChangeEvent;
+        "lcFieldFocus": FieldFocusEvent;
+        "lcFieldBlur": FieldBlurEvent;
+        "lcFieldClear": FieldClearEvent;
+        "lcFieldInvalid": FieldValidationEvent;
+        "lcFieldValid": FieldValidEvent;
     }
     interface HTMLBcFieldDecimalElement extends Components.BcFieldDecimal, HTMLStencilElement {
         addEventListener<K extends keyof HTMLBcFieldDecimalElementEventMap>(type: K, listener: (this: HTMLBcFieldDecimalElement, ev: BcFieldDecimalCustomEvent<HTMLBcFieldDecimalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -2882,6 +4856,11 @@ declare global {
     };
     interface HTMLBcFieldDurationElementEventMap {
         "lcFieldChange": FieldChangeEvent;
+        "lcFieldFocus": FieldFocusEvent;
+        "lcFieldBlur": FieldBlurEvent;
+        "lcFieldClear": FieldClearEvent;
+        "lcFieldInvalid": FieldValidationEvent;
+        "lcFieldValid": FieldValidEvent;
     }
     interface HTMLBcFieldDurationElement extends Components.BcFieldDuration, HTMLStencilElement {
         addEventListener<K extends keyof HTMLBcFieldDurationElementEventMap>(type: K, listener: (this: HTMLBcFieldDurationElement, ev: BcFieldDurationCustomEvent<HTMLBcFieldDurationElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -2899,6 +4878,11 @@ declare global {
     };
     interface HTMLBcFieldDynlinkElementEventMap {
         "lcFieldChange": FieldChangeEvent;
+        "lcFieldFocus": FieldFocusEvent;
+        "lcFieldBlur": FieldBlurEvent;
+        "lcFieldClear": FieldClearEvent;
+        "lcFieldInvalid": FieldValidationEvent;
+        "lcFieldValid": FieldValidEvent;
     }
     interface HTMLBcFieldDynlinkElement extends Components.BcFieldDynlink, HTMLStencilElement {
         addEventListener<K extends keyof HTMLBcFieldDynlinkElementEventMap>(type: K, listener: (this: HTMLBcFieldDynlinkElement, ev: BcFieldDynlinkCustomEvent<HTMLBcFieldDynlinkElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -2916,6 +4900,11 @@ declare global {
     };
     interface HTMLBcFieldFileElementEventMap {
         "lcFieldChange": FieldChangeEvent;
+        "lcFieldFocus": FieldFocusEvent;
+        "lcFieldBlur": FieldBlurEvent;
+        "lcFieldClear": FieldClearEvent;
+        "lcFieldInvalid": FieldValidationEvent;
+        "lcFieldValid": FieldValidEvent;
     }
     interface HTMLBcFieldFileElement extends Components.BcFieldFile, HTMLStencilElement {
         addEventListener<K extends keyof HTMLBcFieldFileElementEventMap>(type: K, listener: (this: HTMLBcFieldFileElement, ev: BcFieldFileCustomEvent<HTMLBcFieldFileElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -2933,6 +4922,11 @@ declare global {
     };
     interface HTMLBcFieldFloatElementEventMap {
         "lcFieldChange": FieldChangeEvent;
+        "lcFieldFocus": FieldFocusEvent;
+        "lcFieldBlur": FieldBlurEvent;
+        "lcFieldClear": FieldClearEvent;
+        "lcFieldInvalid": FieldValidationEvent;
+        "lcFieldValid": FieldValidEvent;
     }
     interface HTMLBcFieldFloatElement extends Components.BcFieldFloat, HTMLStencilElement {
         addEventListener<K extends keyof HTMLBcFieldFloatElementEventMap>(type: K, listener: (this: HTMLBcFieldFloatElement, ev: BcFieldFloatCustomEvent<HTMLBcFieldFloatElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -2950,6 +4944,11 @@ declare global {
     };
     interface HTMLBcFieldGeoElementEventMap {
         "lcFieldChange": FieldChangeEvent;
+        "lcFieldFocus": FieldFocusEvent;
+        "lcFieldBlur": FieldBlurEvent;
+        "lcFieldClear": FieldClearEvent;
+        "lcFieldInvalid": FieldValidationEvent;
+        "lcFieldValid": FieldValidEvent;
     }
     interface HTMLBcFieldGeoElement extends Components.BcFieldGeo, HTMLStencilElement {
         addEventListener<K extends keyof HTMLBcFieldGeoElementEventMap>(type: K, listener: (this: HTMLBcFieldGeoElement, ev: BcFieldGeoCustomEvent<HTMLBcFieldGeoElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -2967,6 +4966,11 @@ declare global {
     };
     interface HTMLBcFieldHtmlElementEventMap {
         "lcFieldChange": FieldChangeEvent;
+        "lcFieldFocus": FieldFocusEvent;
+        "lcFieldBlur": FieldBlurEvent;
+        "lcFieldClear": FieldClearEvent;
+        "lcFieldInvalid": FieldValidationEvent;
+        "lcFieldValid": FieldValidEvent;
     }
     interface HTMLBcFieldHtmlElement extends Components.BcFieldHtml, HTMLStencilElement {
         addEventListener<K extends keyof HTMLBcFieldHtmlElementEventMap>(type: K, listener: (this: HTMLBcFieldHtmlElement, ev: BcFieldHtmlCustomEvent<HTMLBcFieldHtmlElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -2984,6 +4988,11 @@ declare global {
     };
     interface HTMLBcFieldImageElementEventMap {
         "lcFieldChange": FieldChangeEvent;
+        "lcFieldFocus": FieldFocusEvent;
+        "lcFieldBlur": FieldBlurEvent;
+        "lcFieldClear": FieldClearEvent;
+        "lcFieldInvalid": FieldValidationEvent;
+        "lcFieldValid": FieldValidEvent;
     }
     interface HTMLBcFieldImageElement extends Components.BcFieldImage, HTMLStencilElement {
         addEventListener<K extends keyof HTMLBcFieldImageElementEventMap>(type: K, listener: (this: HTMLBcFieldImageElement, ev: BcFieldImageCustomEvent<HTMLBcFieldImageElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -3001,6 +5010,11 @@ declare global {
     };
     interface HTMLBcFieldIntegerElementEventMap {
         "lcFieldChange": FieldChangeEvent;
+        "lcFieldFocus": FieldFocusEvent;
+        "lcFieldBlur": FieldBlurEvent;
+        "lcFieldClear": FieldClearEvent;
+        "lcFieldInvalid": FieldValidationEvent;
+        "lcFieldValid": FieldValidEvent;
     }
     interface HTMLBcFieldIntegerElement extends Components.BcFieldInteger, HTMLStencilElement {
         addEventListener<K extends keyof HTMLBcFieldIntegerElementEventMap>(type: K, listener: (this: HTMLBcFieldIntegerElement, ev: BcFieldIntegerCustomEvent<HTMLBcFieldIntegerElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -3018,6 +5032,11 @@ declare global {
     };
     interface HTMLBcFieldJsonElementEventMap {
         "lcFieldChange": FieldChangeEvent;
+        "lcFieldFocus": FieldFocusEvent;
+        "lcFieldBlur": FieldBlurEvent;
+        "lcFieldClear": FieldClearEvent;
+        "lcFieldInvalid": FieldValidationEvent;
+        "lcFieldValid": FieldValidEvent;
     }
     interface HTMLBcFieldJsonElement extends Components.BcFieldJson, HTMLStencilElement {
         addEventListener<K extends keyof HTMLBcFieldJsonElementEventMap>(type: K, listener: (this: HTMLBcFieldJsonElement, ev: BcFieldJsonCustomEvent<HTMLBcFieldJsonElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -3035,6 +5054,11 @@ declare global {
     };
     interface HTMLBcFieldLinkElementEventMap {
         "lcFieldChange": FieldChangeEvent;
+        "lcFieldFocus": FieldFocusEvent;
+        "lcFieldBlur": FieldBlurEvent;
+        "lcFieldClear": FieldClearEvent;
+        "lcFieldInvalid": FieldValidationEvent;
+        "lcFieldValid": FieldValidEvent;
     }
     interface HTMLBcFieldLinkElement extends Components.BcFieldLink, HTMLStencilElement {
         addEventListener<K extends keyof HTMLBcFieldLinkElementEventMap>(type: K, listener: (this: HTMLBcFieldLinkElement, ev: BcFieldLinkCustomEvent<HTMLBcFieldLinkElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -3052,6 +5076,11 @@ declare global {
     };
     interface HTMLBcFieldMarkdownElementEventMap {
         "lcFieldChange": FieldChangeEvent;
+        "lcFieldFocus": FieldFocusEvent;
+        "lcFieldBlur": FieldBlurEvent;
+        "lcFieldClear": FieldClearEvent;
+        "lcFieldInvalid": FieldValidationEvent;
+        "lcFieldValid": FieldValidEvent;
     }
     interface HTMLBcFieldMarkdownElement extends Components.BcFieldMarkdown, HTMLStencilElement {
         addEventListener<K extends keyof HTMLBcFieldMarkdownElementEventMap>(type: K, listener: (this: HTMLBcFieldMarkdownElement, ev: BcFieldMarkdownCustomEvent<HTMLBcFieldMarkdownElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -3069,6 +5098,11 @@ declare global {
     };
     interface HTMLBcFieldMulticheckElementEventMap {
         "lcFieldChange": FieldChangeEvent;
+        "lcFieldFocus": FieldFocusEvent;
+        "lcFieldBlur": FieldBlurEvent;
+        "lcFieldClear": FieldClearEvent;
+        "lcFieldInvalid": FieldValidationEvent;
+        "lcFieldValid": FieldValidEvent;
     }
     interface HTMLBcFieldMulticheckElement extends Components.BcFieldMulticheck, HTMLStencilElement {
         addEventListener<K extends keyof HTMLBcFieldMulticheckElementEventMap>(type: K, listener: (this: HTMLBcFieldMulticheckElement, ev: BcFieldMulticheckCustomEvent<HTMLBcFieldMulticheckElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -3086,6 +5120,11 @@ declare global {
     };
     interface HTMLBcFieldPasswordElementEventMap {
         "lcFieldChange": FieldChangeEvent;
+        "lcFieldFocus": FieldFocusEvent;
+        "lcFieldBlur": FieldBlurEvent;
+        "lcFieldClear": FieldClearEvent;
+        "lcFieldInvalid": FieldValidationEvent;
+        "lcFieldValid": FieldValidEvent;
     }
     interface HTMLBcFieldPasswordElement extends Components.BcFieldPassword, HTMLStencilElement {
         addEventListener<K extends keyof HTMLBcFieldPasswordElementEventMap>(type: K, listener: (this: HTMLBcFieldPasswordElement, ev: BcFieldPasswordCustomEvent<HTMLBcFieldPasswordElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -3103,6 +5142,11 @@ declare global {
     };
     interface HTMLBcFieldPercentElementEventMap {
         "lcFieldChange": FieldChangeEvent;
+        "lcFieldFocus": FieldFocusEvent;
+        "lcFieldBlur": FieldBlurEvent;
+        "lcFieldClear": FieldClearEvent;
+        "lcFieldInvalid": FieldValidationEvent;
+        "lcFieldValid": FieldValidEvent;
     }
     interface HTMLBcFieldPercentElement extends Components.BcFieldPercent, HTMLStencilElement {
         addEventListener<K extends keyof HTMLBcFieldPercentElementEventMap>(type: K, listener: (this: HTMLBcFieldPercentElement, ev: BcFieldPercentCustomEvent<HTMLBcFieldPercentElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -3120,6 +5164,11 @@ declare global {
     };
     interface HTMLBcFieldRadioElementEventMap {
         "lcFieldChange": FieldChangeEvent;
+        "lcFieldFocus": FieldFocusEvent;
+        "lcFieldBlur": FieldBlurEvent;
+        "lcFieldClear": FieldClearEvent;
+        "lcFieldInvalid": FieldValidationEvent;
+        "lcFieldValid": FieldValidEvent;
     }
     interface HTMLBcFieldRadioElement extends Components.BcFieldRadio, HTMLStencilElement {
         addEventListener<K extends keyof HTMLBcFieldRadioElementEventMap>(type: K, listener: (this: HTMLBcFieldRadioElement, ev: BcFieldRadioCustomEvent<HTMLBcFieldRadioElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -3137,6 +5186,11 @@ declare global {
     };
     interface HTMLBcFieldRatingElementEventMap {
         "lcFieldChange": FieldChangeEvent;
+        "lcFieldFocus": FieldFocusEvent;
+        "lcFieldBlur": FieldBlurEvent;
+        "lcFieldClear": FieldClearEvent;
+        "lcFieldInvalid": FieldValidationEvent;
+        "lcFieldValid": FieldValidEvent;
     }
     interface HTMLBcFieldRatingElement extends Components.BcFieldRating, HTMLStencilElement {
         addEventListener<K extends keyof HTMLBcFieldRatingElementEventMap>(type: K, listener: (this: HTMLBcFieldRatingElement, ev: BcFieldRatingCustomEvent<HTMLBcFieldRatingElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -3154,6 +5208,11 @@ declare global {
     };
     interface HTMLBcFieldRichtextElementEventMap {
         "lcFieldChange": FieldChangeEvent;
+        "lcFieldFocus": FieldFocusEvent;
+        "lcFieldBlur": FieldBlurEvent;
+        "lcFieldClear": FieldClearEvent;
+        "lcFieldInvalid": FieldValidationEvent;
+        "lcFieldValid": FieldValidEvent;
     }
     interface HTMLBcFieldRichtextElement extends Components.BcFieldRichtext, HTMLStencilElement {
         addEventListener<K extends keyof HTMLBcFieldRichtextElementEventMap>(type: K, listener: (this: HTMLBcFieldRichtextElement, ev: BcFieldRichtextCustomEvent<HTMLBcFieldRichtextElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -3171,6 +5230,16 @@ declare global {
     };
     interface HTMLBcFieldSelectElementEventMap {
         "lcFieldChange": FieldChangeEvent;
+        "lcFieldFocus": FieldFocusEvent;
+        "lcFieldBlur": FieldBlurEvent;
+        "lcFieldClear": FieldClearEvent;
+        "lcFieldInvalid": FieldValidationEvent;
+        "lcFieldValid": FieldValidEvent;
+        "lcOptionsLoad": OptionsLoadEvent;
+        "lcOptionsError": OptionsErrorEvent;
+        "lcOptionCreate": OptionCreateEvent;
+        "lcDropdownOpen": void;
+        "lcDropdownClose": void;
     }
     interface HTMLBcFieldSelectElement extends Components.BcFieldSelect, HTMLStencilElement {
         addEventListener<K extends keyof HTMLBcFieldSelectElementEventMap>(type: K, listener: (this: HTMLBcFieldSelectElement, ev: BcFieldSelectCustomEvent<HTMLBcFieldSelectElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -3188,6 +5257,11 @@ declare global {
     };
     interface HTMLBcFieldSignatureElementEventMap {
         "lcFieldChange": FieldChangeEvent;
+        "lcFieldFocus": FieldFocusEvent;
+        "lcFieldBlur": FieldBlurEvent;
+        "lcFieldClear": FieldClearEvent;
+        "lcFieldInvalid": FieldValidationEvent;
+        "lcFieldValid": FieldValidEvent;
     }
     interface HTMLBcFieldSignatureElement extends Components.BcFieldSignature, HTMLStencilElement {
         addEventListener<K extends keyof HTMLBcFieldSignatureElementEventMap>(type: K, listener: (this: HTMLBcFieldSignatureElement, ev: BcFieldSignatureCustomEvent<HTMLBcFieldSignatureElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -3205,6 +5279,11 @@ declare global {
     };
     interface HTMLBcFieldSmalltextElementEventMap {
         "lcFieldChange": FieldChangeEvent;
+        "lcFieldFocus": FieldFocusEvent;
+        "lcFieldBlur": FieldBlurEvent;
+        "lcFieldClear": FieldClearEvent;
+        "lcFieldInvalid": FieldValidationEvent;
+        "lcFieldValid": FieldValidEvent;
     }
     interface HTMLBcFieldSmalltextElement extends Components.BcFieldSmalltext, HTMLStencilElement {
         addEventListener<K extends keyof HTMLBcFieldSmalltextElementEventMap>(type: K, listener: (this: HTMLBcFieldSmalltextElement, ev: BcFieldSmalltextCustomEvent<HTMLBcFieldSmalltextElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -3244,6 +5323,11 @@ declare global {
     };
     interface HTMLBcFieldTableselectElementEventMap {
         "lcFieldChange": FieldChangeEvent;
+        "lcFieldFocus": FieldFocusEvent;
+        "lcFieldBlur": FieldBlurEvent;
+        "lcFieldClear": FieldClearEvent;
+        "lcFieldInvalid": FieldValidationEvent;
+        "lcFieldValid": FieldValidEvent;
     }
     interface HTMLBcFieldTableselectElement extends Components.BcFieldTableselect, HTMLStencilElement {
         addEventListener<K extends keyof HTMLBcFieldTableselectElementEventMap>(type: K, listener: (this: HTMLBcFieldTableselectElement, ev: BcFieldTableselectCustomEvent<HTMLBcFieldTableselectElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -3261,6 +5345,11 @@ declare global {
     };
     interface HTMLBcFieldTagsElementEventMap {
         "lcFieldChange": FieldChangeEvent;
+        "lcFieldFocus": FieldFocusEvent;
+        "lcFieldBlur": FieldBlurEvent;
+        "lcFieldClear": FieldClearEvent;
+        "lcFieldInvalid": FieldValidationEvent;
+        "lcFieldValid": FieldValidEvent;
     }
     interface HTMLBcFieldTagsElement extends Components.BcFieldTags, HTMLStencilElement {
         addEventListener<K extends keyof HTMLBcFieldTagsElementEventMap>(type: K, listener: (this: HTMLBcFieldTagsElement, ev: BcFieldTagsCustomEvent<HTMLBcFieldTagsElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -3278,6 +5367,11 @@ declare global {
     };
     interface HTMLBcFieldTextElementEventMap {
         "lcFieldChange": FieldChangeEvent;
+        "lcFieldFocus": FieldFocusEvent;
+        "lcFieldBlur": FieldBlurEvent;
+        "lcFieldClear": FieldClearEvent;
+        "lcFieldInvalid": FieldValidationEvent;
+        "lcFieldValid": FieldValidEvent;
     }
     interface HTMLBcFieldTextElement extends Components.BcFieldText, HTMLStencilElement {
         addEventListener<K extends keyof HTMLBcFieldTextElementEventMap>(type: K, listener: (this: HTMLBcFieldTextElement, ev: BcFieldTextCustomEvent<HTMLBcFieldTextElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -3295,6 +5389,11 @@ declare global {
     };
     interface HTMLBcFieldTimeElementEventMap {
         "lcFieldChange": FieldChangeEvent;
+        "lcFieldFocus": FieldFocusEvent;
+        "lcFieldBlur": FieldBlurEvent;
+        "lcFieldClear": FieldClearEvent;
+        "lcFieldInvalid": FieldValidationEvent;
+        "lcFieldValid": FieldValidEvent;
     }
     interface HTMLBcFieldTimeElement extends Components.BcFieldTime, HTMLStencilElement {
         addEventListener<K extends keyof HTMLBcFieldTimeElementEventMap>(type: K, listener: (this: HTMLBcFieldTimeElement, ev: BcFieldTimeCustomEvent<HTMLBcFieldTimeElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -3312,6 +5411,11 @@ declare global {
     };
     interface HTMLBcFieldToggleElementEventMap {
         "lcFieldChange": FieldChangeEvent;
+        "lcFieldFocus": FieldFocusEvent;
+        "lcFieldBlur": FieldBlurEvent;
+        "lcFieldClear": FieldClearEvent;
+        "lcFieldInvalid": FieldValidationEvent;
+        "lcFieldValid": FieldValidEvent;
     }
     interface HTMLBcFieldToggleElement extends Components.BcFieldToggle, HTMLStencilElement {
         addEventListener<K extends keyof HTMLBcFieldToggleElementEventMap>(type: K, listener: (this: HTMLBcFieldToggleElement, ev: BcFieldToggleCustomEvent<HTMLBcFieldToggleElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -4228,6 +6332,18 @@ declare namespace LocalJSX {
         /**
           * @default false
          */
+        "autofocus"?: boolean;
+        /**
+          * @default false
+         */
+        "clearable"?: boolean;
+        /**
+          * @default ''
+         */
+        "defaultValue"?: string;
+        /**
+          * @default false
+         */
         "disabled"?: boolean;
         /**
           * @default 'code128'
@@ -4236,12 +6352,57 @@ declare namespace LocalJSX {
         /**
           * @default ''
          */
+        "hint"?: string;
+        /**
+          * @default ''
+         */
         "label"?: string;
+        /**
+          * @default false
+         */
+        "loading"?: boolean;
         /**
           * @default ''
          */
         "name"?: string;
+        "onLcFieldBlur"?: (event: BcFieldBarcodeCustomEvent<FieldBlurEvent>) => void;
         "onLcFieldChange"?: (event: BcFieldBarcodeCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldClear"?: (event: BcFieldBarcodeCustomEvent<FieldClearEvent>) => void;
+        "onLcFieldFocus"?: (event: BcFieldBarcodeCustomEvent<FieldFocusEvent>) => void;
+        "onLcFieldInvalid"?: (event: BcFieldBarcodeCustomEvent<FieldValidationEvent>) => void;
+        "onLcFieldValid"?: (event: BcFieldBarcodeCustomEvent<FieldValidEvent>) => void;
+        /**
+          * @default ''
+         */
+        "placeholder"?: string;
+        /**
+          * @default false
+         */
+        "readonly"?: boolean;
+        /**
+          * @default false
+         */
+        "required"?: boolean;
+        /**
+          * @default 'md'
+         */
+        "size"?: 'sm' | 'md' | 'lg';
+        /**
+          * @default ''
+         */
+        "tooltip"?: string;
+        /**
+          * @default ''
+         */
+        "validateOn"?: ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage"?: string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus"?: 'none' | 'validating' | 'valid' | 'invalid';
         /**
           * @default ''
          */
@@ -4251,7 +6412,15 @@ declare namespace LocalJSX {
         /**
           * @default false
          */
+        "defaultValue"?: boolean;
+        /**
+          * @default false
+         */
         "disabled"?: boolean;
+        /**
+          * @default ''
+         */
+        "hint"?: string;
         /**
           * @default ''
          */
@@ -4260,7 +6429,40 @@ declare namespace LocalJSX {
           * @default ''
          */
         "name"?: string;
+        "onLcFieldBlur"?: (event: BcFieldCheckboxCustomEvent<FieldBlurEvent>) => void;
         "onLcFieldChange"?: (event: BcFieldCheckboxCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldClear"?: (event: BcFieldCheckboxCustomEvent<FieldClearEvent>) => void;
+        "onLcFieldFocus"?: (event: BcFieldCheckboxCustomEvent<FieldFocusEvent>) => void;
+        "onLcFieldInvalid"?: (event: BcFieldCheckboxCustomEvent<FieldValidationEvent>) => void;
+        "onLcFieldValid"?: (event: BcFieldCheckboxCustomEvent<FieldValidEvent>) => void;
+        /**
+          * @default false
+         */
+        "readonly"?: boolean;
+        /**
+          * @default false
+         */
+        "required"?: boolean;
+        /**
+          * @default 'md'
+         */
+        "size"?: 'sm' | 'md' | 'lg';
+        /**
+          * @default ''
+         */
+        "tooltip"?: string;
+        /**
+          * @default ''
+         */
+        "validateOn"?: ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage"?: string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus"?: 'none' | 'validating' | 'valid' | 'invalid';
         /**
           * @default false
          */
@@ -4270,7 +6472,19 @@ declare namespace LocalJSX {
         /**
           * @default false
          */
+        "clearable"?: boolean;
+        /**
+          * @default ''
+         */
+        "defaultValue"?: string;
+        /**
+          * @default false
+         */
         "disabled"?: boolean;
+        /**
+          * @default ''
+         */
+        "hint"?: string;
         /**
           * @default ''
          */
@@ -4280,10 +6494,27 @@ declare namespace LocalJSX {
          */
         "language"?: string;
         /**
+          * @default false
+         */
+        "loading"?: boolean;
+        /**
+          * @default 0
+         */
+        "maxLength"?: number;
+        /**
+          * @default 0
+         */
+        "minLength"?: number;
+        /**
           * @default ''
          */
         "name"?: string;
+        "onLcFieldBlur"?: (event: BcFieldCodeCustomEvent<FieldBlurEvent>) => void;
         "onLcFieldChange"?: (event: BcFieldCodeCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldClear"?: (event: BcFieldCodeCustomEvent<FieldClearEvent>) => void;
+        "onLcFieldFocus"?: (event: BcFieldCodeCustomEvent<FieldFocusEvent>) => void;
+        "onLcFieldInvalid"?: (event: BcFieldCodeCustomEvent<FieldValidationEvent>) => void;
+        "onLcFieldValid"?: (event: BcFieldCodeCustomEvent<FieldValidEvent>) => void;
         /**
           * @default ''
          */
@@ -4297,9 +6528,33 @@ declare namespace LocalJSX {
          */
         "required"?: boolean;
         /**
+          * @default false
+         */
+        "showCount"?: boolean;
+        /**
+          * @default 'md'
+         */
+        "size"?: 'sm' | 'md' | 'lg';
+        /**
           * @default 'full'
          */
         "toolbar"?: string;
+        /**
+          * @default ''
+         */
+        "tooltip"?: string;
+        /**
+          * @default ''
+         */
+        "validateOn"?: ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage"?: string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus"?: 'none' | 'validating' | 'valid' | 'invalid';
         /**
           * @default ''
          */
@@ -4309,26 +6564,11 @@ declare namespace LocalJSX {
         /**
           * @default false
          */
-        "disabled"?: boolean;
-        /**
-          * @default ''
-         */
-        "label"?: string;
-        /**
-          * @default ''
-         */
-        "name"?: string;
-        "onLcFieldChange"?: (event: BcFieldColorCustomEvent<FieldChangeEvent>) => void;
+        "clearable"?: boolean;
         /**
           * @default '#000000'
          */
-        "value"?: string;
-    }
-    interface BcFieldCurrency {
-        /**
-          * @default "USD"
-         */
-        "currency"?: string;
+        "defaultValue"?: string;
         /**
           * @default false
          */
@@ -4336,12 +6576,105 @@ declare namespace LocalJSX {
         /**
           * @default ''
          */
+        "hint"?: string;
+        /**
+          * @default ''
+         */
         "label"?: string;
         /**
           * @default ''
          */
         "name"?: string;
+        "onLcFieldBlur"?: (event: BcFieldColorCustomEvent<FieldBlurEvent>) => void;
+        "onLcFieldChange"?: (event: BcFieldColorCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldClear"?: (event: BcFieldColorCustomEvent<FieldClearEvent>) => void;
+        "onLcFieldFocus"?: (event: BcFieldColorCustomEvent<FieldFocusEvent>) => void;
+        "onLcFieldInvalid"?: (event: BcFieldColorCustomEvent<FieldValidationEvent>) => void;
+        "onLcFieldValid"?: (event: BcFieldColorCustomEvent<FieldValidEvent>) => void;
+        /**
+          * @default false
+         */
+        "readonly"?: boolean;
+        /**
+          * @default false
+         */
+        "required"?: boolean;
+        /**
+          * @default 'md'
+         */
+        "size"?: 'sm' | 'md' | 'lg';
+        /**
+          * @default ''
+         */
+        "tooltip"?: string;
+        /**
+          * @default ''
+         */
+        "validateOn"?: ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage"?: string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus"?: 'none' | 'validating' | 'valid' | 'invalid';
+        /**
+          * @default '#000000'
+         */
+        "value"?: string;
+    }
+    interface BcFieldCurrency {
+        /**
+          * @default false
+         */
+        "autofocus"?: boolean;
+        /**
+          * @default false
+         */
+        "clearable"?: boolean;
+        /**
+          * @default 'USD'
+         */
+        "currency"?: string;
+        /**
+          * @default 0
+         */
+        "defaultValue"?: number;
+        /**
+          * @default false
+         */
+        "disabled"?: boolean;
+        /**
+          * @default ''
+         */
+        "hint"?: string;
+        /**
+          * @default ''
+         */
+        "label"?: string;
+        /**
+          * @default false
+         */
+        "loading"?: boolean;
+        /**
+          * @default 0
+         */
+        "max"?: number;
+        /**
+          * @default 0
+         */
+        "min"?: number;
+        /**
+          * @default ''
+         */
+        "name"?: string;
+        "onLcFieldBlur"?: (event: BcFieldCurrencyCustomEvent<FieldBlurEvent>) => void;
         "onLcFieldChange"?: (event: BcFieldCurrencyCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldClear"?: (event: BcFieldCurrencyCustomEvent<FieldClearEvent>) => void;
+        "onLcFieldFocus"?: (event: BcFieldCurrencyCustomEvent<FieldFocusEvent>) => void;
+        "onLcFieldInvalid"?: (event: BcFieldCurrencyCustomEvent<FieldValidationEvent>) => void;
+        "onLcFieldValid"?: (event: BcFieldCurrencyCustomEvent<FieldValidEvent>) => void;
         /**
           * @default ''
          */
@@ -4351,6 +6684,10 @@ declare namespace LocalJSX {
          */
         "precision"?: number;
         /**
+          * @default ''
+         */
+        "prefixText"?: string;
+        /**
           * @default false
          */
         "readonly"?: boolean;
@@ -4358,6 +6695,34 @@ declare namespace LocalJSX {
           * @default false
          */
         "required"?: boolean;
+        /**
+          * @default 'md'
+         */
+        "size"?: 'sm' | 'md' | 'lg';
+        /**
+          * @default 0
+         */
+        "step"?: number;
+        /**
+          * @default ''
+         */
+        "suffixText"?: string;
+        /**
+          * @default ''
+         */
+        "tooltip"?: string;
+        /**
+          * @default ''
+         */
+        "validateOn"?: ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage"?: string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus"?: 'none' | 'validating' | 'valid' | 'invalid';
         /**
           * @default 0
          */
@@ -4367,16 +6732,53 @@ declare namespace LocalJSX {
         /**
           * @default false
          */
+        "autofocus"?: boolean;
+        /**
+          * @default false
+         */
+        "clearable"?: boolean;
+        /**
+          * @default ''
+         */
+        "defaultValue"?: string;
+        /**
+          * @default ''
+         */
+        "dependOn"?: string;
+        /**
+          * @default false
+         */
         "disabled"?: boolean;
+        /**
+          * @default ''
+         */
+        "hint"?: string;
         /**
           * @default ''
          */
         "label"?: string;
         /**
+          * @default false
+         */
+        "loading"?: boolean;
+        /**
+          * @default ''
+         */
+        "max"?: string;
+        /**
+          * @default ''
+         */
+        "min"?: string;
+        /**
           * @default ''
          */
         "name"?: string;
+        "onLcFieldBlur"?: (event: BcFieldDateCustomEvent<FieldBlurEvent>) => void;
         "onLcFieldChange"?: (event: BcFieldDateCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldClear"?: (event: BcFieldDateCustomEvent<FieldClearEvent>) => void;
+        "onLcFieldFocus"?: (event: BcFieldDateCustomEvent<FieldFocusEvent>) => void;
+        "onLcFieldInvalid"?: (event: BcFieldDateCustomEvent<FieldValidationEvent>) => void;
+        "onLcFieldValid"?: (event: BcFieldDateCustomEvent<FieldValidEvent>) => void;
         /**
           * @default ''
          */
@@ -4389,6 +6791,26 @@ declare namespace LocalJSX {
           * @default false
          */
         "required"?: boolean;
+        /**
+          * @default 'md'
+         */
+        "size"?: 'sm' | 'md' | 'lg';
+        /**
+          * @default ''
+         */
+        "tooltip"?: string;
+        /**
+          * @default ''
+         */
+        "validateOn"?: ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage"?: string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus"?: 'none' | 'validating' | 'valid' | 'invalid';
         /**
           * @default ''
          */
@@ -4398,16 +6820,49 @@ declare namespace LocalJSX {
         /**
           * @default false
          */
+        "autofocus"?: boolean;
+        /**
+          * @default false
+         */
+        "clearable"?: boolean;
+        /**
+          * @default ''
+         */
+        "defaultValue"?: string;
+        /**
+          * @default false
+         */
         "disabled"?: boolean;
+        /**
+          * @default ''
+         */
+        "hint"?: string;
         /**
           * @default ''
          */
         "label"?: string;
         /**
+          * @default false
+         */
+        "loading"?: boolean;
+        /**
+          * @default ''
+         */
+        "max"?: string;
+        /**
+          * @default ''
+         */
+        "min"?: string;
+        /**
           * @default ''
          */
         "name"?: string;
+        "onLcFieldBlur"?: (event: BcFieldDatetimeCustomEvent<FieldBlurEvent>) => void;
         "onLcFieldChange"?: (event: BcFieldDatetimeCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldClear"?: (event: BcFieldDatetimeCustomEvent<FieldClearEvent>) => void;
+        "onLcFieldFocus"?: (event: BcFieldDatetimeCustomEvent<FieldFocusEvent>) => void;
+        "onLcFieldInvalid"?: (event: BcFieldDatetimeCustomEvent<FieldValidationEvent>) => void;
+        "onLcFieldValid"?: (event: BcFieldDatetimeCustomEvent<FieldValidEvent>) => void;
         /**
           * @default ''
          */
@@ -4420,6 +6875,26 @@ declare namespace LocalJSX {
           * @default false
          */
         "required"?: boolean;
+        /**
+          * @default 'md'
+         */
+        "size"?: 'sm' | 'md' | 'lg';
+        /**
+          * @default ''
+         */
+        "tooltip"?: string;
+        /**
+          * @default ''
+         */
+        "validateOn"?: ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage"?: string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus"?: 'none' | 'validating' | 'valid' | 'invalid';
         /**
           * @default ''
          */
@@ -4429,16 +6904,49 @@ declare namespace LocalJSX {
         /**
           * @default false
          */
+        "autofocus"?: boolean;
+        /**
+          * @default false
+         */
+        "clearable"?: boolean;
+        /**
+          * @default 0
+         */
+        "defaultValue"?: number;
+        /**
+          * @default false
+         */
         "disabled"?: boolean;
+        /**
+          * @default ''
+         */
+        "hint"?: string;
         /**
           * @default ''
          */
         "label"?: string;
         /**
+          * @default false
+         */
+        "loading"?: boolean;
+        /**
+          * @default 0
+         */
+        "max"?: number;
+        /**
+          * @default 0
+         */
+        "min"?: number;
+        /**
           * @default ''
          */
         "name"?: string;
+        "onLcFieldBlur"?: (event: BcFieldDecimalCustomEvent<FieldBlurEvent>) => void;
         "onLcFieldChange"?: (event: BcFieldDecimalCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldClear"?: (event: BcFieldDecimalCustomEvent<FieldClearEvent>) => void;
+        "onLcFieldFocus"?: (event: BcFieldDecimalCustomEvent<FieldFocusEvent>) => void;
+        "onLcFieldInvalid"?: (event: BcFieldDecimalCustomEvent<FieldValidationEvent>) => void;
+        "onLcFieldValid"?: (event: BcFieldDecimalCustomEvent<FieldValidEvent>) => void;
         /**
           * @default ''
          */
@@ -4448,6 +6956,10 @@ declare namespace LocalJSX {
          */
         "precision"?: number;
         /**
+          * @default ''
+         */
+        "prefixText"?: string;
+        /**
           * @default false
          */
         "readonly"?: boolean;
@@ -4455,6 +6967,34 @@ declare namespace LocalJSX {
           * @default false
          */
         "required"?: boolean;
+        /**
+          * @default 'md'
+         */
+        "size"?: 'sm' | 'md' | 'lg';
+        /**
+          * @default 0
+         */
+        "step"?: number;
+        /**
+          * @default ''
+         */
+        "suffixText"?: string;
+        /**
+          * @default ''
+         */
+        "tooltip"?: string;
+        /**
+          * @default ''
+         */
+        "validateOn"?: ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage"?: string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus"?: 'none' | 'validating' | 'valid' | 'invalid';
         /**
           * @default 0
          */
@@ -4464,7 +7004,19 @@ declare namespace LocalJSX {
         /**
           * @default false
          */
+        "clearable"?: boolean;
+        /**
+          * @default 0
+         */
+        "defaultValue"?: number;
+        /**
+          * @default false
+         */
         "disabled"?: boolean;
+        /**
+          * @default ''
+         */
+        "hint"?: string;
         /**
           * @default ''
          */
@@ -4473,7 +7025,44 @@ declare namespace LocalJSX {
           * @default ''
          */
         "name"?: string;
+        "onLcFieldBlur"?: (event: BcFieldDurationCustomEvent<FieldBlurEvent>) => void;
         "onLcFieldChange"?: (event: BcFieldDurationCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldClear"?: (event: BcFieldDurationCustomEvent<FieldClearEvent>) => void;
+        "onLcFieldFocus"?: (event: BcFieldDurationCustomEvent<FieldFocusEvent>) => void;
+        "onLcFieldInvalid"?: (event: BcFieldDurationCustomEvent<FieldValidationEvent>) => void;
+        "onLcFieldValid"?: (event: BcFieldDurationCustomEvent<FieldValidEvent>) => void;
+        /**
+          * @default ''
+         */
+        "placeholder"?: string;
+        /**
+          * @default false
+         */
+        "readonly"?: boolean;
+        /**
+          * @default false
+         */
+        "required"?: boolean;
+        /**
+          * @default 'md'
+         */
+        "size"?: 'sm' | 'md' | 'lg';
+        /**
+          * @default ''
+         */
+        "tooltip"?: string;
+        /**
+          * @default ''
+         */
+        "validateOn"?: ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage"?: string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus"?: 'none' | 'validating' | 'valid' | 'invalid';
         /**
           * @default 0
          */
@@ -4483,11 +7072,27 @@ declare namespace LocalJSX {
         /**
           * @default false
          */
+        "clearable"?: boolean;
+        /**
+          * @default ''
+         */
+        "defaultValue"?: string;
+        /**
+          * @default false
+         */
         "disabled"?: boolean;
         /**
           * @default ''
          */
+        "hint"?: string;
+        /**
+          * @default ''
+         */
         "label"?: string;
+        /**
+          * @default false
+         */
+        "loading"?: boolean;
         /**
           * @default ''
          */
@@ -4500,7 +7105,12 @@ declare namespace LocalJSX {
           * @default ''
          */
         "name"?: string;
+        "onLcFieldBlur"?: (event: BcFieldDynlinkCustomEvent<FieldBlurEvent>) => void;
         "onLcFieldChange"?: (event: BcFieldDynlinkCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldClear"?: (event: BcFieldDynlinkCustomEvent<FieldClearEvent>) => void;
+        "onLcFieldFocus"?: (event: BcFieldDynlinkCustomEvent<FieldFocusEvent>) => void;
+        "onLcFieldInvalid"?: (event: BcFieldDynlinkCustomEvent<FieldValidationEvent>) => void;
+        "onLcFieldValid"?: (event: BcFieldDynlinkCustomEvent<FieldValidEvent>) => void;
         /**
           * @default '[]'
          */
@@ -4518,6 +7128,26 @@ declare namespace LocalJSX {
          */
         "required"?: boolean;
         /**
+          * @default 'md'
+         */
+        "size"?: 'sm' | 'md' | 'lg';
+        /**
+          * @default ''
+         */
+        "tooltip"?: string;
+        /**
+          * @default ''
+         */
+        "validateOn"?: ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage"?: string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus"?: 'none' | 'validating' | 'valid' | 'invalid';
+        /**
           * @default ''
          */
         "value"?: string;
@@ -4532,6 +7162,10 @@ declare namespace LocalJSX {
          */
         "apiBase"?: string;
         /**
+          * @default ''
+         */
+        "defaultValue"?: string;
+        /**
           * @default false
          */
         "disabled"?: boolean;
@@ -4542,7 +7176,15 @@ declare namespace LocalJSX {
         /**
           * @default ''
          */
+        "hint"?: string;
+        /**
+          * @default ''
+         */
         "label"?: string;
+        /**
+          * @default false
+         */
+        "loading"?: boolean;
         /**
           * @default '10MB'
          */
@@ -4563,7 +7205,12 @@ declare namespace LocalJSX {
           * @default ''
          */
         "nameFormat"?: string;
+        "onLcFieldBlur"?: (event: BcFieldFileCustomEvent<FieldBlurEvent>) => void;
         "onLcFieldChange"?: (event: BcFieldFileCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldClear"?: (event: BcFieldFileCustomEvent<FieldClearEvent>) => void;
+        "onLcFieldFocus"?: (event: BcFieldFileCustomEvent<FieldFocusEvent>) => void;
+        "onLcFieldInvalid"?: (event: BcFieldFileCustomEvent<FieldValidationEvent>) => void;
+        "onLcFieldValid"?: (event: BcFieldFileCustomEvent<FieldValidEvent>) => void;
         /**
           * @default ''
          */
@@ -4585,6 +7232,26 @@ declare namespace LocalJSX {
          */
         "showDownload"?: boolean;
         /**
+          * @default 'md'
+         */
+        "size"?: 'sm' | 'md' | 'lg';
+        /**
+          * @default ''
+         */
+        "tooltip"?: string;
+        /**
+          * @default ''
+         */
+        "validateOn"?: ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage"?: string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus"?: 'none' | 'validating' | 'valid' | 'invalid';
+        /**
           * @default ''
          */
         "value"?: string;
@@ -4593,16 +7260,49 @@ declare namespace LocalJSX {
         /**
           * @default false
          */
+        "autofocus"?: boolean;
+        /**
+          * @default false
+         */
+        "clearable"?: boolean;
+        /**
+          * @default 0
+         */
+        "defaultValue"?: number;
+        /**
+          * @default false
+         */
         "disabled"?: boolean;
+        /**
+          * @default ''
+         */
+        "hint"?: string;
         /**
           * @default ''
          */
         "label"?: string;
         /**
+          * @default false
+         */
+        "loading"?: boolean;
+        /**
+          * @default 0
+         */
+        "max"?: number;
+        /**
+          * @default 0
+         */
+        "min"?: number;
+        /**
           * @default ''
          */
         "name"?: string;
+        "onLcFieldBlur"?: (event: BcFieldFloatCustomEvent<FieldBlurEvent>) => void;
         "onLcFieldChange"?: (event: BcFieldFloatCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldClear"?: (event: BcFieldFloatCustomEvent<FieldClearEvent>) => void;
+        "onLcFieldFocus"?: (event: BcFieldFloatCustomEvent<FieldFocusEvent>) => void;
+        "onLcFieldInvalid"?: (event: BcFieldFloatCustomEvent<FieldValidationEvent>) => void;
+        "onLcFieldValid"?: (event: BcFieldFloatCustomEvent<FieldValidEvent>) => void;
         /**
           * @default ''
          */
@@ -4612,6 +7312,10 @@ declare namespace LocalJSX {
          */
         "precision"?: number;
         /**
+          * @default ''
+         */
+        "prefixText"?: string;
+        /**
           * @default false
          */
         "readonly"?: boolean;
@@ -4620,11 +7324,47 @@ declare namespace LocalJSX {
          */
         "required"?: boolean;
         /**
+          * @default 'md'
+         */
+        "size"?: 'sm' | 'md' | 'lg';
+        /**
+          * @default 0
+         */
+        "step"?: number;
+        /**
+          * @default ''
+         */
+        "suffixText"?: string;
+        /**
+          * @default ''
+         */
+        "tooltip"?: string;
+        /**
+          * @default ''
+         */
+        "validateOn"?: ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage"?: string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus"?: 'none' | 'validating' | 'valid' | 'invalid';
+        /**
           * @default 0
          */
         "value"?: number;
     }
     interface BcFieldGeo {
+        /**
+          * @default false
+         */
+        "clearable"?: boolean;
+        /**
+          * @default ''
+         */
+        "defaultValue"?: string;
         /**
           * @default false
          */
@@ -4636,12 +7376,53 @@ declare namespace LocalJSX {
         /**
           * @default ''
          */
+        "hint"?: string;
+        /**
+          * @default ''
+         */
         "label"?: string;
         /**
           * @default ''
          */
         "name"?: string;
+        "onLcFieldBlur"?: (event: BcFieldGeoCustomEvent<FieldBlurEvent>) => void;
         "onLcFieldChange"?: (event: BcFieldGeoCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldClear"?: (event: BcFieldGeoCustomEvent<FieldClearEvent>) => void;
+        "onLcFieldFocus"?: (event: BcFieldGeoCustomEvent<FieldFocusEvent>) => void;
+        "onLcFieldInvalid"?: (event: BcFieldGeoCustomEvent<FieldValidationEvent>) => void;
+        "onLcFieldValid"?: (event: BcFieldGeoCustomEvent<FieldValidEvent>) => void;
+        /**
+          * @default ''
+         */
+        "placeholder"?: string;
+        /**
+          * @default false
+         */
+        "readonly"?: boolean;
+        /**
+          * @default false
+         */
+        "required"?: boolean;
+        /**
+          * @default 'md'
+         */
+        "size"?: 'sm' | 'md' | 'lg';
+        /**
+          * @default ''
+         */
+        "tooltip"?: string;
+        /**
+          * @default ''
+         */
+        "validateOn"?: ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage"?: string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus"?: 'none' | 'validating' | 'valid' | 'invalid';
         /**
           * @default ''
          */
@@ -4655,7 +7436,19 @@ declare namespace LocalJSX {
         /**
           * @default false
          */
+        "clearable"?: boolean;
+        /**
+          * @default ''
+         */
+        "defaultValue"?: string;
+        /**
+          * @default false
+         */
         "disabled"?: boolean;
+        /**
+          * @default ''
+         */
+        "hint"?: string;
         /**
           * @default ''
          */
@@ -4665,10 +7458,27 @@ declare namespace LocalJSX {
          */
         "language"?: string;
         /**
+          * @default false
+         */
+        "loading"?: boolean;
+        /**
+          * @default 0
+         */
+        "maxLength"?: number;
+        /**
+          * @default 0
+         */
+        "minLength"?: number;
+        /**
           * @default ''
          */
         "name"?: string;
+        "onLcFieldBlur"?: (event: BcFieldHtmlCustomEvent<FieldBlurEvent>) => void;
         "onLcFieldChange"?: (event: BcFieldHtmlCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldClear"?: (event: BcFieldHtmlCustomEvent<FieldClearEvent>) => void;
+        "onLcFieldFocus"?: (event: BcFieldHtmlCustomEvent<FieldFocusEvent>) => void;
+        "onLcFieldInvalid"?: (event: BcFieldHtmlCustomEvent<FieldValidationEvent>) => void;
+        "onLcFieldValid"?: (event: BcFieldHtmlCustomEvent<FieldValidEvent>) => void;
         /**
           * @default ''
          */
@@ -4682,9 +7492,33 @@ declare namespace LocalJSX {
          */
         "required"?: boolean;
         /**
+          * @default false
+         */
+        "showCount"?: boolean;
+        /**
+          * @default 'md'
+         */
+        "size"?: 'sm' | 'md' | 'lg';
+        /**
           * @default 'full'
          */
         "toolbar"?: string;
+        /**
+          * @default ''
+         */
+        "tooltip"?: string;
+        /**
+          * @default ''
+         */
+        "validateOn"?: ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage"?: string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus"?: 'none' | 'validating' | 'valid' | 'invalid';
         /**
           * @default ''
          */
@@ -4696,6 +7530,10 @@ declare namespace LocalJSX {
          */
         "accept"?: string;
         /**
+          * @default ''
+         */
+        "defaultValue"?: string;
+        /**
           * @default false
          */
         "disabled"?: boolean;
@@ -4706,7 +7544,15 @@ declare namespace LocalJSX {
         /**
           * @default ''
          */
+        "hint"?: string;
+        /**
+          * @default ''
+         */
         "label"?: string;
+        /**
+          * @default false
+         */
+        "loading"?: boolean;
         /**
           * @default '10MB'
          */
@@ -4719,11 +7565,20 @@ declare namespace LocalJSX {
           * @default ''
          */
         "name"?: string;
+        "onLcFieldBlur"?: (event: BcFieldImageCustomEvent<FieldBlurEvent>) => void;
         "onLcFieldChange"?: (event: BcFieldImageCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldClear"?: (event: BcFieldImageCustomEvent<FieldClearEvent>) => void;
+        "onLcFieldFocus"?: (event: BcFieldImageCustomEvent<FieldFocusEvent>) => void;
+        "onLcFieldInvalid"?: (event: BcFieldImageCustomEvent<FieldValidationEvent>) => void;
+        "onLcFieldValid"?: (event: BcFieldImageCustomEvent<FieldValidEvent>) => void;
         /**
           * @default true
          */
         "preview"?: boolean;
+        /**
+          * @default false
+         */
+        "readonly"?: boolean;
         /**
           * @default ''
          */
@@ -4737,6 +7592,26 @@ declare namespace LocalJSX {
          */
         "showDownload"?: boolean;
         /**
+          * @default 'md'
+         */
+        "size"?: 'sm' | 'md' | 'lg';
+        /**
+          * @default ''
+         */
+        "tooltip"?: string;
+        /**
+          * @default ''
+         */
+        "validateOn"?: ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage"?: string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus"?: 'none' | 'validating' | 'valid' | 'invalid';
+        /**
           * @default ''
          */
         "value"?: string;
@@ -4745,11 +7620,31 @@ declare namespace LocalJSX {
         /**
           * @default false
          */
+        "autofocus"?: boolean;
+        /**
+          * @default false
+         */
+        "clearable"?: boolean;
+        /**
+          * @default 0
+         */
+        "defaultValue"?: number;
+        /**
+          * @default false
+         */
         "disabled"?: boolean;
         /**
           * @default ''
          */
+        "hint"?: string;
+        /**
+          * @default ''
+         */
         "label"?: string;
+        /**
+          * @default false
+         */
+        "loading"?: boolean;
         /**
           * @default 0
          */
@@ -4762,11 +7657,20 @@ declare namespace LocalJSX {
           * @default ''
          */
         "name"?: string;
+        "onLcFieldBlur"?: (event: BcFieldIntegerCustomEvent<FieldBlurEvent>) => void;
         "onLcFieldChange"?: (event: BcFieldIntegerCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldClear"?: (event: BcFieldIntegerCustomEvent<FieldClearEvent>) => void;
+        "onLcFieldFocus"?: (event: BcFieldIntegerCustomEvent<FieldFocusEvent>) => void;
+        "onLcFieldInvalid"?: (event: BcFieldIntegerCustomEvent<FieldValidationEvent>) => void;
+        "onLcFieldValid"?: (event: BcFieldIntegerCustomEvent<FieldValidEvent>) => void;
         /**
           * @default ''
          */
         "placeholder"?: string;
+        /**
+          * @default ''
+         */
+        "prefixText"?: string;
         /**
           * @default false
          */
@@ -4776,9 +7680,33 @@ declare namespace LocalJSX {
          */
         "required"?: boolean;
         /**
+          * @default 'md'
+         */
+        "size"?: 'sm' | 'md' | 'lg';
+        /**
           * @default 1
          */
         "step"?: number;
+        /**
+          * @default ''
+         */
+        "suffixText"?: string;
+        /**
+          * @default ''
+         */
+        "tooltip"?: string;
+        /**
+          * @default ''
+         */
+        "validateOn"?: ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage"?: string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus"?: 'none' | 'validating' | 'valid' | 'invalid';
         /**
           * @default 0
          */
@@ -4788,7 +7716,19 @@ declare namespace LocalJSX {
         /**
           * @default false
          */
+        "clearable"?: boolean;
+        /**
+          * @default ''
+         */
+        "defaultValue"?: string;
+        /**
+          * @default false
+         */
         "disabled"?: boolean;
+        /**
+          * @default ''
+         */
+        "hint"?: string;
         /**
           * @default ''
          */
@@ -4798,10 +7738,19 @@ declare namespace LocalJSX {
          */
         "language"?: string;
         /**
+          * @default false
+         */
+        "loading"?: boolean;
+        /**
           * @default ''
          */
         "name"?: string;
+        "onLcFieldBlur"?: (event: BcFieldJsonCustomEvent<FieldBlurEvent>) => void;
         "onLcFieldChange"?: (event: BcFieldJsonCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldClear"?: (event: BcFieldJsonCustomEvent<FieldClearEvent>) => void;
+        "onLcFieldFocus"?: (event: BcFieldJsonCustomEvent<FieldFocusEvent>) => void;
+        "onLcFieldInvalid"?: (event: BcFieldJsonCustomEvent<FieldValidationEvent>) => void;
+        "onLcFieldValid"?: (event: BcFieldJsonCustomEvent<FieldValidEvent>) => void;
         /**
           * @default ''
          */
@@ -4815,15 +7764,47 @@ declare namespace LocalJSX {
          */
         "required"?: boolean;
         /**
+          * @default 'md'
+         */
+        "size"?: 'sm' | 'md' | 'lg';
+        /**
           * @default 'full'
          */
         "toolbar"?: string;
         /**
           * @default ''
          */
+        "tooltip"?: string;
+        /**
+          * @default ''
+         */
+        "validateOn"?: ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage"?: string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus"?: 'none' | 'validating' | 'valid' | 'invalid';
+        /**
+          * @default ''
+         */
         "value"?: string;
     }
     interface BcFieldLink {
+        /**
+          * @default ''
+         */
+        "dataSource"?: string;
+        /**
+          * @default ''
+         */
+        "defaultValue"?: string;
+        /**
+          * @default ''
+         */
+        "dependOn"?: string;
         /**
           * @default false
          */
@@ -4835,7 +7816,19 @@ declare namespace LocalJSX {
         /**
           * @default ''
          */
+        "fetchHeaders"?: string;
+        /**
+          * @default ''
+         */
+        "hint"?: string;
+        /**
+          * @default ''
+         */
         "label"?: string;
+        /**
+          * @default false
+         */
+        "loading"?: boolean;
         /**
           * @default '[]'
          */
@@ -4848,7 +7841,12 @@ declare namespace LocalJSX {
           * @default ''
          */
         "name"?: string;
+        "onLcFieldBlur"?: (event: BcFieldLinkCustomEvent<FieldBlurEvent>) => void;
         "onLcFieldChange"?: (event: BcFieldLinkCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldClear"?: (event: BcFieldLinkCustomEvent<FieldClearEvent>) => void;
+        "onLcFieldFocus"?: (event: BcFieldLinkCustomEvent<FieldFocusEvent>) => void;
+        "onLcFieldInvalid"?: (event: BcFieldLinkCustomEvent<FieldValidationEvent>) => void;
+        "onLcFieldValid"?: (event: BcFieldLinkCustomEvent<FieldValidEvent>) => void;
         /**
           * @default '[]'
          */
@@ -4866,6 +7864,26 @@ declare namespace LocalJSX {
          */
         "required"?: boolean;
         /**
+          * @default 'md'
+         */
+        "size"?: 'sm' | 'md' | 'lg';
+        /**
+          * @default ''
+         */
+        "tooltip"?: string;
+        /**
+          * @default ''
+         */
+        "validateOn"?: ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage"?: string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus"?: 'none' | 'validating' | 'valid' | 'invalid';
+        /**
           * @default ''
          */
         "value"?: string;
@@ -4874,7 +7892,19 @@ declare namespace LocalJSX {
         /**
           * @default false
          */
+        "clearable"?: boolean;
+        /**
+          * @default ''
+         */
+        "defaultValue"?: string;
+        /**
+          * @default false
+         */
         "disabled"?: boolean;
+        /**
+          * @default ''
+         */
+        "hint"?: string;
         /**
           * @default ''
          */
@@ -4884,10 +7914,27 @@ declare namespace LocalJSX {
          */
         "language"?: string;
         /**
+          * @default false
+         */
+        "loading"?: boolean;
+        /**
+          * @default 0
+         */
+        "maxLength"?: number;
+        /**
+          * @default 0
+         */
+        "minLength"?: number;
+        /**
           * @default ''
          */
         "name"?: string;
+        "onLcFieldBlur"?: (event: BcFieldMarkdownCustomEvent<FieldBlurEvent>) => void;
         "onLcFieldChange"?: (event: BcFieldMarkdownCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldClear"?: (event: BcFieldMarkdownCustomEvent<FieldClearEvent>) => void;
+        "onLcFieldFocus"?: (event: BcFieldMarkdownCustomEvent<FieldFocusEvent>) => void;
+        "onLcFieldInvalid"?: (event: BcFieldMarkdownCustomEvent<FieldValidationEvent>) => void;
+        "onLcFieldValid"?: (event: BcFieldMarkdownCustomEvent<FieldValidEvent>) => void;
         /**
           * @default 'Write markdown...'
          */
@@ -4901,9 +7948,33 @@ declare namespace LocalJSX {
          */
         "required"?: boolean;
         /**
+          * @default false
+         */
+        "showCount"?: boolean;
+        /**
+          * @default 'md'
+         */
+        "size"?: 'sm' | 'md' | 'lg';
+        /**
           * @default 'full'
          */
         "toolbar"?: string;
+        /**
+          * @default ''
+         */
+        "tooltip"?: string;
+        /**
+          * @default ''
+         */
+        "validateOn"?: ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage"?: string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus"?: 'none' | 'validating' | 'valid' | 'invalid';
         /**
           * @default ''
          */
@@ -4913,7 +7984,19 @@ declare namespace LocalJSX {
         /**
           * @default false
          */
+        "clearable"?: boolean;
+        /**
+          * @default '[]'
+         */
+        "defaultValue"?: string;
+        /**
+          * @default false
+         */
         "disabled"?: boolean;
+        /**
+          * @default ''
+         */
+        "hint"?: string;
         /**
           * @default ''
          */
@@ -4922,7 +8005,12 @@ declare namespace LocalJSX {
           * @default ''
          */
         "name"?: string;
+        "onLcFieldBlur"?: (event: BcFieldMulticheckCustomEvent<FieldBlurEvent>) => void;
         "onLcFieldChange"?: (event: BcFieldMulticheckCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldClear"?: (event: BcFieldMulticheckCustomEvent<FieldClearEvent>) => void;
+        "onLcFieldFocus"?: (event: BcFieldMulticheckCustomEvent<FieldFocusEvent>) => void;
+        "onLcFieldInvalid"?: (event: BcFieldMulticheckCustomEvent<FieldValidationEvent>) => void;
+        "onLcFieldValid"?: (event: BcFieldMulticheckCustomEvent<FieldValidEvent>) => void;
         /**
           * @default '[]'
          */
@@ -4936,6 +8024,26 @@ declare namespace LocalJSX {
          */
         "required"?: boolean;
         /**
+          * @default 'md'
+         */
+        "size"?: 'sm' | 'md' | 'lg';
+        /**
+          * @default ''
+         */
+        "tooltip"?: string;
+        /**
+          * @default ''
+         */
+        "validateOn"?: ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage"?: string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus"?: 'none' | 'validating' | 'valid' | 'invalid';
+        /**
           * @default '[]'
          */
         "value"?: string;
@@ -4944,20 +8052,65 @@ declare namespace LocalJSX {
         /**
           * @default false
          */
+        "autofocus"?: boolean;
+        /**
+          * @default false
+         */
+        "clearable"?: boolean;
+        /**
+          * @default ''
+         */
+        "defaultValue"?: string;
+        /**
+          * @default false
+         */
         "disabled"?: boolean;
+        /**
+          * @default ''
+         */
+        "hint"?: string;
         /**
           * @default ''
          */
         "label"?: string;
         /**
+          * @default false
+         */
+        "loading"?: boolean;
+        /**
+          * @default 0
+         */
+        "maxLength"?: number;
+        /**
+          * @default 0
+         */
+        "minLength"?: number;
+        /**
           * @default ''
          */
         "name"?: string;
+        "onLcFieldBlur"?: (event: BcFieldPasswordCustomEvent<FieldBlurEvent>) => void;
         "onLcFieldChange"?: (event: BcFieldPasswordCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldClear"?: (event: BcFieldPasswordCustomEvent<FieldClearEvent>) => void;
+        "onLcFieldFocus"?: (event: BcFieldPasswordCustomEvent<FieldFocusEvent>) => void;
+        "onLcFieldInvalid"?: (event: BcFieldPasswordCustomEvent<FieldValidationEvent>) => void;
+        "onLcFieldValid"?: (event: BcFieldPasswordCustomEvent<FieldValidEvent>) => void;
+        /**
+          * @default ''
+         */
+        "pattern"?: string;
+        /**
+          * @default ''
+         */
+        "patternMessage"?: string;
         /**
           * @default ''
          */
         "placeholder"?: string;
+        /**
+          * @default ''
+         */
+        "prefixText"?: string;
         /**
           * @default false
          */
@@ -4967,6 +8120,38 @@ declare namespace LocalJSX {
          */
         "required"?: boolean;
         /**
+          * @default false
+         */
+        "showCount"?: boolean;
+        /**
+          * @default false
+         */
+        "showReveal"?: boolean;
+        /**
+          * @default 'md'
+         */
+        "size"?: 'sm' | 'md' | 'lg';
+        /**
+          * @default ''
+         */
+        "suffixText"?: string;
+        /**
+          * @default ''
+         */
+        "tooltip"?: string;
+        /**
+          * @default ''
+         */
+        "validateOn"?: ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage"?: string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus"?: 'none' | 'validating' | 'valid' | 'invalid';
+        /**
           * @default ''
          */
         "value"?: string;
@@ -4975,11 +8160,31 @@ declare namespace LocalJSX {
         /**
           * @default false
          */
+        "autofocus"?: boolean;
+        /**
+          * @default false
+         */
+        "clearable"?: boolean;
+        /**
+          * @default 0
+         */
+        "defaultValue"?: number;
+        /**
+          * @default false
+         */
         "disabled"?: boolean;
         /**
           * @default ''
          */
+        "hint"?: string;
+        /**
+          * @default ''
+         */
         "label"?: string;
+        /**
+          * @default false
+         */
+        "loading"?: boolean;
         /**
           * @default 100
          */
@@ -4992,11 +8197,20 @@ declare namespace LocalJSX {
           * @default ''
          */
         "name"?: string;
+        "onLcFieldBlur"?: (event: BcFieldPercentCustomEvent<FieldBlurEvent>) => void;
         "onLcFieldChange"?: (event: BcFieldPercentCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldClear"?: (event: BcFieldPercentCustomEvent<FieldClearEvent>) => void;
+        "onLcFieldFocus"?: (event: BcFieldPercentCustomEvent<FieldFocusEvent>) => void;
+        "onLcFieldInvalid"?: (event: BcFieldPercentCustomEvent<FieldValidationEvent>) => void;
+        "onLcFieldValid"?: (event: BcFieldPercentCustomEvent<FieldValidEvent>) => void;
         /**
           * @default ''
          */
         "placeholder"?: string;
+        /**
+          * @default ''
+         */
+        "prefixText"?: string;
         /**
           * @default false
          */
@@ -5006,11 +8220,43 @@ declare namespace LocalJSX {
          */
         "required"?: boolean;
         /**
+          * @default 'md'
+         */
+        "size"?: 'sm' | 'md' | 'lg';
+        /**
+          * @default 1
+         */
+        "step"?: number;
+        /**
+          * @default ''
+         */
+        "suffixText"?: string;
+        /**
+          * @default ''
+         */
+        "tooltip"?: string;
+        /**
+          * @default ''
+         */
+        "validateOn"?: ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage"?: string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus"?: 'none' | 'validating' | 'valid' | 'invalid';
+        /**
           * @default 0
          */
         "value"?: number;
     }
     interface BcFieldRadio {
+        /**
+          * @default ''
+         */
+        "defaultValue"?: string;
         /**
           * @default 'vertical'
          */
@@ -5022,16 +8268,53 @@ declare namespace LocalJSX {
         /**
           * @default ''
          */
+        "hint"?: string;
+        /**
+          * @default ''
+         */
         "label"?: string;
         /**
           * @default ''
          */
         "name"?: string;
+        "onLcFieldBlur"?: (event: BcFieldRadioCustomEvent<FieldBlurEvent>) => void;
         "onLcFieldChange"?: (event: BcFieldRadioCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldClear"?: (event: BcFieldRadioCustomEvent<FieldClearEvent>) => void;
+        "onLcFieldFocus"?: (event: BcFieldRadioCustomEvent<FieldFocusEvent>) => void;
+        "onLcFieldInvalid"?: (event: BcFieldRadioCustomEvent<FieldValidationEvent>) => void;
+        "onLcFieldValid"?: (event: BcFieldRadioCustomEvent<FieldValidEvent>) => void;
         /**
           * @default '[]'
          */
         "options"?: string;
+        /**
+          * @default false
+         */
+        "readonly"?: boolean;
+        /**
+          * @default false
+         */
+        "required"?: boolean;
+        /**
+          * @default 'md'
+         */
+        "size"?: 'sm' | 'md' | 'lg';
+        /**
+          * @default ''
+         */
+        "tooltip"?: string;
+        /**
+          * @default ''
+         */
+        "validateOn"?: ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage"?: string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus"?: 'none' | 'validating' | 'valid' | 'invalid';
         /**
           * @default ''
          */
@@ -5041,7 +8324,19 @@ declare namespace LocalJSX {
         /**
           * @default false
          */
+        "clearable"?: boolean;
+        /**
+          * @default 0
+         */
+        "defaultValue"?: number;
+        /**
+          * @default false
+         */
         "disabled"?: boolean;
+        /**
+          * @default ''
+         */
+        "hint"?: string;
         /**
           * @default ''
          */
@@ -5054,7 +8349,40 @@ declare namespace LocalJSX {
           * @default ''
          */
         "name"?: string;
+        "onLcFieldBlur"?: (event: BcFieldRatingCustomEvent<FieldBlurEvent>) => void;
         "onLcFieldChange"?: (event: BcFieldRatingCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldClear"?: (event: BcFieldRatingCustomEvent<FieldClearEvent>) => void;
+        "onLcFieldFocus"?: (event: BcFieldRatingCustomEvent<FieldFocusEvent>) => void;
+        "onLcFieldInvalid"?: (event: BcFieldRatingCustomEvent<FieldValidationEvent>) => void;
+        "onLcFieldValid"?: (event: BcFieldRatingCustomEvent<FieldValidEvent>) => void;
+        /**
+          * @default false
+         */
+        "readonly"?: boolean;
+        /**
+          * @default false
+         */
+        "required"?: boolean;
+        /**
+          * @default 'md'
+         */
+        "size"?: 'sm' | 'md' | 'lg';
+        /**
+          * @default ''
+         */
+        "tooltip"?: string;
+        /**
+          * @default ''
+         */
+        "validateOn"?: ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage"?: string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus"?: 'none' | 'validating' | 'valid' | 'invalid';
         /**
           * @default 0
          */
@@ -5064,16 +8392,45 @@ declare namespace LocalJSX {
         /**
           * @default false
          */
+        "clearable"?: boolean;
+        /**
+          * @default ''
+         */
+        "defaultValue"?: string;
+        /**
+          * @default false
+         */
         "disabled"?: boolean;
+        /**
+          * @default ''
+         */
+        "hint"?: string;
         /**
           * @default ''
          */
         "label"?: string;
         /**
+          * @default false
+         */
+        "loading"?: boolean;
+        /**
+          * @default 0
+         */
+        "maxLength"?: number;
+        /**
+          * @default 0
+         */
+        "minLength"?: number;
+        /**
           * @default ''
          */
         "name"?: string;
+        "onLcFieldBlur"?: (event: BcFieldRichtextCustomEvent<FieldBlurEvent>) => void;
         "onLcFieldChange"?: (event: BcFieldRichtextCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldClear"?: (event: BcFieldRichtextCustomEvent<FieldClearEvent>) => void;
+        "onLcFieldFocus"?: (event: BcFieldRichtextCustomEvent<FieldFocusEvent>) => void;
+        "onLcFieldInvalid"?: (event: BcFieldRichtextCustomEvent<FieldValidationEvent>) => void;
+        "onLcFieldValid"?: (event: BcFieldRichtextCustomEvent<FieldValidEvent>) => void;
         /**
           * @default 'Start typing...'
          */
@@ -5087,9 +8444,33 @@ declare namespace LocalJSX {
          */
         "required"?: boolean;
         /**
+          * @default false
+         */
+        "showCount"?: boolean;
+        /**
+          * @default 'md'
+         */
+        "size"?: 'sm' | 'md' | 'lg';
+        /**
           * @default 'full'
          */
         "toolbar"?: string;
+        /**
+          * @default ''
+         */
+        "tooltip"?: string;
+        /**
+          * @default ''
+         */
+        "validateOn"?: ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage"?: string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus"?: 'none' | 'validating' | 'valid' | 'invalid';
         /**
           * @default ''
          */
@@ -5099,20 +8480,98 @@ declare namespace LocalJSX {
         /**
           * @default false
          */
+        "clearable"?: boolean;
+        /**
+          * @default false
+         */
+        "creatable"?: boolean;
+        /**
+          * @default ''
+         */
+        "dataSource"?: string;
+        /**
+          * @default 300
+         */
+        "debounceMs"?: number;
+        /**
+          * @default ''
+         */
+        "defaultValue"?: string;
+        /**
+          * @default ''
+         */
+        "dependOn"?: string;
+        /**
+          * @default false
+         */
         "disabled"?: boolean;
+        /**
+          * @default 'label'
+         */
+        "displayField"?: string;
+        /**
+          * @default ''
+         */
+        "fetchHeaders"?: string;
+        /**
+          * @default ''
+         */
+        "groupBy"?: string;
+        /**
+          * @default ''
+         */
+        "hint"?: string;
         /**
           * @default ''
          */
         "label"?: string;
         /**
+          * @default false
+         */
+        "loading"?: boolean;
+        /**
+          * @default 'Loading...'
+         */
+        "loadingText"?: string;
+        /**
+          * @default 1
+         */
+        "minSearchLength"?: number;
+        /**
+          * @default ''
+         */
+        "model"?: string;
+        /**
+          * @default false
+         */
+        "multiple"?: boolean;
+        /**
           * @default ''
          */
         "name"?: string;
+        /**
+          * @default 'No results'
+         */
+        "noResultsText"?: string;
+        "onLcDropdownClose"?: (event: BcFieldSelectCustomEvent<void>) => void;
+        "onLcDropdownOpen"?: (event: BcFieldSelectCustomEvent<void>) => void;
+        "onLcFieldBlur"?: (event: BcFieldSelectCustomEvent<FieldBlurEvent>) => void;
         "onLcFieldChange"?: (event: BcFieldSelectCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldClear"?: (event: BcFieldSelectCustomEvent<FieldClearEvent>) => void;
+        "onLcFieldFocus"?: (event: BcFieldSelectCustomEvent<FieldFocusEvent>) => void;
+        "onLcFieldInvalid"?: (event: BcFieldSelectCustomEvent<FieldValidationEvent>) => void;
+        "onLcFieldValid"?: (event: BcFieldSelectCustomEvent<FieldValidEvent>) => void;
+        "onLcOptionCreate"?: (event: BcFieldSelectCustomEvent<OptionCreateEvent>) => void;
+        "onLcOptionsError"?: (event: BcFieldSelectCustomEvent<OptionsErrorEvent>) => void;
+        "onLcOptionsLoad"?: (event: BcFieldSelectCustomEvent<OptionsLoadEvent>) => void;
         /**
           * @default '[]'
          */
         "options"?: string;
+        /**
+          * @default 50
+         */
+        "pageSize"?: number;
         /**
           * @default 'Select...'
          */
@@ -5126,11 +8585,47 @@ declare namespace LocalJSX {
          */
         "required"?: boolean;
         /**
+          * @default false
+         */
+        "searchable"?: boolean;
+        /**
+          * @default false
+         */
+        "serverSide"?: boolean;
+        /**
+          * @default 'md'
+         */
+        "size"?: 'sm' | 'md' | 'lg';
+        /**
+          * @default ''
+         */
+        "tooltip"?: string;
+        /**
+          * @default ''
+         */
+        "validateOn"?: ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage"?: string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus"?: 'none' | 'validating' | 'valid' | 'invalid';
+        /**
           * @default ''
          */
         "value"?: string;
+        /**
+          * @default 'value'
+         */
+        "valueField"?: string;
     }
     interface BcFieldSignature {
+        /**
+          * @default ''
+         */
+        "defaultValue"?: string;
         /**
           * @default false
          */
@@ -5142,12 +8637,49 @@ declare namespace LocalJSX {
         /**
           * @default ''
          */
+        "hint"?: string;
+        /**
+          * @default ''
+         */
         "label"?: string;
         /**
           * @default ''
          */
         "name"?: string;
+        "onLcFieldBlur"?: (event: BcFieldSignatureCustomEvent<FieldBlurEvent>) => void;
         "onLcFieldChange"?: (event: BcFieldSignatureCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldClear"?: (event: BcFieldSignatureCustomEvent<FieldClearEvent>) => void;
+        "onLcFieldFocus"?: (event: BcFieldSignatureCustomEvent<FieldFocusEvent>) => void;
+        "onLcFieldInvalid"?: (event: BcFieldSignatureCustomEvent<FieldValidationEvent>) => void;
+        "onLcFieldValid"?: (event: BcFieldSignatureCustomEvent<FieldValidEvent>) => void;
+        /**
+          * @default false
+         */
+        "readonly"?: boolean;
+        /**
+          * @default false
+         */
+        "required"?: boolean;
+        /**
+          * @default 'md'
+         */
+        "size"?: 'sm' | 'md' | 'lg';
+        /**
+          * @default ''
+         */
+        "tooltip"?: string;
+        /**
+          * @default ''
+         */
+        "validateOn"?: ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage"?: string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus"?: 'none' | 'validating' | 'valid' | 'invalid';
         /**
           * @default ''
          */
@@ -5161,16 +8693,49 @@ declare namespace LocalJSX {
         /**
           * @default false
          */
+        "autofocus"?: boolean;
+        /**
+          * @default false
+         */
+        "clearable"?: boolean;
+        /**
+          * @default ''
+         */
+        "defaultValue"?: string;
+        /**
+          * @default false
+         */
         "disabled"?: boolean;
+        /**
+          * @default ''
+         */
+        "hint"?: string;
         /**
           * @default ''
          */
         "label"?: string;
         /**
+          * @default false
+         */
+        "loading"?: boolean;
+        /**
+          * @default 0
+         */
+        "maxLength"?: number;
+        /**
+          * @default 0
+         */
+        "minLength"?: number;
+        /**
           * @default ''
          */
         "name"?: string;
+        "onLcFieldBlur"?: (event: BcFieldSmalltextCustomEvent<FieldBlurEvent>) => void;
         "onLcFieldChange"?: (event: BcFieldSmalltextCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldClear"?: (event: BcFieldSmalltextCustomEvent<FieldClearEvent>) => void;
+        "onLcFieldFocus"?: (event: BcFieldSmalltextCustomEvent<FieldFocusEvent>) => void;
+        "onLcFieldInvalid"?: (event: BcFieldSmalltextCustomEvent<FieldValidationEvent>) => void;
+        "onLcFieldValid"?: (event: BcFieldSmalltextCustomEvent<FieldValidEvent>) => void;
         /**
           * @default ''
          */
@@ -5187,6 +8752,30 @@ declare namespace LocalJSX {
           * @default 3
          */
         "rows"?: number;
+        /**
+          * @default false
+         */
+        "showCount"?: boolean;
+        /**
+          * @default 'md'
+         */
+        "size"?: 'sm' | 'md' | 'lg';
+        /**
+          * @default ''
+         */
+        "tooltip"?: string;
+        /**
+          * @default ''
+         */
+        "validateOn"?: ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage"?: string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus"?: 'none' | 'validating' | 'valid' | 'invalid';
         /**
           * @default ''
          */
@@ -5316,11 +8905,27 @@ declare namespace LocalJSX {
         /**
           * @default false
          */
+        "clearable"?: boolean;
+        /**
+          * @default '[]'
+         */
+        "defaultValue"?: string;
+        /**
+          * @default false
+         */
         "disabled"?: boolean;
         /**
           * @default ''
          */
+        "hint"?: string;
+        /**
+          * @default ''
+         */
         "label"?: string;
+        /**
+          * @default false
+         */
+        "loading"?: boolean;
         /**
           * @default ''
          */
@@ -5329,7 +8934,12 @@ declare namespace LocalJSX {
           * @default ''
          */
         "name"?: string;
+        "onLcFieldBlur"?: (event: BcFieldTableselectCustomEvent<FieldBlurEvent>) => void;
         "onLcFieldChange"?: (event: BcFieldTableselectCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldClear"?: (event: BcFieldTableselectCustomEvent<FieldClearEvent>) => void;
+        "onLcFieldFocus"?: (event: BcFieldTableselectCustomEvent<FieldFocusEvent>) => void;
+        "onLcFieldInvalid"?: (event: BcFieldTableselectCustomEvent<FieldValidationEvent>) => void;
+        "onLcFieldValid"?: (event: BcFieldTableselectCustomEvent<FieldValidEvent>) => void;
         /**
           * @default '[]'
          */
@@ -5346,6 +8956,26 @@ declare namespace LocalJSX {
           * @default false
          */
         "required"?: boolean;
+        /**
+          * @default 'md'
+         */
+        "size"?: 'sm' | 'md' | 'lg';
+        /**
+          * @default ''
+         */
+        "tooltip"?: string;
+        /**
+          * @default ''
+         */
+        "validateOn"?: ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage"?: string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus"?: 'none' | 'validating' | 'valid' | 'invalid';
         /**
           * @default '[]'
          */
@@ -5355,11 +8985,27 @@ declare namespace LocalJSX {
         /**
           * @default false
          */
+        "clearable"?: boolean;
+        /**
+          * @default '[]'
+         */
+        "defaultValue"?: string;
+        /**
+          * @default false
+         */
         "disabled"?: boolean;
         /**
           * @default ''
          */
+        "hint"?: string;
+        /**
+          * @default ''
+         */
         "label"?: string;
+        /**
+          * @default false
+         */
+        "loading"?: boolean;
         /**
           * @default ''
          */
@@ -5368,7 +9014,12 @@ declare namespace LocalJSX {
           * @default ''
          */
         "name"?: string;
+        "onLcFieldBlur"?: (event: BcFieldTagsCustomEvent<FieldBlurEvent>) => void;
         "onLcFieldChange"?: (event: BcFieldTagsCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldClear"?: (event: BcFieldTagsCustomEvent<FieldClearEvent>) => void;
+        "onLcFieldFocus"?: (event: BcFieldTagsCustomEvent<FieldFocusEvent>) => void;
+        "onLcFieldInvalid"?: (event: BcFieldTagsCustomEvent<FieldValidationEvent>) => void;
+        "onLcFieldValid"?: (event: BcFieldTagsCustomEvent<FieldValidEvent>) => void;
         /**
           * @default '[]'
          */
@@ -5386,6 +9037,26 @@ declare namespace LocalJSX {
          */
         "required"?: boolean;
         /**
+          * @default 'md'
+         */
+        "size"?: 'sm' | 'md' | 'lg';
+        /**
+          * @default ''
+         */
+        "tooltip"?: string;
+        /**
+          * @default ''
+         */
+        "validateOn"?: ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage"?: string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus"?: 'none' | 'validating' | 'valid' | 'invalid';
+        /**
           * @default '[]'
          */
         "value"?: string;
@@ -5394,16 +9065,57 @@ declare namespace LocalJSX {
         /**
           * @default false
          */
+        "autofocus"?: boolean;
+        /**
+          * @default false
+         */
+        "clearable"?: boolean;
+        /**
+          * @default ''
+         */
+        "defaultValue"?: string;
+        /**
+          * @default false
+         */
         "disabled"?: boolean;
+        /**
+          * @default ''
+         */
+        "hint"?: string;
         /**
           * @default ''
          */
         "label"?: string;
         /**
+          * @default false
+         */
+        "loading"?: boolean;
+        /**
+          * @default 0
+         */
+        "maxLength"?: number;
+        /**
+          * @default 0
+         */
+        "minLength"?: number;
+        /**
           * @default ''
          */
         "name"?: string;
+        "onLcFieldBlur"?: (event: BcFieldTextCustomEvent<FieldBlurEvent>) => void;
         "onLcFieldChange"?: (event: BcFieldTextCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldClear"?: (event: BcFieldTextCustomEvent<FieldClearEvent>) => void;
+        "onLcFieldFocus"?: (event: BcFieldTextCustomEvent<FieldFocusEvent>) => void;
+        "onLcFieldInvalid"?: (event: BcFieldTextCustomEvent<FieldValidationEvent>) => void;
+        "onLcFieldValid"?: (event: BcFieldTextCustomEvent<FieldValidEvent>) => void;
+        /**
+          * @default ''
+         */
+        "pattern"?: string;
+        /**
+          * @default ''
+         */
+        "patternMessage"?: string;
         /**
           * @default ''
          */
@@ -5416,6 +9128,34 @@ declare namespace LocalJSX {
           * @default false
          */
         "required"?: boolean;
+        /**
+          * @default 5
+         */
+        "rows"?: number;
+        /**
+          * @default false
+         */
+        "showCount"?: boolean;
+        /**
+          * @default 'md'
+         */
+        "size"?: 'sm' | 'md' | 'lg';
+        /**
+          * @default ''
+         */
+        "tooltip"?: string;
+        /**
+          * @default ''
+         */
+        "validateOn"?: ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage"?: string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus"?: 'none' | 'validating' | 'valid' | 'invalid';
         /**
           * @default ''
          */
@@ -5425,16 +9165,49 @@ declare namespace LocalJSX {
         /**
           * @default false
          */
+        "autofocus"?: boolean;
+        /**
+          * @default false
+         */
+        "clearable"?: boolean;
+        /**
+          * @default ''
+         */
+        "defaultValue"?: string;
+        /**
+          * @default false
+         */
         "disabled"?: boolean;
+        /**
+          * @default ''
+         */
+        "hint"?: string;
         /**
           * @default ''
          */
         "label"?: string;
         /**
+          * @default false
+         */
+        "loading"?: boolean;
+        /**
+          * @default ''
+         */
+        "max"?: string;
+        /**
+          * @default ''
+         */
+        "min"?: string;
+        /**
           * @default ''
          */
         "name"?: string;
+        "onLcFieldBlur"?: (event: BcFieldTimeCustomEvent<FieldBlurEvent>) => void;
         "onLcFieldChange"?: (event: BcFieldTimeCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldClear"?: (event: BcFieldTimeCustomEvent<FieldClearEvent>) => void;
+        "onLcFieldFocus"?: (event: BcFieldTimeCustomEvent<FieldFocusEvent>) => void;
+        "onLcFieldInvalid"?: (event: BcFieldTimeCustomEvent<FieldValidationEvent>) => void;
+        "onLcFieldValid"?: (event: BcFieldTimeCustomEvent<FieldValidEvent>) => void;
         /**
           * @default ''
          */
@@ -5448,6 +9221,30 @@ declare namespace LocalJSX {
          */
         "required"?: boolean;
         /**
+          * @default 'md'
+         */
+        "size"?: 'sm' | 'md' | 'lg';
+        /**
+          * @default 60
+         */
+        "step"?: number;
+        /**
+          * @default ''
+         */
+        "tooltip"?: string;
+        /**
+          * @default ''
+         */
+        "validateOn"?: ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage"?: string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus"?: 'none' | 'validating' | 'valid' | 'invalid';
+        /**
           * @default ''
          */
         "value"?: string;
@@ -5456,7 +9253,15 @@ declare namespace LocalJSX {
         /**
           * @default false
          */
+        "defaultValue"?: boolean;
+        /**
+          * @default false
+         */
         "disabled"?: boolean;
+        /**
+          * @default ''
+         */
+        "hint"?: string;
         /**
           * @default ''
          */
@@ -5465,7 +9270,40 @@ declare namespace LocalJSX {
           * @default ''
          */
         "name"?: string;
+        "onLcFieldBlur"?: (event: BcFieldToggleCustomEvent<FieldBlurEvent>) => void;
         "onLcFieldChange"?: (event: BcFieldToggleCustomEvent<FieldChangeEvent>) => void;
+        "onLcFieldClear"?: (event: BcFieldToggleCustomEvent<FieldClearEvent>) => void;
+        "onLcFieldFocus"?: (event: BcFieldToggleCustomEvent<FieldFocusEvent>) => void;
+        "onLcFieldInvalid"?: (event: BcFieldToggleCustomEvent<FieldValidationEvent>) => void;
+        "onLcFieldValid"?: (event: BcFieldToggleCustomEvent<FieldValidEvent>) => void;
+        /**
+          * @default false
+         */
+        "readonly"?: boolean;
+        /**
+          * @default false
+         */
+        "required"?: boolean;
+        /**
+          * @default 'md'
+         */
+        "size"?: 'sm' | 'md' | 'lg';
+        /**
+          * @default ''
+         */
+        "tooltip"?: string;
+        /**
+          * @default ''
+         */
+        "validateOn"?: ValidateOn | '';
+        /**
+          * @default ''
+         */
+        "validationMessage"?: string;
+        /**
+          * @default 'none'
+         */
+        "validationStatus"?: 'none' | 'validating' | 'valid' | 'invalid';
         /**
           * @default false
          */
@@ -6307,12 +10145,34 @@ declare namespace LocalJSX {
         "value": string;
         "format": string;
         "disabled": boolean;
+        "required": boolean;
+        "readonly": boolean;
+        "placeholder": string;
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
+        "validationMessage": string;
+        "hint": string;
+        "size": 'sm' | 'md' | 'lg';
+        "clearable": boolean;
+        "tooltip": string;
+        "loading": boolean;
+        "autofocus": boolean;
+        "defaultValue": string;
+        "validateOn": ValidateOn | '';
     }
     interface BcFieldCheckboxAttributes {
         "name": string;
         "label": string;
         "value": boolean;
         "disabled": boolean;
+        "required": boolean;
+        "readonly": boolean;
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
+        "validationMessage": string;
+        "hint": string;
+        "size": 'sm' | 'md' | 'lg';
+        "tooltip": string;
+        "defaultValue": boolean;
+        "validateOn": ValidateOn | '';
     }
     interface BcFieldCodeAttributes {
         "name": string;
@@ -6324,12 +10184,34 @@ declare namespace LocalJSX {
         "disabled": boolean;
         "language": string;
         "toolbar": string;
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
+        "validationMessage": string;
+        "hint": string;
+        "minLength": number;
+        "maxLength": number;
+        "size": 'sm' | 'md' | 'lg';
+        "clearable": boolean;
+        "tooltip": string;
+        "showCount": boolean;
+        "loading": boolean;
+        "defaultValue": string;
+        "validateOn": ValidateOn | '';
     }
     interface BcFieldColorAttributes {
         "name": string;
         "label": string;
         "value": string;
         "disabled": boolean;
+        "required": boolean;
+        "readonly": boolean;
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
+        "validationMessage": string;
+        "hint": string;
+        "size": 'sm' | 'md' | 'lg';
+        "clearable": boolean;
+        "tooltip": string;
+        "defaultValue": string;
+        "validateOn": ValidateOn | '';
     }
     interface BcFieldCurrencyAttributes {
         "name": string;
@@ -6341,6 +10223,21 @@ declare namespace LocalJSX {
         "disabled": boolean;
         "currency": string;
         "precision": number;
+        "min": number;
+        "max": number;
+        "step": number;
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
+        "validationMessage": string;
+        "hint": string;
+        "size": 'sm' | 'md' | 'lg';
+        "clearable": boolean;
+        "prefixText": string;
+        "suffixText": string;
+        "tooltip": string;
+        "loading": boolean;
+        "autofocus": boolean;
+        "defaultValue": number;
+        "validateOn": ValidateOn | '';
     }
     interface BcFieldDateAttributes {
         "name": string;
@@ -6350,6 +10247,19 @@ declare namespace LocalJSX {
         "required": boolean;
         "readonly": boolean;
         "disabled": boolean;
+        "min": string;
+        "max": string;
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
+        "validationMessage": string;
+        "hint": string;
+        "size": 'sm' | 'md' | 'lg';
+        "clearable": boolean;
+        "tooltip": string;
+        "loading": boolean;
+        "autofocus": boolean;
+        "defaultValue": string;
+        "validateOn": ValidateOn | '';
+        "dependOn": string;
     }
     interface BcFieldDatetimeAttributes {
         "name": string;
@@ -6359,6 +10269,18 @@ declare namespace LocalJSX {
         "required": boolean;
         "readonly": boolean;
         "disabled": boolean;
+        "min": string;
+        "max": string;
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
+        "validationMessage": string;
+        "hint": string;
+        "size": 'sm' | 'md' | 'lg';
+        "clearable": boolean;
+        "tooltip": string;
+        "loading": boolean;
+        "autofocus": boolean;
+        "defaultValue": string;
+        "validateOn": ValidateOn | '';
     }
     interface BcFieldDecimalAttributes {
         "name": string;
@@ -6369,12 +10291,38 @@ declare namespace LocalJSX {
         "readonly": boolean;
         "disabled": boolean;
         "precision": number;
+        "min": number;
+        "max": number;
+        "step": number;
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
+        "validationMessage": string;
+        "hint": string;
+        "size": 'sm' | 'md' | 'lg';
+        "clearable": boolean;
+        "prefixText": string;
+        "suffixText": string;
+        "tooltip": string;
+        "loading": boolean;
+        "autofocus": boolean;
+        "defaultValue": number;
+        "validateOn": ValidateOn | '';
     }
     interface BcFieldDurationAttributes {
         "name": string;
         "label": string;
         "value": number;
         "disabled": boolean;
+        "required": boolean;
+        "readonly": boolean;
+        "placeholder": string;
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
+        "validationMessage": string;
+        "hint": string;
+        "size": 'sm' | 'md' | 'lg';
+        "clearable": boolean;
+        "tooltip": string;
+        "defaultValue": number;
+        "validateOn": ValidateOn | '';
     }
     interface BcFieldDynlinkAttributes {
         "name": string;
@@ -6387,6 +10335,15 @@ declare namespace LocalJSX {
         "readonly": boolean;
         "disabled": boolean;
         "options": string;
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
+        "validationMessage": string;
+        "hint": string;
+        "size": 'sm' | 'md' | 'lg';
+        "clearable": boolean;
+        "tooltip": string;
+        "loading": boolean;
+        "defaultValue": string;
+        "validateOn": ValidateOn | '';
     }
     interface BcFieldFileAttributes {
         "name": string;
@@ -6405,6 +10362,14 @@ declare namespace LocalJSX {
         "fieldName": string;
         "preview": boolean;
         "showDownload": boolean;
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
+        "validationMessage": string;
+        "hint": string;
+        "size": 'sm' | 'md' | 'lg';
+        "tooltip": string;
+        "loading": boolean;
+        "defaultValue": string;
+        "validateOn": ValidateOn | '';
     }
     interface BcFieldFloatAttributes {
         "name": string;
@@ -6415,14 +10380,40 @@ declare namespace LocalJSX {
         "readonly": boolean;
         "disabled": boolean;
         "precision": number;
+        "min": number;
+        "max": number;
+        "step": number;
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
+        "validationMessage": string;
+        "hint": string;
+        "size": 'sm' | 'md' | 'lg';
+        "clearable": boolean;
+        "prefixText": string;
+        "suffixText": string;
+        "tooltip": string;
+        "loading": boolean;
+        "autofocus": boolean;
+        "defaultValue": number;
+        "validateOn": ValidateOn | '';
     }
     interface BcFieldGeoAttributes {
         "name": string;
         "label": string;
         "value": string;
         "disabled": boolean;
+        "required": boolean;
+        "readonly": boolean;
+        "placeholder": string;
         "drawMode": string;
         "zoom": number;
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
+        "validationMessage": string;
+        "hint": string;
+        "size": 'sm' | 'md' | 'lg';
+        "clearable": boolean;
+        "tooltip": string;
+        "defaultValue": string;
+        "validateOn": ValidateOn | '';
     }
     interface BcFieldHtmlAttributes {
         "name": string;
@@ -6434,6 +10425,18 @@ declare namespace LocalJSX {
         "disabled": boolean;
         "language": string;
         "toolbar": string;
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
+        "validationMessage": string;
+        "hint": string;
+        "minLength": number;
+        "maxLength": number;
+        "size": 'sm' | 'md' | 'lg';
+        "clearable": boolean;
+        "tooltip": string;
+        "showCount": boolean;
+        "loading": boolean;
+        "defaultValue": string;
+        "validateOn": ValidateOn | '';
     }
     interface BcFieldImageAttributes {
         "name": string;
@@ -6443,11 +10446,20 @@ declare namespace LocalJSX {
         "maxSize": string;
         "required": boolean;
         "disabled": boolean;
+        "readonly": boolean;
         "preview": boolean;
         "showDownload": boolean;
         "model": string;
         "recordId": string;
         "fieldName": string;
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
+        "validationMessage": string;
+        "hint": string;
+        "size": 'sm' | 'md' | 'lg';
+        "tooltip": string;
+        "loading": boolean;
+        "defaultValue": string;
+        "validateOn": ValidateOn | '';
     }
     interface BcFieldIntegerAttributes {
         "name": string;
@@ -6460,6 +10472,18 @@ declare namespace LocalJSX {
         "min": number;
         "max": number;
         "step": number;
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
+        "validationMessage": string;
+        "hint": string;
+        "size": 'sm' | 'md' | 'lg';
+        "clearable": boolean;
+        "prefixText": string;
+        "suffixText": string;
+        "tooltip": string;
+        "loading": boolean;
+        "autofocus": boolean;
+        "defaultValue": number;
+        "validateOn": ValidateOn | '';
     }
     interface BcFieldJsonAttributes {
         "name": string;
@@ -6471,6 +10495,15 @@ declare namespace LocalJSX {
         "disabled": boolean;
         "language": string;
         "toolbar": string;
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
+        "validationMessage": string;
+        "hint": string;
+        "size": 'sm' | 'md' | 'lg';
+        "clearable": boolean;
+        "tooltip": string;
+        "loading": boolean;
+        "defaultValue": string;
+        "validateOn": ValidateOn | '';
     }
     interface BcFieldLinkAttributes {
         "name": string;
@@ -6484,6 +10517,17 @@ declare namespace LocalJSX {
         "disabled": boolean;
         "options": string;
         "lookupColumns": string;
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
+        "validationMessage": string;
+        "hint": string;
+        "size": 'sm' | 'md' | 'lg';
+        "tooltip": string;
+        "loading": boolean;
+        "defaultValue": string;
+        "validateOn": ValidateOn | '';
+        "dependOn": string;
+        "dataSource": string;
+        "fetchHeaders": string;
     }
     interface BcFieldMarkdownAttributes {
         "name": string;
@@ -6495,6 +10539,18 @@ declare namespace LocalJSX {
         "disabled": boolean;
         "language": string;
         "toolbar": string;
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
+        "validationMessage": string;
+        "hint": string;
+        "minLength": number;
+        "maxLength": number;
+        "size": 'sm' | 'md' | 'lg';
+        "clearable": boolean;
+        "tooltip": string;
+        "showCount": boolean;
+        "loading": boolean;
+        "defaultValue": string;
+        "validateOn": ValidateOn | '';
     }
     interface BcFieldMulticheckAttributes {
         "name": string;
@@ -6504,6 +10560,14 @@ declare namespace LocalJSX {
         "required": boolean;
         "readonly": boolean;
         "disabled": boolean;
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
+        "validationMessage": string;
+        "hint": string;
+        "size": 'sm' | 'md' | 'lg';
+        "clearable": boolean;
+        "tooltip": string;
+        "defaultValue": string;
+        "validateOn": ValidateOn | '';
     }
     interface BcFieldPasswordAttributes {
         "name": string;
@@ -6513,6 +10577,24 @@ declare namespace LocalJSX {
         "required": boolean;
         "readonly": boolean;
         "disabled": boolean;
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
+        "validationMessage": string;
+        "hint": string;
+        "minLength": number;
+        "maxLength": number;
+        "pattern": string;
+        "patternMessage": string;
+        "size": 'sm' | 'md' | 'lg';
+        "clearable": boolean;
+        "prefixText": string;
+        "suffixText": string;
+        "tooltip": string;
+        "showCount": boolean;
+        "loading": boolean;
+        "autofocus": boolean;
+        "defaultValue": string;
+        "validateOn": ValidateOn | '';
+        "showReveal": boolean;
     }
     interface BcFieldPercentAttributes {
         "name": string;
@@ -6524,6 +10606,19 @@ declare namespace LocalJSX {
         "disabled": boolean;
         "min": number;
         "max": number;
+        "step": number;
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
+        "validationMessage": string;
+        "hint": string;
+        "size": 'sm' | 'md' | 'lg';
+        "clearable": boolean;
+        "prefixText": string;
+        "suffixText": string;
+        "tooltip": string;
+        "loading": boolean;
+        "autofocus": boolean;
+        "defaultValue": number;
+        "validateOn": ValidateOn | '';
     }
     interface BcFieldRadioAttributes {
         "name": string;
@@ -6532,6 +10627,15 @@ declare namespace LocalJSX {
         "options": string;
         "direction": string;
         "disabled": boolean;
+        "required": boolean;
+        "readonly": boolean;
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
+        "validationMessage": string;
+        "hint": string;
+        "size": 'sm' | 'md' | 'lg';
+        "tooltip": string;
+        "defaultValue": string;
+        "validateOn": ValidateOn | '';
     }
     interface BcFieldRatingAttributes {
         "name": string;
@@ -6539,6 +10643,16 @@ declare namespace LocalJSX {
         "value": number;
         "maxStars": number;
         "disabled": boolean;
+        "required": boolean;
+        "readonly": boolean;
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
+        "validationMessage": string;
+        "hint": string;
+        "size": 'sm' | 'md' | 'lg';
+        "clearable": boolean;
+        "tooltip": string;
+        "defaultValue": number;
+        "validateOn": ValidateOn | '';
     }
     interface BcFieldRichtextAttributes {
         "name": string;
@@ -6549,6 +10663,18 @@ declare namespace LocalJSX {
         "readonly": boolean;
         "disabled": boolean;
         "toolbar": string;
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
+        "validationMessage": string;
+        "hint": string;
+        "minLength": number;
+        "maxLength": number;
+        "size": 'sm' | 'md' | 'lg';
+        "clearable": boolean;
+        "tooltip": string;
+        "showCount": boolean;
+        "loading": boolean;
+        "defaultValue": string;
+        "validateOn": ValidateOn | '';
     }
     interface BcFieldSelectAttributes {
         "name": string;
@@ -6559,14 +10685,48 @@ declare namespace LocalJSX {
         "required": boolean;
         "readonly": boolean;
         "disabled": boolean;
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
+        "validationMessage": string;
+        "hint": string;
+        "size": 'sm' | 'md' | 'lg';
+        "clearable": boolean;
+        "tooltip": string;
+        "loading": boolean;
+        "defaultValue": string;
+        "validateOn": ValidateOn | '';
+        "dependOn": string;
+        "dataSource": string;
+        "fetchHeaders": string;
+        "searchable": boolean;
+        "serverSide": boolean;
+        "multiple": boolean;
+        "displayField": string;
+        "valueField": string;
+        "groupBy": string;
+        "creatable": boolean;
+        "pageSize": number;
+        "debounceMs": number;
+        "minSearchLength": number;
+        "noResultsText": string;
+        "loadingText": string;
+        "model": string;
     }
     interface BcFieldSignatureAttributes {
         "name": string;
         "label": string;
         "value": string;
         "disabled": boolean;
+        "required": boolean;
+        "readonly": boolean;
         "width": number;
         "height": number;
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
+        "validationMessage": string;
+        "hint": string;
+        "size": 'sm' | 'md' | 'lg';
+        "tooltip": string;
+        "defaultValue": string;
+        "validateOn": ValidateOn | '';
     }
     interface BcFieldSmalltextAttributes {
         "name": string;
@@ -6577,6 +10737,19 @@ declare namespace LocalJSX {
         "readonly": boolean;
         "disabled": boolean;
         "rows": number;
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
+        "validationMessage": string;
+        "hint": string;
+        "minLength": number;
+        "maxLength": number;
+        "size": 'sm' | 'md' | 'lg';
+        "clearable": boolean;
+        "tooltip": string;
+        "showCount": boolean;
+        "loading": boolean;
+        "autofocus": boolean;
+        "defaultValue": string;
+        "validateOn": ValidateOn | '';
     }
     interface BcFieldStringAttributes {
         "name": string;
@@ -6618,6 +10791,15 @@ declare namespace LocalJSX {
         "readonly": boolean;
         "disabled": boolean;
         "options": string;
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
+        "validationMessage": string;
+        "hint": string;
+        "size": 'sm' | 'md' | 'lg';
+        "clearable": boolean;
+        "tooltip": string;
+        "loading": boolean;
+        "defaultValue": string;
+        "validateOn": ValidateOn | '';
     }
     interface BcFieldTagsAttributes {
         "name": string;
@@ -6629,6 +10811,15 @@ declare namespace LocalJSX {
         "readonly": boolean;
         "disabled": boolean;
         "options": string;
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
+        "validationMessage": string;
+        "hint": string;
+        "size": 'sm' | 'md' | 'lg';
+        "clearable": boolean;
+        "tooltip": string;
+        "loading": boolean;
+        "defaultValue": string;
+        "validateOn": ValidateOn | '';
     }
     interface BcFieldTextAttributes {
         "name": string;
@@ -6638,6 +10829,22 @@ declare namespace LocalJSX {
         "required": boolean;
         "readonly": boolean;
         "disabled": boolean;
+        "rows": number;
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
+        "validationMessage": string;
+        "hint": string;
+        "minLength": number;
+        "maxLength": number;
+        "pattern": string;
+        "patternMessage": string;
+        "size": 'sm' | 'md' | 'lg';
+        "clearable": boolean;
+        "tooltip": string;
+        "showCount": boolean;
+        "loading": boolean;
+        "autofocus": boolean;
+        "defaultValue": string;
+        "validateOn": ValidateOn | '';
     }
     interface BcFieldTimeAttributes {
         "name": string;
@@ -6647,12 +10854,34 @@ declare namespace LocalJSX {
         "required": boolean;
         "readonly": boolean;
         "disabled": boolean;
+        "min": string;
+        "max": string;
+        "step": number;
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
+        "validationMessage": string;
+        "hint": string;
+        "size": 'sm' | 'md' | 'lg';
+        "clearable": boolean;
+        "tooltip": string;
+        "loading": boolean;
+        "autofocus": boolean;
+        "defaultValue": string;
+        "validateOn": ValidateOn | '';
     }
     interface BcFieldToggleAttributes {
         "name": string;
         "label": string;
         "value": boolean;
         "disabled": boolean;
+        "required": boolean;
+        "readonly": boolean;
+        "validationStatus": 'none' | 'validating' | 'valid' | 'invalid';
+        "validationMessage": string;
+        "hint": string;
+        "size": 'sm' | 'md' | 'lg';
+        "tooltip": string;
+        "defaultValue": boolean;
+        "validateOn": ValidateOn | '';
     }
     interface BcFilterBarAttributes {
         "value": string;

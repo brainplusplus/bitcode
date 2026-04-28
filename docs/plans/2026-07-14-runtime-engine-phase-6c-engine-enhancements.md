@@ -11,7 +11,7 @@
 ## Table of Contents
 
 1. [Goal](#1-goal)
-2. [Array-Backed Models](#2-array-backed-models)
+2. [Array-Backed Models (Sushi-Style)](#2-array-backed-models-sushi-style)
 3. [View Layout Modifiers](#3-view-layout-modifiers)
 4. [Metadata API](#4-metadata-api)
 5. [Embedded View Improvements](#5-embedded-view-improvements)
@@ -784,9 +784,9 @@ Process data sources execute with the **current user's permissions**. The proces
 
 ---
 
-## 6. Eager Loading Gaps (WithClause)
+## 7. Eager Loading Gaps (WithClause)
 
-### 6.1 Problem
+### 7.1 Problem
 
 `WithClause` has `Conditions` and `Nested` fields that are parsed from JSON but **ignored** by relation loaders:
 
@@ -801,7 +801,7 @@ type WithClause struct {
 }
 ```
 
-### 6.2 Fix: Apply Conditions
+### 7.2 Fix: Apply Conditions
 
 ```javascript
 // Bridge API usage:
@@ -836,11 +836,11 @@ func (r *GenericRepository) loadOne2ManyRelation(ctx context.Context, w WithClau
 
 Apply conditions to ALL relation types (many2one, one2many, many2many, morph_*).
 
-### 6.3 Fix: Apply Select, OrderBy, Limit Consistently
+### 7.3 Fix: Apply Select, OrderBy, Limit Consistently
 
 Currently `Select` only works for many2one, `OrderBy`/`Limit` only for one2many. Fix: apply all three to ALL relation types.
 
-### 6.4 Fix: Nested Eager Loading (1 Level)
+### 7.4 Fix: Nested Eager Loading
 
 ```javascript
 // Load post → comments → author (nested)
@@ -879,15 +879,15 @@ func (r *GenericRepository) loadWithRelations(ctx context.Context, query *Query,
 
 **Depth limit**: Maximum 3 levels of nesting to prevent infinite recursion and performance issues. Configurable per-query.
 
-### 6.5 Backward Compatibility
+### 7.5 Backward Compatibility
 
 All changes are additive. Existing queries without `conditions` or `nested` work exactly as before.
 
 ---
 
-## 7. Project Config Additions
+## 8. Project Config Additions
 
-### 7.1 New Config Keys
+### 8.1 New Config Keys
 
 ```toml
 # bitcode.toml
@@ -908,7 +908,7 @@ admin_only = true               # Restrict to admin group
 max_depth = 3                   # Maximum nested eager loading depth
 ```
 
-### 7.2 Viper Bindings
+### 8.2 Viper Bindings
 
 ```go
 v.SetDefault("database.table_naming", "singular")
@@ -930,9 +930,38 @@ v.BindEnv("eager_loading.max_depth", "EAGER_LOADING_MAX_DEPTH")
 
 ---
 
-## 8. Implementation Tasks
+## 9. Implementation Tasks
 
-### 8.1 View Modifiers (`presentation/view/`)
+### 9.1 Array-Backed Models
+
+- [ ] Add `Source`, `Writable`, `Rows`, `RowsFile` fields to ModelDefinition
+- [ ] Implement array source sync: DELETE all + re-INSERT for read-only
+- [ ] Implement array source seed: INSERT only if table empty for writable
+- [ ] Implement `rows_file` parser: JSON format
+- [ ] Implement `rows_file` parser: CSV format (header row)
+- [ ] Implement `rows_file` parser: XLSX format (first sheet, header row)
+- [ ] Implement `rows_file` parser: XML format (`<rows><row>...</row></rows>`)
+- [ ] Auto-detect format from file extension
+- [ ] Implement process source: execute process/script, populate table from result
+- [ ] Implement refresh scheduler (interval-based re-sync)
+- [ ] Implement manual refresh endpoint: `POST /api/v1/_meta/models/:name/refresh`
+- [ ] Implement manual refresh bridge: `bitcode.model.refresh("name")`
+- [ ] Implement `sync_source`: write-back to file on DB change (JSON/CSV/XLSX/XML)
+- [ ] Implement CLI: `bitcode model sync --to-file`, `--from-file`, `bitcode model diff`
+- [ ] Auto-disable timestamps/soft_deletes/audit for read-only array
+- [ ] Block write API endpoints (405) for read-only array
+- [ ] Validation: rows + rows_file mutual exclusion
+- [ ] Validation: source "array" without rows/rows_file = error
+- [ ] Validation: sync_source constraints (writable + rows_file required)
+- [ ] Warning: extra fields in rows not in fields definition
+- [ ] Write tests: array source lifecycle (create, sync, restart)
+- [ ] Write tests: writable mode (seed, CRUD, no re-sync)
+- [ ] Write tests: process source (execute, refresh)
+- [ ] Write tests: all file formats (JSON, CSV, XLSX, XML)
+- [ ] Write tests: sync_source write-back
+- [ ] Write tests: relations between array and DB models
+
+### 9.2 View Modifiers (`presentation/view/`)
 
 - [ ] Add `visible_if`, `disabled_if`, `readonly_if`, `css_class`, `help_text` to LayoutRow
 - [ ] Add `visible_if`, `disabled_if`, `readonly_if` to ChildTableColumn
@@ -941,7 +970,7 @@ v.BindEnv("eager_loading.max_depth", "EAGER_LOADING_MAX_DEPTH")
 - [ ] Document precedence rules (view overrides model)
 - [ ] Write tests for conditional rendering
 
-### 8.2 Metadata API (`presentation/api/`)
+### 9.3 Metadata API (`presentation/api/`)
 
 - [ ] Create `meta_handler.go` — new handler for metadata endpoints
 - [ ] Implement `GET /api/v1/_meta/models` — list all models with summary
@@ -959,14 +988,14 @@ v.BindEnv("eager_loading.max_depth", "EAGER_LOADING_MAX_DEPTH")
 - [ ] Add `bitcode.meta.*` bridge methods
 - [ ] Write tests for all metadata endpoints
 
-### 8.3 Embedded View Improvements (`presentation/view/`)
+### 9.4 Embedded View Improvements (`presentation/view/`)
 
 - [ ] Add `filter_by` to TabDefinition (string and map modes)
 - [ ] Update `embeddedViewRenderer` — apply filter_by when rendering embedded views
 - [ ] Parse `filter_by` in tab definition (handle both string and object)
 - [ ] Write tests for filtered embedded views
 
-### 8.4 Process Data Source (`presentation/view/`)
+### 9.5 Process Data Source (`presentation/view/`)
 
 - [ ] Add `process` field to DataSourceDefinition
 - [ ] Add validation: `model` and `process` mutually exclusive
@@ -974,7 +1003,7 @@ v.BindEnv("eager_loading.max_depth", "EAGER_LOADING_MAX_DEPTH")
 - [ ] Wire process executor into Renderer
 - [ ] Write tests for process-based data sources
 
-### 8.5 Eager Loading Fixes (`infrastructure/persistence/`)
+### 9.6 Eager Loading Fixes (`infrastructure/persistence/`)
 
 - [ ] Apply `WithClause.Conditions` in `loadMany2OneRelation`
 - [ ] Apply `WithClause.Conditions` in `loadOne2ManyRelation`
@@ -989,7 +1018,7 @@ v.BindEnv("eager_loading.max_depth", "EAGER_LOADING_MAX_DEPTH")
 - [ ] Write tests for nested eager loading (1, 2, 3 levels)
 - [ ] Write tests for depth limit enforcement
 
-### 8.6 Project Config
+### 9.7 Project Config
 
 - [ ] Add `database.table_naming` config + Viper binding
 - [ ] Add `locale.currency` config + Viper binding
@@ -998,7 +1027,7 @@ v.BindEnv("eager_loading.max_depth", "EAGER_LOADING_MAX_DEPTH")
 - [ ] Add `eager_loading.max_depth` config + Viper binding
 - [ ] Write tests for config defaults and env var overrides
 
-### 8.7 Documentation
+### 9.8 Documentation
 
 - [ ] Update `engine/docs/features/views.md` with view modifiers
 - [ ] Document metadata API endpoints and response format

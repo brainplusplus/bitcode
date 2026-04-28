@@ -13,7 +13,7 @@
 1. [Goal](#1-goal)
 2. [What Are Polymorphic Relations](#2-what-are-polymorphic-relations)
 3. [Current State: What Exists](#3-current-state-what-exists)
-4. [Design: Four Morph Types](#4-design-four-morph-types)
+4. [Design: Five Morph Types](#4-design-five-morph-types)
 5. [JSON Schema for Morphs](#5-json-schema-for-morphs)
 6. [Database Schema](#6-database-schema)
 7. [Parser Changes](#7-parser-changes)
@@ -149,7 +149,7 @@ This is just a many2one with a different UI widget. It's NOT polymorphic because
 
 ---
 
-## 4. Design: Four Morph Types
+## 4. Design: Five Morph Types
 
 ### 4.1 `morph_to` — "I belong to something, but I don't know what type until runtime"
 

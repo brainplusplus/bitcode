@@ -2,7 +2,7 @@ import { Component, Prop, State, Event, EventEmitter, Method, Element, h } from 
 import { FieldChangeEvent, FieldFocusEvent, FieldBlurEvent, FieldClearEvent, FieldValidationEvent, FieldValidEvent, ValidationResult, ValidateOn } from '../../../core/types';
 import { FieldState, createFieldState, markDirty, markTouched, getFieldClasses, validateFieldValue } from '../../../core/field-utils';
 import { BcSetup } from '../../../core/bc-setup';
-import { getApiClient } from '../../../core/api-client';
+import { fetchOptions } from '../../../core/data-fetcher';
 
 @Component({ tag: 'bc-field-link', styleUrl: 'bc-field-link.css', shadow: false })
 export class BcFieldLink {
@@ -29,6 +29,7 @@ export class BcFieldLink {
   @Prop() validateOn: ValidateOn | '' = '';
   @Prop() dependOn: string = '';
   @Prop() dataSource: string = '';
+  @Prop() fetchHeaders: string = '';
 
   @State() query: string = '';
   @State() results: Array<Record<string, unknown>> = [];
@@ -67,8 +68,7 @@ export class BcFieldLink {
     if (q.length < 1) { this.results = []; this.showDropdown = false; return; }
     this.debounceTimer = setTimeout(async () => {
       try {
-        const api = getApiClient();
-        const items = await api.search(this.model, q);
+        const items = await fetchOptions({ element: this.el, dataSource: this.dataSource, model: this.model, query: q, fetchHeaders: this.fetchHeaders || undefined }) as Array<Record<string, unknown>>;
         this.results = items;
         this.showDropdown = items.length > 0;
       } catch { this.results = []; this.showDropdown = false; }

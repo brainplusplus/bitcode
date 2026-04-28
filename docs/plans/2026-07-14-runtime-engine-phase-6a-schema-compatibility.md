@@ -702,9 +702,29 @@ type FieldDefinition struct {
   }
 }
 ```
-→ Fallback resolution:
-1. Project config: `locale.currency` in `bitcode.toml`
-2. Hardcoded: `"USD"`
+→ Fallback resolution hierarchy:
+1. `session.currency_id` — user's preferred currency (from user profile/session)
+2. Project config: `locale.currency` in `bitcode.toml`
+3. Hardcoded: `"USD"`
+
+**Session currency**: If the `user` model has a `currency_id` field (many2one to currency table), the engine reads it from the session on login. This enables per-user currency preference in multi-country SaaS apps:
+
+```
+User A (Indonesia) → session.currency_id = "IDR" → sees Rp 1.500.000
+User B (US)        → session.currency_id = "USD" → sees $1,500.00
+Same page, same field, different formatting.
+```
+
+This pattern applies generically to all locale preferences:
+
+```
+Resolution hierarchy (generic):
+  Field-level     → explicit config on the field definition
+  Record-level    → currency_field (from another field in same record)
+  Session-level   → user preference (session.currency_id, session.timezone, etc.)
+  Project-level   → bitcode.toml config (locale.currency, locale.timezone)
+  Hardcoded       → engine default ("USD", "UTC")
+```
 
 ### 9.3 Storage
 

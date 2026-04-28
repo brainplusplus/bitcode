@@ -468,8 +468,10 @@ Step 1 → Python **background** pool (step-level override).
 | **3** | Fix Python Child Process | Phase 1, 1.5 | 6 PY scripts in samples/erp work with real bridge |
 | **4** | Embedded Runtime: goja | Phase 1 | `runtime: "javascript"` — single binary, no Node.js needed |
 | **5** | Embedded Runtime: yaegi | Phase 1 | `runtime: "go"` — goroutines, bridges/, go.mod, exec whitelist |
-| **6** | Engine Enhancements | Phase 2 or 4 | Metadata API, view system gaps for module setting |
-| **7** | Module "setting" | Phase 2-6 | Admin panel via engine, all 4 runtimes, admin.go backup |
+| **6A** | Schema Compatibility | — (independent) | Field types, storage hints, modifiers, display, table naming, duplicate detection |
+| **6B** | Polymorphic Relations | Phase 6A | morph_to, morph_one, morph_many, morph_to_many, morph_by_many |
+| **6C** | Engine Enhancements | Phase 6A, Phase 1 | Array-backed models (Sushi-style), view modifiers, metadata API, eager loading fixes |
+| **7** | Module "setting" | All phases (1-6C) | Admin panel as JSON module, 4+ runtimes stress test, admin.go deprecation |
 
 ### Dependency Graph
 
@@ -517,7 +519,7 @@ Phase 7 needs all phases complete — it uses all 4+ runtimes as stress test.
 | Phase 1.5 | `2026-07-14-runtime-engine-phase-1.5-multi-tenancy.md` |
 | Phase 2 | `2026-07-14-runtime-engine-phase-2-fix-nodejs.md` |
 | Phase 3 | `2026-07-14-runtime-engine-phase-3-fix-python.md` |
-| Phase 4 | `2026-07-14-runtime-engine-phase-4-goja.md` |
+| Phase 4 | `2026-07-14-runtime-engine-phase-4-embedded-js.md` |
 | Phase 5 | `2026-07-14-runtime-engine-phase-5-yaegi.md` |
 | Phase 6A | `2026-07-14-runtime-engine-phase-6a-schema-compatibility.md` |
 | Phase 6B | `2026-07-14-runtime-engine-phase-6b-polymorphic-relations.md` |

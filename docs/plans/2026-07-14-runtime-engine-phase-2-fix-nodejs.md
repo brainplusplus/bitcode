@@ -3,7 +3,7 @@
 **Date**: 14 July 2026
 **Status**: Draft
 **Depends on**: Phase 1 (bridge API interfaces), Phase 1.5 (multi-tenancy)
-**Unlocks**: Phase 6 (engine enhancements), Phase 7 (module setting)
+**Unlocks**: Phase 6C (engine enhancements), Phase 7 (module setting)
 **Master doc**: `2026-07-14-runtime-engine-redesign-master.md`
 
 ---
@@ -99,7 +99,7 @@ Process step: { "type": "script", "runtime": "node", "script": "scripts/crawl.js
 ### 1.3 What This Phase Does NOT Do
 
 - Does not add goja or yaegi (Phase 4-5)
-- Does not change process engine or view system (Phase 6)
+- Does not change process engine or view system (Phase 6C)
 - Does not build module setting (Phase 7)
 
 ---

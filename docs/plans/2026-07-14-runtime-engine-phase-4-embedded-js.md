@@ -3,7 +3,7 @@
 **Date**: 14 July 2026
 **Status**: Draft
 **Depends on**: Phase 1 (bridge API interfaces)
-**Unlocks**: Phase 6 (engine enhancements), Phase 7 (module setting)
+**Unlocks**: Phase 6C (engine enhancements), Phase 7 (module setting)
 **Master doc**: `2026-07-14-runtime-engine-redesign-master.md`
 
 ---
