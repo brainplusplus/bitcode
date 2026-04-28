@@ -57,6 +57,7 @@ class BcSetupImpl {
   private _validators: Map<string, ValidatorFn> = new Map();
   private _systemThemeCleanup: (() => void) | null = null;
   private _reactivityListener: ((e: Event) => void) | null = null;
+  private _offlineModels: Set<string> = new Set();
 
   configure(partial: Partial<BcConfig>): void {
     if (partial.headers) {
@@ -222,6 +223,18 @@ class BcSetupImpl {
       this._systemThemeCleanup();
       this._systemThemeCleanup = null;
     }
+  }
+
+  registerOfflineModels(modelNames: string[]): void {
+    this._offlineModels = new Set(modelNames);
+  }
+
+  isModelOffline(modelName: string): boolean {
+    return this._offlineModels.has(modelName);
+  }
+
+  getOfflineModels(): string[] {
+    return Array.from(this._offlineModels);
   }
 }
 
