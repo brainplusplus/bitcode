@@ -58,6 +58,7 @@ type AppConfig struct {
 	Port            string
 	ModuleDir       string
 	GlobalModuleDir string
+	AppMode         string // "online" (default) | "offline" — project-level app mode
 }
 
 type SecurityConfig struct {
@@ -117,6 +118,10 @@ type App struct {
 }
 
 func NewApp(cfg AppConfig) (*App, error) {
+	if err := middleware.ValidateTenantConfig(cfg.Tenant); err != nil {
+		return nil, fmt.Errorf("tenant config error: %w", err)
+	}
+
 	driver := cfg.DB.Driver
 	if driver == "" {
 		driver = "sqlite"
@@ -1457,7 +1462,43 @@ func (a *App) LoadModules() error {
 
 	a.wireMultiProtocol()
 
+	if a.DB != nil {
+		a.initSyncInfrastructure()
+	}
+
 	return nil
+}
+
+func (a *App) initSyncInfrastructure() {
+	hasOfflineModule := a.Config.AppMode == "offline"
+
+	if !hasOfflineModule {
+		for _, m := range a.ModelRegistry.List() {
+			if m.OfflineModule {
+				hasOfflineModule = true
+				break
+			}
+		}
+	}
+
+	if !hasOfflineModule {
+		return
+	}
+
+	if err := persistence.CreateSyncInfrastructureTables(a.DB); err != nil {
+		log.Printf("[SYNC] warning: failed to create sync infrastructure tables: %v", err)
+	} else {
+		log.Println("[SYNC] sync infrastructure tables ready")
+	}
+
+	syncHandler := api.NewSyncHandler(a.DB)
+	syncGroup := a.Fiber.Group("/api/v1/sync")
+	syncGroup.Post("/register", syncHandler.RegisterDevice)
+	syncGroup.Post("/push", syncHandler.PushEnvelope)
+	syncGroup.Get("/pull", syncHandler.PullChanges)
+	syncGroup.Post("/auth/cache", syncHandler.CacheAuth)
+	syncGroup.Get("/status", syncHandler.DeviceStatus)
+	log.Println("[SYNC] sync API endpoints registered")
 }
 
 func (a *App) wireMultiProtocol() {
@@ -1552,7 +1593,7 @@ func (a *App) installModule(modPath string) error {
 				return fmt.Errorf("failed to migrate model %s: %w", m.Name, err)
 			}
 		} else {
-			if err := persistence.MigrateModel(a.DB, m, a.ModelRegistry); err != nil {
+			if err := persistence.MigrateModel(a.DB, m, a.ModelRegistry, a.Config.Tenant.Enabled); err != nil {
 				return fmt.Errorf("failed to migrate model %s: %w", m.Name, err)
 			}
 		}

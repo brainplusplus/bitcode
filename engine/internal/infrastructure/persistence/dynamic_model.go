@@ -31,9 +31,10 @@ type TableNameResolver interface {
 	TableName(modelName string) string
 }
 
-func MigrateModel(db *gorm.DB, model *parser.ModelDefinition, resolver TableNameResolver) error {
+func MigrateModel(db *gorm.DB, model *parser.ModelDefinition, resolver TableNameResolver, tenantEnabled ...bool) error {
 	dialect := DetectDialect(db)
-	columns := buildColumns(model, dialect)
+	isTenantEnabled := len(tenantEnabled) > 0 && tenantEnabled[0]
+	columns := buildColumns(model, dialect, isTenantEnabled)
 	tableName := model.Name
 	if resolver != nil {
 		tableName = resolver.TableName(model.Name)
@@ -44,6 +45,36 @@ func MigrateModel(db *gorm.DB, model *parser.ModelDefinition, resolver TableName
 		if err := db.Exec(sql).Error; err != nil {
 			return fmt.Errorf("failed to create table %s: %w", tableName, err)
 		}
+	} else if isTenantEnabled && model.IsTenantScoped() {
+		if !db.Migrator().HasColumn(&struct{}{}, "tenant_id") {
+			hasCol := false
+			switch dialect {
+			case DialectPostgres:
+				var count int64
+				db.Raw("SELECT COUNT(*) FROM information_schema.columns WHERE table_name=? AND column_name='tenant_id'", tableName).Scan(&count)
+				hasCol = count > 0
+			case DialectMySQL:
+				var count int64
+				db.Raw("SELECT COUNT(*) FROM information_schema.columns WHERE table_name=? AND column_name='tenant_id'", tableName).Scan(&count)
+				hasCol = count > 0
+			default:
+				var count int64
+				db.Raw("SELECT COUNT(*) FROM pragma_table_info(?) WHERE name='tenant_id'", tableName).Scan(&count)
+				hasCol = count > 0
+			}
+			if !hasCol {
+				var alterSQL string
+				switch dialect {
+				case DialectPostgres:
+					alterSQL = fmt.Sprintf("ALTER TABLE %s ADD COLUMN tenant_id VARCHAR(100) NOT NULL DEFAULT ''", tableName)
+				case DialectMySQL:
+					alterSQL = fmt.Sprintf("ALTER TABLE %s ADD COLUMN tenant_id VARCHAR(100) NOT NULL DEFAULT ''", tableName)
+				default:
+					alterSQL = fmt.Sprintf("ALTER TABLE %s ADD COLUMN tenant_id TEXT NOT NULL DEFAULT ''", tableName)
+				}
+				db.Exec(alterSQL)
+			}
+		}
 	}
 
 	for _, idx := range model.Indexes {
@@ -53,6 +84,12 @@ func MigrateModel(db *gorm.DB, model *parser.ModelDefinition, resolver TableName
 		if err := db.Exec(sql).Error; err != nil {
 			return fmt.Errorf("failed to create index %s: %w", idxName, err)
 		}
+	}
+
+	if isTenantEnabled && model.IsTenantScoped() {
+		idxName := fmt.Sprintf("idx_%s_tenant_id", model.Name)
+		sql := fmt.Sprintf("CREATE INDEX IF NOT EXISTS %s ON %s (tenant_id)", idxName, tableName)
+		db.Exec(sql)
 	}
 
 	for fieldName, field := range model.Fields {
@@ -66,7 +103,7 @@ func MigrateModel(db *gorm.DB, model *parser.ModelDefinition, resolver TableName
 	return nil
 }
 
-func buildColumns(model *parser.ModelDefinition, dialect DBDialect) string {
+func buildColumns(model *parser.ModelDefinition, dialect DBDialect, tenantEnabled ...bool) string {
 	var cols string
 	pkFieldName := ""
 	isCompositeNoSurrogate := false
@@ -169,6 +206,18 @@ func buildColumns(model *parser.ModelDefinition, dialect DBDialect) string {
 		}
 	}
 
+	isTenantEnabled := len(tenantEnabled) > 0 && tenantEnabled[0]
+	if isTenantEnabled && model.IsTenantScoped() {
+		switch dialect {
+		case DialectPostgres:
+			cols += ",\n  tenant_id VARCHAR(100) NOT NULL DEFAULT ''"
+		case DialectMySQL:
+			cols += ",\n  tenant_id VARCHAR(100) NOT NULL DEFAULT ''"
+		default:
+			cols += ",\n  tenant_id TEXT NOT NULL DEFAULT ''"
+		}
+	}
+
 	for name, field := range model.Fields {
 		sqlType := fieldTypeToSQL(field, dialect)
 		if sqlType == "" {
@@ -198,6 +247,11 @@ func buildColumns(model *parser.ModelDefinition, dialect DBDialect) string {
 
 	if model.PrimaryKey != nil && model.PrimaryKey.Strategy == parser.PKComposite && model.PrimaryKey.IsSurrogate() {
 		cols += fmt.Sprintf(",\n  UNIQUE (%s)", joinStrings(model.PrimaryKey.Fields, ", "))
+	}
+
+	if model.OfflineModule {
+		cols += OfflineColumns(dialect)
+		cols += OfflineUUIDColumn(model.PrimaryKey, dialect)
 	}
 
 	return cols

@@ -39,6 +39,13 @@ func (r *MongoRepository) SetModelDef(def *parser.ModelDefinition) {
 	r.modelDef = def
 }
 
+func (r *MongoRepository) isTenantScoped() bool {
+	if r.modelDef == nil {
+		return true
+	}
+	return r.modelDef.IsTenantScoped()
+}
+
 func (r *MongoRepository) SetModelName(name string) {
 	r.modelName = name
 }
@@ -81,7 +88,7 @@ func (r *MongoRepository) coll() *mongo.Collection {
 
 func (r *MongoRepository) FindByID(ctx context.Context, id string) (map[string]any, error) {
 	filter := bson.M{"_id": id}
-	if r.tenantID != "" {
+	if r.tenantID != "" && r.isTenantScoped() {
 		filter["tenant_id"] = r.tenantID
 	}
 
@@ -99,7 +106,7 @@ func (r *MongoRepository) FindByID(ctx context.Context, id string) (map[string]a
 
 func (r *MongoRepository) FindAll(ctx context.Context, query *Query, page, pageSize int) ([]map[string]any, int64, error) {
 	filter := r.buildNotDeletedFilter()
-	if r.tenantID != "" {
+	if r.tenantID != "" && r.isTenantScoped() {
 		filter["tenant_id"] = r.tenantID
 	}
 	applyMongoConditions(filter, query)
@@ -156,7 +163,7 @@ func (r *MongoRepository) FindAll(ctx context.Context, query *Query, page, pageS
 func (r *MongoRepository) FindActive(ctx context.Context, id string) (map[string]any, error) {
 	filter := r.buildActiveFilter()
 	filter["_id"] = id
-	if r.tenantID != "" {
+	if r.tenantID != "" && r.isTenantScoped() {
 		filter["tenant_id"] = r.tenantID
 	}
 
@@ -174,7 +181,7 @@ func (r *MongoRepository) FindActive(ctx context.Context, id string) (map[string
 
 func (r *MongoRepository) FindAllActive(ctx context.Context, query *Query, page, pageSize int) ([]map[string]any, int64, error) {
 	filter := r.buildActiveFilter()
-	if r.tenantID != "" {
+	if r.tenantID != "" && r.isTenantScoped() {
 		filter["tenant_id"] = r.tenantID
 	}
 	applyMongoConditions(filter, query)
@@ -230,7 +237,7 @@ func (r *MongoRepository) FindAllActive(ctx context.Context, query *Query, page,
 
 func (r *MongoRepository) CountActive(ctx context.Context, query *Query) (int64, error) {
 	filter := r.buildActiveFilter()
-	if r.tenantID != "" {
+	if r.tenantID != "" && r.isTenantScoped() {
 		filter["tenant_id"] = r.tenantID
 	}
 	applyMongoConditions(filter, query)
@@ -244,7 +251,7 @@ func (r *MongoRepository) CountActive(ctx context.Context, query *Query) (int64,
 
 func (r *MongoRepository) SumActive(ctx context.Context, field string, query *Query) (float64, error) {
 	matchFilter := r.buildActiveFilter()
-	if r.tenantID != "" {
+	if r.tenantID != "" && r.isTenantScoped() {
 		matchFilter["tenant_id"] = r.tenantID
 	}
 	applyMongoConditions(matchFilter, query)
@@ -282,7 +289,7 @@ func (r *MongoRepository) SumActive(ctx context.Context, field string, query *Qu
 }
 
 func (r *MongoRepository) Create(ctx context.Context, data map[string]any) (map[string]any, error) {
-	if r.tenantID != "" {
+	if r.tenantID != "" && r.isTenantScoped() {
 		data["tenant_id"] = r.tenantID
 	}
 
@@ -508,7 +515,7 @@ func (r *MongoRepository) Upsert(ctx context.Context, data map[string]any, uniqu
 
 func (r *MongoRepository) Count(ctx context.Context, query *Query) (int64, error) {
 	filter := r.buildNotDeletedFilter()
-	if r.tenantID != "" {
+	if r.tenantID != "" && r.isTenantScoped() {
 		filter["tenant_id"] = r.tenantID
 	}
 	applyMongoConditions(filter, query)
@@ -522,7 +529,7 @@ func (r *MongoRepository) Count(ctx context.Context, query *Query) (int64, error
 
 func (r *MongoRepository) Sum(ctx context.Context, field string, query *Query) (float64, error) {
 	matchFilter := r.buildNotDeletedFilter()
-	if r.tenantID != "" {
+	if r.tenantID != "" && r.isTenantScoped() {
 		matchFilter["tenant_id"] = r.tenantID
 	}
 	applyMongoConditions(matchFilter, query)
@@ -562,7 +569,7 @@ func (r *MongoRepository) Sum(ctx context.Context, field string, query *Query) (
 func (r *MongoRepository) BulkCreate(ctx context.Context, records []map[string]any) ([]map[string]any, error) {
 	docs := make([]any, len(records))
 	for i, rec := range records {
-		if r.tenantID != "" {
+		if r.tenantID != "" && r.isTenantScoped() {
 			rec["tenant_id"] = r.tenantID
 		}
 		if _, hasID := rec["id"]; hasID {
@@ -595,7 +602,7 @@ func (r *MongoRepository) BulkUpdate(ctx context.Context, ids []string, data map
 		return 0, nil
 	}
 	filter := bson.M{"_id": bson.M{"$in": ids}}
-	if r.tenantID != "" {
+	if r.tenantID != "" && r.isTenantScoped() {
 		filter["tenant_id"] = r.tenantID
 	}
 	update := bson.M{"$set": data}
@@ -611,7 +618,7 @@ func (r *MongoRepository) BulkDelete(ctx context.Context, ids []string) (int64, 
 		return 0, nil
 	}
 	filter := bson.M{"_id": bson.M{"$in": ids}}
-	if r.tenantID != "" {
+	if r.tenantID != "" && r.isTenantScoped() {
 		filter["tenant_id"] = r.tenantID
 	}
 	update := bson.M{"$set": bson.M{"active": false}}
@@ -627,7 +634,7 @@ func (r *MongoRepository) BulkHardDelete(ctx context.Context, ids []string) (int
 		return 0, nil
 	}
 	filter := bson.M{"_id": bson.M{"$in": ids}}
-	if r.tenantID != "" {
+	if r.tenantID != "" && r.isTenantScoped() {
 		filter["tenant_id"] = r.tenantID
 	}
 	result, err := r.coll().DeleteMany(ctx, filter)
@@ -643,7 +650,7 @@ func (r *MongoRepository) BulkUpsert(ctx context.Context, records []map[string]a
 	}
 	var models []mongo.WriteModel
 	for _, rec := range records {
-		if r.tenantID != "" {
+		if r.tenantID != "" && r.isTenantScoped() {
 			rec["tenant_id"] = r.tenantID
 		}
 		filter := bson.M{}
@@ -652,7 +659,7 @@ func (r *MongoRepository) BulkUpsert(ctx context.Context, records []map[string]a
 				filter[uf] = v
 			}
 		}
-		if r.tenantID != "" {
+		if r.tenantID != "" && r.isTenantScoped() {
 			filter["tenant_id"] = r.tenantID
 		}
 		model := mongo.NewUpdateOneModel().
@@ -789,7 +796,7 @@ func (r *MongoRepository) Max(ctx context.Context, field string, query *Query) (
 }
 
 func (r *MongoRepository) mongoAggregateSingle(ctx context.Context, op, field string, query *Query, baseFilter bson.M) (float64, error) {
-	if r.tenantID != "" {
+	if r.tenantID != "" && r.isTenantScoped() {
 		baseFilter["tenant_id"] = r.tenantID
 	}
 	applyMongoConditions(baseFilter, query)
@@ -828,7 +835,7 @@ func (r *MongoRepository) mongoAggregateSingle(ctx context.Context, op, field st
 
 func (r *MongoRepository) Pluck(ctx context.Context, field string, query *Query) ([]any, error) {
 	filter := r.buildNotDeletedFilter()
-	if r.tenantID != "" {
+	if r.tenantID != "" && r.isTenantScoped() {
 		filter["tenant_id"] = r.tenantID
 	}
 	applyMongoConditions(filter, query)
@@ -865,7 +872,7 @@ func (r *MongoRepository) Exists(ctx context.Context, query *Query) (bool, error
 
 func (r *MongoRepository) Aggregate(ctx context.Context, query *Query) ([]map[string]any, error) {
 	filter := r.buildNotDeletedFilter()
-	if r.tenantID != "" {
+	if r.tenantID != "" && r.isTenantScoped() {
 		filter["tenant_id"] = r.tenantID
 	}
 	applyMongoConditions(filter, query)
@@ -1001,7 +1008,7 @@ func (r *MongoRepository) RawExec(ctx context.Context, sql string, values ...any
 
 func (r *MongoRepository) FindAllWithTrashed(ctx context.Context, query *Query, page, pageSize int) ([]map[string]any, int64, error) {
 	filter := bson.M{}
-	if r.tenantID != "" {
+	if r.tenantID != "" && r.isTenantScoped() {
 		filter["tenant_id"] = r.tenantID
 	}
 	applyMongoConditions(filter, query)
@@ -1061,7 +1068,7 @@ func (r *MongoRepository) FindAllOnlyTrashed(ctx context.Context, query *Query, 
 	} else {
 		filter["active"] = false
 	}
-	if r.tenantID != "" {
+	if r.tenantID != "" && r.isTenantScoped() {
 		filter["tenant_id"] = r.tenantID
 	}
 	applyMongoConditions(filter, query)

@@ -493,6 +493,7 @@ type ModelDefinition struct {
 	TimestampsBy  *bool                      `json:"timestamps_by,omitempty"`
 	SoftDeletes   *bool                      `json:"soft_deletes,omitempty"`
 	SoftDeletesBy *bool                      `json:"soft_deletes_by,omitempty"`
+	TenantScoped  *bool                      `json:"tenant_scoped,omitempty"`
 
 	Events     *EventsDefinition `json:"events,omitempty"`
 	Validators []ModelValidator  `json:"validators,omitempty"`
@@ -501,7 +502,8 @@ type ModelDefinition struct {
 	APIRaw json.RawMessage `json:"api,omitempty"`
 	API    *APIConfig      `json:"-"`
 
-	ModulePath string `json:"-"`
+	ModulePath    string `json:"-"`
+	OfflineModule bool   `json:"-"`
 }
 
 func (m *ModelDefinition) IsVersion() bool {
@@ -537,6 +539,13 @@ func (m *ModelDefinition) IsSoftDeletesBy() bool {
 		return false
 	}
 	return *m.SoftDeletesBy
+}
+
+func (m *ModelDefinition) IsTenantScoped() bool {
+	if m.TenantScoped == nil {
+		return true
+	}
+	return *m.TenantScoped
 }
 
 func ParseModel(data []byte) (*ModelDefinition, error) {

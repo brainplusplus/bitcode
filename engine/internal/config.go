@@ -32,6 +32,8 @@ func LoadConfig(explicitPath string) (AppConfig, error) {
 	v.SetDefault("tenant.enabled", false)
 	v.SetDefault("tenant.strategy", "header")
 	v.SetDefault("tenant.header", "X-Tenant-ID")
+	v.SetDefault("tenant.isolation", "shared_table")
+	v.SetDefault("tenant.column", "tenant_id")
 	v.SetDefault("global_module_dir", "")
 
 	v.SetDefault("rate_limit.enabled", true)
@@ -111,6 +113,8 @@ func LoadConfig(explicitPath string) (AppConfig, error) {
 	v.BindEnv("tenant.enabled", "TENANT_ENABLED")
 	v.BindEnv("tenant.strategy", "TENANT_STRATEGY")
 	v.BindEnv("tenant.header", "TENANT_HEADER")
+	v.BindEnv("tenant.isolation", "TENANT_ISOLATION")
+	v.BindEnv("tenant.column", "TENANT_COLUMN")
 	v.BindEnv("global_module_dir", "GLOBAL_MODULE_DIR")
 
 	v.BindEnv("rate_limit.enabled", "RATE_LIMIT_ENABLED")
@@ -209,9 +213,11 @@ func LoadConfig(explicitPath string) (AppConfig, error) {
 			RedisURL: v.GetString("cache.redis_url"),
 		},
 		Tenant: middleware.TenantConfig{
-			Enabled:  v.GetBool("tenant.enabled"),
-			Strategy: v.GetString("tenant.strategy"),
-			Header:   v.GetString("tenant.header"),
+			Enabled:   v.GetBool("tenant.enabled"),
+			Strategy:  v.GetString("tenant.strategy"),
+			Header:    v.GetString("tenant.header"),
+			Isolation: v.GetString("tenant.isolation"),
+			Column:    v.GetString("tenant.column"),
 		},
 		RateLimit: middleware.RateLimitConfig{
 			Enabled:    v.GetBool("rate_limit.enabled"),

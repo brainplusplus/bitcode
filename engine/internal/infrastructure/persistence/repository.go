@@ -186,10 +186,17 @@ func (r *GenericRepository) decryptFields(record map[string]any) {
 }
 
 func (r *GenericRepository) applyTenant(query *gorm.DB) *gorm.DB {
-	if r.tenantID != "" {
+	if r.tenantID != "" && r.isTenantScoped() {
 		return query.Where("tenant_id = ?", r.tenantID)
 	}
 	return query
+}
+
+func (r *GenericRepository) isTenantScoped() bool {
+	if r.modelDef == nil {
+		return true
+	}
+	return r.modelDef.IsTenantScoped()
 }
 
 func (r *GenericRepository) applyNotDeleted(query *gorm.DB) *gorm.DB {
@@ -208,7 +215,7 @@ func (r *GenericRepository) applyActiveFilter(query *gorm.DB) *gorm.DB {
 }
 
 func (r *GenericRepository) Create(ctx context.Context, record map[string]any) (map[string]any, error) {
-	if r.tenantID != "" {
+	if r.tenantID != "" && r.isTenantScoped() {
 		record["tenant_id"] = r.tenantID
 	}
 
@@ -1163,7 +1170,7 @@ func (r *GenericRepository) SumActive(ctx context.Context, field string, query *
 
 func (r *GenericRepository) BulkCreate(ctx context.Context, records []map[string]any) ([]map[string]any, error) {
 	for i := range records {
-		if r.tenantID != "" {
+		if r.tenantID != "" && r.isTenantScoped() {
 			records[i]["tenant_id"] = r.tenantID
 		}
 		if r.modelDef != nil {
@@ -1279,7 +1286,7 @@ func (r *GenericRepository) BulkUpsert(ctx context.Context, records []map[string
 	}
 
 	for i := range records {
-		if r.tenantID != "" {
+		if r.tenantID != "" && r.isTenantScoped() {
 			records[i]["tenant_id"] = r.tenantID
 		}
 		if r.modelDef != nil && r.sanitizer != nil {
