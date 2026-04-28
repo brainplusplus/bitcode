@@ -1,0 +1,12 @@
+{
+  "name": "stdlib_math",
+  "steps": [
+    {"let": "clamped", "expr": "clamp(15, 10, 20)"},
+    {"let": "sign_pos", "expr": "sign(42)"},
+    {"let": "sign_neg", "expr": "sign(-5)"},
+    {"let": "power", "expr": "pow(2, 10)"},
+    {"let": "root", "expr": "sqrt(144)"},
+    {"let": "remainder", "expr": "mod(17, 5)"},
+    {"return": "{'clamped': clamped, 'sign_pos': sign_pos, 'sign_neg': sign_neg, 'power': power, 'root': root, 'remainder': remainder}"}
+  ]
+}

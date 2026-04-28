@@ -1,0 +1,10 @@
+{
+  "name": "stdlib_strings",
+  "steps": [
+    {"let": "padded", "expr": "padLeft('42', 5, '0')"},
+    {"let": "sub", "expr": "substring('Hello World', 0, 5)"},
+    {"let": "formatted", "expr": "format('Hello %s, you are %d', 'Alice', 30)"},
+    {"let": "matched", "expr": "matches('hello@example.com', '.*@.*\\\\.com')"},
+    {"return": "{'padded': padded, 'sub': sub, 'formatted': formatted, 'matched': matched}"}
+  ]
+}

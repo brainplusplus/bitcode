@@ -167,6 +167,19 @@ func (s *Scope) Name() string {
 	return s.name
 }
 
+// VarCount returns the total number of variables accessible (current + ancestors).
+func (s *Scope) VarCount() int {
+	count := 0
+	current := s
+	for current != nil {
+		current.mu.RLock()
+		count += len(current.vars)
+		current.mu.RUnlock()
+		current = current.parent
+	}
+	return count
+}
+
 // GetVarInfo returns the full VarInfo for a variable, searching up the chain.
 func (s *Scope) GetVarInfo(name string) (*VarInfo, bool) {
 	s.mu.RLock()

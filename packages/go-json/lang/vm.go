@@ -39,19 +39,30 @@ func WithTrace(enabled bool) VMOption {
 	}
 }
 
+func WithSession(session map[string]any) VMOption {
+	return func(vm *VM) { vm.session = session }
+}
+
+func WithExecutionID(id string) VMOption {
+	return func(vm *VM) { vm.executionID = id }
+}
+
 type VM struct {
-	program   *CompiledProgram
-	engine    ExprEngine
-	scope     *Scope
-	ctx       context.Context
-	cancel    context.CancelFunc
-	debugger  Debugger
-	logger    Logger
-	trace     *ExecutionTrace
-	stepCount int
-	depth     int
-	callStack []StackFrame
-	limits    ResolvedLimits
+	program     *CompiledProgram
+	engine      ExprEngine
+	scope       *Scope
+	ctx         context.Context
+	cancel      context.CancelFunc
+	debugger    Debugger
+	logger      Logger
+	trace       *ExecutionTrace
+	stepCount   int
+	depth       int
+	callStack   []StackFrame
+	limits      ResolvedLimits
+	session     map[string]any
+	executionID string
+	startTime   time.Time
 }
 
 type ExecutionResult struct {
@@ -86,6 +97,7 @@ func NewVM(program *CompiledProgram, engine ExprEngine, opts ...VMOption) *VM {
 
 func (vm *VM) Execute(input map[string]any) (*ExecutionResult, error) {
 	start := time.Now()
+	vm.startTime = start
 
 	if vm.cancel != nil {
 		defer vm.cancel()
@@ -93,12 +105,25 @@ func (vm *VM) Execute(input map[string]any) (*ExecutionResult, error) {
 
 	vm.scope = NewScope("main")
 
-	// Inject input.
 	if input != nil {
 		vm.scope.Declare("input", input, "map")
 	} else {
 		vm.scope.Declare("input", map[string]any{}, "map")
 	}
+
+	if vm.session != nil {
+		vm.scope.Declare("session", vm.session, "map")
+	} else {
+		vm.scope.Declare("session", map[string]any{}, "map")
+	}
+
+	vm.scope.Declare("execution", map[string]any{
+		"id":         vm.executionID,
+		"program":    vm.program.Name,
+		"started_at": start.Format(time.RFC3339),
+		"depth":      0,
+		"step_count": 0,
+	}, "map")
 
 	// Register functions in scope for expression-level calls.
 	for name, fn := range vm.program.Functions {
@@ -117,6 +142,10 @@ func (vm *VM) Execute(input map[string]any) (*ExecutionResult, error) {
 		value = rv.value
 	} else {
 		value = result
+	}
+
+	if err := vm.checkOutputSize(value, -1); err != nil {
+		return nil, err
 	}
 
 	er := &ExecutionResult{
@@ -173,13 +202,14 @@ func (vm *VM) executeSteps(steps []Node) (any, error) {
 			return nil, err
 		}
 
-		// Trace capture.
 		if vm.trace != nil {
-			vm.trace.AddStep(TraceEntry{
+			entry := TraceEntry{
 				Step:       step.Meta().StepIndex,
 				Type:       step.nodeType(),
 				DurationUs: time.Since(stepStart).Microseconds(),
-			})
+			}
+			vm.enrichTraceEntry(&entry, step, result)
+			vm.trace.AddStep(entry)
 		}
 
 		// Handle control flow signals.
@@ -217,6 +247,8 @@ func (vm *VM) executeStep(node Node) (any, error) {
 		return nil, vm.executeError(n)
 	case *LogNode:
 		return nil, vm.executeLog(n)
+	case *ParallelNode:
+		return vm.executeParallel(n)
 	case *BreakNode:
 		return breakSignal{}, nil
 	case *ContinueNode:
@@ -231,13 +263,35 @@ func (vm *VM) executeStep(node Node) (any, error) {
 func (vm *VM) executeLet(n *LetNode) error {
 	idx := n.StepIndex
 
-	// Call shorthand: {"let": "x", "call": "fn", "with": {...}}
+	if err := vm.checkShadowing(n.Name, idx); err != nil {
+		return err
+	}
+
 	if n.Call != "" {
-		result, err := vm.callFunction(n.Call, n.CallWith, idx)
+		var result any
+		var err error
+		if strings.Contains(n.Call, ".") {
+			parts := strings.SplitN(n.Call, ".", 2)
+			result, err = vm.callMethod(parts[0], parts[1], n.CallWith, idx)
+		} else {
+			result, err = vm.callFunction(n.Call, n.CallWith, idx)
+		}
 		if err != nil {
 			return err
 		}
 		typ := InferType(result)
+		if n.Type != "" {
+			typ = n.Type
+		}
+		return vm.scope.Declare(n.Name, result, typ)
+	}
+
+	if n.New != "" {
+		result, err := vm.executeNew(n.New, n.NewWith, idx)
+		if err != nil {
+			return err
+		}
+		typ := n.New
 		if n.Type != "" {
 			typ = n.Type
 		}
@@ -270,6 +324,13 @@ func (vm *VM) executeLet(n *LetNode) error {
 		if gjErr, ok := err.(*GoJSONError); ok {
 			gjErr.Step = idx
 		}
+		return err
+	}
+
+	if err := vm.checkVariableCount(idx); err != nil {
+		return err
+	}
+	if err := vm.checkVariableSize(n.Name, value, idx); err != nil {
 		return err
 	}
 
@@ -511,6 +572,11 @@ func (vm *VM) executeReturn(n *ReturnNode) (any, error) {
 }
 
 func (vm *VM) executeCall(n *CallNode) error {
+	if strings.Contains(n.Function, ".") {
+		parts := strings.SplitN(n.Function, ".", 2)
+		_, err := vm.callMethod(parts[0], parts[1], n.With, n.StepIndex)
+		return err
+	}
 	_, err := vm.callFunction(n.Function, n.With, n.StepIndex)
 	return err
 }
@@ -807,10 +873,362 @@ func (vm *VM) wrapFunction(fn *CompiledFunc) func(...any) (any, error) {
 	}
 }
 
+// --- Parallel execution ---
+
+func (vm *VM) executeParallel(n *ParallelNode) (any, error) {
+	if len(n.Branches) == 0 {
+		if n.Into != "" {
+			vm.scope.Declare(n.Into, map[string]any{}, "map")
+		}
+		return nil, nil
+	}
+
+	join := n.Join
+	if join == "" {
+		join = "all"
+	}
+	onError := n.OnError
+	if onError == "" {
+		onError = "cancel_all"
+	}
+
+	type branchResult struct {
+		name  string
+		value any
+		err   error
+	}
+
+	ctx, cancel := context.WithCancel(vm.ctx)
+	defer cancel()
+
+	resultCh := make(chan branchResult, len(n.Branches))
+
+	parentEnv := vm.scope.ToMap()
+
+	for branchName, steps := range n.Branches {
+		bName := branchName
+		bSteps := steps
+		go func() {
+			defer func() {
+				if r := recover(); r != nil {
+					resultCh <- branchResult{name: bName, err: RuntimeError("PANIC", fmt.Sprintf("%v", r), n.StepIndex)}
+				}
+			}()
+
+			branchVM := &VM{
+				program:  vm.program,
+				engine:   vm.engine,
+				ctx:      ctx,
+				debugger: vm.debugger,
+				logger:   vm.logger,
+				limits:   vm.limits,
+			}
+
+			branchScope := NewScope("parallel:" + bName)
+			for k, v := range parentEnv {
+				branchScope.Declare(k, v, InferType(v))
+			}
+			branchVM.scope = branchScope
+
+			result, err := branchVM.executeSteps(bSteps)
+			if err != nil {
+				resultCh <- branchResult{name: bName, err: err}
+				return
+			}
+
+			var val any
+			if rv, ok := result.(returnValue); ok {
+				val = rv.value
+			}
+			resultCh <- branchResult{name: bName, value: val}
+		}()
+	}
+
+	results := make(map[string]any)
+	var firstErr error
+
+	for i := 0; i < len(n.Branches); i++ {
+		br := <-resultCh
+		if br.err != nil {
+			switch onError {
+			case "cancel_all":
+				cancel()
+				if n.Into != "" {
+					results[br.name] = nil
+					vm.scope.Declare(n.Into, results, "map")
+				}
+				return nil, br.err
+			case "continue":
+				results[br.name] = nil
+			case "collect":
+				results[br.name] = map[string]any{
+					"error":   true,
+					"message": br.err.Error(),
+				}
+			}
+			if firstErr == nil {
+				firstErr = br.err
+			}
+		} else {
+			results[br.name] = br.value
+		}
+	}
+
+	if n.Into != "" {
+		if vm.scope.Has(n.Into) {
+			vm.scope.Set(n.Into, results, "map")
+		} else {
+			vm.scope.Declare(n.Into, results, "map")
+		}
+	}
+
+	return nil, nil
+}
+
+// --- Struct construction ---
+
+func (vm *VM) executeNew(structName string, withExprs map[string]string, stepIndex int) (map[string]any, error) {
+	cs, ok := vm.program.Structs[structName]
+	if !ok {
+		structNames := make([]string, 0, len(vm.program.Structs))
+		for n := range vm.program.Structs {
+			structNames = append(structNames, n)
+		}
+		gjErr := RuntimeError("STRUCT_NOT_FOUND",
+			fmt.Sprintf("struct '%s' not defined", structName), stepIndex)
+		if suggestions := SuggestSimilar(structName, structNames, 3, 3); len(suggestions) > 0 {
+			gjErr.WithSuggestions(suggestions...)
+		}
+		return nil, gjErr
+	}
+
+	instance := map[string]any{
+		"_type": structName,
+	}
+
+	for fieldName, fd := range cs.Fields {
+		if withExprs != nil {
+			if expr, ok := withExprs[fieldName]; ok {
+				val, err := vm.evalExpr(expr, stepIndex)
+				if err != nil {
+					return nil, err
+				}
+				instance[fieldName] = val
+				continue
+			}
+		}
+		if fd.HasDefault {
+			switch def := fd.Default.(type) {
+			case string:
+				val, err := vm.evalExpr(def, stepIndex)
+				if err != nil {
+					return nil, err
+				}
+				instance[fieldName] = val
+			default:
+				instance[fieldName] = fd.Default
+			}
+			continue
+		}
+		if IsNullable(fd.Type) {
+			instance[fieldName] = nil
+			continue
+		}
+		return nil, RuntimeError("MISSING_FIELD",
+			fmt.Sprintf("struct '%s' requires field '%s' (type %s)", structName, fieldName, fd.Type),
+			stepIndex)
+	}
+
+	return instance, nil
+}
+
+// --- Method invocation ---
+
+func (vm *VM) callMethod(objectName, methodName string, withExprs map[string]string, stepIndex int) (any, error) {
+	objVal, _, found := vm.scope.Get(objectName)
+	if !found {
+		return nil, RuntimeError("VAR_NOT_FOUND",
+			fmt.Sprintf("variable '%s' not defined", objectName), stepIndex)
+	}
+
+	obj, ok := objVal.(map[string]any)
+	if !ok {
+		return nil, RuntimeError("NOT_STRUCT",
+			fmt.Sprintf("cannot call method on %T — expected struct", objVal), stepIndex)
+	}
+
+	typeName, _ := obj["_type"].(string)
+	if typeName == "" {
+		return nil, RuntimeError("NOT_STRUCT",
+			fmt.Sprintf("cannot call method — object has no _type metadata"), stepIndex)
+	}
+
+	cs, ok := vm.program.Structs[typeName]
+	if !ok {
+		return nil, RuntimeError("STRUCT_NOT_FOUND",
+			fmt.Sprintf("struct type '%s' not defined", typeName), stepIndex)
+	}
+
+	if cs.Methods == nil {
+		return nil, RuntimeError("METHOD_NOT_FOUND",
+			fmt.Sprintf("struct '%s' has no methods", typeName), stepIndex)
+	}
+
+	cm, ok := cs.Methods[methodName]
+	if !ok {
+		methodNames := make([]string, 0, len(cs.Methods))
+		for n := range cs.Methods {
+			methodNames = append(methodNames, n)
+		}
+		gjErr := RuntimeError("METHOD_NOT_FOUND",
+			fmt.Sprintf("method '%s' not defined on struct '%s'", methodName, typeName), stepIndex)
+		if suggestions := SuggestSimilar(methodName, methodNames, 3, 3); len(suggestions) > 0 {
+			gjErr.WithSuggestions(suggestions...)
+		}
+		return nil, gjErr
+	}
+
+	vm.depth++
+	defer func() { vm.depth-- }()
+
+	if vm.depth > vm.limits.MaxDepth {
+		return nil, LimitError("DEPTH_LIMIT",
+			fmt.Sprintf("call depth limit (%d) exceeded at method '%s.%s'", vm.limits.MaxDepth, typeName, methodName),
+			stepIndex)
+	}
+
+	vm.callStack = append(vm.callStack, StackFrame{Function: typeName + "." + methodName, Step: stepIndex})
+	defer func() { vm.callStack = vm.callStack[:len(vm.callStack)-1] }()
+
+	methodScope := vm.scope.IsolatedChild("method:" + typeName + "." + methodName)
+	methodScope.Declare("self", obj, typeName)
+
+	for _, param := range cm.Params {
+		if withExprs != nil {
+			if expr, ok := withExprs[param.Name]; ok {
+				val, err := vm.evalExpr(expr, stepIndex)
+				if err != nil {
+					return nil, err
+				}
+				methodScope.Declare(param.Name, val, param.Type)
+				continue
+			}
+		}
+		if param.HasDefault {
+			methodScope.Declare(param.Name, param.Default, param.Type)
+		} else {
+			methodScope.Declare(param.Name, nil, param.Type)
+		}
+	}
+
+	for fname, ffn := range vm.program.Functions {
+		wrapped := vm.wrapFunction(ffn)
+		methodScope.Declare(fname, wrapped, "func")
+	}
+
+	result, err := vm.withScope(methodScope, func() (any, error) {
+		return vm.executeSteps(cm.Steps)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// Write back self mutations to the original object.
+	selfVal, _, _ := methodScope.Get("self")
+	if selfMap, ok := selfVal.(map[string]any); ok {
+		for k, v := range selfMap {
+			obj[k] = v
+		}
+	}
+
+	if rv, ok := result.(returnValue); ok {
+		return rv.value, nil
+	}
+	return nil, nil
+}
+
+// wrapMethod wraps a CompiledMethod as a Go func for expr-lang expression-level calls.
+func (vm *VM) wrapMethod(obj map[string]any, typeName string, cm *CompiledMethod) func(...any) (any, error) {
+	return func(args ...any) (any, error) {
+		methodScope := vm.scope.IsolatedChild("method:" + typeName + "." + cm.Name)
+		methodScope.Declare("self", obj, typeName)
+
+		for i, param := range cm.Params {
+			if i < len(args) {
+				methodScope.Declare(param.Name, args[i], param.Type)
+			} else if param.HasDefault {
+				methodScope.Declare(param.Name, param.Default, param.Type)
+			} else {
+				methodScope.Declare(param.Name, nil, param.Type)
+			}
+		}
+
+		for fname, ffn := range vm.program.Functions {
+			wrapped := vm.wrapFunction(ffn)
+			methodScope.Declare(fname, wrapped, "func")
+		}
+
+		vm.depth++
+		defer func() { vm.depth-- }()
+
+		if vm.depth > vm.limits.MaxDepth {
+			return nil, LimitError("DEPTH_LIMIT",
+				fmt.Sprintf("call depth limit (%d) exceeded at method '%s.%s'", vm.limits.MaxDepth, typeName, cm.Name), -1)
+		}
+
+		vm.callStack = append(vm.callStack, StackFrame{Function: typeName + "." + cm.Name, Step: -1})
+		defer func() { vm.callStack = vm.callStack[:len(vm.callStack)-1] }()
+
+		result, err := vm.withScope(methodScope, func() (any, error) {
+			return vm.executeSteps(cm.Steps)
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		selfVal, _, _ := methodScope.Get("self")
+		if selfMap, ok := selfVal.(map[string]any); ok {
+			for k, v := range selfMap {
+				obj[k] = v
+			}
+		}
+
+		if rv, ok := result.(returnValue); ok {
+			return rv.value, nil
+		}
+		return nil, nil
+	}
+}
+
 // --- Expression evaluation ---
 
 func (vm *VM) evalExpr(expression string, stepIndex int) (any, error) {
 	env := vm.scope.ToMap()
+
+	// Inject method wrappers for struct instances so person.greet() works in expressions.
+	for varName, val := range env {
+		obj, ok := val.(map[string]any)
+		if !ok {
+			continue
+		}
+		typeName, _ := obj["_type"].(string)
+		if typeName == "" {
+			continue
+		}
+		cs, ok := vm.program.Structs[typeName]
+		if !ok || cs.Methods == nil {
+			continue
+		}
+		enriched := make(map[string]any, len(obj)+len(cs.Methods))
+		for k, v := range obj {
+			enriched[k] = v
+		}
+		for mName, cm := range cs.Methods {
+			enriched[mName] = vm.wrapMethod(obj, typeName, cm)
+		}
+		env[varName] = enriched
+	}
+
 	result, err := vm.engine.Eval(expression, env)
 	if err != nil {
 		if gjErr, ok := err.(*GoJSONError); ok {
@@ -1042,6 +1460,130 @@ func (vm *VM) normalizeError(err error, stepIndex int) map[string]any {
 	}
 
 	return result
+}
+
+func (vm *VM) enrichTraceEntry(entry *TraceEntry, node Node, result any) {
+	switch n := node.(type) {
+	case *LetNode:
+		entry.Var = n.Name
+		if val, _, ok := vm.scope.Get(n.Name); ok {
+			entry.Value = val
+		}
+	case *SetNode:
+		entry.Var = n.Target
+		if val, _, ok := vm.scope.Get(n.Target); ok {
+			entry.Value = val
+		}
+	case *IfNode:
+		entry.Condition = n.Condition
+		if result != nil {
+			entry.Result = true
+		}
+	case *WhileNode:
+		entry.Condition = n.Condition
+	case *ForNode:
+		entry.Var = n.Variable
+	case *ReturnNode:
+		if rv, ok := result.(returnValue); ok {
+			entry.Value = rv.value
+		}
+	case *SwitchNode:
+		entry.Condition = n.Expr
+	}
+}
+
+// --- Built-in name protection ---
+
+// Reserved names that cannot be used as variable names.
+// Only includes names where shadowing would cause real confusion:
+// - implicit scope variables (input, session, execution)
+// - commonly-called utility functions where shadowing breaks expressions
+// Excludes common-word functions (count, filter, map, sort, etc.) that are
+// also natural variable names — expr-lang handles these via method syntax.
+var builtinNames = map[string]bool{
+	"input": true, "session": true, "execution": true,
+	"len": true, "abs": true, "ceil": true, "floor": true, "round": true,
+	"min": true, "max": true, "sum": true,
+	"upper": true, "lower": true, "trim": true, "split": true, "join": true,
+	"replace": true, "contains": true, "hasPrefix": true, "hasSuffix": true,
+	"int": true, "float": true, "string": true, "type": true,
+	"toJSON": true, "fromJSON": true, "toBase64": true, "fromBase64": true,
+	"now": true, "date": true, "duration": true,
+	"clamp": true, "randomInt": true, "randomFloat": true,
+	"pow": true, "sqrt": true, "mod": true,
+	"padLeft": true, "padRight": true, "substring": true, "format": true,
+	"append": true, "prepend": true, "slice": true, "chunk": true, "zip": true,
+	"isNil": true,
+}
+
+func (vm *VM) checkShadowing(name string, stepIndex int) error {
+	if builtinNames[name] {
+		return CompileError("SHADOWS_BUILTIN",
+			fmt.Sprintf("variable '%s' shadows built-in function", name), stepIndex).
+			WithFix("use a different variable name to avoid shadowing built-in '" + name + "'")
+	}
+	return nil
+}
+
+// --- Limit enforcement ---
+
+func (vm *VM) checkVariableCount(stepIndex int) error {
+	count := vm.scope.VarCount()
+	if count > vm.limits.MaxVariables {
+		return LimitError("VARIABLE_LIMIT",
+			fmt.Sprintf("variable limit (%d) exceeded", vm.limits.MaxVariables), stepIndex)
+	}
+	return nil
+}
+
+func (vm *VM) checkVariableSize(name string, value any, stepIndex int) error {
+	size := estimateSize(value)
+	if size > vm.limits.MaxVariableSize {
+		return LimitError("VARIABLE_SIZE_LIMIT",
+			fmt.Sprintf("variable '%s' exceeds size limit (%d bytes, max %d)", name, size, vm.limits.MaxVariableSize), stepIndex)
+	}
+	return nil
+}
+
+func (vm *VM) checkOutputSize(value any, stepIndex int) error {
+	size := estimateSize(value)
+	if size > vm.limits.MaxOutputSize {
+		return LimitError("OUTPUT_SIZE_LIMIT",
+			fmt.Sprintf("program output exceeds size limit (%d bytes, max %d)", size, vm.limits.MaxOutputSize), stepIndex)
+	}
+	return nil
+}
+
+func estimateSize(v any) int {
+	if v == nil {
+		return 0
+	}
+	switch val := v.(type) {
+	case bool:
+		return 1
+	case int:
+		return 8
+	case int64:
+		return 8
+	case float64:
+		return 8
+	case string:
+		return len(val)
+	case []any:
+		total := 24
+		for _, item := range val {
+			total += estimateSize(item)
+		}
+		return total
+	case map[string]any:
+		total := 24
+		for k, item := range val {
+			total += len(k) + estimateSize(item)
+		}
+		return total
+	default:
+		return 64
+	}
 }
 
 // --- Helpers ---

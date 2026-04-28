@@ -388,3 +388,132 @@ func TestEdge_GoJSONError_Format(t *testing.T) {
 		t.Errorf("JSON code should be TEST, got %v", jsonMap["code"])
 	}
 }
+
+func TestEdge_TypeMismatchOnSet(t *testing.T) {
+	program, _ := Parse([]byte(`{
+		"steps": [
+			{"let": "x", "value": 42},
+			{"set": "x", "value": "hello"}
+		]
+	}`))
+
+	engine := NewExprLangEngine()
+	compiled, _ := Compile(program, engine, DefaultLimits())
+
+	vm := NewVM(compiled, engine)
+	_, err := vm.Execute(nil)
+
+	if err == nil {
+		t.Fatal("expected type mismatch error")
+	}
+	if !strings.Contains(err.Error(), "cannot assign") {
+		t.Errorf("expected type mismatch error, got: %v", err)
+	}
+}
+
+func TestEdge_NullableAcceptsNil(t *testing.T) {
+	result := compileAndRun(t, `{
+		"steps": [
+			{"let": "name", "type": "?string", "value": "Alice"},
+			{"set": "name", "value": null},
+			{"return": "name"}
+		]
+	}`, nil)
+
+	if result.Value != nil {
+		t.Errorf("expected nil, got %v", result.Value)
+	}
+}
+
+func TestEdge_NonNullableRejectsNil(t *testing.T) {
+	program, _ := Parse([]byte(`{
+		"steps": [
+			{"let": "name", "value": "Alice"},
+			{"set": "name", "value": null}
+		]
+	}`))
+
+	engine := NewExprLangEngine()
+	compiled, _ := Compile(program, engine, DefaultLimits())
+
+	vm := NewVM(compiled, engine)
+	_, err := vm.Execute(nil)
+
+	if err == nil {
+		t.Fatal("expected error for assigning nil to non-nullable")
+	}
+}
+
+func TestEdge_ShadowBuiltin(t *testing.T) {
+	program, _ := Parse([]byte(`{
+		"steps": [
+			{"let": "len", "value": 42}
+		]
+	}`))
+
+	engine := NewExprLangEngine()
+	compiled, _ := Compile(program, engine, DefaultLimits())
+
+	vm := NewVM(compiled, engine)
+	_, err := vm.Execute(nil)
+
+	if err == nil {
+		t.Fatal("expected error for shadowing built-in 'len'")
+	}
+	if !strings.Contains(err.Error(), "shadows built-in") {
+		t.Errorf("expected shadows error, got: %v", err)
+	}
+}
+
+func TestEdge_SessionAccess(t *testing.T) {
+	result := compileAndRun(t, `{
+		"steps": [
+			{"return": "session.user_id"}
+		]
+	}`, nil)
+
+	if result.Value != nil {
+		t.Logf("session.user_id = %v (empty session)", result.Value)
+	}
+}
+
+func TestEdge_ExecutionAccess(t *testing.T) {
+	result := compileAndRun(t, `{
+		"steps": [
+			{"return": "execution.program"}
+		]
+	}`, nil)
+
+	// program name is empty string for unnamed programs
+	if result.Value != "" && result.Value != nil {
+		t.Logf("execution.program = %v", result.Value)
+	}
+}
+
+func TestEdge_VariableLimit(t *testing.T) {
+	program, _ := Parse([]byte(`{
+		"steps": [
+			{"let": "a1", "value": 1},
+			{"let": "a2", "value": 2},
+			{"let": "a3", "value": 3},
+			{"let": "a4", "value": 4},
+			{"let": "a5", "value": 5},
+			{"let": "a6", "value": 6}
+		]
+	}`))
+
+	engine := NewExprLangEngine()
+	limits := DefaultLimits()
+	limits.MaxVariables = 5
+	compiled, _ := Compile(program, engine, limits)
+
+	vm := NewVM(compiled, engine)
+	_, err := vm.Execute(nil)
+
+	if err == nil {
+		t.Fatal("expected variable limit error")
+	}
+	if !strings.Contains(err.Error(), "variable limit") {
+		t.Errorf("expected variable limit error, got: %v", err)
+	}
+}

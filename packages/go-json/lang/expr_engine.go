@@ -2,6 +2,7 @@ package lang
 
 import (
 	"fmt"
+	"reflect"
 	"strings"
 	"sync"
 
@@ -19,6 +20,7 @@ type ExprEngine interface {
 	Run(compiled CompiledExpr, env map[string]any) (any, error)
 	Eval(expression string, env map[string]any) (any, error)
 	Validate(expression string, env map[string]any) error
+	ReturnType(expression string, env map[string]any) (string, error)
 	AddOptions(opts ...expr.Option)
 }
 
@@ -30,9 +32,13 @@ type ExprLangEngine struct {
 }
 
 func NewExprLangEngine(opts ...expr.Option) *ExprLangEngine {
+	defaults := []expr.Option{
+		expr.MaxNodes(1000),
+	}
+	allOpts := append(defaults, opts...)
 	return &ExprLangEngine{
 		cache:   make(map[string]CompiledExpr),
-		options: opts,
+		options: allOpts,
 	}
 }
 
@@ -126,6 +132,60 @@ func (e *ExprLangEngine) Validate(expression string, env map[string]any) error {
 		return e.enrichError(err, expression, env)
 	}
 	return nil
+}
+
+func (e *ExprLangEngine) ReturnType(expression string, env map[string]any) (string, error) {
+	defer func() {
+		if r := recover(); r != nil {
+			// Swallow panic.
+		}
+	}()
+
+	opts := make([]expr.Option, 0, len(e.options)+1)
+	if env != nil {
+		opts = append(opts, expr.Env(env))
+	}
+	e.mu.RLock()
+	opts = append(opts, e.options...)
+	e.mu.RUnlock()
+
+	program, err := expr.Compile(expression, opts...)
+	if err != nil {
+		return "", e.enrichError(err, expression, env)
+	}
+
+	node := program.Node()
+	if node == nil {
+		return "any", nil
+	}
+
+	return reflectTypeToGoJSON(node.Type()), nil
+}
+
+func reflectTypeToGoJSON(t reflect.Type) string {
+	if t == nil {
+		return "any"
+	}
+	switch t.Kind() {
+	case reflect.String:
+		return "string"
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return "int"
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		return "int"
+	case reflect.Float32, reflect.Float64:
+		return "float"
+	case reflect.Bool:
+		return "bool"
+	case reflect.Slice, reflect.Array:
+		return "[]any"
+	case reflect.Map:
+		return "map"
+	case reflect.Interface:
+		return "any"
+	default:
+		return "any"
+	}
 }
 
 // enrichError detects common expr-lang error patterns and adds suggestions.

@@ -1,0 +1,14 @@
+{
+  "name": "types_test",
+  "steps": [
+    {"let": "x", "value": 42},
+    {"let": "name", "value": "Alice"},
+    {"let": "active", "value": true},
+    {"let": "nullable_name", "type": "?string", "value": "Bob"},
+    {"set": "nullable_name", "value": null},
+    {"let": "dynamic", "type": "any", "value": 42},
+    {"set": "dynamic", "value": "now a string"},
+    {"set": "dynamic", "value": true},
+    {"return": "{'x': x, 'name': name, 'active': active, 'nullable': nullable_name, 'dynamic': dynamic}"}
+  ]
+}

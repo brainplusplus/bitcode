@@ -1,0 +1,30 @@
+{
+  "name": "recursion",
+  "functions": {
+    "factorial": {
+      "params": {"n": "int"},
+      "returns": "int",
+      "steps": [
+        {"if": "n <= 1", "then": [{"return": 1}]},
+        {"let": "sub", "call": "factorial", "with": {"n": "n - 1"}},
+        {"return": "n * sub"}
+      ]
+    },
+    "fibonacci": {
+      "params": {"n": "int"},
+      "returns": "int",
+      "steps": [
+        {"if": "n <= 0", "then": [{"return": 0}]},
+        {"if": "n == 1", "then": [{"return": 1}]},
+        {"let": "a", "call": "fibonacci", "with": {"n": "n - 1"}},
+        {"let": "b", "call": "fibonacci", "with": {"n": "n - 2"}},
+        {"return": "a + b"}
+      ]
+    }
+  },
+  "steps": [
+    {"let": "fact5", "call": "factorial", "with": {"n": "5"}},
+    {"let": "fib7", "call": "fibonacci", "with": {"n": "7"}},
+    {"return": "{'factorial_5': fact5, 'fibonacci_7': fib7}"}
+  ]
+}

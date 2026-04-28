@@ -1,0 +1,19 @@
+{
+  "name": "limits_test",
+  "limits": {
+    "max_depth": 50,
+    "max_steps": 500,
+    "max_loop_iterations": 100,
+    "timeout": "5s"
+  },
+  "steps": [
+    {"let": "counter", "value": 0},
+    {
+      "while": "counter < 50",
+      "steps": [
+        {"set": "counter", "expr": "counter + 1"}
+      ]
+    },
+    {"return": "counter"}
+  ]
+}

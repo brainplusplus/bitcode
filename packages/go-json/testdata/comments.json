@@ -1,0 +1,9 @@
+{
+  "name": "comments_test",
+  "steps": [
+    {"_c": "Standalone comment — not executed"},
+    {"_c": "Initialize counter", "let": "x", "value": 42},
+    {"_c": ["Multi-line comment", "Line 2: business rule", "Line 3: JIRA-123"]},
+    {"return": "x"}
+  ]
+}

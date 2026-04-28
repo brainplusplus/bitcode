@@ -1,0 +1,12 @@
+{
+  "name": "stdlib_arrays",
+  "steps": [
+    {"let": "arr", "value": [1, 2, 3]},
+    {"let": "appended", "expr": "append(arr, 4)"},
+    {"let": "prepended", "expr": "prepend(arr, 0)"},
+    {"let": "sliced", "expr": "slice(arr, 1, 3)"},
+    {"let": "chunked", "expr": "chunk([1,2,3,4,5], 2)"},
+    {"let": "zipped", "expr": "zip([1,2,3], ['a','b','c'])"},
+    {"return": "{'appended': appended, 'prepended': prepended, 'sliced': sliced}"}
+  ]
+}

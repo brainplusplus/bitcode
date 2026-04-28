@@ -1,0 +1,21 @@
+{
+  // Variable declaration and mutation test
+  "name": "variables_jsonc",
+  "go_json": "1",
+  "steps": [
+    {"_c": "Literal values", "let": "name", "value": "Alice"},
+    {"let": "age", "value": 30},
+    // Expression mode
+    {"let": "greeting", "expr": "'Hello ' + name"},
+    {"let": "next_age", "expr": "age + 1"},
+    // Computed object mode
+    {"let": "profile", "with": {
+      "name": "name",
+      "age": "age",
+      "is_adult": "age >= 18",
+    }},
+    // Mutation
+    {"set": "age", "value": 31},
+    {"return": "profile"},
+  ]
+}
